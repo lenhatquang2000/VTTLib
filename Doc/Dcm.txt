@@ -1,0 +1,111 @@
+NHáº¬T KÃ PHÃT TRIá»‚N Há»† THá»NG VTTLib
+=====================================
+NgÃ y báº¯t Ä‘áº§u: 13/01/2026
+
+1. Há»† THá»NG XÃC THá»°C (AUTHENTICATION)
+-------------------------------------
+- Route Ä‘Äƒng nháº­p bÃ­ máº­t: `/topsecret/login` (TÃªn route: `login`).
+- Controller: `SecretLoginController` xá»­ lÃ½ Login/Logout.
+- Giao diá»‡n: Thiáº¿t káº¿ phong cÃ¡ch "Secret System" (Dark mode, Glassmorphism, JetBrains Mono font).
+- TÃ i khoáº£n quáº£n trá»‹ máº·c Ä‘á»‹nh (Seeder): 
+    + Email: agent@vttlib.com
+    + Pass: password
+
+2. CÆ  Sá» Dá»® LIá»†U & Cáº¤U HÃŒNH (DATABASE)
+--------------------------------------
+- Chuyá»ƒn Ä‘á»•i káº¿t ná»‘i tá»« SQLite sang MySQL (Database: vttulib).
+- Thá»±c hiá»‡n Database Seeding cho User vÃ  cÃ¡c báº£ng Metadata.
+
+3. QUáº¢N LÃ METADATA BIÃŠN Má»¤C (DYNAMIC METADATA)
+-----------------------------------------------
+MÃ´ hÃ¬nh database linh hoáº¡t cho phÃ©p thÃªm metadata khÃ´ng giá»›i háº¡n:
+- Báº£ng `metadata`: Äá»‹nh nghÄ©a tÃªn biá»ƒu ghi (Code, Name, Description).
+- Báº£ng `metadata_values`: LÆ°u cÃ¡c má»¥c con (giÃ¡ trá»‹) cá»§a tá»«ng metadata.
+- Báº£ng `books`: LÆ°u thÃ´ng tin sÃ¡ch cÆ¡ báº£n.
+- Báº£ng `book_metadata_value`: LiÃªn káº¿t Many-to-Many giá»¯a SÃ¡ch vÃ  Metadata.
+
+Chá»©c nÄƒng Ä‘Ã£ hoÃ n thÃ nh:
+- Controller: `Admin/MetadataController`.
+- Giao diá»‡n Admin: Quáº£n lÃ½ thÃªm/xÃ³a Metadata vÃ  Metadata Values trá»±c quan.
+- Sidebar: ÄÃ£ tÃ­ch há»£p menu Metadata vÃ o báº£ng Ä‘iá»u khiá»ƒn Admin.
+
+4. GIAO DIá»†N (UI/UX)
+--------------------
+- Header: Tá»± Ä‘á»™ng hiá»ƒn thá»‹ "Hi, [Name]" vÃ  nÃºt Logout khi Ä‘Ã£ Ä‘Äƒng nháº­p.
+- Admin Layout: Dashboard chuyÃªn nghiá»‡p vá»›i sidebar vÃ  thÃ´ng tin User Ä‘á»™ng.
+
+5. ĞA NGÔN NG? (LOCALIZATION)
+---------------------------
+- H? th?ng h? tr? chuy?n d?i Ti?ng Vi?t (VI) và Ti?ng Anh (EN).
+- Middleware: SetLocale t? d?ng nh?n di?n ngôn ng? t? Session.
+- Controller: LanguageController x? lı vi?c luu ngôn ng? ngu?i dùng ch?n.
+- Giao di?n: Ğã tích h?p nút VI/EN trên c? layout Client và Admin.
+- D?ch thu?t: Qu?n lı qua các file lang/vi.json và lang/en.json.
+- S? d?ng hàm __() trong Blade d? hi?n th? n?i dung theo ngôn ng? dã ch?n.
+
+6. H? TH?NG LOGIN KÉP (DUAL LOGIN SYSTEM)
+----------------------------------------
+- Client Login: /login (Tên route: login). Sau khi dang nh?p thành công s? chuy?n hu?ng v? trang ch? /.
+- Agent Login: /topsecret/login (Tên route: gent.login). Sau khi dang nh?p thành công s? chuy?n hu?ng v? Dashboard Agent t?i /topsecret/dashboard.
+- C?u trúc thu m?c Agent: Ğã chuy?n toàn b? prefix t? /admin sang /topsecret (ví d?: /topsecret/dashboard, /topsecret/metadata).
+- Ğ?m b?o 100% text trong các trang Login d?u s? d?ng hàm __() d? h? tr? da ngôn ng? hoàn toàn.
+
+7. PHÂN QUY?N TRUY C?P (ROLE-BASED ACCESS CONTROL)
+------------------------------------------------
+- B?ng m?i: oles (id, name, display_name) và ole_user (pivot).
+- Các Role m?c d?nh: dmin, isitor.
+- Middleware: EnsureHasRole (bí danh: ole).
+- Ki?m tra quy?n:
+    + Route /topsecret/*: Ch? cho phép User có role dmin. N?u không s? tr? v? 403.
+    + User m?c d?nh gent@vttlib.com dã du?c gán role dmin.
+    + Các User t?o qua Factory m?c d?nh du?c gán role isitor.
+- Model User: Ğã thêm method hasRole() d? ki?m tra quy?n nhanh.
+
+8. QU?N Lİ SIDEBAR Ğ?NG (DYNAMIC SIDEBAR)
+----------------------------------------
+- B?ng m?i: sidebars (luu tên tab, route, icon, th? t?).
+- B?ng user_role_sidebars: Phân quy?n granular, gán t?ng tab sidebar cho tài kho?n ngu?i dùng d?a trên b?n ghi RoleUser c?a h?.
+- Co ch? ho?t d?ng: 
+    + Layout Admin không còn s? d?ng menu c?ng.
+    + Model User có hàm getSidebarTabs() d? t? d?ng l?y danh sách các tab du?c phép d?a trên vai trò hi?n t?i c?a User.
+    + Cho phép Admin c?u hình riêng bi?t t?ng tab cho t?ng User/Role c? th? trong tuong lai.
+
+9. H? TH?NG SIÊU QU?N TR? (ROOT ACCESS)
+--------------------------------------
+- Tài kho?n t?i cao: root@root.com / root123
+- Route login riêng: /root/login (Giao di?n terminal d?/den c?c ng?u).
+- Quy?n h?n Root:
+    + Xem danh sách toàn b? ngu?i dùng và vai trò.
+    + T?o ngu?i dùng m?i (Username, Password, Role).
+    + Xóa ngu?i dùng (Ngo?i tr? chính mình).
+    + PHÂN QUY?N TABS: Riêng d?i v?i các User có role Admin (ID=1), Root có quy?n tích ch?n các tab sidebar nào User dó du?c phép th?y.
+- B?o m?t: S? d?ng middleware ole:root d? ch?n m?i truy c?p trái phép vào phân vùng h? th?ng.
+
+11. ADVANCED USER PRIVILEGE MANAGEMENT (MODAL-BASED)
+----------------------------------------------------
+- Data Source: The User Management dashboard now operates directly on the ole_user association table. One user with multiple roles will appear as multiple permission entries.
+- Modal-Driven Workflow:
+    + User Creation: Delegated to a secure, theme-aware modal popup.
+    + Role Escalation: Centralized modal for selecting identities and injecting new security tokens (roles).
+    + Sidebar Access Control: Replaced inline checkboxes with a dedicated 'Granular Access Controller' modal.
+- Technical implementation:
+    + JavaScript-driven state injection for sidebar modals.
+    + Role-aware permission management (access remains exclusive to Admin/Root records).
+    + Recursive relationship loading for optimal performance.
+
+12. STRICT MULTI-PORTAL AUTHENTICATION
+-------------------------------------
+- Role-Specific Login: Login controllers now enforce role checks BEFORE allowing the session to persist. 
+    + Client Portal (/login): Requires 'visitor' role.
+    + Secret Portal (/topsecret/login): Requires 'admin' role.
+    + Root Terminal (/root/login): Requires 'root' role.
+- Security enforcement: If a user attempts to log in using a portal for which they do not have the designated role, the system will immediately terminate the session (Auth::logout) and display a specific access denial message.
+
+13. ADVANCED DATA MANAGEMENT (SEARCH & PAGINATION)
+--------------------------------------------------
+- Main Dashboard: 
+    + Integrated server-side search by username, email, or role.
+    + Added per-page selection (10, 20, 50, 100 sequences).
+    + Implemented custom-styled pagination that adapts to Dark/Light themes.
+- Identity Selection: Added real-time JS filtering in the 'Add Role' modal for quick identity lookup.
+- Sidebar Granularity: Added a 'Search Tab' feature inside the access controller modal for managing complex sidebar configurations.
