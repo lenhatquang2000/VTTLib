@@ -10,9 +10,4 @@ class Book extends Model
     use HasFactory;
 
     protected $fillable = ['title', 'author', 'publisher', 'year_publish', 'isbn'];
-
-    public function metadataValues()
-    {
-        return $this->belongsToMany(MetadataValue::class, 'book_metadata_value');
-    }
 }

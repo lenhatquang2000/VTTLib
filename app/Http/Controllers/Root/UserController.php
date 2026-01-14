@@ -30,7 +30,7 @@ class UserController extends Controller
 
         $users = User::all();
         $roles = Role::all();
-        $sidebars = Sidebar::all();
+        $sidebars = Sidebar::whereNull('parent_id')->with('children')->orderBy('order')->get();
 
         return view('root.users.index', compact('roleUsers', 'users', 'roles', 'sidebars', 'search', 'perPage'));
     }

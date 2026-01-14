@@ -249,17 +249,33 @@
 
                 <form id="sidebarTabsForm" method="POST" class="space-y-6">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar" id="tabsGrid">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar" id="tabsGrid">
                         @foreach($sidebars as $sidebar)
-                            <label
-                                class="group relative flex items-center p-4 bg-black/40 border border-red-900/20 rounded cursor-pointer hover:border-red-600 transition-all tab-item">
-                                <input type="checkbox" name="sidebar_ids[]" value="{{ $sidebar->id }}"
-                                    class="sidebar-checkbox w-4 h-4 rounded border-red-900 bg-black text-red-600 focus:ring-red-500 focus:ring-offset-black transition">
-                                <div class="ml-4">
-                                    <span class="block text-xs font-bold text-red-500 uppercase tab-name">{{ $sidebar->name }}</span>
-                                    <span class="block text-[9px] text-red-900 mt-0.5">{{ $sidebar->route_name }}</span>
-                                </div>
-                            </label>
+                            <div class="space-y-2 col-span-1 md:col-span-2">
+                                <label class="group relative flex items-center p-4 bg-black/40 border border-red-900/20 rounded cursor-pointer hover:border-red-600 transition-all tab-item">
+                                    <input type="checkbox" name="sidebar_ids[]" value="{{ $sidebar->id }}"
+                                        class="sidebar-checkbox w-4 h-4 rounded border-red-900 bg-black text-red-600 focus:ring-red-500 focus:ring-offset-black transition">
+                                    <div class="ml-4">
+                                        <span class="block text-xs font-bold text-red-500 uppercase tab-name">{{ __($sidebar->name) }}</span>
+                                        <span class="block text-[9px] text-red-900 mt-0.5">PARENT / ROOT</span>
+                                    </div>
+                                </label>
+                                
+                                @if($sidebar->children->isNotEmpty())
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
+                                        @foreach($sidebar->children as $child)
+                                            <label class="group relative flex items-center p-3 bg-black/20 border border-red-900/10 rounded cursor-pointer hover:border-red-500 transition-all tab-item">
+                                                <input type="checkbox" name="sidebar_ids[]" value="{{ $child->id }}"
+                                                    class="sidebar-checkbox w-4 h-4 rounded border-red-900 bg-black text-red-600 focus:ring-red-500 focus:ring-offset-black transition">
+                                                <div class="ml-4">
+                                                    <span class="block text-[11px] font-bold text-red-400 uppercase tab-name">{{ __($child->name) }}</span>
+                                                    <span class="block text-[8px] text-red-900/70 mt-0.5">{{ $child->route_name }}</span>
+                                                </div>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
                         @endforeach
                     </div>
 

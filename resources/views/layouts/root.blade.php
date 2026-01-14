@@ -133,7 +133,7 @@
 
 <body class="min-h-screen flex" id="root-body">
     <!-- Sidebar -->
-    <aside class="sidebar-root w-64 flex flex-col transition-colors duration-300">
+    <aside class="sidebar-root w-64 flex flex-col transition-colors duration-300 sticky top-0 h-screen">
         <div class="h-16 flex items-center px-6 border-b border-red-900/20">
             <span class="font-bold tracking-widest text-lg">ROOT_<span class="text-white">CORE</span></span>
         </div>

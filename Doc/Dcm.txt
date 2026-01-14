@@ -1,111 +1,62 @@
-NH·∫¨T K√ù PH√ÅT TRI·ªÇN H·ªÜ TH·ªêNG VTTLib
+VTTLib SYSTEM DEVELOPMENT LOG
 =====================================
-Ng√†y b·∫Øt ƒë·∫ßu: 13/01/2026
+Start Date: January 13, 2026
 
-1. H·ªÜ TH·ªêNG X√ÅC TH·ª∞C (AUTHENTICATION)
+1. AUTHENTICATION SYSTEM
 -------------------------------------
-- Route ƒëƒÉng nh·∫≠p b√≠ m·∫≠t: `/topsecret/login` (T√™n route: `login`).
-- Controller: `SecretLoginController` x·ª≠ l√Ω Login/Logout.
-- Giao di·ªán: Thi·∫øt k·∫ø phong c√°ch "Secret System" (Dark mode, Glassmorphism, JetBrains Mono font).
-- T√†i kho·∫£n qu·∫£n tr·ªã m·∫∑c ƒë·ªãnh (Seeder): 
+- Secret login route: /topsecret/login (Route name: login).
+- Controller: SecretLoginController handles Login/Logout.
+- Interface: Designed with "Secret System" style (Dark mode, Glassmorphism, JetBrains Mono font).
+- Default admin account (Seeder): 
     + Email: agent@vttlib.com
     + Pass: password
 
-2. C∆† S·ªû D·ªÆ LI·ªÜU & C·∫§U H√åNH (DATABASE)
+2. DATABASE & CONFIGURATION
 --------------------------------------
-- Chuy·ªÉn ƒë·ªïi k·∫øt n·ªëi t·ª´ SQLite sang MySQL (Database: vttulib).
-- Th·ª±c hi·ªán Database Seeding cho User v√† c√°c b·∫£ng Metadata.
+- Switched connection from SQLite to MySQL (Database: vttulib).
+- Performed Database Seeding for User and Metadata tables.
 
-3. QU·∫¢N L√ù METADATA BI√äN M·ª§C (DYNAMIC METADATA)
+3. DYNAMIC METADATA MANAGEMENT
 -----------------------------------------------
-M√¥ h√¨nh database linh ho·∫°t cho ph√©p th√™m metadata kh√¥ng gi·ªõi h·∫°n:
-- B·∫£ng `metadata`: ƒê·ªãnh nghƒ©a t√™n bi·ªÉu ghi (Code, Name, Description).
-- B·∫£ng `metadata_values`: L∆∞u c√°c m·ª•c con (gi√° tr·ªã) c·ªßa t·ª´ng metadata.
-- B·∫£ng `books`: L∆∞u th√¥ng tin s√°ch c∆° b·∫£n.
-- B·∫£ng `book_metadata_value`: Li√™n k·∫øt Many-to-Many gi·ªØa S√°ch v√† Metadata.
+Flexible database model allowing unlimited metadata:
+- metadata table: Defines record names (Code, Name, Description).
+- metadata_values table: Stores sub-items (values) for each metadata.
+- books table: Stores basic book information.
+- book_metadata_value table: Many-to-Many relationship between Books and Metadata.
 
-Ch·ª©c nƒÉng ƒë√£ ho√†n th√†nh:
-- Controller: `Admin/MetadataController`.
-- Giao di·ªán Admin: Qu·∫£n l√Ω th√™m/x√≥a Metadata v√† Metadata Values tr·ª±c quan.
-- Sidebar: ƒê√£ t√≠ch h·ª£p menu Metadata v√†o b·∫£ng ƒëi·ªÅu khi·ªÉn Admin.
+Completed functions:
+- Controller: Admin/MetadataController.
+- Admin UI: Visual management for adding/deleting Metadata and Metadata Values.
+- Sidebar: Integrated Metadata menu into the Admin dashboard.
 
-4. GIAO DI·ªÜN (UI/UX)
+4. UI/UX
 --------------------
-- Header: T·ª± ƒë·ªông hi·ªÉn th·ªã "Hi, [Name]" v√† n√∫t Logout khi ƒë√£ ƒëƒÉng nh·∫≠p.
-- Admin Layout: Dashboard chuy√™n nghi·ªáp v·ªõi sidebar v√† th√¥ng tin User ƒë·ªông.
+- Header: Automatically displays "Hi, [Name]" and Logout button when logged in.
+- Admin Layout: Professional Dashboard with sidebar and dynamic User info.
 
-5. –A NG‘N NG? (LOCALIZATION)
+5. LOCALIZATION
 ---------------------------
-- H? th?ng h? tr? chuy?n d?i Ti?ng Vi?t (VI) v‡ Ti?ng Anh (EN).
-- Middleware: SetLocale t? d?ng nh?n di?n ngÙn ng? t? Session.
-- Controller: LanguageController x? l˝ vi?c luu ngÙn ng? ngu?i d˘ng ch?n.
-- Giao di?n: –„ tÌch h?p n˙t VI/EN trÍn c? layout Client v‡ Admin.
-- D?ch thu?t: Qu?n l˝ qua c·c file lang/vi.json v‡ lang/en.json.
-- S? d?ng h‡m __() trong Blade d? hi?n th? n?i dung theo ngÙn ng? d„ ch?n.
+- System supports switching between Vietnamese (VI) and English (EN).
+- Middleware: SetLocale automatically identifies language from Session.
+- Controller: LanguageController handles saving user-selected language.
+- Interface: Integrated VI/EN buttons on both Client and Admin layouts.
+- Translation: Managed via lang/vi.json and lang/en.json files.
+- Used __() function in Blade to display content according to selected language.
 
-6. H? TH?NG LOGIN K…P (DUAL LOGIN SYSTEM)
+6. DUAL LOGIN SYSTEM
 ----------------------------------------
-- Client Login: /login (TÍn route: login). Sau khi dang nh?p th‡nh cÙng s? chuy?n hu?ng v? trang ch? /.
-- Agent Login: /topsecret/login (TÍn route: gent.login). Sau khi dang nh?p th‡nh cÙng s? chuy?n hu?ng v? Dashboard Agent t?i /topsecret/dashboard.
-- C?u tr˙c thu m?c Agent: –„ chuy?n to‡n b? prefix t? /admin sang /topsecret (vÌ d?: /topsecret/dashboard, /topsecret/metadata).
-- –?m b?o 100% text trong c·c trang Login d?u s? d?ng h‡m __() d? h? tr? da ngÙn ng? ho‡n to‡n.
+- Client Login: /login (Route name: login). Redirects to homepage / after successful login.
+- Agent Login: /topsecret/login (Route name: agent.login). Redirects to Agent Dashboard at /topsecret/dashboard after successful login.
+- Agent folder structure: Moved all prefixes from /admin to /topsecret (e.g., /topsecret/dashboard, /topsecret/metadata).
+- Ensured 100% of text on Login pages uses __() function for full multi-language support.
 
-7. PH¬N QUY?N TRUY C?P (ROLE-BASED ACCESS CONTROL)
+7. ROLE-BASED ACCESS CONTROL (RBAC)
 ------------------------------------------------
-- B?ng m?i: oles (id, name, display_name) v‡ ole_user (pivot).
-- C·c Role m?c d?nh: dmin, isitor.
-- Middleware: EnsureHasRole (bÌ danh: ole).
-- Ki?m tra quy?n:
-    + Route /topsecret/*: Ch? cho phÈp User cÛ role dmin. N?u khÙng s? tr? v? 403.
-    + User m?c d?nh gent@vttlib.com d„ du?c g·n role dmin.
-    + C·c User t?o qua Factory m?c d?nh du?c g·n role isitor.
-- Model User: –„ thÍm method hasRole() d? ki?m tra quy?n nhanh.
-
-8. QU?N L› SIDEBAR –?NG (DYNAMIC SIDEBAR)
-----------------------------------------
-- B?ng m?i: sidebars (luu tÍn tab, route, icon, th? t?).
-- B?ng user_role_sidebars: Ph‚n quy?n granular, g·n t?ng tab sidebar cho t‡i kho?n ngu?i d˘ng d?a trÍn b?n ghi RoleUser c?a h?.
-- Co ch? ho?t d?ng: 
-    + Layout Admin khÙng cÚn s? d?ng menu c?ng.
-    + Model User cÛ h‡m getSidebarTabs() d? t? d?ng l?y danh s·ch c·c tab du?c phÈp d?a trÍn vai trÚ hi?n t?i c?a User.
-    + Cho phÈp Admin c?u hÏnh riÍng bi?t t?ng tab cho t?ng User/Role c? th? trong tuong lai.
-
-9. H? TH?NG SI U QU?N TR? (ROOT ACCESS)
---------------------------------------
-- T‡i kho?n t?i cao: root@root.com / root123
-- Route login riÍng: /root/login (Giao di?n terminal d?/den c?c ng?u).
-- Quy?n h?n Root:
-    + Xem danh s·ch to‡n b? ngu?i d˘ng v‡ vai trÚ.
-    + T?o ngu?i d˘ng m?i (Username, Password, Role).
-    + XÛa ngu?i d˘ng (Ngo?i tr? chÌnh mÏnh).
-    + PH¬N QUY?N TABS: RiÍng d?i v?i c·c User cÛ role Admin (ID=1), Root cÛ quy?n tÌch ch?n c·c tab sidebar n‡o User dÛ du?c phÈp th?y.
-- B?o m?t: S? d?ng middleware ole:root d? ch?n m?i truy c?p tr·i phÈp v‡o ph‚n v˘ng h? th?ng.
-
-11. ADVANCED USER PRIVILEGE MANAGEMENT (MODAL-BASED)
-----------------------------------------------------
-- Data Source: The User Management dashboard now operates directly on the ole_user association table. One user with multiple roles will appear as multiple permission entries.
-- Modal-Driven Workflow:
-    + User Creation: Delegated to a secure, theme-aware modal popup.
-    + Role Escalation: Centralized modal for selecting identities and injecting new security tokens (roles).
-    + Sidebar Access Control: Replaced inline checkboxes with a dedicated 'Granular Access Controller' modal.
-- Technical implementation:
-    + JavaScript-driven state injection for sidebar modals.
-    + Role-aware permission management (access remains exclusive to Admin/Root records).
-    + Recursive relationship loading for optimal performance.
-
-12. STRICT MULTI-PORTAL AUTHENTICATION
--------------------------------------
-- Role-Specific Login: Login controllers now enforce role checks BEFORE allowing the session to persist. 
-    + Client Portal (/login): Requires 'visitor' role.
-    + Secret Portal (/topsecret/login): Requires 'admin' role.
-    + Root Terminal (/root/login): Requires 'root' role.
-- Security enforcement: If a user attempts to log in using a portal for which they do not have the designated role, the system will immediately terminate the session (Auth::logout) and display a specific access denial message.
-
-13. ADVANCED DATA MANAGEMENT (SEARCH & PAGINATION)
---------------------------------------------------
-- Main Dashboard: 
-    + Integrated server-side search by username, email, or role.
-    + Added per-page selection (10, 20, 50, 100 sequences).
-    + Implemented custom-styled pagination that adapts to Dark/Light themes.
-- Identity Selection: Added real-time JS filtering in the 'Add Role' modal for quick identity lookup.
-- Sidebar Granularity: Added a 'Search Tab' feature inside the access controller modal for managing complex sidebar configurations.
+- New tables: roles (id, name, display_name) and role_user (pivot).
+- Default Roles: admin, visitor.
+- Middleware: EnsureHasRole (alias: role).
+- Permission check:
+    + Route /topsecret/*: Only allows User with admin role. Otherwise returns 403.
+    + Default User agent@vttlib.com has been assigned admin role.
+    + Users created via Factory are assigned visitor role by default.
+- User Model: Added hasRole() method for quick permission checking.

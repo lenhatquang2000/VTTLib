@@ -4,8 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Models\Role;
-use App\Models\Metadata;
-use App\Models\MetadataValue;
 use App\Models\Book;
 use App\Models\Sidebar;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -57,33 +55,6 @@ class DatabaseSeeder extends Seeder
             $user->roles()->attach($visitorRole);
         });
 
-        // 4. Seed Metadata
-        $language = Metadata::create([
-            'metadata_code' => 'LANGUAGE',
-            'metadata_name' => 'Mã ngôn ngữ',
-            'description' => 'Ngôn ngữ của tài liệu',
-            'allow_multiple' => true,
-        ]);
-
-        $language->values()->createMany([
-            ['value_code' => 'vie', 'value_name' => 'Tiếng Việt'],
-            ['value_code' => 'eng', 'value_name' => 'Tiếng Anh'],
-            ['value_code' => 'fre', 'value_name' => 'Tiếng Pháp'],
-        ]);
-
-        $docType = Metadata::create([
-            'metadata_code' => 'DOC_TYPE',
-            'metadata_name' => 'Loại tài liệu',
-            'description' => 'Phân loại hình thức tài liệu',
-            'allow_multiple' => false,
-        ]);
-
-        $docType->values()->createMany([
-            ['value_code' => 'book', 'value_name' => 'Sách'],
-            ['value_code' => 'thesis', 'value_name' => 'Luận văn'],
-            ['value_code' => 'journal', 'value_name' => 'Tạp chí'],
-        ]);
-
         // 5. Seed sample book
         $book = Book::create([
             'title' => 'Lập trình Laravel căn bản',
@@ -91,12 +62,6 @@ class DatabaseSeeder extends Seeder
             'publisher' => 'NXB Giáo Dục',
             'year_publish' => '2023',
             'isbn' => '1234567890',
-        ]);
-
-        // Link book to metadata values
-        $book->metadataValues()->attach([
-            MetadataValue::where('value_code', 'vie')->first()->id,
-            MetadataValue::where('value_code', 'book')->first()->id,
         ]);
 
         // 6. Seed Sidebars
@@ -121,13 +86,6 @@ class DatabaseSeeder extends Seeder
             'order' => 3
         ]);
 
-        $metadataTab = Sidebar::create([
-            'name' => 'Metadata',
-            'route_name' => 'admin.metadata.index',
-            'icon' => '<svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 12h10m-10 5h10"></path></svg>',
-            'order' => 4
-        ]);
-
         $loansTab = Sidebar::create([
             'name' => 'Loans',
             'route_name' => '#',
@@ -142,8 +100,11 @@ class DatabaseSeeder extends Seeder
             ['sidebar_id' => $dashboardTab->id],
             ['sidebar_id' => $usersTab->id],
             ['sidebar_id' => $booksTab->id],
-            ['sidebar_id' => $metadataTab->id],
             ['sidebar_id' => $loansTab->id],
         ]);
+
+        // 7. Seed Marc Data
+        $this->call(MarcSeeder::class);
+        $this->call(MarcDefinitionSeeder::class);
     }
 }

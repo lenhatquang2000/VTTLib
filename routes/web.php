@@ -43,13 +43,25 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->group(function () {
 Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    // Metadata Management
-    Route::get('/metadata', [MetadataController::class, 'index'])->name('admin.metadata.index');
-    Route::post('/metadata', [MetadataController::class, 'store'])->name('admin.metadata.store');
-    Route::delete('/metadata/{metadata}', [MetadataController::class, 'destroy'])->name('admin.metadata.destroy');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    Route::post('/metadata-values', [MetadataController::class, 'storeValue'])->name('admin.metadata-values.store');
-    Route::delete('/metadata-values/{value}', [MetadataController::class, 'destroyValue'])->name('admin.metadata-values.destroy');
+    // MARC Framework Management
+    Route::get('/marc-definitions', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'index'])->name('admin.marc.index');
+    Route::post('/marc-definitions/tag', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'storeTag'])->name('admin.marc.tag.store');
+    Route::post('/marc-definitions/subfield', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'storeSubfield'])->name('admin.marc.subfield.store');
+    Route::put('/marc-definitions/tag/{tag}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'updateTag'])->name('admin.marc.tag.update');
+    Route::put('/marc-definitions/subfield/{subfield}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'updateSubfield'])->name('admin.marc.subfield.update');
+    Route::delete('/marc-definitions/tag/{tag}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'destroyTag'])->name('admin.marc.tag.destroy');
+    Route::delete('/marc-definitions/subfield/{subfield}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'destroySubfield'])->name('admin.marc.subfield.destroy');
+
+    // MARC Book Cataloging
+    Route::get('/marc-books', [\App\Http\Controllers\Admin\MarcBookController::class, 'index'])->name('admin.marc.book');
+    Route::get('/marc-books/create', [\App\Http\Controllers\Admin\MarcBookController::class, 'create'])->name('admin.marc.book.create');
+    Route::get('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'show'])->name('admin.marc.book.show');
+    Route::get('/marc-books/{record}/edit', [\App\Http\Controllers\Admin\MarcBookController::class, 'edit'])->name('admin.marc.book.edit');
+    Route::post('/marc-books', [\App\Http\Controllers\Admin\MarcBookController::class, 'store'])->name('admin.marc.book.store');
+    Route::put('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'update'])->name('admin.marc.book.update');
+    Route::put('/marc-books/{record}/status', [\App\Http\Controllers\Admin\MarcBookController::class, 'updateStatus'])->name('admin.marc.book.status');
 });
 
 // Protected Client Routes (Optional, protected by role:visitor)

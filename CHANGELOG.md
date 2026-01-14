@@ -1,4 +1,15 @@
-# Release Notes
+# VTTLib Project Release Notes
+
+## [1.0.0] - 2026-01-15
+### Added
+- **MARC21 Framework Management**: Fully dynamic system to manage Tags and Subfields.
+- **Dynamic Cataloging Form**: Staggered row-based interface using Alpine.js for high-efficiency bibliographic entry.
+- **Approval System**: Implemented a workflow where records are created as 'Pending' and require administrative approval.
+- **Bi-directional Translation**: Full localization for English and Vietnamese across all MARC management and cataloging modules.
+- **Data Integrity**: Integrated Database Transactions for the multi-level bibliographic record storage process.
+
+---
+# Laravel Framework Release Notes
 
 ## [Unreleased](https://github.com/laravel/laravel/compare/v12.11.0...12.x)
 

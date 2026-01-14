@@ -21,12 +21,23 @@ class User extends Authenticatable
 
     public function getSidebarTabs()
     {
-        // Lấy tất cả các tab cụ thể từ user_role_sidebars nối với role_user của User này
         $roleUserIds = $this->roles->map(fn($role) => $role->pivot->id);
 
-        return Sidebar::whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
-            $q->whereIn('role_user_id', $roleUserIds);
-        })->orderBy('order')->get();
+        return Sidebar::whereNull('parent_id')
+            ->where(function ($query) use ($roleUserIds) {
+                // Return parent if it is directly assigned
+                $query->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
+                    $q->whereIn('role_user_id', $roleUserIds);
+                })
+                    // OR if any of its children are assigned
+                    ->orWhereHas('children', function ($q) use ($roleUserIds) {
+                    $q->whereHas('userRoleSidebars', function ($sq) use ($roleUserIds) {
+                        $sq->whereIn('role_user_id', $roleUserIds);
+                    });
+                });
+            })
+            ->orderBy('order')
+            ->get();
     }
 
     public function hasRole($role)

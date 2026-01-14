@@ -14,25 +14,94 @@
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
 </head>
 
 <body class="font-sans antialiased bg-gray-100 text-gray-900 flex min-h-screen">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 transition-all duration-300">
+    <aside
+        class="w-64 bg-slate-900 text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen">
         <div class="h-16 flex items-center px-6 bg-slate-950">
             <span class="text-xl font-bold tracking-wider">VTTLib <span
                     class="text-indigo-400 text-sm font-normal">{{ __('Admin') }}</span></span>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+            @php
+                $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
+            @endphp
             @foreach(Auth::user()->getSidebarTabs() as $tab)
-                <a href="{{ $tab->route_name != '#' ? route($tab->route_name) : '#' }}"
-                    class="flex items-center px-4 py-3 {{ ($tab->route_name != '#' && request()->routeIs($tab->route_name . '*')) ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} rounded-lg group transition">
-                    {!! $tab->icon !!}
-                    {{ __($tab->name) }}
-                </a>
+                @php
+                    $assignedChildren = $tab->children()->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
+                        $q->whereIn('role_user_id', $roleUserIds);
+                    })->get();
+                    $hasChildren = $assignedChildren->isNotEmpty();
+                    $isParentActive = false;
+                    if ($hasChildren) {
+                        foreach ($assignedChildren as $child) {
+                            if ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) {
+                                $isParentActive = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        $isParentActive = ($tab->route_name != '#' && request()->routeIs($tab->route_name . '*'));
+                    }
+                @endphp
+
+                @if($hasChildren)
+                    <div class="space-y-1" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
+                        <button @click="open = !open"
+                            class="w-full flex items-center justify-between px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition group">
+                            <div class="flex items-center">
+                                {!! $tab->icon !!}
+                                <span class="font-medium">{{ __($tab->name) }}</span>
+                            </div>
+                            <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none"
+                                stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div x-show="open" x-cloak class="pl-10 space-y-1">
+                            @foreach($assignedChildren as $child)
+                                <a href="{{ $child->route_name != '#' ? route($child->route_name) : '#' }}"
+                                    class="block px-4 py-2 text-sm {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'text-indigo-400 font-bold' : 'text-slate-500 hover:text-white' }} transition">
+                                    {{ __($child->name) }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ $tab->route_name != '#' ? route($tab->route_name) : '#' }}"
+                        class="flex items-center px-4 py-3 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} rounded-lg group transition">
+                        {!! $tab->icon !!}
+                        {{ __($tab->name) }}
+                    </a>
+                @endif
             @endforeach
         </nav>
 
