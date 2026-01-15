@@ -75,6 +75,8 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-right space-x-2">
+                                <a href="{{ route('admin.marc.book.distribution', $record->id) }}"
+                                    class="text-green-600 hover:text-green-800 font-bold text-xs uppercase">{{ __('Distribute') }}</a>
                                 <a href="{{ route('admin.marc.book.show', $record->id) }}"
                                     class="text-indigo-600 hover:text-indigo-800 font-bold text-xs uppercase">{{ __('Review') }}</a>
                                 <a href="{{ route('admin.marc.book.edit', $record->id) }}"

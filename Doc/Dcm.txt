@@ -60,3 +60,18 @@ Completed functions:
     + Default User agent@vttlib.com has been assigned admin role.
     + Users created via Factory are assigned visitor role by default.
 - User Model: Added hasRole() method for quick permission checking.
+
+8. BOOK DISTRIBUTION (ITEM MANAGEMENT)
+------------------------------------------------
+- Table: `book_items` stores physical copies of bibliographic records.
+- Fields: Barcode, Accession Number, Storage Type, Location, Shelf, Status, etc.
+- Multi-language Support: All labels in the distribution interface are translated using `__()`.
+- Controller: `BookDistributionController` manages item creation and listing.
+- UI: Two-column layout with a sleek add-item form and a data table for existing items.
+
+9. DEPLOYMENT & DOCKER
+------------------------------------------------
+- Dockerfile: Multi-stage build (Composer -> Node/Vite -> Apache/PHP).
+- Optimizations: Automatic configuration, route, and view caching on startup.
+- .dockerignore: Excludes unnecessary files to reduce image size.
+

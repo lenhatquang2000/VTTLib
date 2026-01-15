@@ -75,7 +75,7 @@ class MarcBookController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('admin.marc.book')->with('success', 'Book cataloged successfully. Waiting for approval.');
+            return redirect()->route('admin.marc.book')->with('success', __('Record_Created_Successfully'));
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -95,12 +95,20 @@ class MarcBookController extends Controller
     public function updateStatus(Request $request, BibliographicRecord $record)
     {
         $validated = $request->validate([
-            'status' => 'required|in:pending,approved'
+            'status' => 'required|in:pending,approved',
+            'framework' => 'nullable|string',
+            'subject_category' => 'nullable|string',
+            'record_type' => 'nullable|string',
+            'serial_frequency' => 'nullable|string',
+            'date_type' => 'nullable|string',
+            'acquisition_method' => 'nullable|string',
+            'document_format' => 'nullable|string',
+            'cataloging_standard' => 'nullable|string',
         ]);
 
-        $record->update(['status' => $validated['status']]);
+        $record->update($validated);
 
-        return redirect()->route('admin.marc.book')->with('success', 'Record status updated successfully.');
+        return back()->with('success', __('Status_Updated_Successfully'));
     }
 
     public function edit(BibliographicRecord $record)
@@ -180,7 +188,7 @@ class MarcBookController extends Controller
             $record->fields()->whereNotIn('tag', $submittedFieldTags)->delete();
 
             DB::commit();
-            return redirect()->route('admin.marc.book')->with('success', 'Record updated successfully.');
+            return redirect()->route('admin.marc.book')->with('success', __('Record_Updated_Successfully'));
 
         } catch (\Exception $e) {
             DB::rollBack();
