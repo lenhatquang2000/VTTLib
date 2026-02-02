@@ -59,10 +59,11 @@
         </div>
     </div>
 
-    <!-- Recent Activity / Table Section -->
+    <!-- User List Section -->
     <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-lg font-medium text-gray-900">Recent Loans</h3>
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="text-lg font-medium text-gray-900">User List</h3>
+            <a href="{{ route('admin.users.index') }}" class="text-sm text-indigo-600 hover:text-indigo-900 font-medium">View All</a>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -71,61 +72,58 @@
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Book</th>
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status
-                        </th>
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($users as $user)
                     <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-slate-200 flex-shrink-0"></div>
+                                <div class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">John Doe</div>
-                                    <div class="text-sm text-gray-500">john@example.com</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                    <div class="text-sm text-gray-500">{{ $user->email }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">The Great Gatsby</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">Jan 12, 2026</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="h-10 w-10 rounded-full bg-slate-200 flex-shrink-0"></div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">Jane Smith</div>
-                                    <div class="text-sm text-gray-500">jane@example.com</div>
-                                </div>
+                            <div class="flex flex-wrap gap-1">
+                                @foreach($user->roles as $role)
+                                <span class="px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                    {{ $role->name }}
+                                </span>
+                                @endforeach
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">1984</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">Jan 10, 2026</div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span
-                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                Expiring
+                            @php
+                                $statusColors = [
+                                    'active' => 'bg-green-100 text-green-800',
+                                    'inactive' => 'bg-gray-100 text-gray-800',
+                                    'suspended' => 'bg-red-100 text-red-800',
+                                ];
+                                $color = $statusColors[$user->status] ?? 'bg-blue-100 text-blue-800';
+                            @endphp
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $color }}">
+                                {{ ucfirst($user->status) }}
                             </span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ $user->created_at->format('M d, Y') }}
+                        </td>
                     </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">No users found.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

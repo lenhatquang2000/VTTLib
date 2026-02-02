@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use App\Models\User;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register observers
+        User::observe(UserObserver::class);
+        
+        // Implicitly grant "super-admin" role all permissions
+        // This works in the app by using gate-related helpers like auth()->user()->can()
+        Gate::before(function (User $user, string $ability) {
+            if ($user->hasRole('root')) {
+                return true;
+            }
+        });
     }
 }

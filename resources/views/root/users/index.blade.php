@@ -104,8 +104,20 @@
                                         <span class="text-red-900/50 italic opacity-50">{{ __('Level_Unauthorized') }}</span>
                                     @endif
                                 </td>
-                                <td class="p-4 text-right">
+                                <td class="p-4 text-right space-x-2">
                                     @if($ru->user_id !== Auth::id())
+                                        <a href="{{ route('root.users.edit', $ru->user_id) }}" 
+                                            class="text-red-500 hover:text-white underline uppercase text-[10px] font-bold">
+                                            {{ __('Edit') }}
+                                        </a>
+                                        <form action="{{ route('root.users.destroy', $ru->user_id) }}" method="POST"
+                                            onsubmit="return confirm('CRITICAL: Delete this user permanently?')" class="inline">
+                                            @csrf @method('DELETE')
+                                            <button type="submit"
+                                                class="text-red-900 hover:text-red-500 underline uppercase text-[10px] font-bold">
+                                                {{ __('Delete') }}
+                                            </button>
+                                        </form>
                                         <form action="{{ route('root.users.roles.remove', $ru->id) }}" method="POST"
                                             onsubmit="return confirm('CRITICAL: Terminate this security clearance?')">
                                             @csrf @method('DELETE')
@@ -114,6 +126,8 @@
                                                 {{ __('Revoke_Role') }}
                                             </button>
                                         </form>
+                                    @else
+                                        <span class="text-red-900/50 italic opacity-50 text-[10px">{{ __('Current_User') }}</span>
                                     @endif
                                 </td>
                             </tr>

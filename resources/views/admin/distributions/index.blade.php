@@ -82,6 +82,14 @@
                           barcodeStatus: '', 
                           isError: false,
                           isChecking: false,
+                          branches: {{ $branches->toJson() }},
+                          selectedBranch: '{{ old('branch_id') }}',
+                          selectedLocation: '{{ old('storage_location_id') }}',
+                          get locations() {
+                              if (!this.selectedBranch) return [];
+                              const branch = this.branches.find(b => b.id == this.selectedBranch);
+                              return branch ? branch.storage_locations : [];
+                          },
                           checkBarcode() {
                               if (this.barcode.length < 3) {
                                   this.barcodeStatus = '';
@@ -113,17 +121,20 @@
                         <div class="grid grid-cols-1 gap-5">
                             <div class="space-y-1">
                                 <div class="flex justify-between items-end">
-                                    <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Barcode') }} <span class="text-rose-500">*</span></label>
+                                    <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Barcode') }} <span class="text-slate-500 italic">({{ __('Optional') }})</span></label>
                                     <div x-show="isChecking" class="flex items-center space-x-1 mb-1">
                                         <div class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"></div>
                                         <div class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></div>
                                         <div class="w-1 h-1 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></div>
                                     </div>
                                 </div>
-                                <input type="text" name="barcode" x-model.debounce.750ms="barcode" required
+                                <input type="text" name="barcode" x-model.debounce.750ms="barcode"
                                     class="w-full bg-slate-800/50 border-slate-700 text-indigo-400 font-mono text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder-slate-600"
                                     :class="isError ? 'border-rose-500/50 ring-1 ring-rose-500/20' : (barcodeStatus ? 'border-emerald-500/50 ring-1 ring-emerald-500/20' : 'border-slate-700')"
-                                    placeholder="00000-00000">
+                                    placeholder="{{ $nextBarcode ?? '00000-00000' }}">
+                                <p class="text-[9px] font-mono mt-1 text-slate-500" x-show="!barcode && '{{ $nextBarcode }}'">
+                                    [AUTO] {{ __('Leave empty to generate') }}: <span class="text-indigo-400">{{ $nextBarcode }}</span>
+                                </p>
                                 <p class="text-[10px] font-mono mt-1" :class="isError ? 'text-rose-400' : 'text-emerald-400'" x-text="barcodeStatus" x-show="barcodeStatus"></p>
                             </div>
 
@@ -132,6 +143,30 @@
                                 <input type="text" name="accession_number" value="{{ old('accession_number') }}" required
                                     class="w-full bg-slate-800/50 border-slate-700 text-indigo-400 font-mono text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all placeholder-slate-600"
                                     placeholder="ACC-000000">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Branch') }} <span class="text-rose-500">*</span></label>
+                                <select name="branch_id" x-model="selectedBranch" required
+                                    class="w-full bg-slate-800/50 border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500/50 appearance-none">
+                                    <option value="">-- {{ __('Select Branch') }} --</option>
+                                    <template x-for="branch in branches" :key="branch.id">
+                                        <option :value="branch.id" x-text="branch.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Storage Location') }} <span class="text-rose-500">*</span></label>
+                                <select name="storage_location_id" x-model="selectedLocation" required
+                                    class="w-full bg-slate-800/50 border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-3 focus:ring-2 focus:ring-indigo-500/50 appearance-none"
+                                    :disabled="!selectedBranch">
+                                    <option value="">-- {{ __('Select Location') }} --</option>
+                                    <template x-for="loc in locations" :key="loc.id">
+                                        <option :value="loc.id" x-text="loc.name"></option>
+                                    </template>
+                                </select>
                             </div>
                         </div>
 
@@ -148,17 +183,6 @@
                             <div class="space-y-1">
                                 <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Quantity') }}</label>
                                 <input type="number" name="quantity" value="{{ old('quantity', 1) }}" min="1" class="w-full bg-slate-800/50 border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-3">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Location') }}</label>
-                                <input type="text" name="location" value="{{ old('location') }}" class="w-full bg-slate-800/50 border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-3" placeholder="A-01">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="block text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Temp Location') }}</label>
-                                <input type="text" name="temporary_location" value="{{ old('temporary_location') }}" class="w-full bg-slate-800/50 border-slate-700 text-slate-200 text-sm rounded-xl px-4 py-3" placeholder="T-01">
                             </div>
                         </div>
 
@@ -292,10 +316,10 @@
                                     <td class="px-6 py-5">
                                         <div class="flex flex-col">
                                             <span class="text-xs font-bold text-slate-700">{{ __($item->storage_type) }}</span>
-                                            <div class="flex items-center space-x-2 mt-1">
-                                                <span class="text-[10px] py-0.5 px-1.5 bg-slate-100 text-slate-500 rounded font-bold">{{ $item->location ?? 'N/A' }}</span>
+                                            <div class="flex items-center space-x-1 mt-1">
+                                                <span class="text-[10px] py-0.5 px-1.5 bg-indigo-50 text-indigo-600 rounded font-bold">{{ $item->branch?->name ?? 'N/A' }}</span>
                                                 <span class="text-[10px] text-slate-300">/</span>
-                                                <span class="text-[10px] py-0.5 px-1.5 bg-slate-100 text-slate-500 rounded font-bold">{{ $item->shelf ?? 'N/A' }}</span>
+                                                <span class="text-[10px] py-0.5 px-1.5 bg-slate-100 text-slate-500 rounded font-bold">{{ $item->storageLocation?->name ?? 'N/A' }}</span>
                                             </div>
                                         </div>
                                     </td>
@@ -424,7 +448,17 @@
                                             </div>
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Position') }}</label>
+                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Branch') }}</label>
+                                                    <p class="text-xs font-bold text-slate-800" x-text="selectedItem?.branch?.name || '-'"></p>
+                                                </div>
+                                                <div>
+                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Storage Location') }}</label>
+                                                    <p class="text-xs font-bold text-slate-800" x-text="selectedItem?.storage_location?.name || '-'"></p>
+                                                </div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Shell/Bin') }}</label>
                                                     <p class="text-xs font-bold text-slate-800" x-text="(selectedItem?.location || '-') + ' / ' + (selectedItem?.shelf || '-')"></p>
                                                 </div>
                                                 <div>

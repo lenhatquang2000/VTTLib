@@ -8,6 +8,7 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return view('admin.dashboard');
+        $users = \App\Models\User::with('roles')->latest()->take(10)->get();
+        return view('admin.dashboard', compact('users'));
     }
 }

@@ -54,6 +54,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'full_name',
+        'description',
+        'job_title',
+        'status',
     ];
 
     /**
@@ -77,5 +81,9 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function patronDetail()
+    {
+        return $this->hasOne(PatronDetail::class);
     }
 }

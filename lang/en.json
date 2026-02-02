@@ -8,6 +8,7 @@
     "Metadata": "Metadata",
     "Loans": "Loans",
     "Users": "Users",
+    "User Management": "User Management",
     "USER_MANAGEMENT": "USER_MANAGEMENT",
     "SYSTEM_LOGS": "SYSTEM_LOGS",
     "DB_TERMINAL": "DB_TERMINAL",
@@ -181,5 +182,8 @@
     "None_Format": "None of the following",
     "Record_Updated_Successfully": "Record updated successfully.",
     "Record_Created_Successfully": "Record cataloged successfully. Waiting for heading completion.",
-    "Status_Updated_Successfully": "Status updated successfully."
+    "Status_Updated_Successfully": "Status updated successfully.",
+    "Patron Management": "Patron Management",
+    "Patron List": "Patron List",
+    "Add New Patron": "Add New Patron"
 }
