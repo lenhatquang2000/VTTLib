@@ -4,60 +4,69 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ROOT_SYSTEM_VTTLIB</title>
+    <title>VTTLib - Root System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.bunny.net/css?family=jetbrains-mono:400,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0a0000;
-            --sidebar-bg: #140000;
-            --card-bg: #1a0202;
-            --text-primary: #ef4444;
-            /* red-500 */
-            --text-white: #ffffff;
-            --text-secondary: #7f1d1d;
-            /* red-900 */
-            --border-color: #450a0a;
-            /* red-950/ish */
-            --accent-color: #dc2626;
-            /* red-600 */
-            --input-bg: #000000;
-            --header-bg: transparent;
-        }
-
-        [data-theme="light"] {
             --bg-color: #f8fafc;
-            --sidebar-bg: #ffffff;
+            --sidebar-bg: #1e293b;
+            --sidebar-active: #334155;
             --card-bg: #ffffff;
             --text-primary: #0f172a;
-            --text-white: #1e293b;
             --text-secondary: #64748b;
+            --accent-color: #4f46e5;
             --border-color: #e2e8f0;
-            --accent-color: #3b82f6;
-            --input-bg: #f1f5f9;
             --header-bg: #ffffff;
         }
 
-        body {
-            font-family: 'JetBrains Mono', monospace;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            transition: all 0.2s ease;
+        [data-theme="dark"] {
+            --bg-color: #0f172a;
+            --sidebar-bg: #1e293b;
+            --sidebar-active: #334155;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-white: #ffffff;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --header-bg: #1e293b;
         }
 
-        .root-bg {
+        body {
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .sidebar-root {
             background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
+            color: #cbd5e1;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .sidebar-link:hover {
+            background-color: var(--sidebar-active);
+            color: white;
+        }
+
+        .sidebar-link.active {
+            background-color: var(--accent-color);
+            color: white;
         }
 
         .card-root {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
-            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         header {
@@ -65,119 +74,96 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        /* Theme overrides for specific colors */
-        .text-white {
-            color: var(--text-white) !important;
-        }
-
-        .text-red-900 {
-            color: var(--text-secondary);
-        }
-
-        .text-red-500 {
-            color: var(--text-primary);
-        }
-
-        .border-red-900\/20 {
-            border-color: var(--border-color);
-        }
-
-        .bg-black {
-            background-color: var(--input-bg);
-        }
-
-        [data-theme="light"] .bg-black\/40 {
-            background-color: #f8fafc;
-        }
-
-        [data-theme="light"] .text-red-400 {
-            color: #3b82f6;
-        }
-
-        [data-theme="light"] .bg-red-900\/20 {
-            background-color: #eff6ff;
-            border-color: #bfdbfe;
-        }
-
-        [data-theme="light"] .bg-red-900 {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
-        [data-theme="light"] .hover\:bg-red-600:hover {
-            background-color: #2563eb;
-        }
-
-        [data-theme="light"] .glitch {
-            text-shadow: none;
-        }
-
-        /* Fix hover states for Light Theme */
-        [data-theme="light"] .hover\:text-white:hover {
-            color: #0f172a !important;
-        }
-
-        [data-theme="light"] .hover\:text-red-500:hover {
-            color: #2563eb !important;
-        }
-
-        [data-theme="light"] .group:hover .group-hover\:decoration-red-500 {
-            text-decoration-color: #3b82f6 !important;
-        }
-
-        [data-theme="light"] .group:hover .group-hover\:text-white {
-            color: #0f172a !important;
-        }
+        /* Override Red Utility Classes for root consistency */
+        .text-red-500 { color: var(--accent-color) !important; }
+        .text-red-900 { color: var(--text-secondary) !important; }
+        .bg-red-900\/20 { background-color: rgba(79, 70, 229, 0.1) !important; border-color: rgba(79, 70, 229, 0.2) !important; }
+        .bg-red-900\/10 { background-color: rgba(79, 70, 229, 0.05) !important; }
+        .bg-red-900 { background-color: var(--accent-color) !important; color: white !important; }
+        .border-red-900\/20 { border-color: var(--border-color) !important; }
+        .border-red-900 { border-color: var(--accent-color) !important; }
+        .hover\:bg-red-600:hover { background-color: #4338ca !important; }
+        .hover\:bg-red-900\/5:hover { background-color: rgba(79, 70, 229, 0.05) !important; }
+        
+        .font-mono { font-family: 'Inter', sans-serif !important; }
     </style>
 </head>
 
 <body class="min-h-screen flex" id="root-body">
     <!-- Sidebar -->
-    <aside class="sidebar-root w-64 flex flex-col transition-colors duration-300 sticky top-0 h-screen">
-        <div class="h-16 flex items-center px-6 border-b border-red-900/20">
-            <span class="font-bold tracking-widest text-lg">ROOT_<span class="text-white">CORE</span></span>
+    <aside class="sidebar-root w-64 flex flex-col transition-all duration-300 sticky top-0 h-screen shadow-xl z-20">
+        <div class="h-16 flex items-center px-6 border-b border-slate-700">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white shadow-lg">V</div>
+                <span class="font-bold tracking-tight text-white">VTTLib <span class="text-indigo-400">Root</span></span>
+            </div>
         </div>
-        <nav class="flex-1 p-4 space-y-2">
+        <nav class="flex-1 p-4 space-y-1">
+            <div class="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ __('Management') }}</div>
             <a href="{{ route('root.users.index') }}"
-                class="block p-3 bg-red-900/10 border-l-2 border-red-600 font-bold transition-all">{{ __('USER_MANAGEMENT') }}</a>
-            <a href="#" class="block p-3 text-red-900 hover:text-red-500 transition">{{ __('SYSTEM_LOGS') }}</a>
-            <a href="#" class="block p-3 text-red-900 hover:text-red-500 transition">{{ __('DB_TERMINAL') }}</a>
+                class="sidebar-link {{ request()->routeIs('root.users.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                {{ __('USER_MANAGEMENT') }}
+            </a>
+            <a href="{{ route('root.roles.index') }}"
+                class="sidebar-link {{ request()->routeIs('root.roles.*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                {{ __('Role Management') }}
+            </a>
+            
+            <div class="px-3 py-2 mt-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ __('System') }}</div>
+            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                {{ __('SYSTEM_LOGS') }}
+            </a>
+            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                {{ __('DB_TERMINAL') }}
+            </a>
         </nav>
-        <div class="p-4 border-t border-red-900/20">
+        <div class="p-4 border-t border-slate-700">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit"
-                    class="w-full text-left p-2 text-xs text-red-900 hover:text-red-500">{{ __('TERMINATE_SESSION') }}</button>
+                    class="w-full flex items-center p-2 text-sm text-slate-400 hover:text-white transition">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    {{ __('Logout') }}
+                </button>
             </form>
         </div>
     </aside>
 
     <!-- Main -->
-    <main class="flex-1 flex flex-col overflow-hidden transition-colors duration-300">
-        <header class="h-16 flex items-center justify-between px-8">
-            <h1 class="text-sm font-bold opacity-70">ROOT@VTTLIB:~/USER_MANAGER$</h1>
+    <main class="flex-1 flex flex-col overflow-hidden transition-all duration-300">
+        <header class="h-16 flex items-center justify-between px-8 shadow-sm z-10">
+            <div class="flex items-center">
+                <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">
+                    {{ request()->routeIs('root.users.*') ? __('User Privilege Management') : (request()->routeIs('root.roles.*') ? __('Role Management') : __('System Panel')) }}
+                </h2>
+            </div>
             <div class="flex items-center space-x-6">
                 <!-- Theme Toggle -->
                 <button id="theme-toggle"
-                    class="p-2 rounded-full border border-red-900/30 hover:bg-red-900/10 transition">
+                    class="p-2 rounded-lg border border-slate-200 hover:bg-slate-100 transition-all dark:border-slate-700 dark:hover:bg-slate-800">
                     <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                        <!-- Moon -->
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
                     </svg>
                 </button>
 
-                <div class="flex space-x-2 text-[10px]">
+                <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
                     <a href="{{ route('lang.switch', 'vi') }}"
-                        class="{{ app()->getLocale() == 'vi' ? 'text-red-500 font-bold underline' : 'text-red-900' }}">VI</a>
+                        class="px-3 py-1 text-[10px] font-bold rounded {{ app()->getLocale() == 'vi' ? 'bg-white shadow text-indigo-600 dark:bg-slate-700 dark:text-indigo-400' : 'text-slate-500' }}">VI</a>
                     <a href="{{ route('lang.switch', 'en') }}"
-                        class="{{ app()->getLocale() == 'en' ? 'text-red-500 font-bold underline' : 'text-red-900' }}">EN</a>
+                        class="px-3 py-1 text-[10px] font-bold rounded {{ app()->getLocale() == 'en' ? 'bg-white shadow text-indigo-600 dark:bg-slate-700 dark:text-indigo-400' : 'text-slate-500' }}">EN</a>
                 </div>
-                <div class="text-xs">{{ Auth::user()->name }}</div>
+                
+                <div class="flex items-center space-x-3 border-l pl-6 border-slate-200 dark:border-slate-700">
+                    <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs uppercase">{{ substr(Auth::user()->name, 0, 1) }}</div>
+                    <div class="text-xs font-semibold">{{ Auth::user()->name }}</div>
+                </div>
             </div>
         </header>
-        <div class="flex-1 overflow-y-auto p-8">
+        <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50 dark:bg-slate-950/20">
             @yield('content')
         </div>
     </main>

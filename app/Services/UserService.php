@@ -19,11 +19,24 @@ class UserService
         return DB::transaction(function () use ($userData, $roleId) {
             $user = User::create([
                 'name' => $userData['name'],
+                'username' => $userData['username'],
                 'email' => $userData['email'],
                 'password' => Hash::make($userData['password']),
             ]);
 
             $user->roles()->attach($roleId);
+            
+            // Auto-sync sidebars from role template
+            $roleUser = \App\Models\RoleUser::where('user_id', $user->id)
+                ->where('role_id', $roleId)
+                ->first();
+            
+            if ($roleUser) {
+                $role = Role::with('sidebars')->find($roleId);
+                foreach ($role->sidebars as $sidebar) {
+                    $roleUser->sidebars()->create(['sidebar_id' => $sidebar->id]);
+                }
+            }
 
             // Log activity
             $this->logActivity('user_created', $user, [
@@ -46,6 +59,7 @@ class UserService
             
             $user->update([
                 'name' => $userData['name'],
+                'username' => $userData['username'],
                 'email' => $userData['email'],
             ]);
 
@@ -105,9 +119,21 @@ class UserService
                 throw new \Exception('User already has this role');
             }
 
-            $role = Role::findOrFail($roleId);
             $user->roles()->attach($roleId);
+            
+            // Auto-sync sidebars from role template
+            $roleUser = \App\Models\RoleUser::where('user_id', $user->id)
+                ->where('role_id', $roleId)
+                ->first();
+            
+            if ($roleUser) {
+                $role = Role::with('sidebars')->find($roleId);
+                foreach ($role->sidebars as $sidebar) {
+                    $roleUser->sidebars()->create(['sidebar_id' => $sidebar->id]);
+                }
+            }
 
+            $role = Role::findOrFail($roleId);
             // Log activity
             $this->logActivity('role_assigned', $user, [
                 'role_name' => $role->name,
@@ -152,6 +178,7 @@ class UserService
         if ($search) {
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%");
             })->orWhereHas('role', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%");

@@ -40,6 +40,14 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->group(function () {
     Route::post('/users/roles', [UserController::class, 'storeRole'])->name('root.users.roles.store');
     Route::delete('/users/roles/{id}', [UserController::class, 'removeRole'])->name('root.users.roles.remove');
     Route::post('/users/roles/{id}/tabs', [UserController::class, 'assignTabs'])->name('root.users.tabs');
+
+    // Role Management
+    Route::get('/roles', [\App\Http\Controllers\Root\RoleController::class, 'index'])->name('root.roles.index');
+    Route::get('/roles/create', [\App\Http\Controllers\Root\RoleController::class, 'create'])->name('root.roles.create');
+    Route::post('/roles', [\App\Http\Controllers\Root\RoleController::class, 'store'])->name('root.roles.store');
+    Route::get('/roles/{role}/edit', [\App\Http\Controllers\Root\RoleController::class, 'edit'])->name('root.roles.edit');
+    Route::put('/roles/{role}', [\App\Http\Controllers\Root\RoleController::class, 'update'])->name('root.roles.update');
+    Route::delete('/roles/{role}', [\App\Http\Controllers\Root\RoleController::class, 'destroy'])->name('root.roles.destroy');
 });
 
 // Agent/Admin Routes (Protected by role:admin)

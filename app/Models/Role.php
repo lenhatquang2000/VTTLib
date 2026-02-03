@@ -12,4 +12,9 @@ class Role extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function sidebars()
+    {
+        return $this->belongsToMany(Sidebar::class, 'role_sidebars');
+    }
 }
