@@ -55,7 +55,7 @@
                                 @if($sidebar->children->isNotEmpty())
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
                                         @foreach($sidebar->children as $child)
-                                            <label class="flex items-center p-3.5 bg-white dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-xl cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-400 hover:shadow-md transition-all">
+                                            <label class="flex items-center p-3.5 bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-xl cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-400 hover:shadow-md transition-all">
                                                 <input type="checkbox" name="sidebars[]" value="{{ $child->id }}"
                                                     {{ in_array($child->id, $roleSidebars) ? 'checked' : '' }}
                                                     class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 transition">

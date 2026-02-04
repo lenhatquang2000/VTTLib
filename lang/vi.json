@@ -1,5 +1,7 @@
 {
     "Home": "Trang chủ",
+    "Root": "Hệ thống Root",
+    "Admin": "Quản trị viên",
     "Books": "Sách",
     "Authors": "Tác giả",
     "Login": "Đăng nhập",
@@ -57,7 +59,6 @@
     "Not a member?": "Chưa có tài khoản?",
     "Start a 14-day free trial": "Bật đầu dùng thử 14 ngày",
     "Admin Dashboard": "Bảng điều khiển Admin",
-    "Admin": "Quản trị viên",
     "USER_MANAGEMENT": "QUẢN LÝ NGƯỜI DÙNG",
     "SYSTEM_LOGS": "NHẬT KÝ HỆ THỐNG",
     "DB_TERMINAL": "GIAO DIỆN DATABASE",

@@ -187,25 +187,29 @@
                         <input type="hidden" name="max_id" id="max_id_input">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-1.5">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Subject_Name') }} (Tên đối tượng)</label>
-                                <input type="text" name="name" id="name_input" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Subject_Name') }} (Tên đối tượng)</label>
+                                <input type="text" name="name" id="name_input" required 
+                                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                             </div>
                             <div class="space-y-1.5">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Username') }} (Tên định danh)</label>
-                                <input type="text" name="username" id="username_input" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Username') }} (Tên định danh)</label>
+                                <input type="text" name="username" id="username_input" required 
+                                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                                 <p id="username_status" class="text-[10px] font-bold mt-1 pl-1 hidden"></p>
                             </div>
                         </div>
 
                         <div class="space-y-1.5">
-                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Communication_Relay') }} (Email)</label>
-                            <input type="email" name="email" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Communication_Relay') }} (Email)</label>
+                            <input type="email" name="email" required 
+                                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-1.5">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Security_Cipher') }} (Mật khẩu)</label>
-                                <input type="password" name="password" id="password_input" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Security_Cipher') }} (Mật khẩu)</label>
+                                <input type="password" name="password" id="password_input" required 
+                                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                                 <div id="password_requirements" class="mt-2 space-y-1 px-1 hidden">
                                     <p id="req_length" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Tối thiểu 8 ký tự</p>
                                     <p id="req_case" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa chữ hoa & chữ thường</p>
@@ -214,8 +218,9 @@
                                 </div>
                             </div>
                             <div class="space-y-1.5">
-                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Clearance_Level') }} (Vai trò)</label>
-                                <select name="role_id" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat pr-12">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Clearance_Level') }} (Vai trò)</label>
+                                <select name="role_id" required 
+                                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat pr-12">
                                     @foreach($roles as $role)
                                         <option value="{{ $role->id }}">{{ $role->display_name }} ({{ strtoupper($role->name) }})</option>
                                     @endforeach

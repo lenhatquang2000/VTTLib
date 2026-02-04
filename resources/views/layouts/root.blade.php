@@ -176,6 +176,7 @@
             </div>
         </header>
         <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50 dark:bg-slate-950/20">
+            <x-breadcrumb />
             @yield('content')
         </div>
 
@@ -189,6 +190,7 @@
 
         const savedTheme = localStorage.getItem('root-theme') || 'dark';
         body.setAttribute('data-theme', savedTheme);
+        if (savedTheme === 'dark') body.classList.add('dark');
         updateIcon(savedTheme);
 
         themeToggle.addEventListener('click', () => {
@@ -196,6 +198,7 @@
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
             body.setAttribute('data-theme', newTheme);
+            body.classList.toggle('dark', newTheme === 'dark');
             localStorage.setItem('root-theme', newTheme);
             updateIcon(newTheme);
         });

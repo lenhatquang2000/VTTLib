@@ -52,7 +52,7 @@
                                 @if($sidebar->children->isNotEmpty())
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-10">
                                         @foreach($sidebar->children as $child)
-                                            <label class="flex items-center p-4 bg-white dark:bg-slate-800-ish border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-300 transition-all shadow-sm">
+                                            <label class="flex items-center p-4 bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-300 transition-all shadow-sm">
                                                 <input type="checkbox" name="sidebars[]" value="{{ $child->id }}"
                                                     class="w-5 h-5 rounded-md border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 transition">
                                                 <div class="ml-4">
@@ -70,7 +70,7 @@
 
                 <div class="pt-8 border-t border-slate-100 dark:border-slate-700 flex justify-end">
                     <button type="submit"
-                        class="px-12 py-4.5 bg-indigo-600 text-white rounded-[1.25rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-indigo-700 transition transform active:scale-95 shadow-2xl shadow-indigo-500/20 dark:shadow-none">
+                        class="px-14 py-5 bg-indigo-600 text-white rounded-[1.25rem] font-black uppercase text-xs tracking-[0.2em] hover:bg-indigo-700 transition transform active:scale-95 shadow-2xl shadow-indigo-500/20 dark:shadow-none">
                         {{ __('Execute_Provision') }}
                     </button>
                 </div>

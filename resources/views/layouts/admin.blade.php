@@ -95,7 +95,7 @@
                         </button>
                         <div x-show="open && sidebarOpen" x-cloak class="pl-10 space-y-1">
                             @foreach($assignedChildren as $child)
-                                <a href="{{ $child->route_name != '#' ? route($child->route_name) : '#' }}"
+                                <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
                                     class="block px-4 py-2 text-sm {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'text-indigo-400 font-bold' : 'text-slate-500 hover:text-white' }} transition whitespace-nowrap">
                                     {{ __($child->name) }}
                                 </a>
@@ -103,7 +103,7 @@
                         </div>
                     </div>
                 @else
-                    <a href="{{ $tab->route_name != '#' ? route($tab->route_name) : '#' }}"
+                    <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
                         :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
                         class="flex items-center py-3 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} rounded-lg group transition">
                         <div class="flex-shrink-0" :class="sidebarOpen ? '' : 'flex justify-center w-full'">{!! $tab->icon !!}</div>
@@ -167,6 +167,7 @@
 
         <!-- Page Content -->
         <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <x-breadcrumb />
             @yield('content')
         </main>
     </div>
