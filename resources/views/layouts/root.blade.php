@@ -12,6 +12,8 @@
             --bg-color: #f8fafc;
             --sidebar-bg: #1e293b;
             --sidebar-active: #334155;
+            --sidebar-width: 18rem;
+            --sidebar-collapsed-width: 5rem;
             --card-bg: #ffffff;
             --text-primary: #0f172a;
             --text-secondary: #64748b;
@@ -42,6 +44,12 @@
         .sidebar-root {
             background-color: var(--sidebar-bg);
             color: #cbd5e1;
+            width: var(--sidebar-width);
+            flex-shrink: 0;
+        }
+
+        .sidebar-root.collapsed {
+            width: var(--sidebar-collapsed-width);
         }
 
         .sidebar-link {
@@ -51,6 +59,23 @@
             border-radius: 0.5rem;
             transition: all 0.2s;
             font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-link span {
+            transition: opacity 0.3s;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .sidebar-root.collapsed .sidebar-link span,
+        .sidebar-root.collapsed .sidebar-header-text,
+        .sidebar-root.collapsed .sidebar-section-title {
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
         }
 
         .sidebar-link:hover {
@@ -98,52 +123,85 @@
         }
         .animate-toast-in { animation: toast-in 0.3s ease-out forwards; }
         .animate-toast-out { animation: toast-out 0.3s ease-in forwards; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 
 <body class="min-h-screen flex" id="root-body">
     <!-- Sidebar -->
-    <aside class="sidebar-root w-64 flex flex-col transition-all duration-300 sticky top-0 h-screen shadow-xl z-20">
-        <div class="h-16 flex items-center px-6 border-b border-slate-700">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center font-bold text-white shadow-lg">V</div>
-                <span class="font-bold tracking-tight text-white">VTTLib <span class="text-indigo-400">Root</span></span>
+    <aside id="sidebar" class="sidebar-root flex flex-col transition-all duration-300 sticky top-0 h-screen shadow-xl z-20 overflow-hidden">
+        <div class="h-16 flex items-center px-6 border-b border-slate-700/50 justify-between">
+            <div class="flex items-center space-x-3 overflow-hidden">
+                <div class="w-8 h-8 bg-indigo-500 rounded-lg flex-shrink-0 flex items-center justify-center font-bold text-white shadow-lg">V</div>
+                <span class="font-bold tracking-tight text-white sidebar-header-text truncate transition-all duration-300">VTTLib <span class="text-indigo-400">Root</span></span>
             </div>
+            <button id="sidebar-toggle" class="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <svg class="w-5 h-5 toggle-icon transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
         </div>
-        <nav class="flex-1 p-4 space-y-1">
-            <div class="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ __('Management') }}</div>
+        <nav class="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+            <div class="px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest sidebar-section-title truncate transition-all duration-300">{{ __('Management') }}</div>
             <a href="{{ route('root.users.index') }}"
-                class="sidebar-link {{ request()->routeIs('root.users.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                {{ __('USER_MANAGEMENT') }}
+                class="sidebar-link {{ request()->routeIs('root.users.index') ? 'active' : '' }}" title="{{ __('User Management') }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="flex-1 truncate transition-all duration-300">{{ __('User Management') }}</span>
+            </a>
+            <a href="{{ route('root.users.privileges') }}"
+                class="sidebar-link {{ request()->routeIs('root.users.privileges') ? 'active' : '' }}" title="{{ __('User_Privilege_Management') }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <span class="flex-1 truncate transition-all duration-300">{{ __('User_Privilege_Management') }}</span>
             </a>
             <a href="{{ route('root.roles.index') }}"
-                class="sidebar-link {{ request()->routeIs('root.roles.*') ? 'active' : '' }}">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-                {{ __('Role Management') }}
+                class="sidebar-link {{ request()->routeIs('root.roles.*') ? 'active' : '' }}" title="{{ __('Role Management') }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                <span class="flex-1 truncate transition-all duration-300">{{ __('Role Management') }}</span>
             </a>
             
-            <div class="px-3 py-2 mt-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">{{ __('System') }}</div>
-            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                {{ __('SYSTEM_LOGS') }}
+            <div class="px-3 py-2 mt-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest sidebar-section-title truncate transition-all duration-300">{{ __('System') }}</div>
+            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed" title="{{ __('SYSTEM_LOGS') }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="flex-1 truncate transition-all duration-300">{{ __('SYSTEM_LOGS') }}</span>
             </a>
-            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                {{ __('DB_TERMINAL') }}
+            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed" title="{{ __('DB_TERMINAL') }}">
+                <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="flex-1 truncate transition-all duration-300">{{ __('DB_TERMINAL') }}</span>
             </a>
         </nav>
-        <div class="p-4 border-t border-slate-700">
+        <div class="p-4 border-t border-slate-700/50">
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit"
-                    class="w-full flex items-center p-2 text-sm text-slate-400 hover:text-white transition">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    {{ __('Logout') }}
+                    class="w-full sidebar-link text-sm text-slate-400 hover:text-white transition" title="{{ __('Logout') }}">
+                    <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    <span class="flex-1 truncate transition-all duration-300">{{ __('Logout') }}</span>
                 </button>
             </form>
         </div>
     </aside>
+
+    <script>
+        // Sidebar Toggle Persistence
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggleIcon = sidebarToggle.querySelector('.toggle-icon');
+
+        // Check for saved sidebar state
+        if (localStorage.getItem('root_sidebar_collapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+            toggleIcon.classList.add('rotate-180');
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            toggleIcon.classList.toggle('rotate-180');
+            localStorage.setItem('root_sidebar_collapsed', sidebar.classList.contains('collapsed'));
+        });
+    </script>
 
     <!-- Main -->
     <main class="flex-1 flex flex-col overflow-hidden transition-all duration-300">
