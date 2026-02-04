@@ -23,31 +23,31 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <!-- Name -->
                     <div class="space-y-2">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('Full_Name') }}</label>
+                        <label class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{{ __('Full_Name') }}</label>
                         <input type="text" name="name" value="{{ $user->name }}" required
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium dark:text-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                     </div>
 
                     <!-- Username -->
                     <div class="space-y-2">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('Username') }}</label>
+                        <label class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{{ __('Username') }}</label>
                         <input type="text" name="username" value="{{ $user->username }}" required
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium dark:text-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                     </div>
 
                     <!-- Email -->
                     <div class="space-y-2">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('Email_Address') }}</label>
+                        <label class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{{ __('Email_Address') }}</label>
                         <input type="email" name="email" value="{{ $user->email }}" required
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium dark:text-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                     </div>
 
                     <!-- Password -->
                     <div class="space-y-2">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('New_Password') }}</label>
+                        <label class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{{ __('New_Password') }}</label>
                         <input type="password" name="password" id="password_input"
                             placeholder="{{ __('Leave_blank_to_keep_current') }}"
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium dark:text-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                         <div id="password_requirements" class="mt-2 space-y-1 px-1 hidden">
                             <p id="req_length" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Tối thiểu 8 ký tự</p>
                             <p id="req_case" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa chữ hoa & chữ thường</p>
@@ -58,43 +58,26 @@
 
                     <!-- Password Confirmation -->
                     <div class="space-y-2">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('Confirm_Password') }}</label>
+                        <label class="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-1">{{ __('Confirm_Password') }}</label>
                         <input type="password" name="password_confirmation" 
                             placeholder="{{ __('Confirm_new_password') }}"
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium dark:text-slate-200 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                     </div>
                 </div>
 
-                <!-- Roles Selection -->
-                <div class="mt-10 space-y-4">
-                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 block">{{ __('Security_Clearance_Configuration') }}</label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        @foreach($roles as $role)
-                        <label class="relative flex items-center p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-indigo-500 transition-all group">
-                            <input type="checkbox" name="roles[]" value="{{ $role->id }}" 
-                                {{ $user->roles->contains($role->id) ? 'checked' : '' }}
-                                class="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all">
-                            <div class="ml-3">
-                                <span class="block text-sm font-black text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 transition-colors">{{ $role->display_name }}</span>
-                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ $role->name }}</span>
-                            </div>
-                        </label>
-                        @endforeach
-                    </div>
-                </div>
 
                 <!-- User Info Cards -->
                 <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-2xl">
-                        <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ __('User_ID') }}</span>
+                    <div class="p-5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-700 rounded-2xl">
+                        <span class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('User_ID') }}</span>
                         <span class="text-sm font-mono font-bold text-slate-600 dark:text-slate-300">#{{ str_pad($user->id, 5, '0', STR_PAD_LEFT) }}</span>
                     </div>
-                    <div class="p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-2xl">
-                        <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ __('Created') }}</span>
+                    <div class="p-5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-700 rounded-2xl">
+                        <span class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Created') }}</span>
                         <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ $user->created_at->format('M d, Y') }}</span>
                     </div>
-                    <div class="p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-2xl">
-                        <span class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{{ __('Active_Roles') }}</span>
+                    <div class="p-5 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-700 rounded-2xl">
+                        <span class="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Active_Roles') }}</span>
                         <div class="flex flex-wrap gap-1 mt-1">
                             @foreach($user->roles as $role)
                                 <span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase rounded">

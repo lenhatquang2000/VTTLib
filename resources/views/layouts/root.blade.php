@@ -7,6 +7,28 @@
     <title>VTTLib - Root System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: '#f5f7ff',
+                            100: '#ebf0fe',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        },
+                        slate: {
+                            900: '#0f172a',
+                            950: '#020617',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -252,11 +274,15 @@
     <script>
         const themeToggle = document.getElementById('theme-toggle');
         const body = document.getElementById('root-body');
+        const html = document.documentElement;
         const themeIcon = document.getElementById('theme-icon');
 
         const savedTheme = localStorage.getItem('root-theme') || 'dark';
         body.setAttribute('data-theme', savedTheme);
-        if (savedTheme === 'dark') body.classList.add('dark');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark');
+            html.classList.add('dark');
+        }
         updateIcon(savedTheme);
 
         themeToggle.addEventListener('click', () => {
@@ -265,6 +291,7 @@
 
             body.setAttribute('data-theme', newTheme);
             body.classList.toggle('dark', newTheme === 'dark');
+            html.classList.toggle('dark', newTheme === 'dark');
             localStorage.setItem('root-theme', newTheme);
             updateIcon(newTheme);
         });

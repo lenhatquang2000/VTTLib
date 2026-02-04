@@ -6,7 +6,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
             <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">{{ __('User Management') }}</h1>
-            <p class="text-lg font-medium text-slate-500 mt-1">{{ __('Monitor and manage system identity sequences.') }}</p>
+            <p class="text-lg font-medium text-slate-500 dark:text-slate-400 mt-1">{{ __('Monitor and manage system identity sequences.') }}</p>
         </div>
         <div class="flex items-center gap-3">
             <button onclick="openModal('createUserModal')" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white text-sm font-black uppercase tracking-widest rounded-2xl hover:bg-indigo-700 shadow-xl shadow-indigo-500/20 dark:shadow-none transition-all transform active:scale-95 group">
@@ -108,7 +108,7 @@
                                 </div>
                                 <div class="ml-5">
                                     <div class="text-base font-black text-slate-900 dark:text-white leading-tight">{{ $user->name }}</div>
-                                    <div class="text-xs font-bold text-slate-400 mt-1">@ {{ $user->username }} <span class="mx-1.5">•</span> {{ $user->email }}</div>
+                                    <div class="text-xs font-bold text-slate-400 dark:text-slate-500 mt-1">@ {{ $user->username }} <span class="mx-1.5">•</span> {{ $user->email }}</div>
                                 </div>
                             </div>
                         </td>
@@ -150,7 +150,7 @@
                         </td>
                         <td class="px-6 py-7 whitespace-nowrap">
                             <div class="text-sm font-black text-slate-700 dark:text-slate-300">{{ $user->created_at->format('M d, Y') }}</div>
-                            <div class="text-[9px] text-slate-400 font-extrabold uppercase tracking-widest mt-1">{{ $user->created_at->diffForHumans() }}</div>
+                            <div class="text-[9px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-widest mt-1">{{ $user->created_at->diffForHumans() }}</div>
                         </td>
                         <td class="px-10 py-7 whitespace-nowrap text-right">
                             <div class="flex justify-end items-center gap-2.5">
@@ -163,8 +163,8 @@
                                     <div class="absolute right-0 bottom-full mb-3 w-64 opacity-0 invisible group-hover/role-select:opacity-100 group-hover/role-select:visible transition-all duration-300 z-50 transform translate-y-2 group-hover/role-select:translate-y-0">
                                         <div class="bg-white dark:bg-slate-800 rounded-[1.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden p-3">
                                             <div class="px-4 py-2 border-b border-slate-50 dark:border-slate-700/50 mb-2">
-                                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">{{ __('Escalate Clearance') }}</p>
-                                                <p class="text-[10px] font-bold text-slate-900 dark:text-white truncate mt-0.5">{{ $user->name }}</p>
+                                                <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Escalate Clearance') }}</p>
+                                                <p class="text-10px font-bold text-slate-900 dark:text-white truncate mt-0.5">{{ $user->name }}</p>
                                             </div>
                                             <div class="space-y-1 max-h-48 overflow-y-auto custom-scrollbar">
                                                 @php
@@ -210,7 +210,7 @@
                                     <svg class="w-16 h-16 text-slate-200 dark:text-slate-700 group-hover:scale-110 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </div>
                                 <h4 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{{ __('No Identities Detected') }}</h4>
-                                <p class="text-slate-500 font-medium mt-3 text-base">{{ __('Try adjusting your filter parameters to locate the subject fingerprint.') }}</p>
+                                <p class="text-slate-500 dark:text-slate-400 font-medium mt-3 text-base">{{ __('Try adjusting your filter parameters to locate the subject fingerprint.') }}</p>
                                 <a href="{{ route('root.users.index') }}" class="mt-10 px-8 py-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-[0.3em] rounded-2xl hover:bg-indigo-600 hover:text-white transition-all">{{ __('Reset Global Filter') }}</a>
                             </div>
                         </td>
@@ -222,7 +222,7 @@
 
         <!-- Pagination -->
         <div class="px-10 py-10 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-700/50 flex flex-col md:flex-row justify-between items-center gap-8">
-            <div class="text-[10px] text-slate-400 font-extrabold uppercase tracking-[0.25em]">
+            <div class="text-[10px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-[0.25em]">
                 {{ __('Displaying Sequence') }} <span class="text-slate-900 dark:text-white">{{ $users->firstItem() ?? 0 }}</span> - <span class="text-slate-900 dark:text-white">{{ $users->lastItem() ?? 0 }}</span> <span class="mx-3 text-slate-300 dark:text-slate-700">/</span> {{ $users->total() }} ARCHIVED IDENTITIES
             </div>
             <div class="custom-pagination">

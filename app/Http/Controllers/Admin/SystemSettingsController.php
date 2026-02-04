@@ -38,6 +38,29 @@ class SystemSettingsController extends Controller
         return back()->with('success', __('Library information updated successfully.'));
     }
 
+    public function updatePolicy(Request $request)
+    {
+        $data = $request->validate([
+            'loan_time_unit' => 'required|string',
+            'opening_time' => 'nullable|string',
+            'closing_time' => 'nullable|string',
+            'fine_notification_time' => 'nullable|string',
+            'debt_notification_time' => 'nullable|string',
+            'grace_period' => 'required|integer|min:0',
+            'fine_period' => 'required|integer|min:0',
+            'default_replacement_cost' => 'required|numeric|min:0',
+            'default_processing_cost' => 'required|numeric|min:0',
+            'urgent_fine_rate' => 'required|numeric|min:0',
+            'normal_fine_rate' => 'required|numeric|min:0',
+        ]);
+
+        foreach ($data as $key => $value) {
+            SystemSetting::set($key, $value, 'policy');
+        }
+
+        return back()->with('success', __('Library policies updated successfully.'));
+    }
+
     public function storeBarcodeConfig(Request $request)
     {
         $validated = $request->validate([

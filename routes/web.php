@@ -93,6 +93,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     // System Settings (topsecret)
     Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings/library', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateLibraryInfo'])->name('admin.settings.library.update');
+    Route::post('/settings/policy', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updatePolicy'])->name('admin.settings.policy.update');
     
     // Barcode Configs
     Route::post('/settings/barcode', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeBarcodeConfig'])->name('admin.settings.barcode.store');
