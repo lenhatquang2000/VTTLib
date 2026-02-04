@@ -57,6 +57,9 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->group(function () {
     Route::post('/patrons/groups', [\App\Http\Controllers\Root\PatronGroupController::class, 'store'])->name('root.patrons.groups.store');
     Route::put('/patrons/groups/{patronGroup}', [\App\Http\Controllers\Root\PatronGroupController::class, 'update'])->name('root.patrons.groups.update');
     Route::delete('/patrons/groups/{patronGroup}', [\App\Http\Controllers\Root\PatronGroupController::class, 'destroy'])->name('root.patrons.groups.destroy');
+    // Activity Logs
+    Route::get('/activity-logs', [\App\Http\Controllers\Root\ActivityLogController::class, 'index'])->name('root.activity-logs.index');
+    Route::get('/activity-logs/{log}', [\App\Http\Controllers\Root\ActivityLogController::class, 'show'])->name('root.activity-logs.show');
 });
 
 // Agent/Admin Routes (Protected by role:admin)

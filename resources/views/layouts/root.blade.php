@@ -194,7 +194,7 @@
             </a>
             
             <div class="px-3 py-2 mt-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest sidebar-section-title truncate transition-all duration-300">{{ __('System') }}</div>
-            <a href="#" class="sidebar-link opacity-50 cursor-not-allowed" title="{{ __('SYSTEM_LOGS') }}">
+            <a href="{{ route('root.activity-logs.index') }}" class="sidebar-link {{ request()->routeIs('root.activity-logs.*') ? 'active' : '' }}" title="{{ __('SYSTEM_LOGS') }}">
                 <svg class="w-5 h-5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <span class="flex-1 truncate transition-all duration-300">{{ __('SYSTEM_LOGS') }}</span>
             </a>
