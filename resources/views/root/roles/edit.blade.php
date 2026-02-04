@@ -74,15 +74,11 @@
 
                 <div class="pt-8 border-t border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6">
                     <div>
-                        <form id="delete-role-form" action="{{ route('root.roles.destroy', $role->id) }}" method="POST"
-                            onsubmit="return confirm('{{ __('Delete_Confirmation') }}')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg hover:bg-rose-600 hover:text-white transition shadow-sm">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                {{ __('Delete_Role') }}
-                            </button>
-                        </form>
+                        <button type="button" onclick="if(confirm('{{ __('Delete_Confirmation') }}')) document.getElementById('delete-role-form').submit();" 
+                            class="inline-flex items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg hover:bg-rose-600 hover:text-white transition shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            {{ __('Delete_Role') }}
+                        </button>
                     </div>
                     
                     <div class="flex items-center gap-4 w-full md:w-auto">
@@ -97,6 +93,13 @@
                 </div>
             </div>
         </form>
+
+        <!-- Hidden Delete Form -->
+        <form id="delete-role-form" action="{{ route('root.roles.destroy', $role->id) }}" method="POST" class="hidden">
+            @csrf
+            @method('DELETE')
+        </form>
+    </div>
     </div>
 
     <style>

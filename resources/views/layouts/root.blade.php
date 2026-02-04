@@ -86,6 +86,18 @@
         .hover\:bg-red-900\/5:hover { background-color: rgba(79, 70, 229, 0.05) !important; }
         
         .font-mono { font-family: 'Inter', sans-serif !important; }
+
+        /* Toast Animations */
+        @keyframes toast-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes toast-out {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        .animate-toast-in { animation: toast-in 0.3s ease-out forwards; }
+        .animate-toast-out { animation: toast-out 0.3s ease-in forwards; }
     </style>
 </head>
 
@@ -166,6 +178,8 @@
         <div class="flex-1 overflow-y-auto p-8 bg-slate-50/50 dark:bg-slate-950/20">
             @yield('content')
         </div>
+
+        <div id="toast-container" class="fixed top-6 right-6 z-[200] space-y-3 pointer-events-none"></div>
     </main>
 
     <script>
@@ -173,7 +187,6 @@
         const body = document.getElementById('root-body');
         const themeIcon = document.getElementById('theme-icon');
 
-        // Check for saved theme
         const savedTheme = localStorage.getItem('root-theme') || 'dark';
         body.setAttribute('data-theme', savedTheme);
         updateIcon(savedTheme);
@@ -194,6 +207,62 @@
                 themeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />`;
             }
         }
+
+        // Global Toast Logic
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? '#4f46e5' : '#e11d48'; // Indigo-600 vs Rose-600
+            const icon = type === 'success' 
+                ? `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
+                : `<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+            toast.className = `flex items-center p-4 min-w-[320px] max-w-md text-white rounded-2xl shadow-2xl pointer-events-auto animate-toast-in`;
+            toast.style.backgroundColor = bgColor;
+            toast.style.zIndex = '9999';
+            
+            toast.innerHTML = `
+                <div class="flex-shrink-0 mr-3 p-1.5 bg-white/20 rounded-xl">${icon}</div>
+                <div class="flex-1 text-[11px] font-black uppercase tracking-widest leading-tight">${message}</div>
+                <button class="ml-4 p-1 text-white/40 hover:text-white transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto-remove
+            const removeTimeout = setTimeout(() => {
+                toast.classList.replace('animate-toast-in', 'animate-toast-out');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+
+            // Close button
+            toast.querySelector('button').onclick = () => {
+                clearTimeout(removeTimeout);
+                toast.classList.replace('animate-toast-in', 'animate-toast-out');
+                setTimeout(() => toast.remove(), 300);
+            };
+        }
+
+        // Global initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            // Trigger toasts from session
+            @if(session('success')) 
+                showToast(@json(session('success')), 'success'); 
+            @endif
+
+            @if(session('error')) 
+                showToast(@json(session('error')), 'error'); 
+            @endif
+
+            @if($errors->any())
+                @foreach($errors->all() as $error)
+                    showToast(@json($error), 'error');
+                @endforeach
+            @endif
+        });
     </script>
 </body>
 

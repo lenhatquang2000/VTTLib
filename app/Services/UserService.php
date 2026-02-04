@@ -26,19 +26,8 @@ class UserService
 
             $user->roles()->attach($roleId);
             
-            // Auto-sync sidebars from role template
-            $roleUser = \App\Models\RoleUser::where('user_id', $user->id)
-                ->where('role_id', $roleId)
-                ->first();
-            
-            if ($roleUser) {
-                $role = Role::with('sidebars')->find($roleId);
-                foreach ($role->sidebars as $sidebar) {
-                    $roleUser->sidebars()->create(['sidebar_id' => $sidebar->id]);
-                }
-            }
+            $this->syncRoleSidebars($user->id, $roleId);
 
-            // Log activity
             $this->logActivity('user_created', $user, [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -122,16 +111,7 @@ class UserService
             $user->roles()->attach($roleId);
             
             // Auto-sync sidebars from role template
-            $roleUser = \App\Models\RoleUser::where('user_id', $user->id)
-                ->where('role_id', $roleId)
-                ->first();
-            
-            if ($roleUser) {
-                $role = Role::with('sidebars')->find($roleId);
-                foreach ($role->sidebars as $sidebar) {
-                    $roleUser->sidebars()->create(['sidebar_id' => $sidebar->id]);
-                }
-            }
+            $this->syncRoleSidebars($user->id, $roleId);
 
             $role = Role::findOrFail($roleId);
             // Log activity
@@ -171,18 +151,24 @@ class UserService
     /**
      * Get users with search and pagination
      */
-    public function getUsersWithFilters(?string $search = null, int $perPage = 10)
+    public function getUsersWithFilters(?string $search = null, ?int $roleId = null, int $perPage = 10)
     {
         $query = \App\Models\RoleUser::with(['user', 'role', 'sidebars.sidebar']);
 
         if ($search) {
-            $query->whereHas('user', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            })->orWhereHas('role', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
+            $query->where(function($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                      ->orWhere('username', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('role', function ($rq) use ($search) {
+                    $rq->where('name', 'like', "%{$search}%");
+                });
             });
+        }
+
+        if ($roleId) {
+            $query->where('role_id', $roleId);
         }
 
         return $query->paginate($perPage)->withQueryString();
@@ -218,5 +204,71 @@ class UserService
                 'reset_by' => Auth::user()->name
             ]);
         });
+    }
+
+    /**
+     * Check if username exists and return the current max ID in the system.
+     */
+    public function checkUsername(string $username): array
+    {
+        $exists = User::where('username', $username)->exists();
+        $maxId = User::max('id') ?? 0;
+
+        return [
+            'exists' => $exists,
+            'max_id' => $maxId
+        ];
+    }
+
+    /**
+     * Synchronize sidebars from a role to a specific user-role assignment
+     */
+    public function syncRoleSidebars(int $userId, int $roleId): void
+    {
+        $roleUser = \App\Models\RoleUser::where('user_id', $userId)
+            ->where('role_id', $roleId)
+            ->first();
+        
+        if (!$roleUser) return;
+
+        $role = Role::with('sidebars')->find($roleId);
+        if (!$role) return;
+
+        // Clear existing custom sidebars for this assignment to avoid duplicates
+        $roleUser->sidebars()->delete();
+
+        foreach ($role->sidebars as $sidebar) {
+            $roleUser->sidebars()->create(['sidebar_id' => $sidebar->id]);
+        }
+    }
+
+    /**
+     * Incrementally sync sidebars for ALL users belonging to a specific role.
+     * This ONLY ADDS missing sidebars that are defined in the role template,
+     * without deleting existing custom sidebars assigned to the user.
+     */
+    public function syncAllUsersToRoleSidebars(int $roleId): void
+    {
+        $role = Role::with('sidebars')->findOrFail($roleId);
+        $roleSidebarIds = $role->sidebars->pluck('id')->toArray();
+
+        if (empty($roleSidebarIds)) return;
+
+        // Get all pivot records for this role
+        $roleUsers = \App\Models\RoleUser::where('role_id', $roleId)->get();
+
+        foreach ($roleUsers as $roleUser) {
+            // Get existing sidebar assignments for this specific pivot record
+            $existingSidebarIds = $roleUser->sidebars()->pluck('sidebar_id')->toArray();
+
+            // Find IDs that are in the role template but NOT in the user's current list
+            $missingIds = array_diff($roleSidebarIds, $existingSidebarIds);
+
+            if (!empty($missingIds)) {
+                foreach ($missingIds as $sidebarId) {
+                    $roleUser->sidebars()->create(['sidebar_id' => $sidebarId]);
+                }
+            }
+        }
     }
 }

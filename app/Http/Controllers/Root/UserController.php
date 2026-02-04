@@ -25,25 +25,40 @@ class UserController extends Controller
     public function index(Request $request)
     {
         $search = $request->query('search');
+        $roleId = $request->query('role_id');
         $perPage = $request->query('per_page', 10);
 
-        $roleUsers = $this->userService->getUsersWithFilters($search, $perPage);
+        $roleUsers = $this->userService->getUsersWithFilters($search, $roleId, $perPage);
         $users = User::all();
         $roles = Role::all();
         $sidebars = Sidebar::whereNull('parent_id')->with('children')->orderBy('order')->get();
 
-        return view('root.users.index', compact('roleUsers', 'users', 'roles', 'sidebars', 'search', 'perPage'));
+        return view('root.users.index', compact('roleUsers', 'users', 'roles', 'sidebars', 'search', 'roleId', 'perPage'));
     }
 
     public function store(StoreUserRequest $request)
     {
         try {
             $validated = $request->validated();
+            $maxIdSent = $request->input('max_id');
+            $currentMaxId = User::max('id') ?? 0;
+
+            if ($maxIdSent !== null && (int)$maxIdSent !== (int)$currentMaxId) {
+                return redirect()->back()->with('error', 'Cơ sở dữ liệu đã có sự thay đổi (Max ID mismatch). Vui lòng thực hiện lại thao tác khởi tạo.');
+            }
+
             $this->userService->createUser($validated, $validated['role_id']);
             return redirect()->back()->with('success', 'User and initial role created successfully');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to create user: ' . $e->getMessage());
         }
+    }
+
+    public function checkUsername(Request $request)
+    {
+        $username = $request->query('username');
+        $result = $this->userService->checkUsername($username);
+        return response()->json($result);
     }
 
     public function storeRole(AssignRoleRequest $request)
@@ -87,6 +102,17 @@ class UserController extends Controller
         return redirect()->back()->with('success', 'Sidebar tabs updated successfully');
     }
 
+    public function syncTabs($roleUserId)
+    {
+        try {
+            $roleUserPivot = \App\Models\RoleUser::findOrFail($roleUserId);
+            $this->userService->syncRoleSidebars($roleUserPivot->user_id, $roleUserPivot->role_id);
+            return redirect()->back()->with('success', 'Sidebar tabs synced from role template successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to sync tabs: ' . $e->getMessage());
+        }
+    }
+
     public function edit($id)
     {
         $user = User::findOrFail($id);
@@ -105,6 +131,27 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update user: ' . $e->getMessage());
         }
+    }
+
+    public function assignRoles(Request $request)
+    {
+        $search = $request->query('search');
+        $perPage = $request->query('per_page', 20);
+
+        $usersQuery = User::with('roles');
+
+        if ($search) {
+            $usersQuery->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $usersQuery->paginate($perPage)->withQueryString();
+        $roles = Role::all();
+
+        return view('root.users.assign', compact('users', 'roles', 'search', 'perPage'));
     }
 
     public function destroy($id)

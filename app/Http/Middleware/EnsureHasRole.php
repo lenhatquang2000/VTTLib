@@ -15,12 +15,28 @@ class EnsureHasRole
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!$request->user() || !$request->user()->hasRole($role)) {
-            // Nếu là admin route mà không có quyền admin
-            if ($role === 'admin') {
-                return abort(403, 'Unauthorized access to Agent Area.');
+        $user = $request->user();
+        if (!$user) {
+            return abort(403, 'Access Denied.');
+        }
+
+        if ($role === 'admin') {
+            $isAdminOrRoot = $user->hasRole('admin') || $user->hasRole('root');
+            $hasAssignedTabs = $user->getSidebarTabs()->isNotEmpty();
+
+            if ($isAdminOrRoot || $hasAssignedTabs) {
+                return $next($request);
             }
-            // Nếu là khách mà không có quyền visitor (ví dụ bị khóa hoặc chưa gán quyền)
+
+            // Debug block if requested (can be seen in 403 response or logs)
+            // Uncomment for deep debug:
+            // dd(['is_admin_root' => $isAdminOrRoot, 'has_tabs' => $hasAssignedTabs, 'roles' => $user->roles->pluck('name')]);
+            
+            return abort(403, 'Unauthorized access to Agent Area.');
+        }
+
+        // Standard role check for other roles (visitor, root, etc.)
+        if (!$user->hasRole($role)) {
             return abort(403, 'Access Denied.');
         }
 

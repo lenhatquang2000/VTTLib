@@ -16,7 +16,7 @@ class ClientLoginController extends Controller
     public function store(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
@@ -24,7 +24,7 @@ class ClientLoginController extends Controller
             if (!$request->user()->hasRole('visitor')) {
                 Auth::logout();
                 throw ValidationException::withMessages([
-                    'email' => 'Access denied. You do not have permission to access the client area.',
+                    'username' => 'Access denied. You do not have permission to access the client area.',
                 ]);
             }
             $request->session()->regenerate();
@@ -33,7 +33,7 @@ class ClientLoginController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.failed'),
+            'username' => trans('auth.failed'),
         ]);
     }
 }

@@ -2,19 +2,6 @@
 
 @section('content')
     <div class="max-w-4xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-        @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-600 p-4 rounded-2xl text-sm font-medium flex items-center shadow-sm">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-rose-50 border border-rose-200 text-rose-600 p-4 rounded-2xl text-sm font-medium flex items-center shadow-sm">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                {{ session('error') }}
-            </div>
-        @endif
-
         <!-- Header -->
         <div class="flex items-center justify-between pb-2">
             <div>
@@ -58,10 +45,15 @@
                     <!-- Password -->
                     <div class="space-y-2">
                         <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('New_Password') }}</label>
-                        <input type="password" name="password" 
+                        <input type="password" name="password" id="password_input"
                             placeholder="{{ __('Leave_blank_to_keep_current') }}"
                             class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider pl-1">{{ __('Optional_Min_6_characters') }}</p>
+                        <div id="password_requirements" class="mt-2 space-y-1 px-1 hidden">
+                            <p id="req_length" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Tối thiểu 8 ký tự</p>
+                            <p id="req_case" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa chữ hoa & chữ thường</p>
+                            <p id="req_number" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa ít nhất 1 con số</p>
+                            <p id="req_symbol" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa ít nhất 1 ký tự đặc biệt</p>
+                        </div>
                     </div>
 
                     <!-- Password Confirmation -->
@@ -112,4 +104,56 @@
             </form>
         </div>
     </div>
+    <script>
+        const passwordInput = document.getElementById('password_input');
+        const passwordReqs = document.getElementById('password_requirements');
+        const reqLength = document.getElementById('req_length');
+        const reqCase = document.getElementById('req_case');
+        const reqNumber = document.getElementById('req_number');
+        const reqSymbol = document.getElementById('req_symbol');
+
+        passwordInput?.addEventListener('focus', () => passwordReqs.classList.remove('hidden'));
+
+        passwordInput?.addEventListener('input', function() {
+            const val = this.value;
+            
+            if (!val) {
+                passwordReqs.classList.add('hidden');
+                return;
+            }
+            passwordReqs.classList.remove('hidden');
+
+            // Length check
+            if (val.length >= 8) {
+                reqLength.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqLength.classList.remove('text-emerald-500');
+                reqLength.classList.add('text-slate-400');
+            }
+
+            // Case check
+            if (/[a-z]/.test(val) && /[A-Z]/.test(val)) {
+                reqCase.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqCase.classList.remove('text-emerald-500');
+                reqCase.classList.add('text-slate-400');
+            }
+
+            // Number check
+            if (/\d/.test(val)) {
+                reqNumber.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqNumber.classList.remove('text-emerald-500');
+                reqNumber.classList.add('text-slate-400');
+            }
+
+            // Symbol check
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) {
+                reqSymbol.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqSymbol.classList.remove('text-emerald-500');
+                reqSymbol.classList.add('text-slate-400');
+            }
+        });
+    </script>
 @endsection

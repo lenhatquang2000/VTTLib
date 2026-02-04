@@ -16,15 +16,20 @@ class SecretLoginController extends Controller
     public function store(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
         if (Auth::attempt($credentials)) {
-            if (!$request->user()->hasRole('admin')) {
+            $user = Auth::user();
+            
+            $isAdminOrRoot = $user->hasRole('admin') || $user->hasRole('root');
+            $hasAssignedTabs = $user->getSidebarTabs()->isNotEmpty();
+
+            if (!$isAdminOrRoot && !$hasAssignedTabs) {
                 Auth::logout();
                 throw ValidationException::withMessages([
-                    'email' => 'Access denied. Authorized personnel only.',
+                    'username' => 'Access denied. You do not have permission to access the management dashboard.',
                 ]);
             }
             $request->session()->regenerate();
@@ -33,7 +38,7 @@ class SecretLoginController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => 'The provided credentials do not match our records.',
+            'username' => 'Thông tin đăng danh hoặc mật khẩu không chính xác.',
         ]);
     }
 

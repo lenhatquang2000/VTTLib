@@ -2,20 +2,6 @@
 
 @section('content')
     <div class="space-y-6 animate-in fade-in duration-500">
-        @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-600 p-4 rounded-2xl text-sm font-medium flex items-center shadow-sm">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-rose-50 border border-rose-200 text-rose-600 p-4 rounded-2xl text-sm font-medium flex items-center shadow-sm">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                {{ session('error') }}
-            </div>
-        @endif
-
-        <!-- Action Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 gap-4">
             <div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('Role_Template_Management') }}</h2>
@@ -35,7 +21,6 @@
             </div>
         </div>
 
-        <!-- Role List -->
         <div class="bg-white dark:bg-slate-800 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-left">

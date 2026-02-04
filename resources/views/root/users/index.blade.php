@@ -2,19 +2,6 @@
 
 @section('content')
     <div class="space-y-6 animate-in fade-in duration-500">
-        @if(session('success'))
-            <div class="bg-emerald-50 border border-emerald-200 text-emerald-600 p-4 rounded-2xl text-sm font-medium flex items-center shadow-sm">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-rose-50 border border-rose-200 text-rose-600 p-4 rounded-2xl text-sm font-medium flex items-center shadow-sm">
-                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                {{ session('error') }}
-            </div>
-        @endif
-
         <!-- Action Header -->
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 gap-4">
             <div>
@@ -22,20 +9,20 @@
                 <p class="text-sm text-slate-500 mt-1">{{ __('Assign and manage security clearances for system subjects.') }}</p>
             </div>
             <div class="flex flex-wrap gap-3">
+
                 <button onclick="openModal('createUserModal')"
                     class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none transition transform active:scale-95">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     {{ __('Khởi tạo đối tượng mới') }}
                 </button>
-                <button onclick="openModal('addRoleModal')"
+                <a href="{{ route('root.users.assign') }}"
                     class="inline-flex items-center px-5 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition transform active:scale-95">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
                     {{ __('Add_Role_To_Identity') }}
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- Search & Filter Bar -->
         <div class="bg-white dark:bg-slate-800 p-4 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm">
             <form action="{{ route('root.users.index') }}" method="GET" class="flex flex-col md:flex-row gap-3">
                 <div class="relative flex-1">
@@ -46,6 +33,14 @@
                         class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 pl-11 pr-4 py-2.5 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
                 </div>
                 
+                <select name="role_id" onchange="this.form.submit()" 
+                    class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-2.5 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition appearance-none cursor-pointer pr-10 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat min-w-[150px]">
+                    <option value="">{{ __('Tất cả vai trò') }}</option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role->id }}" {{ $roleId == $role->id ? 'selected' : '' }}>{{ $role->display_name }}</option>
+                    @endforeach
+                </select>
+
                 <select name="per_page" onchange="this.form.submit()" 
                     class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-4 py-2.5 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition appearance-none cursor-pointer pr-10 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_0.75rem_center] bg-no-repeat">
                     @foreach([10, 20, 50, 100] as $val)
@@ -57,7 +52,7 @@
                     <button type="submit" class="flex-1 md:flex-none px-8 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-2xl hover:bg-indigo-700 shadow-md shadow-indigo-100 dark:shadow-none transition">
                         {{ __('Filter') }}
                     </button>
-                    @if($search)
+                    @if($search || $roleId)
                         <a href="{{ route('root.users.index') }}" class="px-4 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-500 hover:text-rose-500 rounded-2xl transition flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </a>
@@ -105,16 +100,23 @@
                                     </span>
                                 </td>
                                 <td class="p-5">
-                                    @if($ru->role->name === 'admin' || $ru->role->name === 'root')
+                                    <div class="flex items-center space-x-2">
                                         <button
                                             onclick="openSidebarSettings('{{ $ru->id }}', '{{ $ru->user->name }}', '{{ $ru->role->name }}', {{ $ru->sidebars->pluck('sidebar_id') }})"
-                                            class="inline-flex items-center px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-xl border border-indigo-100 dark:border-indigo-900/30 hover:bg-indigo-600 hover:text-white transition group shadow-sm">
+                                            class="inline-flex items-center px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold rounded-xl border border-indigo-100 dark:border-indigo-900/30 hover:bg-indigo-600 hover:text-white transition group shadow-sm whitespace-nowrap">
                                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                                             {{ __('Modify_Tabs') }} <span class="ml-2 px-1.5 py-0.5 bg-white dark:bg-slate-800 rounded-md text-[10px]">{{ $ru->sidebars->count() }}</span>
                                         </button>
-                                    @else
-                                        <span class="text-slate-400 text-[11px] italic font-medium">{{ __('Level_Unauthorized') }}</span>
-                                    @endif
+                                        
+                                        <form action="{{ route('root.users.tabs.sync', $ru->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" 
+                                                class="inline-flex items-center p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-100 dark:border-emerald-900/30 hover:bg-emerald-600 hover:text-white transition shadow-sm"
+                                                title="{{ __('Sync_from_Template') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                                 <td class="p-5 text-right">
                                     <div class="flex justify-end items-center space-x-2">
@@ -182,14 +184,16 @@
                     
                     <form action="{{ route('root.users.store') }}" method="POST" class="space-y-6">
                         @csrf
+                        <input type="hidden" name="max_id" id="max_id_input">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Subject_Name') }} (Tên đối tượng)</label>
-                                <input type="text" name="name" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <input type="text" name="name" id="name_input" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Username') }} (Tên định danh)</label>
-                                <input type="text" name="username" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <input type="text" name="username" id="username_input" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <p id="username_status" class="text-[10px] font-bold mt-1 pl-1 hidden"></p>
                             </div>
                         </div>
 
@@ -201,7 +205,13 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Security_Cipher') }} (Mật khẩu)</label>
-                                <input type="password" name="password" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <input type="password" name="password" id="password_input" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 outline-none transition-all">
+                                <div id="password_requirements" class="mt-2 space-y-1 px-1 hidden">
+                                    <p id="req_length" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Tối thiểu 8 ký tự</p>
+                                    <p id="req_case" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa chữ hoa & chữ thường</p>
+                                    <p id="req_number" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa ít nhất 1 con số</p>
+                                    <p id="req_symbol" class="text-[9px] font-bold uppercase transition-colors text-slate-400">• Chứa ít nhất 1 ký tự đặc biệt</p>
+                                </div>
                             </div>
                             <div class="space-y-1.5">
                                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 block truncate whitespace-nowrap">{{ __('Clearance_Level') }} (Vai trò)</label>
@@ -223,49 +233,7 @@
         </div>
     </div>
 
-    <!-- ADD ROLE MODAL -->
-    <div id="addRoleModal" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="closeModal('addRoleModal')"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-            <div class="bg-white dark:bg-slate-800 rounded-[3.5rem] shadow-2xl relative p-10 border border-slate-200 dark:border-slate-700">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{{ __('Escalate_Clearance') }}</h3>
-                    <button onclick="closeModal('addRoleModal')" class="p-2 bg-slate-100 dark:bg-slate-700 text-slate-400 hover:text-rose-500 rounded-full transition-colors">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                
-                <div class="mb-5 relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </span>
-                    <input type="text" id="identitySearch" placeholder="{{ __('Search_User') }}..." 
-                        class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all">
-                </div>
 
-                <form action="{{ route('root.users.roles.store') }}" method="POST" class="space-y-6">
-                    @csrf
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('Target_Identity') }}</label>
-                        <select name="user_id" id="identitySelect" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat pr-12">
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="space-y-1.5">
-                        <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">{{ __('Additional_Privilege') }}</label>
-                        <select name="role_id" required class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 text-sm font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20stroke-width%3D%222%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-[length:1.25rem] bg-[right_1rem_center] bg-no-repeat pr-12">
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->display_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <button type="submit" class="w-full py-4.5 bg-indigo-600 text-white rounded-[1.5rem] font-black uppercase text-xs tracking-widest hover:bg-indigo-700 transition transform active:scale-95 shadow-xl shadow-indigo-100 dark:shadow-none">{{ __('Inject_Security_Token') }}</button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- SIDEBAR SETTINGS MODAL -->
     <div id="sidebarModal" class="fixed inset-0 z-[100] hidden">
@@ -390,17 +358,7 @@
             openModal('sidebarModal');
         }
 
-        // Search Identity in Select
-        document.getElementById('identitySearch')?.addEventListener('input', function(e) {
-            const search = e.target.value.toLowerCase();
-            const select = document.getElementById('identitySelect');
-            const options = select.options;
-            
-            for(let i=0; i<options.length; i++) {
-                const text = options[i].text.toLowerCase();
-                options[i].style.display = text.includes(search) ? '' : 'none';
-            }
-        });
+
 
         // Search Tabs in Modal
         document.getElementById('tabSearch')?.addEventListener('input', function(e) {
@@ -420,6 +378,139 @@
                         closeModal(m.id);
                     }
                 });
+            }
+        });
+
+        // Username Generation Logic
+        function removeAccents(str) {
+            return str.normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '')
+                      .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+        }
+
+        const nameInput = document.getElementById('name_input');
+        const usernameInput = document.getElementById('username_input');
+        const usernameStatus = document.getElementById('username_status');
+        const maxIdInput = document.getElementById('max_id_input');
+        let currentGeneratedUsername = '';
+
+        let debounceTimer;
+        nameInput?.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const name = this.value.trim();
+            
+            if (!name) {
+                usernameInput.value = '';
+                currentGeneratedUsername = '';
+                maxIdInput.value = '';
+                usernameStatus.classList.add('hidden');
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                // Generation logic: first letter of each word + last word
+                const words = name.split(/\s+/);
+                if (words.length > 0) {
+                    let baseGenerated = '';
+                    for (let i = 0; i < words.length - 1; i++) {
+                        baseGenerated += words[i].charAt(0);
+                    }
+                    baseGenerated += words[words.length - 1];
+                    
+                    const sanitized = removeAccents(baseGenerated).toLowerCase().replace(/[^a-z0-9]/g, '');
+                    validateUsername(sanitized);
+                }
+            }, 1000);
+        });
+
+        async function validateUsername(username) {
+            if (!username) return;
+
+            try {
+                const response = await fetch(`/root/users/check-username?username=${username}`);
+                const data = await response.json();
+                
+                if (data.exists) {
+                    currentGeneratedUsername = username + (data.max_id + 1);
+                    maxIdInput.value = data.max_id;
+                    usernameInput.value = currentGeneratedUsername;
+                    usernameStatus.innerText = `Username đã tồn tại, tự động chuyển thành: ${currentGeneratedUsername}`;
+                    usernameStatus.className = 'text-[10px] font-bold mt-1 pl-1 text-amber-500';
+                    usernameStatus.classList.remove('hidden');
+                } else {
+                    currentGeneratedUsername = username;
+                    maxIdInput.value = data.max_id;
+                    usernameInput.value = currentGeneratedUsername;
+                    usernameStatus.innerText = 'Username hợp lệ';
+                    usernameStatus.className = 'text-[10px] font-bold mt-1 pl-1 text-emerald-500';
+                    usernameStatus.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error validating username:', error);
+            }
+        }
+
+        usernameInput?.addEventListener('input', function() {
+            if (this.value !== currentGeneratedUsername) {
+                maxIdInput.value = ''; // User changed it manually, don't send max_id
+                usernameStatus.classList.add('hidden');
+            } else {
+                // If they change it back to exactly what we generated, restore max_id logic if needed
+                // But generally change event or re-validation would handle this.
+            }
+        });
+
+        usernameInput?.addEventListener('change', function() {
+            if (this.value !== currentGeneratedUsername) {
+                currentGeneratedUsername = ''; // Break link
+                maxIdInput.value = '';
+                validateUsername(this.value);
+            }
+        });
+
+        // Password Validation Logic
+        const passwordInput = document.getElementById('password_input');
+        const passwordReqs = document.getElementById('password_requirements');
+        const reqLength = document.getElementById('req_length');
+        const reqCase = document.getElementById('req_case');
+        const reqNumber = document.getElementById('req_number');
+        const reqSymbol = document.getElementById('req_symbol');
+
+        passwordInput?.addEventListener('focus', () => passwordReqs.classList.remove('hidden'));
+
+        passwordInput?.addEventListener('input', function() {
+            const val = this.value;
+            
+            // Length check
+            if (val.length >= 8) {
+                reqLength.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqLength.classList.remove('text-emerald-500');
+                reqLength.classList.add('text-slate-400');
+            }
+
+            // Case check
+            if (/[a-z]/.test(val) && /[A-Z]/.test(val)) {
+                reqCase.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqCase.classList.remove('text-emerald-500');
+                reqCase.classList.add('text-slate-400');
+            }
+
+            // Number check
+            if (/\d/.test(val)) {
+                reqNumber.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqNumber.classList.remove('text-emerald-500');
+                reqNumber.classList.add('text-slate-400');
+            }
+
+            // Symbol check
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(val)) {
+                reqSymbol.classList.replace('text-slate-400', 'text-emerald-500');
+            } else {
+                reqSymbol.classList.remove('text-emerald-500');
+                reqSymbol.classList.add('text-slate-400');
             }
         });
     </script>

@@ -16,7 +16,7 @@ class RootLoginController extends Controller
     public function store(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'username' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
@@ -24,7 +24,7 @@ class RootLoginController extends Controller
             if (!$request->user()->hasRole('root')) {
                 Auth::logout();
                 throw ValidationException::withMessages([
-                    'email' => 'Access denied. High-level authorization required.',
+                    'username' => 'Access denied. High-level authorization required.',
                 ]);
             }
             $request->session()->regenerate();
@@ -32,7 +32,7 @@ class RootLoginController extends Controller
         }
 
         throw ValidationException::withMessages([
-            'email' => 'The provided credentials do not match root records.',
+            'username' => 'Thông tin đăng danh hoặc mật khẩu không chính xác.',
         ]);
     }
 }

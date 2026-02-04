@@ -9,6 +9,13 @@ use Illuminate\Http\Request;
 
 class RoleController extends Controller
 {
+    protected $userService;
+
+    public function __construct(\App\Services\UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function index()
     {
         $roles = Role::withCount('users')->get();
@@ -58,7 +65,6 @@ class RoleController extends Controller
             'sidebars.*' => 'exists:sidebars,id',
         ]);
 
-        // Don't allow changing name of core roles if needed, but for now let's allow it
         $role->update([
             'name' => $validated['name'],
             'display_name' => $validated['display_name'],
@@ -66,9 +72,12 @@ class RoleController extends Controller
 
         if (isset($validated['sidebars'])) {
             $role->sidebars()->sync($validated['sidebars']);
+            
+            // Sync new tabs to all users assigned to this role
+            $this->userService->syncAllUsersToRoleSidebars($role->id);
         }
 
-        return redirect()->route('root.roles.index')->with('success', __('Role updated successfully'));
+        return redirect()->route('root.roles.index')->with('success', __('Role updated successfully and users synchronized'));
     }
 
     public function destroy(Role $role)
