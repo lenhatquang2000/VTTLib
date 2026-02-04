@@ -22,18 +22,37 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
+    /**
+     * Identity Management - Main Users Table
+     */
     public function index(Request $request)
     {
         $search = $request->query('search');
         $roleId = $request->query('role_id');
         $perPage = $request->query('per_page', 10);
 
+        $users = $this->userService->getUsersForRoot($search, $roleId, $perPage);
+        $roles = Role::all();
+        $stats = $this->userService->getUserStats();
+
+        return view('root.users.index', compact('users', 'roles', 'search', 'roleId', 'perPage', 'stats'));
+    }
+
+    /**
+     * Privilege Management - Role User Pivot Table
+     */
+    public function privileges(Request $request)
+    {
+        $search = $request->query('search');
+        $roleId = $request->query('role_id');
+        $perPage = $request->query('per_page', 10);
+
         $roleUsers = $this->userService->getUsersWithFilters($search, $roleId, $perPage);
-        $users = User::all();
         $roles = Role::all();
         $sidebars = Sidebar::whereNull('parent_id')->with('children')->orderBy('order')->get();
+        $stats = $this->userService->getUserStats();
 
-        return view('root.users.index', compact('roleUsers', 'users', 'roles', 'sidebars', 'search', 'roleId', 'perPage'));
+        return view('root.users.privileges', compact('roleUsers', 'roles', 'sidebars', 'search', 'roleId', 'perPage', 'stats'));
     }
 
     public function store(StoreUserRequest $request)
@@ -131,27 +150,6 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update user: ' . $e->getMessage());
         }
-    }
-
-    public function assignRoles(Request $request)
-    {
-        $search = $request->query('search');
-        $perPage = $request->query('per_page', 20);
-
-        $usersQuery = User::with('roles');
-
-        if ($search) {
-            $usersQuery->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%");
-            });
-        }
-
-        $users = $usersQuery->paginate($perPage)->withQueryString();
-        $roles = Role::all();
-
-        return view('root.users.assign', compact('users', 'roles', 'search', 'perPage'));
     }
 
     public function destroy($id)

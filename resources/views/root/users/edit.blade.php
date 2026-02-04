@@ -65,6 +65,24 @@
                     </div>
                 </div>
 
+                <!-- Roles Selection -->
+                <div class="mt-10 space-y-4">
+                    <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1 block">{{ __('Security_Clearance_Configuration') }}</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        @foreach($roles as $role)
+                        <label class="relative flex items-center p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-2xl cursor-pointer hover:border-indigo-500 transition-all group">
+                            <input type="checkbox" name="roles[]" value="{{ $role->id }}" 
+                                {{ $user->roles->contains($role->id) ? 'checked' : '' }}
+                                class="w-5 h-5 rounded-lg border-slate-300 text-indigo-600 focus:ring-indigo-500 transition-all">
+                            <div class="ml-3">
+                                <span class="block text-sm font-black text-slate-700 dark:text-slate-200 group-hover:text-indigo-600 transition-colors">{{ $role->display_name }}</span>
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{{ $role->name }}</span>
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+
                 <!-- User Info Cards -->
                 <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-2xl">

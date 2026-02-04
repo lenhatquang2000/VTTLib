@@ -30,6 +30,8 @@ class UpdateUserRequest extends FormRequest
                     ->uncompromised(),
                 'confirmed',
             ],
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
         ];
     }
 

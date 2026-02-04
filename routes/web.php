@@ -33,12 +33,12 @@ Route::post('/root/login', [RootLoginController::class, 'store'])->name('root.lo
 // Root System Routes (Protected by role:root)
 Route::middleware(['auth', 'role:root'])->prefix('root')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('root.users.index');
+    Route::get('/users/privileges', [UserController::class, 'privileges'])->name('root.users.privileges');
     Route::get('/users/check-username', [UserController::class, 'checkUsername'])->name('root.users.check');
     Route::post('/users', [UserController::class, 'store'])->name('root.users.store');
     Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('root.users.edit');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('root.users.update');
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('root.users.destroy');
-    Route::get('/users/assign-roles', [UserController::class, 'assignRoles'])->name('root.users.assign');
     Route::post('/users/roles', [UserController::class, 'storeRole'])->name('root.users.roles.store');
     Route::delete('/users/roles/{id}', [UserController::class, 'removeRole'])->name('root.users.roles.remove');
     Route::post('/users/roles/{id}/tabs', [UserController::class, 'assignTabs'])->name('root.users.tabs');

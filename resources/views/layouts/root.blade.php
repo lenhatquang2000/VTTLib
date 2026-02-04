@@ -150,7 +150,15 @@
         <header class="h-16 flex items-center justify-between px-8 shadow-sm z-10">
             <div class="flex items-center">
                 <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                    {{ request()->routeIs('root.users.*') ? __('User Privilege Management') : (request()->routeIs('root.roles.*') ? __('Role Management') : __('System Panel')) }}
+                    @if(request()->routeIs('root.users.index'))
+                        {{ __('User Management') }}
+                    @elseif(request()->routeIs('root.users.privileges'))
+                        {{ __('User_Privilege_Management') }}
+                    @elseif(request()->routeIs('root.roles.*'))
+                        {{ __('Role Management') }}
+                    @else
+                        {{ __('System Panel') }}
+                    @endif
                 </h2>
             </div>
             <div class="flex items-center space-x-6">

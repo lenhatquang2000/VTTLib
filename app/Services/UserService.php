@@ -151,16 +151,19 @@ class UserService
     /**
      * Get users with search and pagination
      */
+    /**
+     * Get users-role assignments with search and pagination for privilege management
+     */
     public function getUsersWithFilters(?string $search = null, ?int $roleId = null, int $perPage = 10)
     {
         $query = \App\Models\RoleUser::with(['user', 'role', 'sidebars.sidebar']);
 
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($uq) use ($search) {
                     $uq->where('name', 'like', "%{$search}%")
-                      ->orWhere('username', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
+                        ->orWhere('username', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
                 })->orWhereHas('role', function ($rq) use ($search) {
                     $rq->where('name', 'like', "%{$search}%");
                 });
@@ -172,6 +175,42 @@ class UserService
         }
 
         return $query->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Get raw users with search and pagination for identity management
+     */
+    public function getUsersForRoot(?string $search = null, ?int $roleId = null, int $perPage = 10)
+    {
+        $query = User::with('roles');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        if ($roleId) {
+            $query->whereHas('roles', function ($q) use ($roleId) {
+                $q->where('roles.id', $roleId);
+            });
+        }
+
+        return $query->latest()->paginate($perPage)->withQueryString();
+    }
+
+    /**
+     * Get system-wide user statistics
+     */
+    public function getUserStats(): array
+    {
+        return [
+            'total' => User::count(),
+            'active' => User::where('status', 'active')->count(),
+            'new' => User::where('created_at', '>=', now()->subDays(7))->count(),
+        ];
     }
 
     /**
