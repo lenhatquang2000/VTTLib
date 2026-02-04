@@ -30,6 +30,26 @@ class BarcodeService
         return $config->generateNext();
     }
 
+    /** Alias for getNextCode to support legacy/other controllers */
+    public function getNextBarcode(string $targetType): ?string
+    {
+        return $this->getNextCode($targetType);
+    }
+
+    /** Alias for getNextCode to support legacy/other controllers */
+    public function previewNextBarcode(string $targetType): ?string
+    {
+        return $this->getNextCode($targetType);
+    }
+
+    /** Check if an active rule exists for the given target type */
+    public function hasActiveRule(string $targetType): bool
+    {
+        return BarcodeConfig::where('target_type', $targetType)
+            ->where('is_active', true)
+            ->exists();
+    }
+
     /**
      * Increment the counter for an active barcode rule
      */

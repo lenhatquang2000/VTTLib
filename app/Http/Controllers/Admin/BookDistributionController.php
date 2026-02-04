@@ -19,6 +19,11 @@ class BookDistributionController extends Controller
     public function index(BibliographicRecord $record)
     {
         $record->load('items.branch', 'items.storageLocation');
+        
+        if (!$this->barcodeService->hasActiveRule('item')) {
+            session()->flash('warning', __('Hệ thống chưa thiết lặp quy tắc mã vạch'));
+        }
+
         $nextBarcode = $this->barcodeService->previewNextBarcode('item');
         $branches = \App\Models\Branch::with('storageLocations')->where('is_active', true)->get();
         return view('admin.distributions.index', compact('record', 'nextBarcode', 'branches'));

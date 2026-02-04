@@ -51,6 +51,12 @@ Route::middleware(['auth', 'role:root'])->prefix('root')->group(function () {
     Route::get('/roles/{role}/edit', [\App\Http\Controllers\Root\RoleController::class, 'edit'])->name('root.roles.edit');
     Route::put('/roles/{role}', [\App\Http\Controllers\Root\RoleController::class, 'update'])->name('root.roles.update');
     Route::delete('/roles/{role}', [\App\Http\Controllers\Root\RoleController::class, 'destroy'])->name('root.roles.destroy');
+
+    // Patron Categories (Nhóm độc giả)
+    Route::get('/patrons/groups', [\App\Http\Controllers\Root\PatronGroupController::class, 'index'])->name('root.patrons.groups.index');
+    Route::post('/patrons/groups', [\App\Http\Controllers\Root\PatronGroupController::class, 'store'])->name('root.patrons.groups.store');
+    Route::put('/patrons/groups/{patronGroup}', [\App\Http\Controllers\Root\PatronGroupController::class, 'update'])->name('root.patrons.groups.update');
+    Route::delete('/patrons/groups/{patronGroup}', [\App\Http\Controllers\Root\PatronGroupController::class, 'destroy'])->name('root.patrons.groups.destroy');
 });
 
 // Agent/Admin Routes (Protected by role:admin)
@@ -108,6 +114,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/settings/locations', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeLocation'])->name('admin.settings.locations.store');
     Route::put('/settings/locations/{location}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateLocation'])->name('admin.settings.locations.update');
     Route::delete('/settings/locations/{location}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'deleteLocation'])->name('admin.settings.locations.destroy');
+
+    // Supplier Management
+    Route::post('/settings/suppliers', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeSupplier'])->name('admin.settings.suppliers.store');
+    Route::put('/settings/suppliers/{supplier}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateSupplier'])->name('admin.settings.suppliers.update');
+    Route::delete('/settings/suppliers/{supplier}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'deleteSupplier'])->name('admin.settings.suppliers.destroy');
 
     // Circulation Management
     Route::get('/circulation', [\App\Http\Controllers\Admin\CirculationController::class, 'index'])->name('admin.circulation.index');

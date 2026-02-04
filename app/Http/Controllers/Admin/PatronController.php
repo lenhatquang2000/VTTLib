@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\Branch;
 use App\Models\PatronAddress;
 use App\Models\ActivityLog;
+use App\Models\PatronGroup;
 use App\Services\BarcodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -33,17 +34,15 @@ class PatronController extends Controller
     public function create()
     {
         $branches = Branch::all();
+        
+        if (!$this->barcodeService->hasActiveRule('patron')) {
+            session()->flash('warning', __('Hệ thống chưa thiết lặp quy tắc mã vạch'));
+        }
+
         $nextCode = $this->barcodeService->getNextCode('patron');
+        $patronGroups = PatronGroup::where('is_active', true)->get();
         
-        $classifications = [
-            'student' => __('Sinh viên'),
-            'lecturer' => __('Giảng viên'),
-            'staff' => __('Cán bộ'),
-            'manager' => __('Ban giám hiệu'),
-            'other' => __('Khác')
-        ];
-        
-        return view('admin.patrons.create', compact('branches', 'classifications'));
+        return view('admin.patrons.create', compact('branches', 'patronGroups', 'nextCode'));
     }
 
     public function store(Request $request)
@@ -61,6 +60,7 @@ class PatronController extends Controller
             'mssv' => 'nullable|string|max:50|unique:patron_details,mssv',
             'id_card' => 'nullable|string|max:20',
             'phone_contact' => 'nullable|string|max:50',
+            'patron_group_id' => 'required|exists:patron_groups,id',
             'classification' => 'nullable|string',
             
             // Personal
@@ -132,6 +132,7 @@ class PatronController extends Controller
                 'phone' => $validated['phone'] ?? null,
                 'fax' => $validated['fax'] ?? null,
                 'branch' => $validated['branch'] ?? 'all',
+                'patron_group_id' => $validated['patron_group_id'],
                 'classification' => $validated['classification'] ?? 'individual',
                 'card_fee' => $validated['card_fee'] ?? 0,
                 'deposit' => $validated['deposit'] ?? 0,

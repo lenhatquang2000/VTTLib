@@ -41,6 +41,11 @@
                         class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200">
                     {{ __('Infrastructure') }}
                 </button>
+                <button @click="activeTab = 'suppliers'" 
+                        :class="activeTab === 'suppliers' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
+                        class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200">
+                    {{ __('Suppliers') }}
+                </button>
             </div>
 
             <!-- GENERAL TAB CONTENT -->
@@ -368,6 +373,67 @@
             </div>
         </div>
             </div>
+            <!-- SUPPLIERS TAB CONTENT -->
+            <div x-show="activeTab === 'suppliers'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
+                    <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <h2 class="text-sm font-extrabold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-colors">{{ __('Supplier Management') }}</h2>
+                        </div>
+                        <button onclick="openModal('createSupplierModal')" class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-indigo-600 hover:text-white transition-all">
+                            {{ __('New Supplier') }}
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-slate-400 dark:text-slate-500 border-b border-slate-50 dark:border-slate-800 uppercase font-bold text-[10px] tracking-wider transition-colors">
+                                <tr>
+                                    <th class="p-4">{{ __('Supplier') }}</th>
+                                    <th class="p-4">{{ __('Contact') }}</th>
+                                    <th class="p-4">{{ __('Email/Phone') }}</th>
+                                    <th class="p-4">{{ __('Status') }}</th>
+                                    <th class="p-4 text-right">{{ __('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-300">
+                                @forelse($suppliers as $supplier)
+                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                                        <td class="p-4">
+                                            <div class="font-bold text-slate-900 dark:text-slate-100">{{ $supplier->name }}</div>
+                                            <div class="text-[10px] font-mono text-slate-400 dark:text-slate-500 font-bold uppercase">{{ $supplier->code }}</div>
+                                        </td>
+                                        <td class="p-4 text-xs">{{ $supplier->contact_name ?? '-' }}</td>
+                                        <td class="p-4 text-xs">
+                                            <div>{{ $supplier->email ?? '-' }}</div>
+                                            <div class="text-slate-400">{{ $supplier->phone ?? '-' }}</div>
+                                        </td>
+                                        <td class="p-4">
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $supplier->is_active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-500' }}">
+                                                {{ $supplier->is_active ? __('Active') : __('Inactive') }}
+                                            </span>
+                                        </td>
+                                        <td class="p-4 text-right space-x-2">
+                                            <button onclick="openEditSupplierModal({{ $supplier }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold text-xs uppercase px-2 py-1 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-all">{{ __('Edit') }}</button>
+                                            <form action="{{ route('admin.settings.suppliers.destroy', $supplier->id) }}" method="POST" class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-rose-600 dark:text-rose-400 hover:text-rose-800 font-bold text-xs uppercase px-2 py-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" onclick="return confirm('{{ __('Delete this supplier?') }}')">{{ __('Del') }}</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-600 italic text-xs">{{ __('No suppliers defined yet.') }}</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -390,6 +456,16 @@
             document.getElementById('edit_length').value = config.length;
             document.getElementById('edit_is_active').checked = config.is_active;
             openModal('editBarcodeModal');
+        }
+        function openEditSupplierModal(supplier) {
+            document.getElementById('editSupplierForm').action = `/topsecret/settings/suppliers/${supplier.id}`;
+            document.getElementById('edit_sup_name').value = supplier.name;
+            document.getElementById('edit_sup_code').value = supplier.code;
+            document.getElementById('edit_sup_contact').value = supplier.contact_name || '';
+            document.getElementById('edit_sup_phone').value = supplier.phone || '';
+            document.getElementById('edit_sup_email').value = supplier.email || '';
+            document.getElementById('edit_sup_is_active').checked = supplier.is_active;
+            openModal('editSupplierModal');
         }
     </script>
 @endsection

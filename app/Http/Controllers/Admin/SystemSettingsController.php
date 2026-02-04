@@ -7,6 +7,7 @@ use App\Models\SystemSetting;
 use App\Models\BarcodeConfig;
 use App\Models\Branch;
 use App\Models\StorageLocation;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 
 class SystemSettingsController extends Controller
@@ -16,8 +17,9 @@ class SystemSettingsController extends Controller
         $settings = SystemSetting::all()->groupBy('group');
         $barcodeConfigs = BarcodeConfig::all();
         $branches = Branch::with('storageLocations')->get();
+        $suppliers = Supplier::all();
         
-        return view('admin.settings.index', compact('settings', 'barcodeConfigs', 'branches'));
+        return view('admin.settings.index', compact('settings', 'barcodeConfigs', 'branches', 'suppliers'));
     }
 
     public function updateLibraryInfo(Request $request)
@@ -183,5 +185,45 @@ class SystemSettingsController extends Controller
         }
         $location->delete();
         return back()->with('success', __('Storage location deleted successfully.'));
+    }
+
+    // Supplier Management
+    public function storeSupplier(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:20|unique:suppliers',
+            'contact_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'notes' => 'nullable|string'
+        ]);
+
+        Supplier::create($validated);
+        return back()->with('success', __('Supplier created successfully.'));
+    }
+
+    public function updateSupplier(Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:20|unique:suppliers,code,' . $supplier->id,
+            'contact_name' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'notes' => 'nullable|string',
+            'is_active' => 'boolean'
+        ]);
+
+        $supplier->update($validated);
+        return back()->with('success', __('Supplier updated successfully.'));
+    }
+
+    public function deleteSupplier(Supplier $supplier)
+    {
+        $supplier->delete();
+        return back()->with('success', __('Supplier deleted successfully.'));
     }
 }

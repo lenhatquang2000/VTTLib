@@ -5,22 +5,22 @@
     <!-- Header Section -->
     <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
+            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ __('Distribution') }}</h1>
-                <p class="text-slate-500 font-medium flex items-center mt-1">
-                    <span class="bg-slate-100 text-slate-700 font-mono text-xs px-2 py-0.5 rounded mr-2">DOC_ID #{{ $record->id }}</span>
+                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Distribution') }}</h1>
+                <p class="text-slate-500 dark:text-slate-400 font-medium flex items-center mt-1">
+                    <span class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-xs px-2 py-0.5 rounded mr-2">DOC_ID #{{ $record->id }}</span>
                     {{ $record->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Untitled Record' }}
                 </p>
             </div>
         </div>
-        <a href="{{ route('admin.marc.book') }}" class="inline-flex items-center px-4 py-2 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl transition font-semibold shadow-sm text-sm group">
+        <a href="{{ route('admin.marc.book') }}" class="inline-flex items-center px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition font-semibold shadow-sm text-sm group">
             <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            {{ __('Back to Books') }}
+            {{ __('Back_to_Books') }}
         </a>
     </div>
 
@@ -280,34 +280,34 @@
                 na: '{{ __('N/A') }}'
             }
         }">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden min-h-[600px]">
-                <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden min-h-[600px]">
+                <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <div class="flex items-center">
-                        <h2 class="text-lg font-bold text-slate-800">{{ __('Distributed Items') }}</h2>
-                        <span class="ml-3 bg-indigo-100 text-indigo-700 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">{{ $record->items->count() }} {{ __('UNIT(S)') }}</span>
+                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">{{ __('Distributed Items') }}</h2>
+                        <span class="ml-3 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full">{{ $record->items->count() }} {{ __('UNIT(S)') }}</span>
                     </div>
                 </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-100">
+                    <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-800">
                         <thead>
-                            <tr class="bg-slate-50/30">
-                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Identification') }}</th>
-                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Storage Details') }}</th>
-                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Status') }}</th>
-                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">{{ __('Metadata') }}</th>
+                            <tr class="bg-slate-50/30 dark:bg-slate-800/50">
+                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Identification') }}</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Storage Details') }}</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Status') }}</th>
+                                <th class="px-6 py-4 text-left text-[10px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Metadata') }}</th>
                                 <th class="px-6 py-4"></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-slate-50">
+                        <tbody class="bg-white dark:bg-slate-900 divide-y divide-slate-50 dark:divide-slate-800">
                             @forelse($record->items as $item)
-                                <tr class="hover:bg-indigo-50/30 transition-colors group">
+                                <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors group">
                                     <td class="px-6 py-5">
                                         <div class="flex flex-col">
-                                            <span class="text-sm font-bold text-slate-900 font-mono tracking-tight">{{ $item->barcode }}</span>
-                                            <span class="text-xs text-slate-400 font-mono uppercase mt-1">#{{ $item->accession_number }}</span>
+                                            <span class="text-sm font-bold text-slate-900 dark:text-slate-100 font-mono tracking-tight">{{ $item->barcode }}</span>
+                                            <span class="text-xs text-slate-400 dark:text-slate-500 font-mono uppercase mt-1">#{{ $item->accession_number }}</span>
                                             @if(file_exists(public_path('barcode/' . $item->barcode . '.svg')))
-                                                <div class="mt-2 p-1 bg-white border border-slate-200 rounded lg:w-40">
+                                                <div class="mt-2 p-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded lg:w-40">
                                                     <img src="{{ asset('barcode/' . $item->barcode . '.svg') }}" alt="Barcode" class="w-full h-auto">
                                                 </div>
                                             @endif
@@ -315,23 +315,23 @@
                                     </td>
                                     <td class="px-6 py-5">
                                         <div class="flex flex-col">
-                                            <span class="text-xs font-bold text-slate-700">{{ __($item->storage_type) }}</span>
+                                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300">{{ __($item->storage_type) }}</span>
                                             <div class="flex items-center space-x-1 mt-1">
-                                                <span class="text-[10px] py-0.5 px-1.5 bg-indigo-50 text-indigo-600 rounded font-bold">{{ $item->branch?->name ?? 'N/A' }}</span>
-                                                <span class="text-[10px] text-slate-300">/</span>
-                                                <span class="text-[10px] py-0.5 px-1.5 bg-slate-100 text-slate-500 rounded font-bold">{{ $item->storageLocation?->name ?? 'N/A' }}</span>
+                                                <span class="text-[10px] py-0.5 px-1.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded font-bold">{{ $item->branch?->name ?? 'N/A' }}</span>
+                                                <span class="text-[10px] text-slate-300 dark:text-slate-600">/</span>
+                                                <span class="text-[10px] py-0.5 px-1.5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 rounded font-bold">{{ $item->storageLocation?->name ?? 'N/A' }}</span>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-5">
                                         @php
                                             $statusColors = [
-                                                'available' => 'bg-emerald-100 text-emerald-700',
-                                                'borrowed' => 'bg-blue-100 text-blue-700',
-                                                'lost' => 'bg-rose-100 text-rose-700',
-                                                'damaged' => 'bg-amber-100 text-orange-700',
+                                                'available' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+                                                'borrowed' => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+                                                'lost' => 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+                                                'damaged' => 'bg-amber-100 text-orange-700 dark:bg-amber-900/30 dark:text-amber-400',
                                             ];
-                                            $colorClass = $statusColors[strtolower($item->status)] ?? 'bg-slate-100 text-slate-700';
+                                            $colorClass = $statusColors[strtolower($item->status)] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400';
                                         @endphp
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-extrabold uppercase tracking-widest {{ $colorClass }}">
                                             <span class="w-1 h-1 rounded-full bg-current mr-2"></span>
@@ -339,19 +339,19 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-5">
-                                        <div class="text-[11px] text-slate-500 font-mono leading-relaxed">
+                                        <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono leading-relaxed">
                                             @if($item->day || $item->month_season || $item->year)
-                                                <div class="text-slate-800 font-bold">
+                                                <div class="text-slate-800 dark:text-slate-200 font-bold">
                                                     {{ str_pad($item->day, 2, '0', STR_PAD_LEFT) }}/{{ $item->month_season }}/{{ $item->year }}
                                                 </div>
                                             @endif
                                             @if($item->volume_issue)
-                                                <div class="mt-0.5 italic text-slate-400 capitalize">{{ $item->volume_issue }}</div>
+                                                <div class="mt-0.5 italic text-slate-400 dark:text-slate-500 capitalize">{{ $item->volume_issue }}</div>
                                             @endif
                                         </div>
                                     </td>
                                     <td class="px-6 py-5 text-right">
-                                        <button @click="selectedItem = {{ json_encode($item) }}; showModal = true" class="p-2 text-slate-300 hover:text-indigo-600 transition-colors bg-slate-50 hover:bg-indigo-50 rounded-lg">
+                                        <button @click="selectedItem = {{ json_encode($item) }}; showModal = true" class="p-2 text-slate-300 dark:text-slate-600 hover:text-indigo-600 transition-colors bg-slate-50 dark:bg-slate-800 hover:bg-indigo-50 dark:hover:bg-indigo-900/50 rounded-lg">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                                         </button>
                                     </td>
@@ -360,11 +360,11 @@
                                 <tr>
                                     <td colspan="5" class="px-6 py-24 text-center">
                                         <div class="flex flex-col items-center">
-                                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4 border border-slate-100">
-                                                <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                            <div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700">
+                                                <svg class="w-8 h-8 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                             </div>
-                                            <h3 class="text-slate-500 font-bold uppercase tracking-widest text-xs">{{ __('No items distributed yet.') }}</h3>
-                                            <p class="text-slate-400 text-[10px] mt-1">{{ __('Start by adding the first copy using the left panel.') }}</p>
+                                            <h3 class="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs">{{ __('No_items_distributed_yet.') }}</h3>
+                                            <p class="text-slate-400 dark:text-slate-500 text-[10px] mt-1">{{ __('Start_by_adding_the_first_copy_using_the_left_panel.') }}</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -382,16 +382,16 @@
                     <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                     <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
-                         class="inline-block align-middle bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-slate-100">
+                         class="inline-block align-middle bg-white dark:bg-slate-900 rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full border border-slate-100 dark:border-slate-800">
                         
                         <div class="relative">
                             <!-- Modal Header -->
-                            <div class="px-8 py-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                                 <div>
-                                    <h3 class="text-xl font-extrabold text-slate-900 tracking-tight" id="modal-title">{{ __('Item Details') }}</h3>
-                                    <p class="text-[10px] font-mono font-bold text-indigo-500 uppercase tracking-widest mt-1" x-text="translations.idPrefix + selectedItem?.barcode"></p>
+                                    <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight" id="modal-title">{{ __('Item Details') }}</h3>
+                                    <p class="text-[10px] font-mono font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mt-1" x-text="translations.idPrefix + selectedItem?.barcode"></p>
                                 </div>
-                                <button @click="showModal = false" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-slate-900 hover:border-slate-300 transition-all shadow-sm">
+                                <button @click="showModal = false" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 transition-all shadow-sm">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </button>
                             </div>
@@ -401,29 +401,29 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <!-- Left Side: Barcode & Basic -->
                                     <div class="space-y-6">
-                                        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center justify-center">
+                                        <div class="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col items-center justify-center">
                                             <template x-if="selectedItem?.barcode">
                                                 <div class="flex flex-col items-center">
                                                     <img :src="'/barcode/' + selectedItem.barcode + '.svg'" alt="Barcode" class="h-20 w-auto mb-3" onerror="this.style.display='none'">
-                                                    <span class="font-mono text-lg font-bold text-slate-900 tracking-widest" x-text="selectedItem.barcode"></span>
+                                                    <span class="font-mono text-lg font-bold text-slate-900 dark:text-slate-100 tracking-widest" x-text="selectedItem.barcode"></span>
                                                 </div>
                                             </template>
                                         </div>
 
                                         <div class="space-y-4">
                                             <div>
-                                                <label class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em] block mb-1">{{ __('Accession Number') }}</label>
-                                                <p class="text-sm font-bold text-slate-800 font-mono" x-text="'#' + selectedItem?.accession_number"></p>
+                                                <label class="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-1">{{ __('Accession Number') }}</label>
+                                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200 font-mono" x-text="'#' + selectedItem?.accession_number"></p>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em] block mb-1">{{ __('Status') }}</label>
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest bg-indigo-100 text-indigo-700" 
+                                                    <label class="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-1">{{ __('Status') }}</label>
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-widest bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400" 
                                                           x-text="translations.status[selectedItem?.status] || selectedItem?.status"></span>
                                                 </div>
                                                 <div>
-                                                    <label class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em] block mb-1">{{ __('Quantity') }}</label>
-                                                    <p class="text-sm font-bold text-slate-800" x-text="selectedItem?.quantity"></p>
+                                                    <label class="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-1">{{ __('Quantity') }}</label>
+                                                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200" x-text="selectedItem?.quantity"></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -433,49 +433,49 @@
                                     <div class="space-y-6">
                                         <div class="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em] block mb-1">{{ __('Storage Type') }}</label>
-                                                <p class="text-sm font-semibold text-slate-700" x-text="translations.storage[selectedItem?.storage_type] || selectedItem?.storage_type || translations.na"></p>
+                                                <label class="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-1">{{ __('Storage Type') }}</label>
+                                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300" x-text="translations.storage[selectedItem?.storage_type] || selectedItem?.storage_type || translations.na"></p>
                                             </div>
                                             <div>
-                                                <label class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em] block mb-1">{{ __('Order Code') }}</label>
-                                                <p class="text-sm font-semibold text-slate-700" x-text="selectedItem?.order_code || translations.na"></p>
+                                                <label class="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-1">{{ __('Order Code') }}</label>
+                                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300" x-text="selectedItem?.order_code || translations.na"></p>
                                             </div>
                                         </div>
 
-                                        <div class="p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 space-y-3">
-                                            <div class="flex justify-between items-center pb-2 border-b border-indigo-100/50">
-                                                <span class="text-[9px] font-bold text-indigo-500 uppercase">{{ __('Location Details') }}</span>
+                                        <div class="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 space-y-3">
+                                            <div class="flex justify-between items-center pb-2 border-b border-indigo-100/50 dark:border-indigo-900/10">
+                                                <span class="text-[9px] font-bold text-indigo-500 dark:text-indigo-400 uppercase">{{ __('Location Details') }}</span>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Branch') }}</label>
-                                                    <p class="text-xs font-bold text-slate-800" x-text="selectedItem?.branch?.name || '-'"></p>
+                                                    <label class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">{{ __('Branch') }}</label>
+                                                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="selectedItem?.branch?.name || '-'"></p>
                                                 </div>
                                                 <div>
-                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Storage Location') }}</label>
-                                                    <p class="text-xs font-bold text-slate-800" x-text="selectedItem?.storage_location?.name || '-'"></p>
+                                                    <label class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">{{ __('Storage Location') }}</label>
+                                                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="selectedItem?.storage_location?.name || '-'"></p>
                                                 </div>
                                             </div>
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div>
-                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Shell/Bin') }}</label>
-                                                    <p class="text-xs font-bold text-slate-800" x-text="(selectedItem?.location || '-') + ' / ' + (selectedItem?.shelf || '-')"></p>
+                                                    <label class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">{{ __('Shell/Bin') }}</label>
+                                                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="(selectedItem?.location || '-') + ' / ' + (selectedItem?.shelf || '-')"></p>
                                                 </div>
                                                 <div>
-                                                    <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Shelf Position') }}</label>
-                                                    <p class="text-xs font-bold text-slate-800" x-text="selectedItem?.shelf_position || '-'"></p>
+                                                    <label class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">{{ __('Shelf Position') }}</label>
+                                                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="selectedItem?.shelf_position || '-'"></p>
                                                 </div>
                                             </div>
                                             <div>
-                                                <label class="text-[8px] font-bold text-slate-400 uppercase">{{ __('Temp Location') }}</label>
-                                                <p class="text-xs font-bold text-slate-800" x-text="selectedItem?.temporary_location || translations.na"></p>
+                                                <label class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase">{{ __('Temp Location') }}</label>
+                                                <p class="text-xs font-bold text-slate-800 dark:text-slate-200" x-text="selectedItem?.temporary_location || translations.na"></p>
                                             </div>
                                         </div>
 
                                         <div class="space-y-3">
-                                            <label class="text-[9px] font-mono font-bold text-slate-400 uppercase tracking-[0.2em] block mb-1">{{ __('Metadata & Notes') }}</label>
-                                            <div class="text-[11px] text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                                <p x-show="selectedItem?.volume_issue" class="mb-2 italic border-b border-slate-200 pb-1" x-text="selectedItem?.volume_issue"></p>
+                                            <label class="text-[9px] font-mono font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] block mb-1">{{ __('Metadata & Notes') }}</label>
+                                            <div class="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-100 dark:border-slate-800">
+                                                <p x-show="selectedItem?.volume_issue" class="mb-2 italic border-b border-slate-200 dark:border-slate-800 pb-1" x-text="selectedItem?.volume_issue"></p>
                                                 <p class="whitespace-pre-line" x-text="selectedItem?.notes || '{{ __('No notes.') }}'"></p>
                                             </div>
                                         </div>
@@ -484,11 +484,11 @@
                             </div>
 
                             <!-- Modal Footer -->
-                            <div class="px-8 py-5 bg-slate-50 border-t border-slate-100 flex justify-end items-center space-x-3">
-                                <button @click="showModal = false" class="px-6 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition-all font-bold text-xs uppercase tracking-widest shadow-sm">
+                            <div class="px-8 py-5 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex justify-end items-center space-x-3">
+                                <button @click="showModal = false" class="px-6 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-all font-bold text-xs uppercase tracking-widest shadow-sm">
                                     {{ __('Close') }}
                                 </button>
-                                <button class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-all font-bold text-xs uppercase tracking-widest shadow-lg shadow-indigo-100">
+                                <button class="px-6 py-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-all font-bold text-xs uppercase tracking-widest shadow-lg shadow-indigo-100 dark:shadow-none">
                                     {{ __('Edit Item') }}
                                 </button>
                             </div>
@@ -504,6 +504,9 @@
 <style>
     body {
         background-color: #f8fafc;
+    }
+    .dark body {
+        background-color: #020617;
     }
     input::placeholder {
         font-family: 'JetBrains Mono', monospace;

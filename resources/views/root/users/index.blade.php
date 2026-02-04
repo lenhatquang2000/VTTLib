@@ -45,7 +45,6 @@
         </div>
     </div>
 
-    <!-- Main Container -->
     <div class="bg-white dark:bg-slate-800 rounded-[3rem] shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <!-- Filter Bar -->
         <div class="p-8 border-b border-slate-100 dark:border-slate-700/50">

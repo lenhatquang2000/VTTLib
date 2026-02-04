@@ -4,22 +4,22 @@
 <div class="mx-auto pb-12 font-mono-project">
     <div class="space-y-6 lg:space-y-8">
         <!-- Header Section -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
             <div class="p-6 flex items-center">
                 <div class="flex items-center">
-                    <a href="{{ route('admin.marc.book') }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-all mr-4">
+                    <a href="{{ route('admin.marc.book') }}" class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 transition-all mr-4">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     </a>
                     <div>
-                        <h2 class="text-xl font-bold text-slate-900 tracking-tight leading-none">{{ __('Record_Header') }}</h2>
-                        <p class="text-sm text-slate-500 mt-1 font-medium">{{ __('Review_Instruction') }}</p>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-none">{{ __('Record_Header') }}</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{{ __('Review_Instruction') }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Metadata Section (Vertical Checklist/Dropdowns) -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
             <form action="{{ route('admin.marc.book.status', $record->id) }}" method="POST" x-data="{ loading: false }" @submit="loading = true">
                 @csrf @method('PUT')
                 <div class="p-6">
@@ -29,10 +29,10 @@
                         <!-- Cataloging Framework -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Cataloging_Framework') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Cataloging_Framework') }}</label>
                             </div>
                             <div class="sm:col-span-3">
-                                <select name="framework" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <select name="framework" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
                                     <option value="AVMARC21" {{ $record->framework === 'AVMARC21' ? 'selected' : '' }}>AVMARC21</option>
                                 </select>
                             </div>
@@ -41,10 +41,10 @@
                         <!-- Status -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Status') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Status') }}</label>
                             </div>
                             <div class="sm:col-span-3">
-                                <select name="status" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer hover:bg-slate-100">
+                                <select name="status" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900">
                                     <option value="pending" {{ $record->status === 'pending' ? 'selected' : '' }}>{{ __('New_Status_Text') }}</option>
                                     <option value="approved" {{ $record->status === 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
                                 </select>
@@ -54,10 +54,10 @@
                         <!-- Subject Category -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Subject_Category') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Subject_Category') }}</label>
                             </div>
                             <div class="sm:col-span-3">
-                                <select name="subject_category" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <select name="subject_category" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
                                     <option value="Article" {{ $record->subject_category === 'Article' ? 'selected' : '' }}>{{ __('Selected_Article') }}</option>
                                 </select>
                             </div>
@@ -66,10 +66,10 @@
                         <!-- Record Type -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Record_Type') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Record_Type') }}</label>
                             </div>
                             <div class="sm:col-span-3">
-                                <select name="record_type" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
+                                <select name="record_type" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
                                     <option value="book" {{ $record->record_type === 'book' ? 'selected' : '' }}>{{ __('Language_Material_Text') }}</option>
                                 </select>
                             </div>
@@ -140,10 +140,10 @@
                     <div class="mt-8 flex justify-end">
                         <button type="submit" 
                                 :disabled="loading"
-                                class="inline-flex items-center px-6 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                                class="inline-flex items-center px-6 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg shadow-indigo-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed">
                             <span x-show="!loading" class="flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                {{ __('Save Changes') }}
+                                {{ __('Save_Changes') }}
                             </span>
                             <span x-show="loading" class="flex items-center" x-cloak>
                                 <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -159,7 +159,7 @@
         </div>
 
         <!-- MARC Record Display -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-center space-x-3">
                     <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC</span>
@@ -171,13 +171,13 @@
             <div class="overflow-x-auto">
                 <table class="w-full border-collapse">
                     <thead>
-                        <tr class="bg-slate-50 text-left border-b border-slate-100">
-                            <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] w-64">{{ __('Tag') }}</th>
-                            <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] text-center w-24">{{ __('Ind') }}</th>
-                            <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">{{ __('Content_Data') }}</th>
+                        <tr class="bg-slate-50 dark:bg-slate-800/50 text-left border-b border-slate-100 dark:border-slate-800">
+                            <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Tag') }}</th>
+                            <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Ind') }}</th>
+                            <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Content_Data') }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-50 font-monospace-custom">
+                    <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-monospace-custom">
                         @foreach($record->fields as $field)
                             <tr class="hover:bg-slate-50/50 transition-colors">
                                 <td class="pl-8 py-4 whitespace-nowrap align-top">
@@ -188,22 +188,22 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td class="px-4 py-4 text-center border-x border-slate-50 align-top">
+                                <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
                                     <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono">{{ $field->indicator1 ?: '#' }}{{ $field->indicator2 ?: '#' }}</span>
                                 </td>
                                 <td class="py-4 pr-8">
                                     <div class="flex flex-col space-y-2">
                                         @foreach($field->subfields as $sub)
                                             <div class="flex items-start space-x-2.5">
-                                                <span class="text-emerald-600 font-bold shrink-0 font-mono">${{ $sub->code }}</span>
-                                                <span class="text-slate-700 grow break-words min-w-0 leading-relaxed">{{ $sub->value }}</span>
+                                                <span class="text-emerald-600 dark:text-emerald-400 font-bold shrink-0 font-mono">${{ $sub->code }}</span>
+                                                <span class="text-slate-700 dark:text-slate-300 grow break-words min-w-0 leading-relaxed">{{ $sub->value }}</span>
                                                 
                                                 @php
                                                     $def = $definitions->get($field->tag);
                                                     $subDef = $def ? $def->subfields->where('code', $sub->code)->first() : null;
                                                 @endphp
                                                 @if($subDef)
-                                                    <span class="shrink-0 bg-slate-100 text-slate-400 text-[8px] px-1.5 py-0.5 rounded font-sans uppercase tracking-widest mt-1">[{{ $subDef->label }}]</span>
+                                                    <span class="shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[8px] px-1.5 py-0.5 rounded font-sans uppercase tracking-widest mt-1">[{{ $subDef->label }}]</span>
                                                 @endif
                                             </div>
                                         @endforeach
@@ -217,25 +217,25 @@
         </div>
 
         <!-- Footnote Metadata -->
-        <div class="bg-indigo-50/30 rounded-2xl p-8 border border-indigo-50 relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
+        <div class="bg-indigo-50/30 dark:bg-indigo-900/10 rounded-2xl p-8 border border-indigo-50 dark:border-slate-800 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-950 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
             <h6 class="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] mb-6 relative">{{ __('Record_Metadata') }}</h6>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 relative">
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ __('Created_At') }}</span>
-                    <span class="text-sm font-bold text-slate-900 font-mono tracking-tight">{{ $record->created_at->format('Y-m-d H:i') }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Created_At') }}</span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-slate-200 font-mono tracking-tight">{{ $record->created_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ __('Last_Modified') }}</span>
-                    <span class="text-sm font-bold text-slate-900 font-mono tracking-tight">{{ $record->updated_at->format('Y-m-d H:i') }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Last_Modified') }}</span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-slate-200 font-mono tracking-tight">{{ $record->updated_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ __('Record_Type') }}</span>
-                    <span class="text-sm font-bold text-slate-900 uppercase font-mono tracking-tight">{{ $record->record_type }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Record_Type') }}</span>
+                    <span class="text-sm font-bold text-slate-900 dark:text-slate-200 uppercase font-mono tracking-tight">{{ $record->record_type }}</span>
                 </div>
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">{{ __('Control_Number') }}</span>
-                    <span class="text-sm font-bold text-indigo-600 font-mono">#{{ $record->id }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Control_Number') }}</span>
+                    <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400 font-mono">#{{ $record->id }}</span>
                 </div>
             </div>
         </div>
@@ -254,7 +254,7 @@
         font-family: 'JetBrains Mono', monospace !important;
     }
     .hover-bg-gray:hover {
-        background-color: #f1f5f9 !important;
+        background-color: theme('colors.slate.800') !important;
     }
 </style>
 @endsection
