@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Root;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
@@ -37,11 +37,11 @@ class ActivityLogController extends Controller
         $logs = $query->paginate(20)->withQueryString();
         $users = User::orderBy('name')->get();
 
-        return view('root.activity_logs.index', compact('logs', 'users'));
+        return view('admin.activity_logs.index', compact('logs', 'users'));
     }
 
     public function show(ActivityLog $log)
     {
-        return view('root.activity_logs.show', compact('log'));
+        return view('admin.activity_logs.show', compact('log'));
     }
 }

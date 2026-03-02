@@ -1,25 +1,40 @@
-@extends('layouts.root')
+@extends('layouts.admin')
 
 @section('content')
     <div class="space-y-6 animate-in fade-in duration-500">
+            <!-- Administrative Navigation Tabs -->
+    <div class="flex items-center space-x-2 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-[2rem] w-fit border border-slate-200 dark:border-slate-800">
+        <a href="{{ route('admin.users.index') }}" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all {{ Route::is('admin.users.index') ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+            {{ __('Users List') }}
+        </a>
+        <a href="{{ route('admin.users.privileges') }}" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all {{ Route::is('admin.users.privileges') ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+            {{ __('Privilege Controller') }}
+        </a>
+        <a href="{{ route('admin.roles.index') }}" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all {{ Route::is('admin.roles.index') ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+            {{ __('Role Management') }}
+        </a>
+    </div>
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center p-6 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700 gap-4">
             <div>
                 <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ __('Role_Template_Management') }}</h2>
                 <p class="text-sm text-slate-500 mt-1">{{ __('Define and manage system access levels.') }}</p>
             </div>
             <div class="flex flex-wrap gap-3">
-                <a href="{{ route('root.users.index') }}"
+                <a href="{{ route('admin.users.index') }}"
                     class="inline-flex items-center px-5 py-2.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition transform active:scale-95">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     {{ __('Manage_Subjects') }}
                 </a>
-                <a href="{{ route('root.roles.create') }}"
+                <a href="{{ route('admin.roles.create') }}"
                     class="inline-flex items-center px-5 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none transition transform active:scale-95">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                     {{ __('Initialize_New_Role') }}
                 </a>
             </div>
         </div>
+
+        
+
 
         <div class="bg-white dark:bg-slate-800 rounded-[2rem] overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
             <div class="overflow-x-auto">
@@ -66,13 +81,13 @@
                                 </td>
                                 <td class="p-5 text-right">
                                     <div class="flex justify-end items-center space-x-2">
-                                        <a href="{{ route('root.roles.edit', $role->id) }}" 
+                                        <a href="{{ route('admin.roles.edit', $role->id) }}" 
                                             class="inline-flex items-center p-2.5 bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 rounded-xl hover:bg-indigo-600 hover:text-white transition group shadow-sm"
                                             title="{{ __('Modify') }}">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </a>
                                         
-                                        <form action="{{ route('root.roles.destroy', $role->id) }}" method="POST"
+                                        <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST"
                                             onsubmit="return confirm('{{ __('Delete_Confirmation') }}')" class="inline">
                                             @csrf @method('DELETE')
                                             <button type="submit"

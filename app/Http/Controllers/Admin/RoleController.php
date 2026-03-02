@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Root;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
@@ -19,13 +19,13 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::withCount('users')->get();
-        return view('root.roles.index', compact('roles'));
+        return view('admin.roles.index', compact('roles'));
     }
 
     public function create()
     {
         $sidebars = Sidebar::whereNull('parent_id')->with('children')->get();
-        return view('root.roles.create', compact('sidebars'));
+        return view('admin.roles.create', compact('sidebars'));
     }
 
     public function store(Request $request)
@@ -46,14 +46,14 @@ class RoleController extends Controller
             $role->sidebars()->sync($validated['sidebars']);
         }
 
-        return redirect()->route('root.roles.index')->with('success', __('Role created successfully'));
+        return redirect()->route('admin.roles.index')->with('success', __('Role created successfully'));
     }
 
     public function edit(Role $role)
     {
         $sidebars = Sidebar::whereNull('parent_id')->with('children')->get();
         $roleSidebars = $role->sidebars->pluck('id')->toArray();
-        return view('root.roles.edit', compact('role', 'sidebars', 'roleSidebars'));
+        return view('admin.roles.edit', compact('role', 'sidebars', 'roleSidebars'));
     }
 
     public function update(Request $request, Role $role)
@@ -77,12 +77,12 @@ class RoleController extends Controller
             $this->userService->syncAllUsersToRoleSidebars($role->id);
         }
 
-        return redirect()->route('root.roles.index')->with('success', __('Role updated successfully and users synchronized'));
+        return redirect()->route('admin.roles.index')->with('success', __('Role updated successfully and users synchronized'));
     }
 
     public function destroy(Role $role)
     {
         $role->delete();
-        return redirect()->route('root.roles.index')->with('success', __('Role deleted successfully'));
+        return redirect()->route('admin.roles.index')->with('success', __('Role deleted successfully'));
     }
 }

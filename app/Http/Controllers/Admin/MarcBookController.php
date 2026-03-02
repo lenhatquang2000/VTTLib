@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BibliographicRecord;
 use App\Models\MarcTagDefinition;
+use App\Models\DocumentType;
+use App\Models\StorageLocation;
+use App\Models\BookItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -28,24 +31,42 @@ class MarcBookController extends Controller
             ->orderBy('tag')
             ->get();
 
-        return view('admin.marc_books.create', compact('definitions'));
+        $documentTypes = DocumentType::active()->ordered()->get();
+        $locations = StorageLocation::where('is_active', true)->with('branch')->get();
+
+        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations'));
     }
 
     public function store(Request $request)
     {
         DB::beginTransaction();
         try {
+            // Handle cover image upload
+            $coverImagePath = null;
+            if ($request->hasFile('cover_image')) {
+                $coverImagePath = $request->file('cover_image')->store('covers', 'public');
+            }
+
+            // Create bibliographic record with metadata
             $record = BibliographicRecord::create([
-                'leader' => '00000nam a2200000 i 4500', // Default MARC21 leader
-                'record_type' => 'book',
-                'status' => BibliographicRecord::STATUS_PENDING
+                'leader' => '00000nam a2200000 i 4500',
+                'cover_image' => $coverImagePath,
+                'record_type' => $request->input('record_type', 'book'),
+                'status' => $request->input('status', BibliographicRecord::STATUS_PENDING),
+                'framework' => $request->input('framework', 'AVMARC21'),
+                'subject_category' => $request->input('subject_category'),
+                'serial_frequency' => $request->input('serial_frequency'),
+                'date_type' => $request->input('date_type'),
+                'acquisition_method' => $request->input('acquisition_method'),
+                'document_format' => $request->input('document_format'),
+                'cataloging_standard' => $request->input('cataloging_standard'),
             ]);
 
+            // Process MARC fields
             $fields = $request->input('fields', []);
             $sequence = 0;
 
             foreach ($fields as $tag => $data) {
-                // Determine if there's any active subfield data before creating the field
                 $subfieldEntries = $data['subfields'] ?? [];
                 $hasData = false;
                 foreach($subfieldEntries as $entry) {
@@ -74,6 +95,26 @@ class MarcBookController extends Controller
                 }
             }
 
+            // Process distribution items
+            $items = $request->input('items', []);
+            foreach ($items as $itemData) {
+                if (!empty($itemData['document_type_id']) && !empty($itemData['storage_location_id'])) {
+                    $quantity = (int) ($itemData['quantity'] ?? 1);
+                    
+                    for ($i = 0; $i < $quantity; $i++) {
+                        BookItem::create([
+                            'bibliographic_record_id' => $record->id,
+                            'document_type_id' => $itemData['document_type_id'],
+                            'storage_location_id' => $itemData['storage_location_id'],
+                            'barcode' => $this->generateBarcode(),
+                            'accession_number' => $this->generateAccessionNumber(),
+                            'quantity' => 1,
+                            'status' => 'available'
+                        ]);
+                    }
+                }
+            }
+
             DB::commit();
             return redirect()->route('admin.marc.book')->with('success', __('Record_Created_Successfully'));
 
@@ -81,6 +122,16 @@ class MarcBookController extends Controller
             DB::rollBack();
             return back()->with('error', 'Error while cataloging: ' . $e->getMessage())->withInput();
         }
+    }
+
+    private function generateBarcode()
+    {
+        return 'BC' . str_pad(BookItem::count() + 1, 8, '0', STR_PAD_LEFT);
+    }
+
+    private function generateAccessionNumber()
+    {
+        return 'ACC' . date('Y') . str_pad(BookItem::count() + 1, 6, '0', STR_PAD_LEFT);
     }
 
     public function show(BibliographicRecord $record)

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Root;
+namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,20 +14,24 @@ class StoreUserRequest extends FormRequest
 
     public function rules(): array
     {
+        $userId = $this->route('id');
+
         return [
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
+            'username' => 'required|string|max:255|unique:users,username,' . $userId,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $userId,
             'password' => [
-                'required',
+                'nullable',
                 'string',
                 Password::min(8)
                     ->mixedCase()
                     ->numbers()
                     ->symbols()
                     ->uncompromised(),
+                'confirmed',
             ],
-            'role_id' => 'required|exists:roles,id',
+            'roles' => 'nullable|array',
+            'roles.*' => 'exists:roles,id',
         ];
     }
 
@@ -38,10 +42,8 @@ class StoreUserRequest extends FormRequest
             'email.required' => 'Email address is required',
             'email.email' => 'Please provide a valid email address',
             'email.unique' => 'This email address is already registered',
-            'password.required' => 'Password is required',
             'password.min' => 'Password must be at least 8 characters',
-            'role_id.required' => 'Please select a role for this user',
-            'role_id.exists' => 'Selected role is invalid',
+            'password.confirmed' => 'Password confirmation does not match',
         ];
     }
 }

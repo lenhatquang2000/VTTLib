@@ -1,10 +1,10 @@
-@extends('layouts.root')
+@extends('layouts.admin')
 
 @section('content')
     <div class="max-w-4xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500">
         <div class="flex items-center justify-between pb-4">
             <div>
-                <a href="{{ route('root.roles.index') }}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors uppercase tracking-wider mb-2">
+                <a href="{{ route('admin.roles.index') }}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors uppercase tracking-wider mb-2">
                     <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     {{ __('Back_to_Protocol') }}
                 </a>
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <form action="{{ route('root.roles.update', $role->id) }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.roles.update', $role->id) }}" method="POST" class="space-y-6">
             @csrf
             @method('PUT')
             
@@ -82,7 +82,7 @@
                     </div>
                     
                     <div class="flex items-center gap-4 w-full md:w-auto">
-                        <a href="{{ route('root.roles.index') }}" class="flex-1 md:flex-none text-center px-6 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold uppercase transition hover:bg-slate-200">
+                        <a href="{{ route('admin.roles.index') }}" class="flex-1 md:flex-none text-center px-6 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold uppercase transition hover:bg-slate-200">
                             {{ __('Abort') }}
                         </a>
                         <button type="submit"
@@ -95,7 +95,7 @@
         </form>
 
         <!-- Hidden Delete Form -->
-        <form id="delete-role-form" action="{{ route('root.roles.destroy', $role->id) }}" method="POST" class="hidden">
+        <form id="delete-role-form" action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" class="hidden">
             @csrf
             @method('DELETE')
         </form>

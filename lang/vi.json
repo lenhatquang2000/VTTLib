@@ -699,5 +699,19 @@
     "Timestamp": "Dấu thời gian",
     "Request Data Payload": "Dữ liệu yêu cầu (Request Payload)",
     "Extra Trace Details": "Chi tiết dấu vết bổ sung",
-    "Target Resource URL": "URL Tài nguyên mục tiêu"
+    "Target Resource URL": "URL Tài nguyên mục tiêu",
+    "Leader_Info": "Đầu biểu",
+    "Distribution_Info": "Thông tin phân phối",
+    "Preview": "Xem trước",
+    "Previous": "Quay lại",
+    "Next": "Tiếp theo",
+    "Cover_Image": "Hình ảnh bìa",
+    "Document_Type": "Thể loại tài liệu",
+    "Storage_Location": "Vị trí lưu trữ",
+    "Select": "Chọn",
+    "Add_Item": "Thêm bản sách",
+    "Remove_Item": "Xóa bản sách",
+    "MARC_Preview": "Xem trước MARC21",
+    "Preview_will_be_generated_after_submission": "Bản xem trước sẽ được tạo sau khi lưu bản ghi",
+    "Serial_Acquisition_Method": "Hình thức nhập (Tạp chí)"
 }

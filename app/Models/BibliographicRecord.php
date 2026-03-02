@@ -11,6 +11,7 @@ class BibliographicRecord extends Model
 
     protected $fillable = [
         'leader', 
+        'cover_image',
         'record_type', 
         'status',
         'framework',

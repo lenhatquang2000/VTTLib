@@ -1,4 +1,4 @@
-@extends('layouts.root')
+@extends('layouts.admin')
 
 @section('content')
 <div class="space-y-8 animate-in fade-in duration-700">
@@ -13,7 +13,7 @@
     <div class="bg-white dark:bg-slate-800 rounded-[3rem] shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
         <!-- Filter Bar -->
         <div class="p-8 border-b border-slate-100 dark:border-slate-700/50">
-            <form action="{{ route('root.activity-logs.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="relative group">
                     <select name="user_id" onchange="this.form.submit()" 
                         class="w-full bg-slate-50 dark:bg-slate-900 border-transparent dark:border-slate-700 px-6 py-4 rounded-[1.25rem] text-sm font-bold text-slate-700 dark:text-slate-200 outline-none transition appearance-none cursor-pointer pr-10">
@@ -51,7 +51,7 @@
                         {{ __('Filter') }}
                     </button>
                     @if(request()->anyFilled(['user_id', 'action', 'method', 'date_from', 'date_to']))
-                        <a href="{{ route('root.activity-logs.index') }}" class="px-4 py-4 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-[1.25rem] border border-rose-100 dark:border-rose-900/30">
+                        <a href="{{ route('admin.activity-logs.index') }}" class="px-4 py-4 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-[1.25rem] border border-rose-100 dark:border-rose-900/30">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </a>
                     @endif
@@ -170,7 +170,7 @@
         modal.classList.remove('hidden');
         content.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>';
 
-        fetch(`/root/activity-logs/${logId}`)
+        fetch(`/topsecret/activity-logs/${logId}`)
             .then(response => response.text())
             .then(html => {
                 const parser = new DOMParser();

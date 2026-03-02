@@ -1,4 +1,4 @@
-@extends('layouts.root')
+@extends('layouts.admin')
 
 @section('content')
 <div id="log-detail-snippet">

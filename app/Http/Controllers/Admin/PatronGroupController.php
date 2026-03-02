@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Root;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PatronGroup;
@@ -11,7 +11,7 @@ class PatronGroupController extends Controller
     public function index()
     {
         $groups = PatronGroup::orderBy('order')->get();
-        return view('root.patrons.groups', compact('groups'));
+        return view('admin.patrons.groups', compact('groups'));
     }
 
     public function store(Request $request)
