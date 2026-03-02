@@ -59,6 +59,7 @@
                     <table class="w-full">
                         <thead>
                             <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                                <th class="w-10 px-6 py-4"></th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Code') }}</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Name') }}</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Order') }}</th>
@@ -66,9 +67,12 @@
                                 <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800" id="sortable-groups">
                             @forelse($groups as $group)
-                            <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
+                            <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group cursor-move" data-id="{{ $group->id }}">
+                                <td class="px-6 py-4 whitespace-nowrap text-slate-400 drag-handle">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-xs font-mono font-bold">{{ $group->code }}</span>
                                 </td>
@@ -78,7 +82,7 @@
                                         <div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{{ $group->description }}</div>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ $group->order }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 group-order">{{ $group->order }}</td>
                                 <td class="px-6 py-4">
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $group->is_active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-100 text-rose-800 dark:bg-rose-500/10 dark:text-rose-400' }}">
                                         {{ $group->is_active ? __('Active') : __('Inactive') }}
@@ -98,7 +102,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
+                                <td colspan="6" class="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                     {{ __('No categories found.') }}
                                 </td>
                             </tr>
@@ -156,3 +160,51 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const el = document.getElementById('sortable-groups');
+    if (el) {
+        Sortable.create(el, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'bg-indigo-50',
+            onEnd: function() {
+                const ids = Array.from(el.querySelectorAll('tr')).map(tr => tr.dataset.id);
+                
+                // Update display orders in the UI immediately
+                el.querySelectorAll('tr').forEach((tr, index) => {
+                    tr.querySelector('.group-order').innerText = index + 1;
+                });
+
+                // Send to server
+                fetch('{{ route("admin.patrons.groups.reorder") }}', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ ids: ids })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: { message: '{{ __("Order updated successfully") }}', type: 'success' }
+                        }));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: { message: '{{ __("Failed to update order") }}', type: 'error' }
+                    }));
+                });
+            }
+        });
+    }
+});
+</script>
+@endpush

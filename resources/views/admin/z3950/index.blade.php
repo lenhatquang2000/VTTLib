@@ -1,109 +1,130 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-8">
+<div class="space-y-8 animate-in fade-in duration-700">
+    <!-- Notifications -->
     @if(session('success'))
-        <div class="bg-green-900/20 border border-green-500 text-green-400 p-4 text-xs font-mono rounded">
-            [OK] {{ session('success') }}
+        <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-4 rounded-xl text-sm font-bold flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            <span>{{ session('success') }}</span>
         </div>
     @endif
+    
     @if(session('error'))
-        <div class="bg-red-900/20 border border-red-500 text-red-400 p-4 text-xs font-mono rounded">
-            [ERROR] {{ session('error') }}
+        <div class="bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-xl text-sm font-bold flex items-center space-x-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>{{ session('error') }}</span>
         </div>
     @endif
 
     @if(!$hasYaz)
-    <div class="bg-yellow-900/20 border border-yellow-500 text-yellow-400 p-4 text-sm rounded">
-        <strong>⚠️ {{ __('YAZ_Extension_Not_Installed') }}</strong><br>
-        {{ __('YAZ_extension_required_for_full_Z3950_functionality') }}
-        <code class="bg-gray-800 px-2 py-1 rounded ml-2">php-yaz</code>
+    <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 p-4 rounded-xl text-sm">
+        <div class="flex items-center space-x-3 mb-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <strong class="font-bold">{{ __('YAZ_Extension_Not_Installed') }}</strong>
+        </div>
+        <p class="font-medium opacity-90">{{ __('YAZ_extension_required_for_full_Z3950_functionality') }} <code class="bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded text-xs font-mono ml-1">php-yaz</code></p>
     </div>
     @endif
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold">{{ __('Z3950_Servers') }}</h1>
-            <p class="text-sm text-gray-400 mt-1">{{ __('Manage_Z3950_database_connections_for_cataloging') }}</p>
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6" x-data="{ showAddModal: false }">
+        <div class="flex items-center space-x-4">
+            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Z3950_Servers') }}</h1>
+                <p class="text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Manage_Z3950_database_connections_for_cataloging') }}</p>
+            </div>
         </div>
-        <div class="flex gap-2">
-            <a href="{{ route('admin.z3950.search') }}" class="btn-secondary">
+        <div class="flex items-center space-x-3">
+            <a href="{{ route('admin.z3950.search') }}" class="inline-flex items-center px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-sm">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 {{ __('Search_Catalog') }}
             </a>
-            <button onclick="openModal('addServerModal')" class="btn-primary">
+            <button @click="$dispatch('open-modal', 'add-server')" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none text-sm">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
                 {{ __('Add_Server') }}
             </button>
         </div>
     </div>
 
     <!-- Servers Table -->
-    <div class="card-admin rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-800 text-xs uppercase">
-                    <tr>
-                        <th class="p-3 text-left">{{ __('Server') }}</th>
-                        <th class="p-3 text-left">{{ __('Connection') }}</th>
-                        <th class="p-3 text-center">{{ __('Status') }}</th>
-                        <th class="p-3 text-center">{{ __('Last_Test') }}</th>
-                        <th class="p-3 text-left">{{ __('Actions') }}</th>
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-left">
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Server') }}</th>
+                        <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Connection') }}</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Status') }}</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Last_Test') }}</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-700">
+                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                     @forelse($servers as $server)
-                    <tr class="hover:bg-gray-800/50">
-                        <td class="p-3">
-                            <div class="flex items-center gap-2">
-                                @if($server->is_active)
-                                    <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                @else
-                                    <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
-                                @endif
+                    <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-3">
+                                <span class="w-2.5 h-2.5 rounded-full {{ $server->is_active ? 'bg-emerald-500 shadow-sm shadow-emerald-200' : 'bg-slate-300' }}"></span>
                                 <div>
-                                    <div class="font-medium">{{ $server->name }}</div>
-                                    <div class="text-xs text-gray-500">{{ $server->description }}</div>
+                                    <div class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ $server->name }}</div>
+                                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 max-w-[200px]">{{ $server->description }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="p-3">
-                            <code class="text-xs bg-gray-800 px-2 py-1 rounded">{{ $server->connection_string }}</code>
-                            <div class="text-xs text-gray-500 mt-1">
-                                {{ $server->record_syntax }} | {{ $server->charset }}
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col space-y-1">
+                                <code class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300 font-mono inline-block w-fit">
+                                    {{ $server->host }}:{{ $server->port }}/{{ $server->database_name }}
+                                </code>
+                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                    {{ $server->record_syntax }} | {{ $server->charset }}
+                                </div>
                             </div>
                         </td>
-                        <td class="p-3 text-center">
+                        <td class="px-6 py-4 text-center">
                             @php
-                                $statusClass = match($server->last_status) {
-                                    'success' => 'bg-green-900/50 text-green-400',
-                                    'failed' => 'bg-red-900/50 text-red-400',
-                                    default => 'bg-gray-900/50 text-gray-400'
+                                $statusClasses = match($server->last_status) {
+                                    'success' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
+                                    'failed' => 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400',
+                                    default => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                                 };
                             @endphp
-                            <span class="px-2 py-1 rounded text-xs font-bold {{ $statusClass }}" id="status-{{ $server->id }}">
-                                {{ __(ucfirst($server->last_status)) }}
+                            <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider {{ $statusClasses }}" id="status-{{ $server->id }}">
+                                {{ __(ucfirst($server->last_status ?: 'Unknown')) }}
                             </span>
                         </td>
-                        <td class="p-3 text-center text-xs text-gray-400">
+                        <td class="px-6 py-4 text-center text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
                             {{ $server->last_connected_at ? $server->last_connected_at->diffForHumans() : '-' }}
                         </td>
-                        <td class="p-3">
-                            <button onclick="testConnection({{ $server->id }})" class="text-blue-400 hover:text-blue-300 text-xs mr-2">
-                                {{ __('Test') }}
+                        <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                            <button onclick="testConnection({{ $server->id }})" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Test Connection') }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </button>
-                            <button onclick="editServer({{ json_encode($server) }})" class="text-yellow-400 hover:text-yellow-300 text-xs mr-2">
-                                {{ __('Edit') }}
+                            <button @click="$dispatch('open-modal', 'edit-server'); $dispatch('set-edit-server', @js($server))" class="p-2 text-slate-400 hover:text-amber-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Edit') }}">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             </button>
-                            <form action="{{ route('admin.z3950.destroy', $server) }}" method="POST" class="inline"
-                                onsubmit="return confirm('{{ __('Delete_this_server?') }}')">
+                            <form action="{{ route('admin.z3950.destroy', $server) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Delete_this_server?')))">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-red-400 hover:text-red-300 text-xs">{{ __('Delete') }}</button>
+                                <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Delete') }}">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
                             </form>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="p-8 text-center text-gray-500">{{ __('No_Z3950_servers_configured') }}</td>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                             <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-slate-200 dark:text-slate-800 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                <p class="text-sm font-medium">{{ __('No_Z3950_servers_configured') }}</p>
+                             </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -111,233 +132,188 @@
         </div>
     </div>
 
-    <!-- Info Box -->
-    <div class="card-admin rounded-lg p-4">
-        <h3 class="text-sm font-bold text-gray-300 mb-3">{{ __('About_Z3950') }}</h3>
-        <p class="text-xs text-gray-400 mb-3">
-            {{ __('Z3950_is_a_standard_protocol_for_searching_bibliographic_databases') }}
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div class="bg-gray-800/50 p-3 rounded">
-                <strong class="text-blue-400">Library of Congress</strong>
-                <p class="text-gray-500 mt-1">z3950.loc.gov:7090/VOYAGER</p>
+    <!-- Recommended Servers Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-1 flex flex-col justify-center bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-3xl border border-indigo-100 dark:border-indigo-500/20">
+            <h3 class="text-xl font-black text-indigo-900 dark:text-indigo-300 mb-2 uppercase tracking-tight">{{ __('Integration Nodes') }}</h3>
+            <p class="text-indigo-600 dark:text-indigo-400/80 text-sm font-medium leading-relaxed">
+                {{ __('Z3950_is_a_standard_protocol_for_searching_bibliographic_databases') }}
+            </p>
+        </div>
+        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl group hover:border-indigo-500 transition-all duration-300">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <strong class="text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black">Library of Congress</strong>
+                </div>
+                <code class="text-[10px] text-slate-400 font-mono bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg block">z3950.loc.gov:7090/VOYAGER</code>
             </div>
-            <div class="bg-gray-800/50 p-3 rounded">
-                <strong class="text-blue-400">Thư viện Quốc gia VN</strong>
-                <p class="text-gray-500 mt-1">z3950.nlv.gov.vn:210/INNOPAC</p>
+            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl group hover:border-indigo-500 transition-all duration-300">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                    <strong class="text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black">NLV (Việt Nam)</strong>
+                </div>
+                <code class="text-[10px] text-slate-400 font-mono bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg block">z3950.nlv.gov.vn:210/INNOPAC</code>
             </div>
-            <div class="bg-gray-800/50 p-3 rounded">
-                <strong class="text-blue-400">OCLC WorldCat</strong>
-                <p class="text-gray-500 mt-1">zcat.oclc.org:210/OLUCWorldCat</p>
+            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl group hover:border-indigo-500 transition-all duration-300 md:col-span-2">
+                <div class="flex items-center space-x-3 mb-3">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                    <strong class="text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black">OCLC WorldCat</strong>
+                </div>
+                <code class="text-[10px] text-slate-400 font-mono bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg block">zcat.oclc.org:210/OLUCWorldCat</code>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Add Server Modal -->
-<div id="addServerModal" class="modal hidden">
-    <div class="modal-backdrop" onclick="closeModal('addServerModal')"></div>
-    <div class="modal-content max-w-2xl">
-        <h3 class="text-lg font-bold mb-4">{{ __('Add_Z3950_Server') }}</h3>
-        <form action="{{ route('admin.z3950.store') }}" method="POST">
-            @csrf
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">{{ __('Server_Name') }} *</label>
-                    <input type="text" name="name" required class="input-field w-full" placeholder="{{ __('e.g._Library_of_Congress') }}">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Host') }} *</label>
-                    <input type="text" name="host" required class="input-field w-full" placeholder="z3950.loc.gov">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Port') }} *</label>
-                    <input type="number" name="port" value="210" required min="1" max="65535" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Database_Name') }} *</label>
-                    <input type="text" name="database_name" required class="input-field w-full" placeholder="VOYAGER">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Record_Syntax') }} *</label>
-                    <select name="record_syntax" required class="input-field w-full">
-                        <option value="USMARC">USMARC</option>
-                        <option value="UNIMARC">UNIMARC</option>
-                        <option value="MARC21">MARC21</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Username') }}</label>
-                    <input type="text" name="username" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Password') }}</label>
-                    <input type="password" name="password" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Charset') }} *</label>
-                    <input type="text" name="charset" value="UTF-8" required class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Timeout') }} (s) *</label>
-                    <input type="number" name="timeout" value="30" required min="5" max="120" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Max_Records') }} *</label>
-                    <input type="number" name="max_records" value="100" required min="10" max="500" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Order') }}</label>
-                    <input type="number" name="order" value="0" min="0" class="input-field w-full">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">{{ __('Description') }}</label>
-                    <textarea name="description" class="input-field w-full" rows="2"></textarea>
-                </div>
-                <div class="md:col-span-2 flex gap-6">
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" name="is_active" value="1" checked class="rounded">
-                        <span class="text-sm">{{ __('Active') }}</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" name="use_ssl" value="1" class="rounded">
-                        <span class="text-sm">{{ __('Use_SSL') }}</span>
-                    </label>
-                </div>
+<!-- Modal Manager (Shared Alpine Component) -->
+<div x-data="{ 
+    showAdd: false, 
+    showEdit: false, 
+    server: {},
+    init() {
+        window.addEventListener('open-modal', (e) => {
+            if (e.detail === 'add-server') this.showAdd = true;
+            if (e.detail === 'edit-server') this.showEdit = true;
+        });
+        window.addEventListener('set-edit-server', (e) => {
+            this.server = e.detail;
+            this.server.is_active = !!this.server.is_active;
+            this.server.use_ssl = !!this.server.use_ssl;
+        });
+    }
+}">
+    <!-- Add Modal -->
+    <template x-if="showAdd">
+        <div class="fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center animate-in fade-in duration-300">
+            <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" @click="showAdd = false"></div>
+            
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden w-full max-w-2xl relative">
+                <form action="{{ route('admin.z3950.store') }}" method="POST" class="p-8 md:p-10">
+                    @csrf
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ __('Expand Registry') }}</h3>
+                            <p class="text-slate-500 text-xs font-bold">{{ __('Initialize new Z39.50 connection terminal') }}</p>
+                        </div>
+                        <button type="button" @click="showAdd = false" class="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors rounded-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2 space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Server Identity') }} (Name)</label>
+                             <input type="text" name="name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="e.g. British Library">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Endpoint Host') }}</label>
+                             <input type="text" name="host" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="z3950.bl.uk">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Communication Port') }}</label>
+                             <input type="number" name="port" value="210" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Internal DB Path') }}</label>
+                             <input type="text" name="database_name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="Main">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Dialect') }} (Record Syntax)</label>
+                             <select name="record_syntax" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm appearance-none">
+                                <option value="MARC21">MARC21</option>
+                                <option value="USMARC">USMARC</option>
+                                <option value="UNIMARC">UNIMARC</option>
+                             </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800 pt-8">
+                        <button type="button" @click="showAdd = false" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
+                            {{ __('Abort') }}
+                        </button>
+                        <button type="submit" class="px-10 py-4 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all uppercase tracking-widest text-[10px]">
+                            {{ __('Deploy Server') }}
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeModal('addServerModal')" class="btn-secondary">{{ __('Cancel') }}</button>
-                <button type="submit" class="btn-primary">{{ __('Create') }}</button>
+        </div>
+    </template>
+
+    <!-- Edit Modal -->
+    <template x-if="showEdit">
+        <div class="fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center animate-in fade-in duration-300">
+            <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" @click="showEdit = false"></div>
+            
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden w-full max-w-2xl relative">
+                <form :action="'{{ url('topsecret/z3950') }}/' + server.id" method="POST" class="p-8 md:p-10">
+                    @csrf @method('PUT')
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ __('Modify Node') }}</h3>
+                            <p class="text-slate-500 text-xs font-bold">{{ __('Updating parameters for') }} <span class="text-indigo-500" x-text="server.name"></span></p>
+                        </div>
+                        <button type="button" @click="showEdit = false" class="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors rounded-2xl">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2 space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Server Identity') }}</label>
+                             <input type="text" name="name" x-model="server.name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Endpoint Host') }}</label>
+                             <input type="text" name="host" x-model="server.host" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Communication Port') }}</label>
+                             <input type="number" name="port" x-model="server.port" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Internal DB Path') }}</label>
+                             <input type="text" name="database_name" x-model="server.database_name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                        </div>
+                        <div class="space-y-2">
+                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Status') }}</label>
+                             <div class="flex items-center space-x-3 h-[54px] px-5 bg-slate-50 dark:bg-slate-950 rounded-2xl">
+                                <input type="checkbox" name="is_active" x-model="server.is_active" value="1" id="edit_is_active_check" class="rounded border-slate-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <label for="edit_is_active_check" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{{ __('Online') }}</label>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Simplified/Hidden fields to keep UI clean, can add back as needed -->
+                    <input type="hidden" name="record_syntax" x-model="server.record_syntax">
+                    <input type="hidden" name="charset" x-model="server.charset">
+                    <input type="hidden" name="timeout" x-model="server.timeout">
+                    <input type="hidden" name="max_records" x-model="server.max_records">
+
+                    <div class="mt-10 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800 pt-8">
+                        <button type="button" @click="showEdit = false" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
+                            {{ __('Abort') }}
+                        </button>
+                        <button type="submit" class="px-10 py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-3xl shadow-xl shadow-amber-200 dark:shadow-none transition-all uppercase tracking-widest text-[10px]">
+                            {{ __('Commit Changes') }}
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
-    </div>
+        </div>
+    </template>
 </div>
 
-<!-- Edit Server Modal -->
-<div id="editServerModal" class="modal hidden">
-    <div class="modal-backdrop" onclick="closeModal('editServerModal')"></div>
-    <div class="modal-content max-w-2xl">
-        <h3 class="text-lg font-bold mb-4">{{ __('Edit_Z3950_Server') }}</h3>
-        <form id="editServerForm" method="POST">
-            @csrf @method('PUT')
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">{{ __('Server_Name') }} *</label>
-                    <input type="text" name="name" id="editName" required class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Host') }} *</label>
-                    <input type="text" name="host" id="editHost" required class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Port') }} *</label>
-                    <input type="number" name="port" id="editPort" required min="1" max="65535" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Database_Name') }} *</label>
-                    <input type="text" name="database_name" id="editDbName" required class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Record_Syntax') }} *</label>
-                    <select name="record_syntax" id="editSyntax" required class="input-field w-full">
-                        <option value="USMARC">USMARC</option>
-                        <option value="UNIMARC">UNIMARC</option>
-                        <option value="MARC21">MARC21</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Username') }}</label>
-                    <input type="text" name="username" id="editUsername" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Password') }}</label>
-                    <input type="password" name="password" class="input-field w-full" placeholder="{{ __('Leave_empty_to_keep_current') }}">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Charset') }} *</label>
-                    <input type="text" name="charset" id="editCharset" required class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Timeout') }} (s) *</label>
-                    <input type="number" name="timeout" id="editTimeout" required min="5" max="120" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Max_Records') }} *</label>
-                    <input type="number" name="max_records" id="editMaxRecords" required min="10" max="500" class="input-field w-full">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Order') }}</label>
-                    <input type="number" name="order" id="editOrder" min="0" class="input-field w-full">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium mb-1">{{ __('Description') }}</label>
-                    <textarea name="description" id="editDescription" class="input-field w-full" rows="2"></textarea>
-                </div>
-                <div class="md:col-span-2 flex gap-6">
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" name="is_active" id="editActive" value="1" class="rounded">
-                        <span class="text-sm">{{ __('Active') }}</span>
-                    </label>
-                    <label class="flex items-center gap-2">
-                        <input type="checkbox" name="use_ssl" id="editSsl" value="1" class="rounded">
-                        <span class="text-sm">{{ __('Use_SSL') }}</span>
-                    </label>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeModal('editServerModal')" class="btn-secondary">{{ __('Cancel') }}</button>
-                <button type="submit" class="btn-primary">{{ __('Update') }}</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<style>
-    .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; }
-    .modal.hidden { display: none; }
-    .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.8); }
-    .modal-content { position: relative; background: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 1.5rem; max-width: 28rem; width: 100%; max-height: 90vh; overflow-y: auto; }
-    .modal-content.max-w-2xl { max-width: 42rem; }
-    .input-field { background: #111827; border: 1px solid #374151; border-radius: 0.375rem; padding: 0.5rem 0.75rem; color: #fff; font-size: 0.875rem; }
-    .input-field:focus { outline: none; border-color: #3b82f6; }
-    .btn-primary { background: #3b82f6; color: #fff; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-secondary { background: #374151; color: #fff; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; }
-    .btn-secondary:hover { background: #4b5563; }
-    .card-admin { background: #1f2937; border: 1px solid #374151; }
-</style>
-
+@push('scripts')
 <script>
-    function openModal(id) {
-        document.getElementById(id).classList.remove('hidden');
-    }
-    
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
-    }
-
-    function editServer(server) {
-        document.getElementById('editServerForm').action = '/topsecret/z3950/' + server.id;
-        document.getElementById('editName').value = server.name;
-        document.getElementById('editHost').value = server.host;
-        document.getElementById('editPort').value = server.port;
-        document.getElementById('editDbName').value = server.database_name;
-        document.getElementById('editSyntax').value = server.record_syntax;
-        document.getElementById('editUsername').value = server.username || '';
-        document.getElementById('editCharset').value = server.charset;
-        document.getElementById('editTimeout').value = server.timeout;
-        document.getElementById('editMaxRecords').value = server.max_records;
-        document.getElementById('editOrder').value = server.order;
-        document.getElementById('editDescription').value = server.description || '';
-        document.getElementById('editActive').checked = server.is_active;
-        document.getElementById('editSsl').checked = server.use_ssl;
-        openModal('editServerModal');
-    }
-
     function testConnection(serverId) {
         const statusEl = document.getElementById('status-' + serverId);
+        const originalText = statusEl.textContent;
+        const originalClass = statusEl.className;
+        
         statusEl.textContent = '{{ __("Testing") }}...';
-        statusEl.className = 'px-2 py-1 rounded text-xs font-bold bg-blue-900/50 text-blue-400';
+        statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 animate-pulse';
 
         fetch('/topsecret/z3950/' + serverId + '/test', {
             method: 'POST',
@@ -350,17 +326,25 @@
         .then(data => {
             if (data.success) {
                 statusEl.textContent = '{{ __("Success") }}';
-                statusEl.className = 'px-2 py-1 rounded text-xs font-bold bg-green-900/50 text-green-400';
+                statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400';
+                
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { message: '{{ __("Connection established successfully") }}', type: 'success' }
+                }));
             } else {
                 statusEl.textContent = '{{ __("Failed") }}';
-                statusEl.className = 'px-2 py-1 rounded text-xs font-bold bg-red-900/50 text-red-400';
-                alert(data.message);
+                statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400';
+                
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: { message: data.message || '{{ __("Connection failed") }}', type: 'error' }
+                }));
             }
         })
         .catch(err => {
-            statusEl.textContent = '{{ __("Failed") }}';
-            statusEl.className = 'px-2 py-1 rounded text-xs font-bold bg-red-900/50 text-red-400';
+            statusEl.textContent = '{{ __("Error") }}';
+            statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400';
         });
     }
 </script>
+@endpush
 @endsection

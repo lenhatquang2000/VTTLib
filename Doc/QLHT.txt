@@ -10,4 +10,8 @@ Lập chỉ mục Z39.50 - cần xem lại
 Thiết lập kho vị trí lưu trữ - chưa có
 sửa thông tin của thử viện - cầm xem lại
 thong tin chính  sách thư  viện - đã có
-cấu hình đọc giả - đã có 
+cấu hình đọc giả - đã có - http://localhost:8000/topsecret/patron-groups
+muốn tạo server Z39.50 - đã có, cần xem lại - http://localhost:8000/topsecret/z3950
+thêm thông tin nhà cung cấp - chưa có, cần xem lại
+thêm hành động tạo khung biên mục - đã có - http://localhost:8000/topsecret/marc-definitions
+thêm chức năng cấu hình dịch vụ mở rộng, ví dụ mail - chưa có

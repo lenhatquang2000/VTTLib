@@ -96,6 +96,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/patron-groups', [PatronGroupController::class, 'store'])->name('admin.patrons.groups.store');
     Route::put('/patron-groups/{patronGroup}', [PatronGroupController::class, 'update'])->name('admin.patrons.groups.update');
     Route::delete('/patron-groups/{patronGroup}', [PatronGroupController::class, 'destroy'])->name('admin.patrons.groups.destroy');
+    Route::patch('/patron-groups/reorder', [PatronGroupController::class, 'updateOrder'])->name('admin.patrons.groups.reorder');
 
     // System Infrastructure Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('admin.settings.index');

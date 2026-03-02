@@ -53,4 +53,18 @@ class PatronGroupController extends Controller
 
         return back()->with('success', __('Patron category deleted successfully.'));
     }
+
+    public function updateOrder(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:patron_groups,id'
+        ]);
+
+        foreach ($request->ids as $index => $id) {
+            PatronGroup::where('id', $id)->update(['order' => $index + 1]);
+        }
+
+        return response()->json(['success' => true]);
+    }
 }

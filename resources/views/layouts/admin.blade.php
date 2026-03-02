@@ -74,8 +74,8 @@
 
     <!-- Sidebar -->
     <aside :class="sidebarOpen ? 'w-64' : 'w-20'"
-        class="bg-slate-900 text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
-        <div class="h-16 flex items-center px-6 bg-slate-950 overflow-hidden whitespace-nowrap">
+        class="bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 text-slate-800 dark:text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
+        <div class="h-16 flex items-center px-6 bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-900/50 overflow-hidden whitespace-nowrap">
             <span class="text-xl font-bold tracking-wider flex items-center">
                 <span class="text-indigo-500 mr-3">V</span>
                 <span x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
@@ -112,7 +112,7 @@
                     <div class="space-y-1" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
                         <button @click="sidebarOpen ? (open = !open) : (sidebarOpen = true, open = true)"
                             :class="sidebarOpen ? 'justify-between' : 'justify-center'"
-                            class="w-full flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition group">
+                            class="w-full flex items-center px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-lg transition group">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">{!! $tab->icon !!}</div>
                                 <span x-show="sidebarOpen" x-cloak
@@ -126,7 +126,7 @@
                         <div x-show="open && sidebarOpen" x-cloak class="pl-10 space-y-1">
                             @foreach($assignedChildren as $child)
                                 <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
-                                    class="block px-4 py-2 text-sm {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'text-indigo-400 font-bold' : 'text-slate-500 hover:text-white' }} transition whitespace-nowrap">
+                                    class="block px-4 py-2 text-sm {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white' }} transition whitespace-nowrap">
                                     {{ __($child->name) }}
                                 </a>
                             @endforeach
@@ -135,7 +135,7 @@
                 @else
                     <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
                         :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                        class="flex items-center py-3 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} rounded-lg group transition">
+                        class="flex items-center py-3 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-lg group transition">
                         <div class="flex-shrink-0" :class="sidebarOpen ? '' : 'flex justify-center w-full'">{!! $tab->icon !!}
                         </div>
                         <span x-show="sidebarOpen" x-cloak
@@ -149,7 +149,7 @@
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                    class="w-full flex items-center py-2 text-sm text-slate-400 hover:text-white group transition">
+                    class="w-full flex items-center py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 group transition">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
@@ -349,6 +349,7 @@
             }));
         });
     </script>
+    @stack('scripts')
 </body>
 
 </html>
