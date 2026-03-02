@@ -1,0 +1,13 @@
+Xuất hiện danh sách người dùng - Đã có - 
+Phân quyền - đã có - 
+Thêm quyền mới - đã có  
+tìm kiếm quyền con - chưa có    
+xoá quyền - đã có
+sửa thông tin người dùng - cần xem lại
+sửa thông tin quyền - cần xem lại   
+thông tin thư viện, quản lý cấu hình - cần xem lại
+Lập chỉ mục Z39.50 - cần xem lại
+Thiết lập kho vị trí lưu trữ - chưa có
+sửa thông tin của thử viện - cầm xem lại
+thong tin chính  sách thư  viện - đã có
+cấu hình đọc giả - đã có 

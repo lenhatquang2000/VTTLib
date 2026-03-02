@@ -47,7 +47,7 @@
         } else {
             document.documentElement.classList.remove('dark');
         }
-        
+
         // Configure Tailwind dark mode
         tailwind.config = {
             darkMode: 'class',
@@ -55,7 +55,8 @@
     </script>
 </head>
 
-<body class="font-sans antialiased bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-slate-100 flex min-h-screen transition-colors duration-300" 
+<body
+    class="font-sans antialiased bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-slate-100 flex min-h-screen transition-colors duration-300"
     x-data="{ 
         sidebarOpen: true, 
         darkMode: localStorage.getItem('theme') === 'dark',
@@ -72,14 +73,14 @@
     }">
 
     <!-- Sidebar -->
-    <aside
-        :class="sidebarOpen ? 'w-64' : 'w-20'"
+    <aside :class="sidebarOpen ? 'w-64' : 'w-20'"
         class="bg-slate-900 text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
         <div class="h-16 flex items-center px-6 bg-slate-950 overflow-hidden whitespace-nowrap">
             <span class="text-xl font-bold tracking-wider flex items-center">
                 <span class="text-indigo-500 mr-3">V</span>
-                <span x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    VTTLib <span class="text-indigo-400 text-sm font-normal">{{ __('VTTLib Admin') }}</span>
+                <span x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                    VTTLib
                 </span>
             </span>
         </div>
@@ -114,10 +115,11 @@
                             class="w-full flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-white rounded-lg transition group">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">{!! $tab->icon !!}</div>
-                                <span x-show="sidebarOpen" x-cloak class="ml-3 font-medium whitespace-nowrap">{{ __($tab->name) }}</span>
+                                <span x-show="sidebarOpen" x-cloak
+                                    class="ml-3 font-medium whitespace-nowrap">{{ __($tab->name) }}</span>
                             </div>
-                            <svg x-show="sidebarOpen" x-cloak class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
+                            <svg x-show="sidebarOpen" x-cloak class="w-4 h-4 transition-transform duration-200"
+                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
@@ -134,8 +136,10 @@
                     <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
                         :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
                         class="flex items-center py-3 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }} rounded-lg group transition">
-                        <div class="flex-shrink-0" :class="sidebarOpen ? '' : 'flex justify-center w-full'">{!! $tab->icon !!}</div>
-                        <span x-show="sidebarOpen" x-cloak class="ml-3 font-medium whitespace-nowrap">{{ __($tab->name) }}</span>
+                        <div class="flex-shrink-0" :class="sidebarOpen ? '' : 'flex justify-center w-full'">{!! $tab->icon !!}
+                        </div>
+                        <span x-show="sidebarOpen" x-cloak
+                            class="ml-3 font-medium whitespace-nowrap">{{ __($tab->name) }}</span>
                     </a>
                 @endif
             @endforeach
@@ -144,8 +148,7 @@
         <div class="p-4 border-t border-slate-800 dark:border-slate-800/50 overflow-hidden">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit"
-                    :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
+                <button type="submit" :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
                     class="w-full flex items-center py-2 text-sm text-slate-400 hover:text-white group transition">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -161,25 +164,35 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
         <!-- Topbar -->
-        <header class="h-16 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between px-6 z-10 transition-colors duration-300">
+        <header
+            class="h-16 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between px-6 z-10 transition-colors duration-300">
             <div class="flex items-center">
-                <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-none mr-4">
+                <button @click="sidebarOpen = !sidebarOpen"
+                    class="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-none mr-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path x-show="sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                        <path x-show="!sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path x-show="sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h7"></path>
+                        <path x-show="!sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100 leading-tight">{{ __('Dashboard') }}</h2>
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100 leading-tight">{{ __('Dashboard') }}
+                </h2>
             </div>
             <div class="flex items-center space-x-2">
                 <!-- Theme Toggle -->
-                <button @click="toggleDarkMode()" 
-                        class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group">
-                    <svg x-show="!darkMode" class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                <button @click="toggleDarkMode()"
+                    class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group">
+                    <svg x-show="!darkMode" class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
-                    <svg x-show="darkMode" x-cloak class="w-5 h-5 group-hover:rotate-90 transition-transform text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    <svg x-show="darkMode" x-cloak
+                        class="w-5 h-5 group-hover:rotate-90 transition-transform text-amber-400" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                 </button>
 
@@ -192,18 +205,29 @@
                     <a href="{{ route('lang.switch', 'en') }}"
                         class="text-xs font-bold {{ app()->getLocale() == 'en' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500' }} hover:text-indigo-500 transition">EN</a>
                 </div>
-                
+
                 <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
 
                 <div class="relative group cursor-pointer">
-                    <span class="absolute -top-1 -right-1 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 bg-red-500 animate-pulse"></span>
-                    <svg class="h-6 w-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <span
+                        class="absolute -top-1 -right-1 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 bg-red-500 animate-pulse"></span>
+                    <svg class="h-6 w-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 transition-colors"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
                 </div>
 
                 <div class="flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-800">
+                    <div class="text-right mr-3 hidden sm:block">
+                        <p class="text-sm font-bold text-gray-800 dark:text-slate-100 leading-none mb-1">
+                            {{ Auth::user()->full_name ?? Auth::user()->name }}
+                        </p>
+                        <p
+                            class="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
+                            {{ Auth::user()->roles->pluck('display_name')->implode(', ') }}
+                        </p>
+                    </div>
                     <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20 ring-2 ring-white dark:ring-slate-900"
                         title="{{ Auth::user()->name ?? '' }}">
                         {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
@@ -213,44 +237,63 @@
         </header>
 
         <!-- Page Content -->
-        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-slate-950 p-6 transition-colors duration-300">
+        <main
+            class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-slate-950 p-6 transition-colors duration-300">
             <x-breadcrumb />
             @yield('content')
         </main>
     </div>
     <!-- Toast Notifications -->
-    <div x-data="toastManager" 
-         @toast.window="add($event.detail)"
-         class="fixed top-6 right-6 z-[100] flex flex-col items-end space-y-3 pointer-events-none">
+    <div x-data="toastManager" @toast.window="add($event.detail)"
+        class="fixed top-6 right-6 z-[100] flex flex-col items-end space-y-3 pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
-            <div x-show="toast.visible"
-                 x-transition:enter="transition ease-out duration-300 transform"
-                 x-transition:enter-start="translate-x-full opacity-0 scale-95"
-                 x-transition:enter-end="translate-x-0 opacity-100 scale-100"
-                 x-transition:leave="transition ease-in duration-200 transform"
-                 x-transition:leave-start="translate-x-0 opacity-100 scale-100"
-                 x-transition:leave-end="translate-x-full opacity-0 scale-95"
-                 class="pointer-events-auto bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 p-4 min-w-[320px] max-w-md flex items-center space-x-4">
-                
-                <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center"
-                     :class="{
+            <div x-show="toast.visible" x-transition:enter="transition ease-out duration-300 transform"
+                x-transition:enter-start="translate-x-full opacity-0 scale-95"
+                x-transition:enter-end="translate-x-0 opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-200 transform"
+                x-transition:leave-start="translate-x-0 opacity-100 scale-100"
+                x-transition:leave-end="translate-x-full opacity-0 scale-95"
+                class="pointer-events-auto bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 p-4 min-w-[320px] max-w-md flex items-center space-x-4">
+
+                <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" :class="{
                         'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400': toast.type === 'success',
                         'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400': toast.type === 'error' || toast.type === 'danger',
                         'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400': toast.type === 'warning',
                         'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400': toast.type === 'info'
                      }">
-                    <template x-if="toast.type === 'success'"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></template>
-                    <template x-if="toast.type === 'error' || toast.type === 'danger'"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></template>
-                    <template x-if="toast.type === 'warning'"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg></template>
-                    <template x-if="toast.type === 'info'"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></template>
+                    <template x-if="toast.type === 'success'"><svg class="w-6 h-6" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg></template>
+                    <template x-if="toast.type === 'error' || toast.type === 'danger'"><svg class="w-6 h-6" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg></template>
+                    <template x-if="toast.type === 'warning'"><svg class="w-6 h-6" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                            </path>
+                        </svg></template>
+                    <template x-if="toast.type === 'info'"><svg class="w-6 h-6" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg></template>
                 </div>
 
                 <div class="flex-1">
                     <p class="text-sm font-bold text-slate-900 dark:text-slate-100" x-text="toast.message"></p>
                 </div>
 
-                <button @click="remove(toast.id)" class="text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button @click="remove(toast.id)"
+                    class="text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
+                    </svg>
                 </button>
             </div>
         </template>
@@ -266,7 +309,7 @@
                     @if(session('error')) sessionToasts.push({ message: @js(session('error')), type: 'error' }); @endif
                     @if(session('warning')) sessionToasts.push({ message: @js(session('warning')), type: 'warning' }); @endif
                     @if(session('info')) sessionToasts.push({ message: @js(session('info')), type: 'info' }); @endif
-                    
+
                     @if($errors->any())
                         @foreach($errors->all() as $error)
                             sessionToasts.push({ message: @js($error), type: 'error' });
@@ -286,7 +329,7 @@
                         type: data.type || 'info',
                         visible: false
                     });
-                    
+
                     setTimeout(() => {
                         const toast = this.toasts.find(t => t.id === id);
                         if (toast) toast.visible = true;
