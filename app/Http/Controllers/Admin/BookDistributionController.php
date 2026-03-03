@@ -21,7 +21,7 @@ class BookDistributionController extends Controller
         $record->load('items.branch', 'items.storageLocation');
         
         if (!$this->barcodeService->hasActiveRule('item')) {
-            session()->flash('warning', __('Hệ thống chưa thiết lặp quy tắc mã vạch'));
+            session()->flash('warning', __('Hệ thống chưa thiết lập quy tắc mã vạch cho Tài liệu'));
         }
 
         $nextBarcode = $this->barcodeService->previewNextBarcode('item');

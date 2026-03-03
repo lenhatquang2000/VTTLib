@@ -1,0 +1,10 @@
+<?php
+require __DIR__.'/vendor/autoload.php';
+$app = require_once __DIR__.'/bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
+use Illuminate\Support\Facades\DB;
+$rows = DB::select("SHOW CREATE TABLE marc_tag_definitions");
+foreach($rows as $row) {
+    echo $row->{'Create Table'} . PHP_EOL;
+}

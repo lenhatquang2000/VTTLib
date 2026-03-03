@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\BibliographicRecord;
 use App\Models\MarcTagDefinition;
+use App\Models\MarcFramework;
 use App\Models\DocumentType;
 use App\Models\StorageLocation;
 use App\Models\BookItem;
@@ -13,28 +14,44 @@ use Illuminate\Support\Facades\DB;
 
 class MarcBookController extends Controller
 {
+    protected $barcodeService;
+
+    public function __construct(\App\Services\BarcodeService $barcodeService)
+    {
+        $this->barcodeService = $barcodeService;
+    }
+
     public function index()
     {
         $records = BibliographicRecord::with('fields.subfields')->paginate(10);
         return view('admin.marc_books.index', compact('records'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        // Fetch visible tags with their subfields for the form
-        $definitions = MarcTagDefinition::with([
-            'subfields' => function ($q) {
+        $frameworks = MarcFramework::where('is_active', true)->get();
+        $frameworkId = $request->query('framework_id');
+
+        if (!$frameworkId && $frameworks->isNotEmpty()) {
+            // Default to STANDARD if available, else first
+            $standard = $frameworks->where('code', 'STANDARD')->first();
+            $frameworkId = $standard ? $standard->id : $frameworks->first()->id;
+        }
+
+        $currentFramework = MarcFramework::find($frameworkId);
+        
+        // Fetch visible tags for the selected framework via pivot table
+        $definitions = $currentFramework ? $currentFramework->tags()
+            ->with(['subfields' => function ($q) {
                 $q->where('is_visible', true)->orderBy('code');
-            }
-        ])
-            ->where('is_visible', true)
-            ->orderBy('tag')
-            ->get();
+            }])
+            ->wherePivot('is_visible', true)
+            ->get() : collect();
 
         $documentTypes = DocumentType::active()->ordered()->get();
         $locations = StorageLocation::where('is_active', true)->with('branch')->get();
 
-        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations'));
+        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId'));
     }
 
     public function store(Request $request)
@@ -53,7 +70,7 @@ class MarcBookController extends Controller
                 'cover_image' => $coverImagePath,
                 'record_type' => $request->input('record_type', 'book'),
                 'status' => $request->input('status', BibliographicRecord::STATUS_PENDING),
-                'framework' => $request->input('framework', 'AVMARC21'),
+                'framework' => $request->input('framework', 'STANDARD'),
                 'subject_category' => $request->input('subject_category'),
                 'serial_frequency' => $request->input('serial_frequency'),
                 'date_type' => $request->input('date_type'),
@@ -106,11 +123,14 @@ class MarcBookController extends Controller
                             'bibliographic_record_id' => $record->id,
                             'document_type_id' => $itemData['document_type_id'],
                             'storage_location_id' => $itemData['storage_location_id'],
-                            'barcode' => $this->generateBarcode(),
+                            'barcode' => $this->barcodeService->getNextCode('item'),
                             'accession_number' => $this->generateAccessionNumber(),
                             'quantity' => 1,
                             'status' => 'available'
                         ]);
+                        
+                        // Increment counter if service is used
+                        $this->barcodeService->incrementCounter('item', $itemData['barcode'] ?? '');
                     }
                 }
             }
@@ -126,7 +146,7 @@ class MarcBookController extends Controller
 
     private function generateBarcode()
     {
-        return 'BC' . str_pad(BookItem::count() + 1, 8, '0', STR_PAD_LEFT);
+        return $this->barcodeService->getNextCode('item');
     }
 
     private function generateAccessionNumber()
@@ -165,12 +185,14 @@ class MarcBookController extends Controller
     public function edit(BibliographicRecord $record)
     {
         $record->load('fields.subfields');
-        $definitions = MarcTagDefinition::with(['subfields' => function($q) {
-            $q->where('is_visible', true)->orderBy('code');
-        }])
-        ->where('is_visible', true)
-        ->orderBy('tag')
-        ->get();
+        $framework = MarcFramework::where('code', $record->framework)->first();
+        
+        $definitions = $framework ? $framework->tags()
+            ->with(['subfields' => function($q) {
+                $q->where('is_visible', true)->orderBy('code');
+            }])
+            ->wherePivot('is_visible', true)
+            ->get() : collect();
         return view('admin.marc_books.edit', compact('record', 'definitions'));
     }
 

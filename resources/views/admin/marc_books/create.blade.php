@@ -66,8 +66,13 @@
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Framework') }}</label>
                         <select x-model="formData.framework" name="framework" 
+                            onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
                             class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="AVMARC21">AVMARC21</option>
+                            @foreach($frameworks as $fw)
+                                <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
+                                    {{ $fw->name }} ({{ $fw->code }})
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -159,13 +164,18 @@
                             <h4 class="font-bold text-gray-700 dark:text-slate-200 uppercase text-xs">{{ $tag->label }}</h4>
                         </div>
                         <div class="flex items-center space-x-4">
-                            <div class="flex space-x-1">
-                                <input type="text" name="fields[{{ $tag->tag }}][ind1]" placeholder="#" maxlength="1"
-                                    class="w-8 h-8 p-0 text-center border-gray-200 dark:border-slate-700 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500"
-                                    @click.stop>
-                                <input type="text" name="fields[{{ $tag->tag }}][ind2]" placeholder="#" maxlength="1"
-                                    class="w-8 h-8 p-0 text-center border-gray-200 dark:border-slate-700 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-1 focus:ring-indigo-500"
-                                    @click.stop>
+                            <div class="flex flex-col items-center">
+                                <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Ind</span>
+                                <div class="flex space-x-1">
+                                    <input type="text" name="fields[{{ $tag->tag }}][ind1]" x-model="marcFields['{{ $tag->tag }}'].ind1" placeholder="#" maxlength="1"
+                                        class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                        title="{{ __('Indicator') }} 1"
+                                        @click.stop>
+                                    <input type="text" name="fields[{{ $tag->tag }}][ind2]" x-model="marcFields['{{ $tag->tag }}'].ind2" placeholder="#" maxlength="1"
+                                        class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                        title="{{ __('Indicator') }} 2"
+                                        @click.stop>
+                                </div>
                             </div>
                             <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
                                 :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,48 +185,43 @@
                     </div>
 
                     <div class="p-6" x-show="expanded" x-cloak x-collapse>
-                        <div x-data="{ 
-                            rows: [{ code: '', value: '' }],
-                            definitions: {{ $tag->subfields->map(fn($s) => ['code' => $s->code, 'label' => $s->label])->toJson() }}
-                        }">
-                            <div class="space-y-4">
-                                <template x-for="(row, index) in rows" :key="index">
-                                    <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
-                                        <!-- Subfield Selector -->
-                                        <div class="w-full md:w-1/3">
-                                            <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'" 
-                                                    x-model="row.code"
-                                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
-                                                <option value="">{{ __('Select_Subfield') }}</option>
-                                                <template x-for="def in definitions" :key="def.code">
-                                                    <option :value="def.code" x-text="'$' + def.code + ' ' + def.label"></option>
-                                                </template>
-                                            </select>
-                                        </div>
-
-                                        <!-- Value Input -->
-                                        <div class="w-full md:w-2/3 flex gap-3">
-                                            <input type="text" 
-                                                   :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'" 
-                                                   x-model="row.value"
-                                                   placeholder="{{ __('Enter_Value') }}"
-                                                   class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-                                            
-                                            <button type="button" @click="rows.splice(index, 1)" 
-                                                class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        </div>
+                        <div class="space-y-4">
+                            <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
+                                <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
+                                    <!-- Subfield Selector -->
+                                    <div class="w-full md:w-1/3">
+                                        <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'" 
+                                                x-model="row.code"
+                                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
+                                            <option value="">{{ __('Select_Subfield') }}</option>
+                                            <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
+                                                <option :value="def.code" x-text="'$' + def.code + ' ' + def.label"></option>
+                                            </template>
+                                        </select>
                                     </div>
-                                </template>
-                            </div>
 
-                            <button type="button" @click="rows.push({ code: '', value: '' })" 
-                                    class="mt-5 inline-flex items-center px-4 py-2.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-all">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                {{ __('Add_Subfield') }}
-                            </button>
+                                    <!-- Value Input -->
+                                    <div class="w-full md:w-2/3 flex gap-3">
+                                        <input type="text" 
+                                               :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'" 
+                                               x-model="row.value"
+                                               placeholder="{{ __('Enter_Value') }}"
+                                               class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                        
+                                        <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.splice(index, 1)" 
+                                            class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
                         </div>
+
+                        <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.push({ code: '', value: '' })" 
+                                class="mt-5 inline-flex items-center px-4 py-2.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-all">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            {{ __('Add_Subfield') }}
+                        </button>
                     </div>
                 </div>
             @endforeach
@@ -291,10 +296,70 @@
 
         <!-- Step 4: MARC Preview -->
         <div x-show="currentStep === 3" x-cloak class="space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-                <h3 class="text-lg font-bold text-gray-800 dark:text-slate-100 mb-6">{{ __('MARC_Preview') }}</h3>
-                <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
-                    <p class="text-sm text-gray-600 dark:text-slate-400">{{ __('Preview_will_be_generated_after_submission') }}</p>
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+                <div class="bg-slate-900 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC PREVIEW</span>
+                        <h3 class="text-white font-bold text-sm leading-none">{{ __('MARC21_Cataloging_Form') }}</h3>
+                    </div>
+                    <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80">00000nam a2200000 i 4500</span>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-800/50 text-left border-b border-slate-100 dark:border-slate-800">
+                                <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Tag') }}</th>
+                                <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Ind') }}</th>
+                                <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Content_Data') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-mono text-sm">
+                            <!-- Leader row (Always shown) -->
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="pl-8 py-4 whitespace-nowrap align-top">
+                                    <div class="flex items-baseline space-x-3">
+                                        <span class="text-indigo-600 font-bold tracking-tight">000</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">LEADER</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
+                                    <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono">##</span>
+                                </td>
+                                <td class="py-4 pr-8">
+                                    <span class="text-slate-700 dark:text-slate-300 font-mono" x-text="'00000nam a2200000 i 4500'"></span>
+                                </td>
+                            </tr>
+
+                            <!-- Dynamic MARC Fields -->
+                            <template x-for="field in getActiveFields()" :key="field.tag">
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="pl-8 py-4 whitespace-nowrap align-top">
+                                        <div class="flex items-baseline space-x-3">
+                                            <span class="text-indigo-600 font-bold tracking-tight" x-text="field.tag"></span>
+                                            <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight" x-text="field.label"></span>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
+                                        <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono" x-text="(field.ind1?.trim() || '#') + (field.ind2?.trim() || '#')"></span>
+                                    </td>
+                                    <td class="py-4 pr-8">
+                                        <div class="flex flex-col space-y-2">
+                                            <template x-for="(sub, subIdx) in field.subfields.filter(s => s.code || s.value)" :key="subIdx">
+                                                <div class="flex items-start space-x-2.5">
+                                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold shrink-0 font-mono" x-text="'$' + (sub.code || '?')"></span>
+                                                    <span class="text-slate-700 dark:text-slate-300 grow break-words min-w-0 leading-relaxed" x-text="sub.value || '...'"></span>
+                                                    <span class="shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[8px] px-1.5 py-0.5 rounded font-sans uppercase tracking-widest mt-1" 
+                                                          x-show="sub.code && getSubfieldLabel(field.tag, sub.code)"
+                                                          x-text="'[' + getSubfieldLabel(field.tag, sub.code) + ']'"></span>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -329,7 +394,7 @@ function catalogWizard() {
             { title: '{{ __("Preview") }}' }
         ],
         formData: {
-            framework: 'AVMARC21',
+            framework: '{{ $frameworks->where('id', $frameworkId)->first()->code ?? 'AVMARC21' }}',
             status: 'pending',
             subject_category: 'Article',
             record_type: 'book',
@@ -338,6 +403,29 @@ function catalogWizard() {
             acquisition_method: 'untraced',
             document_format: 'none',
             cataloging_standard: 'AACR2'
+        },
+        marcFields: {
+            @foreach($definitions as $tag)
+            '{{ $tag->tag }}': {
+                tag: '{{ $tag->tag }}',
+                label: '{{ $tag->label }}',
+                ind1: ' ',
+                ind2: ' ',
+                subfields: [{ code: '', value: '' }],
+                subfieldDefinitions: @json($tag->subfields->map(fn($s) => ['code' => $s->code, 'label' => $s->label]))
+            },
+            @endforeach
+        },
+        getSubfieldLabel(tag, code) {
+            if (!this.marcFields[tag]) return '';
+            const def = this.marcFields[tag].subfieldDefinitions.find(d => d.code === code);
+            return def ? def.label : '';
+        },
+        getActiveFields() {
+            // Lấy các field có ít nhất 1 subfield đã chọn code hoặc đã nhập value
+            return Object.values(this.marcFields).filter(f => {
+                return f.subfields.some(s => (s.code && s.code.trim() !== '') || (s.value && s.value.trim() !== ''));
+            });
         },
         nextStep() {
             if (this.currentStep < this.steps.length - 1) {

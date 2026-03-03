@@ -679,6 +679,8 @@
     "Delete this supplier?": "Xóa nhà cung cấp này?",
     "No suppliers defined yet.": "Chưa có nhà cung cấp nào được định nghĩa.",
     "Hệ thống chưa thiết lặp quy tắc mã vạch": "Hệ thống chưa thiết lập quy tắc mã vạch",
+    "Hệ thống chưa thiết lập quy tắc mã vạch cho Tài liệu": "Hệ thống chưa thiết lập quy tắc mã vạch cho Tài liệu",
+    "Hệ thống chưa thiết lập quy tắc mã vạch cho Bạn đọc": "Hệ thống chưa thiết lập quy tắc mã vạch cho Bạn đọc",
     "Active Status": "Trạng thái hoạt động",
     "SYSTEM_LOGS": "Nhật ký hệ thống",
     "Activity Logs": "Nhật ký hoạt động",

@@ -61,8 +61,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('/activity-logs/{log}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
 
-    // Cataloging & Bibliographic Data
+    // Metadata Configuration (MARC Frameworks & Definitions)
     Route::get('/marc-definitions', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'index'])->name('admin.marc.index');
+    Route::post('/marc-definitions/framework', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'storeFramework'])->name('admin.marc.framework.store');
+    Route::put('/marc-definitions/framework/{framework}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'updateFramework'])->name('admin.marc.framework.update');
+    Route::delete('/marc-definitions/framework/{framework}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'destroyFramework'])->name('admin.marc.framework.destroy');
+
     Route::post('/marc-definitions/tag', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'storeTag'])->name('admin.marc.tag.store');
     Route::post('/marc-definitions/subfield', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'storeSubfield'])->name('admin.marc.subfield.store');
     Route::put('/marc-definitions/tag/{tag}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'updateTag'])->name('admin.marc.tag.update');

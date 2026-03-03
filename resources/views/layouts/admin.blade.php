@@ -73,27 +73,30 @@
     }">
 
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'w-64' : 'w-20'"
+    <aside :class="sidebarOpen ? 'w-72' : 'w-24 px-2'"
         class="bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 text-slate-800 dark:text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
-        <div class="h-16 flex items-center px-6 bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-900/50 overflow-hidden whitespace-nowrap">
-            <span class="text-xl font-bold tracking-wider flex items-center">
-                <span class="text-indigo-500 mr-3">V</span>
+        <div class="h-16 flex items-center px-6 bg-slate-50/50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 overflow-hidden whitespace-nowrap">
+            <span class="text-xl font-black tracking-tighter flex items-center">
+                <span class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs mr-3 shadow-sm">V</span>
                 <span x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
                     x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    VTTLib
+                    VTTLib <span class="text-[10px] bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded ml-1 tracking-widest uppercase">Admin</span>
                 </span>
             </span>
         </div>
 
-        <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        <nav class="flex-1 px-4 py-8 space-y-2.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
             @php
                 $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
             @endphp
             @foreach(Auth::user()->getSidebarTabs() as $tab)
                 @php
-                    $assignedChildren = $tab->children()->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
-                        $q->whereIn('role_user_id', $roleUserIds);
-                    })->get();
+                    // Using direct query to avoid unknown method lint if model is not inferred
+                    $assignedChildren = \App\Models\Sidebar::where('parent_id', $tab->id)
+                        ->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
+                            $q->whereIn('role_user_id', $roleUserIds);
+                        })->orderBy('order')->get();
+                    
                     $hasChildren = $assignedChildren->isNotEmpty();
                     $isParentActive = false;
                     if ($hasChildren) {
@@ -109,24 +112,24 @@
                 @endphp
 
                 @if($hasChildren)
-                    <div class="space-y-1" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
+                    <div class="space-y-1.5" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
                         <button @click="sidebarOpen ? (open = !open) : (sidebarOpen = true, open = true)"
                             :class="sidebarOpen ? 'justify-between' : 'justify-center'"
-                            class="w-full flex items-center px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-lg transition group">
+                            class="w-full flex items-center px-4 py-3.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-2xl transition group">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0">{!! $tab->icon !!}</div>
+                                <div class="flex-shrink-0 text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
                                 <span x-show="sidebarOpen" x-cloak
-                                    class="ml-3 font-medium whitespace-nowrap">{{ __($tab->name) }}</span>
+                                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
                             </div>
-                            <svg x-show="sidebarOpen" x-cloak class="w-4 h-4 transition-transform duration-200"
+                            <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
                                 :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
                             </svg>
                         </button>
-                        <div x-show="open && sidebarOpen" x-cloak class="pl-10 space-y-1">
+                        <div x-show="open && sidebarOpen" x-cloak x-collapse class="pl-12 space-y-1">
                             @foreach($assignedChildren as $child)
                                 <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
-                                    class="block px-4 py-2 text-sm {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white' }} transition whitespace-nowrap">
+                                    class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
                                     {{ __($child->name) }}
                                 </a>
                             @endforeach
@@ -135,11 +138,12 @@
                 @else
                     <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
                         :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                        class="flex items-center py-3 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-lg group transition">
-                        <div class="flex-shrink-0" :class="sidebarOpen ? '' : 'flex justify-center w-full'">{!! $tab->icon !!}
+                        class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
+                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center" :class="sidebarOpen ? '' : 'w-full'">
+                            {!! $tab->icon !!}
                         </div>
                         <span x-show="sidebarOpen" x-cloak
-                            class="ml-3 font-medium whitespace-nowrap">{{ __($tab->name) }}</span>
+                            class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
                     </a>
                 @endif
             @endforeach

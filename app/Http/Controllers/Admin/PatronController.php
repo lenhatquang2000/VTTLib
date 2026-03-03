@@ -36,7 +36,7 @@ class PatronController extends Controller
         $branches = Branch::all();
         
         if (!$this->barcodeService->hasActiveRule('patron')) {
-            session()->flash('warning', __('Hệ thống chưa thiết lặp quy tắc mã vạch'));
+            session()->flash('warning', __('Hệ thống chưa thiết lập quy tắc mã vạch cho Bạn đọc'));
         }
 
         $nextCode = $this->barcodeService->getNextCode('patron');

@@ -1,14 +1,12 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="marcManager()">
     @if(session('success'))
         <div class="bg-emerald-50 dark:bg-emerald-900/20 border-l-4 border-emerald-400 p-4 shadow-sm animate-fade-in-down">
             <div class="flex items-center">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
+                <div class="flex-shrink-0 text-emerald-400">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                 </div>
                 <div class="ml-3">
                     <p class="text-sm font-medium text-emerald-800 dark:text-emerald-200">{{ session('success') }}</p>
@@ -17,351 +15,252 @@
         </div>
     @endif
 
-    <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('MARC21_Framework_Manager') }}</h2>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">Configure tag visibility, mandatory constraints, and subfield definitions.</p>
+    @if(session('error'))
+        <div class="bg-rose-50 dark:bg-rose-900/20 border-l-4 border-rose-400 p-4 shadow-sm animate-fade-in-down">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 text-rose-400">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-rose-800 dark:text-rose-200">{{ session('error') }}</p>
+                </div>
+            </div>
         </div>
-        
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <!-- Search Bar -->
-            <form action="{{ route('admin.marc.index') }}" method="GET" class="relative group">
-                <input type="text" name="search" value="{{ $search }}" placeholder="{{ __('Search') }} Tag/Label..." 
-                    class="pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white dark:focus:bg-slate-900 dark:text-slate-200 transition-all w-full sm:w-64">
-                <svg class="w-4 h-4 absolute left-3 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-                @if($search)
-                    <a href="{{ route('admin.marc.index') }}" class="absolute right-3 top-3 text-gray-400 hover:text-rose-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </a>
-                @endif
-            </form>
+    @endif
 
-            <button onclick="openModal('addTagModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center shadow-lg shadow-indigo-200">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                {{ __('Register_New_Tag') }}
-            </button>
+    <!-- Header & Framework Switcher -->
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+        <div class="p-6 border-b border-gray-100 dark:border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="flex items-center space-x-4">
+                <div class="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+                    <svg class="w-8 h-8 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 tracking-tight">{{ __('MARC21_Framework_Manager') }}</h2>
+                    <div class="flex items-center mt-1 text-sm text-gray-500 dark:text-slate-400">
+                        <span class="hover:text-indigo-600 cursor-help" title="MARC Frameworks define which fields and subfields are available during cataloging.">{{ __('Template_Configuration') }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <div class="relative inline-block w-full sm:w-auto">
+                    <select onchange="window.location.href = '?framework_id=' + this.value" 
+                        class="pl-4 pr-10 py-2.5 w-full sm:w-64 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer appearance-none shadow-sm">
+                        @foreach($frameworks as $fw)
+                            <option value="{{ $fw->id }}" {{ $currentFramework && $currentFramework->id == $fw->id ? 'selected' : '' }}>
+                                {{ $fw->name }} ({{ $fw->code }})
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="absolute right-3 top-3 pointer-events-none text-gray-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                </div>
+
+                <button @click="isNewFrameworkOpen = true" class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition">
+                    + {{ __('New_Framework') }}
+                </button>
+            </div>
         </div>
+
+        @if($currentFramework)
+            <div class="px-6 py-4 bg-gray-50/50 dark:bg-slate-800/30 flex justify-between items-center text-xs">
+                <div class="flex space-x-6 text-gray-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                    <span>Code: <span class="text-indigo-600 dark:text-indigo-400">{{ $currentFramework->code }}</span></span>
+                    <span>Status: <span class="{{ $currentFramework->is_active ? 'text-emerald-500' : 'text-rose-500' }}">{{ $currentFramework->is_active ? 'Active' : 'Disabled' }}</span></span>
+                </div>
+                <div class="flex space-x-3">
+                    <button @click="editFramework(@js($currentFramework))" class="text-indigo-400 hover:text-indigo-600 transition">{{ __('Edit_Framework') }}</button>
+                    <form action="{{ route('admin.marc.framework.destroy', $currentFramework->id) }}" method="POST" onsubmit="return confirm('Delete this framework and all its definitions?')">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="text-rose-400 hover:text-rose-600 transition">{{ __('Delete') }}</button>
+                    </form>
+                </div>
+            </div>
+        @endif
+    </div>
+
+    <!-- Toolbar: Search & Action -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <form action="{{ route('admin.marc.index') }}" method="GET" class="relative group w-full sm:w-80">
+            <input type="hidden" name="framework_id" value="{{ $frameworkId }}">
+            <input type="text" name="search" value="{{ $search }}" placeholder="{{ __('Search') }} Tag/Label..." 
+                class="pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition-all w-full shadow-sm">
+            <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            @if($search)
+                <a href="{{ route('admin.marc.index', ['framework_id' => $frameworkId]) }}" class="absolute right-3 top-3 text-gray-400 hover:text-rose-500 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </a>
+            @endif
+        </form>
+
+        <button @click="isNewTagOpen = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-bold transition flex items-center shadow-lg shadow-indigo-200 dark:shadow-none whitespace-nowrap">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            {{ __('Register_New_Tag') }}
+        </button>
     </div>
 
     <!-- MARC Tags List -->
     <div class="grid grid-cols-1 gap-4">
         @forelse($tags as $tag)
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden group hover:border-indigo-200 dark:hover:border-indigo-900/50 transition" 
+            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden group hover:border-indigo-200 dark:hover:border-indigo-900 transition-all duration-300" 
                  x-data="{ isOpen: {{ $search ? 'true' : 'false' }} }">
                 
-                <!-- HEADER (Clickable to Toggle) -->
-                <div class="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition" @click="isOpen = !isOpen">
+                <div class="p-5 flex justify-between items-center cursor-pointer hover:bg-gray-50/50 dark:hover:bg-slate-800/50" @click="isOpen = !isOpen">
                     <div class="flex items-center space-x-4">
-                        <span class="bg-indigo-600 text-white px-3 py-1 rounded-md font-mono font-bold text-lg shadow-sm">{{ $tag->tag }}</span>
+                        <div class="bg-indigo-600 text-white w-12 h-12 flex items-center justify-center rounded-xl font-mono font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
+                            {{ $tag->tag }}
+                        </div>
                         <div>
-                            <h3 class="font-bold text-gray-800 dark:text-slate-100 uppercase tracking-tight">{{ $tag->label }}</h3>
-                            <div class="flex space-x-4 mt-1">
-                                <span class="text-[10px] uppercase font-bold {{ $tag->is_visible ? 'text-emerald-600' : 'text-gray-400' }}">
-                                    {{ $tag->is_visible ? __('VISIBLE') : __('HIDDEN') }}
+                            <h3 class="font-bold text-gray-800 dark:text-slate-100 uppercase tracking-tight text-base">{{ $tag->label }}</h3>
+                            <div class="flex items-center space-x-3 mt-1.5">
+                                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-widest border {{ $tag->pivot->is_visible ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-gray-50 text-gray-400' }}">
+                                    {{ $tag->pivot->is_visible ? __('VISIBLE') : __('HIDDEN') }}
                                 </span>
-                                <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">{{ $tag->subfields->count() }} Subfields</span>
+                                <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest opacity-70">{{ $tag->subfields->count() }} Subfields</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="flex items-center space-x-4" @click.stop>
-                        <button onclick="openEditTagModal({{ json_encode($tag) }})" class="text-gray-400 hover:text-indigo-600 p-1 transition">
+                    <div class="flex items-center space-x-3" @click.stop>
+                        <button @click="editTag(@js($tag))" class="bg-gray-50 dark:bg-slate-800 p-2.5 rounded-lg text-gray-400 hover:text-indigo-600 transition shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         </button>
-                        <button onclick="openSubfieldModal('{{ $tag->tag }}', '{{ $tag->label }}')" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold uppercase underline decoration-dotted">{{ __('Inject_Subfield') }}</button>
+                        <button @click="newSubfield(@js($tag))" class="bg-indigo-50 dark:bg-indigo-900/30 px-3 py-2 rounded-lg text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase hover:bg-indigo-100 transition shadow-sm">
+                            + Subfield
+                        </button>
                         
-                        <form action="{{ route('admin.marc.tag.destroy', $tag->id) }}" method="POST" onsubmit="return confirm('{{ __('CRITICAL: Remove this Tag definition?') }}')">
+                        <form action="{{ route('admin.marc.tag.destroy', ['tag' => $tag->id, 'framework_id' => $frameworkId]) }}" method="POST" onsubmit="return confirm('{{ __('Remove this Tag from this framework?') }}')">
                             @csrf @method('DELETE')
-                            <button type="submit" class="text-rose-400 hover:text-rose-600 p-2">
+                            <button type="submit" class="bg-gray-50 dark:bg-slate-800 p-2.5 rounded-lg text-gray-400 hover:text-rose-500 transition shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             </button>
                         </form>
 
-                        <div class="ml-2 border-l pl-4 border-gray-100 dark:border-slate-800 italic transition-transform duration-200" :class="isOpen ? 'rotate-180' : ''">
+                        <div class="ml-2 border-l pl-4 border-gray-100 dark:border-slate-800 transition-transform duration-300" :class="isOpen ? 'rotate-180' : ''">
                              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </div>
                     </div>
                 </div>
                 
-                <!-- CONTENT (Collapsible) -->
-                <div x-show="isOpen" x-cloak x-collapse class="border-t border-gray-50 dark:border-slate-800">
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-gray-50/30 dark:bg-slate-800/50 text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 tracking-wider font-mono">
-                            <tr>
-                                <th class="px-6 py-3">Code</th>
-                                <th class="px-6 py-3">Label</th>
-                                <th class="px-6 py-3">Constraints</th>
-                                <th class="px-6 py-3 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
-                            @forelse($tag->subfields as $sub)
-                                <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition">
-                                    <td class="px-6 py-3 font-mono font-bold text-indigo-600 dark:text-indigo-400">${{ $sub->code }}</td>
-                                    <td class="px-6 py-3 text-gray-700 dark:text-slate-300 leading-relaxed font-medium">{{ $sub->label }}</td>
-                                    <td class="px-6 py-3 flex flex-wrap gap-2">
-                                        @if($sub->is_mandatory)
-                                            <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-rose-200">{{ __('Mandatory_Field') }}</span>
-                                        @endif
-                                        @if($sub->is_repeatable)
-                                            <span class="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-blue-200 dark:ring-blue-800">{{ __('Repeatable_Data') }}</span>
-                                        @endif
-                                        @if(!$sub->is_visible)
-                                            <span class="bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-gray-200 dark:ring-slate-700">{{ __('HIDDEN') }}</span>
-                                        @else
-                                            <span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-emerald-200 dark:ring-emerald-800">{{ __('VISIBLE') }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-3 text-right">
-                                        <div class="flex justify-end space-x-1">
-                                            <button onclick="openEditSubfieldModal({{ json_encode($sub) }})" class="text-indigo-400 hover:text-indigo-600 transition p-2 rounded-lg hover:bg-indigo-50">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                            </button>
-                                            <form action="{{ route('admin.marc.subfield.destroy', $sub->id) }}" method="POST">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-gray-400 hover:text-rose-500 transition p-2 rounded-lg hover:bg-rose-50">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-6 text-center text-gray-400 italic text-xs">No subfields defined for this tag.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div x-show="isOpen" x-cloak x-collapse class="border-t border-gray-50 dark:border-slate-800 bg-gray-50/20 dark:bg-slate-900/40">
+                    <div class="p-6">
+                        @if($tag->description)
+                            <div class="mb-6 p-4 bg-gray-100 dark:bg-slate-800 rounded-xl text-sm text-gray-600 dark:text-slate-400 italic">
+                                {{ $tag->description }}
+                            </div>
+                        @endif
+
+                        <div class="overflow-x-auto rounded-xl border border-gray-100 dark:border-slate-800">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-gray-50 dark:bg-slate-800 text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 tracking-wider font-mono">
+                                    <tr>
+                                        <th class="px-6 py-4">Code</th>
+                                        <th class="px-6 py-4">Label</th>
+                                        <th class="px-6 py-4">Constraints</th>
+                                        <th class="px-6 py-4 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
+                                    @forelse($tag->subfields as $sub)
+                                        <tr class="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition">
+                                            <td class="px-6 py-4 font-mono font-bold text-indigo-600 dark:text-indigo-400">${{ $sub->code }}</td>
+                                            <td class="px-6 py-4 text-gray-700 dark:text-slate-300 font-medium">{{ $sub->label }}</td>
+                                            <td class="px-6 py-3 flex flex-wrap gap-2">
+                                                @if($sub->is_mandatory)
+                                                    <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-rose-200">Mandatory</span>
+                                                @endif
+                                                @if($sub->is_repeatable)
+                                                    <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-indigo-200">Repeatable</span>
+                                                @endif
+                                                @if(!$sub->is_visible)
+                                                    <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-gray-200">{{ __('HIDDEN') }}</span>
+                                                @endif
+                                            </td>
+                                            <td class="px-6 py-4 text-right">
+                                                <div class="flex justify-end space-x-1">
+                                                    <button @click="editSubfield(@js($sub))" class="text-indigo-400 hover:text-indigo-700 p-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                    </button>
+                                                    <form action="{{ route('admin.marc.subfield.destroy', $sub->id) }}" method="POST">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="text-gray-400 hover:text-rose-500 p-2 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-10 text-center text-gray-400 italic text-xs bg-gray-50/10">No subfields defined.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         @empty
-            <div class="bg-white p-12 rounded-xl border-2 border-dashed border-gray-100 text-center">
-                <div class="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <div class="bg-white dark:bg-slate-900 p-20 rounded-2xl border-2 border-dashed border-gray-100 dark:border-slate-800 text-center">
+                <div class="bg-indigo-50 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                    <svg class="w-10 h-10 text-indigo-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                 </div>
-                <h3 class="text-gray-900 font-bold uppercase tracking-widest text-sm">No_Tags_Matched</h3>
-                <p class="text-gray-500 text-xs mt-1">Try adjusting your search criteria or register a new tag.</p>
-                <button onclick="openModal('addTagModal')" class="mt-4 text-indigo-600 font-bold uppercase text-[10px] hover:underline">Register_New_Tag</button>
+                <h3 class="text-gray-900 dark:text-slate-100 font-bold uppercase tracking-widest text-base">No Data Found</h3>
+                <p class="text-gray-500 dark:text-slate-400 text-sm mt-2 font-medium max-w-sm mx-auto">This framework doesn't have any tags registered yet. Start by defining your first MARC tag.</p>
+                <button @click="isNewTagOpen = true" class="mt-6 bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-xs hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 dark:shadow-none font-mono">Register_New_Tag</button>
             </div>
         @endforelse
     </div>
-</div>
 
-<!-- MODALS (Sourced from existing structure, localized labels added) -->
-<div id="addTagModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="min-h-screen px-4 text-center flex items-center justify-center">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal('addTagModal')"></div>
-        <div class="inline-block bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-            <div class="p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tighter">{{ __('Register_New_Tag') }}</h3>
-                    <button onclick="closeModal('addTagModal')" class="text-gray-400 hover:text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                <form action="{{ route('admin.marc.tag.store') }}" method="POST" class="space-y-5">
-                    @csrf
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Tag_ID (3 digits)</label>
-                        <input type="text" name="tag" placeholder="e.g. 245" maxlength="3" required class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Display_Label</label>
-                        <input type="text" name="label" placeholder="e.g. Title Statement" required class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition">
-                    </div>
-                    <div class="flex items-center space-x-3 bg-indigo-50/50 dark:bg-indigo-900/20 p-3 rounded-xl">
-                        <input type="checkbox" name="is_visible" value="1" id="tag_visible" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                        <label for="tag_visible" class="text-sm font-semibold text-indigo-900 dark:text-indigo-300">Make this tag visible in cataloging forms</label>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Context / Description (Optional)</label>
-                        <textarea name="description" class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition" rows="2"></textarea>
-                    </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="button" onclick="closeModal('addTagModal')" class="flex-1 px-4 py-3 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-400 font-bold rounded-xl transition uppercase text-xs">Abort</button>
-                        <button type="submit" class="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition uppercase text-xs shadow-lg shadow-indigo-100 dark:shadow-none">{{ __('Establish_Tag') }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="editTagModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="min-h-screen px-4 text-center flex items-center justify-center">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal('editTagModal')"></div>
-        <div class="inline-block bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full">
-            <div class="p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tighter">{{ __('Modify_MARC_Tag') }}</h3>
-                    <button onclick="closeModal('editTagModal')" class="text-gray-400 hover:text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                <form id="editTagForm" method="POST" class="space-y-5">
-                    @csrf @method('PUT')
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Tag_ID (Immutable)</label>
-                        <input type="text" id="edit_tag_id" disabled class="w-full border-gray-100 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 text-sm text-gray-400 dark:text-slate-500 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Display_Label</label>
-                        <input type="text" name="label" id="edit_tag_label" required class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition">
-                    </div>
-                    <div class="flex items-center space-x-3 bg-indigo-50/50 dark:bg-indigo-900/20 p-3 rounded-xl">
-                        <input type="checkbox" name="is_visible" value="1" id="edit_tag_visible" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                        <label for="edit_tag_visible" class="text-sm font-semibold text-indigo-900 dark:text-indigo-300">Visible in cataloging forms</label>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Context / Description</label>
-                        <textarea name="description" id="edit_tag_description" class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition" rows="2"></textarea>
-                    </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="submit" class="w-full px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition uppercase text-xs shadow-lg shadow-indigo-100 dark:shadow-none">{{ __('Update_Definition') }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="addSubfieldModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="min-h-screen px-4 text-center flex items-center justify-center">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal('addSubfieldModal')"></div>
-        <div class="inline-block bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
-            <div class="p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tighter">{{ __('Inject_Subfield') }}</h3>
-                        <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold mt-1 uppercase" id="targetTagInfo"></p>
-                    </div>
-                    <button onclick="closeModal('addSubfieldModal')" class="text-gray-400 hover:text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                <form action="{{ route('admin.marc.subfield.store') }}" method="POST" class="space-y-4">
-                    @csrf
-                    <input type="hidden" name="tag" id="hiddenTagField">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Subfield_Code (1 char)</label>
-                        <input type="text" name="code" placeholder="e.g. a" maxlength="1" required class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition font-mono font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Label</label>
-                        <input type="text" name="label" placeholder="e.g. Principal title" required class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition">
-                    </div>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="flex items-center space-x-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
-                            <input type="checkbox" name="is_visible" value="1" id="sub_visible" checked class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <label for="sub_visible" class="text-xs font-bold text-gray-600 dark:text-slate-300">{{ __('VISIBLE') }}</label>
-                        </div>
-                        <div class="flex items-center space-x-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
-                            <input type="checkbox" name="is_mandatory" value="1" id="sub_mandatory" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <label for="sub_mandatory" class="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase">{{ __('Mandatory_Field') }}</label>
-                        </div>
-                        <div class="flex items-center space-x-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
-                            <input type="checkbox" name="is_repeatable" value="1" id="sub_repeatable" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <label for="sub_repeatable" class="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase">{{ __('Repeatable_Data') }}</label>
-                        </div>
-                    </div>
-                    <div class="pt-4 flex gap-3">
-                        <button type="submit" class="w-full px-4 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition uppercase text-xs shadow-lg shadow-indigo-100 dark:shadow-none">{{ __('Commit_Definition') }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="editSubfieldModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
-    <div class="min-h-screen px-4 text-center flex items-center justify-center">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="closeModal('editSubfieldModal')"></div>
-        <div class="inline-block bg-white dark:bg-slate-900 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full">
-            <div class="p-8">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white uppercase tracking-tighter">{{ __('Modify_Subfield') }}</h3>
-                    <button onclick="closeModal('editSubfieldModal')" class="text-gray-400 hover:text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                <form id="editSubfieldForm" method="POST" class="space-y-4">
-                    @csrf @method('PUT')
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Subfield_Code (Immutable)</label>
-                        <input type="text" id="edit_sub_code" disabled class="w-full border-gray-100 dark:border-slate-700 bg-gray-100 dark:bg-slate-800 rounded-xl p-3 text-sm text-gray-400 dark:text-slate-500 font-mono font-bold">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Label</label>
-                        <input type="text" name="label" id="edit_sub_label" required class="w-full border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition">
-                    </div>
-                    <div class="grid grid-cols-1 gap-3">
-                        <div class="flex items-center space-x-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
-                            <input type="checkbox" name="is_visible" value="1" id="edit_sub_visible" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <label for="edit_sub_visible" class="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase">{{ __('VISIBLE') }}</label>
-                        </div>
-                        <div class="flex items-center space-x-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
-                            <input type="checkbox" name="is_mandatory" value="1" id="edit_sub_mandatory" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <label for="edit_sub_mandatory" class="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase">{{ __('Mandatory_Field') }}</label>
-                        </div>
-                        <div class="flex items-center space-x-3 bg-gray-50 dark:bg-slate-800/50 p-3 rounded-xl border border-gray-100 dark:border-slate-700">
-                            <input type="checkbox" name="is_repeatable" value="1" id="edit_sub_repeatable" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
-                            <label for="edit_sub_repeatable" class="text-xs font-bold text-gray-600 dark:text-slate-300 uppercase">{{ __('Repeatable_Data') }}</label>
-                        </div>
-                    </div>
-                    <div class="pt-4">
-                        <button type="submit" class="w-full px-4 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition uppercase text-xs shadow-lg shadow-indigo-100 dark:shadow-none">{{ __('Save_Changes') }}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+    <!-- Modals -->
+    @include('admin.marc_definitions.modals')
 </div>
 
 <script>
-    function openModal(id) {
-        document.getElementById(id).classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeModal(id) {
-        document.getElementById(id).classList.add('hidden');
-        document.body.style.overflow = '';
-    }
-    function openSubfieldModal(tag, label) {
-        document.getElementById('hiddenTagField').value = tag;
-        document.getElementById('targetTagInfo').innerText = `Injecting into Tag: ${tag} (${label})`;
-        openModal('addSubfieldModal');
-    }
-    
-    function openEditTagModal(tag) {
-        const form = document.getElementById('editTagForm');
-        form.action = `/topsecret/marc-definitions/tag/${tag.id}`;
-        document.getElementById('edit_tag_id').value = tag.tag;
-        document.getElementById('edit_tag_label').value = tag.label;
-        document.getElementById('edit_tag_description').value = tag.description;
-        document.getElementById('edit_tag_visible').checked = tag.is_visible;
-        openModal('editTagModal');
-    }
+function marcManager() {
+    return {
+        isNewFrameworkOpen: @json($errors->has('code') && !old('tag_id')),
+        isEditFrameworkOpen: false,
+        isNewTagOpen: @json($errors->has('tag')),
+        isEditTagOpen: false,
+        isNewSubfieldOpen: @json($errors->has('code') && old('tag_id')),
+        isEditSubfieldOpen: false,
 
-    function openEditSubfieldModal(subfield) {
-        const form = document.getElementById('editSubfieldForm');
-        form.action = `/topsecret/marc-definitions/subfield/${subfield.id}`;
-        document.getElementById('edit_sub_code').value = '$' + subfield.code;
-        document.getElementById('edit_sub_label').value = subfield.label;
-        document.getElementById('edit_sub_visible').checked = subfield.is_visible;
-        document.getElementById('edit_sub_mandatory').checked = subfield.is_mandatory;
-        document.getElementById('edit_sub_repeatable').checked = subfield.is_repeatable;
-        openModal('editSubfieldModal');
-    }
+        framework: { id: null, code: '', name: '', description: '', is_active: true },
+        tag: { id: null, tag: @js(old('tag', '')), label: @js(old('label', '')), description: '', is_visible: true, framework_id: @js($frameworkId) },
+        subfield: { id: null, tag_id: @js(old('tag_id')), code: @js(old('code', '')), label: @js(old('label', '')), is_visible: true, is_mandatory: false, is_repeatable: false, help_text: '' },
+        
+        targetTag: @js($errors->has('code') && old('tag_id') ? \App\Models\MarcTagDefinition::find(old('tag_id')) : ['tag' => '', 'label' => '', 'id' => null]),
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.fixed').forEach(m => m.classList.add('hidden'));
-            document.body.style.overflow = '';
+        editFramework(fw) {
+            this.framework = { ...fw };
+            this.isEditFrameworkOpen = true;
+        },
+
+        editTag(tag) {
+            this.tag = { ...tag, is_visible: tag.pivot.is_visible };
+            this.isEditTagOpen = true;
+        },
+
+        newSubfield(tag) {
+            this.targetTag = tag;
+            this.subfield = { tag_id: tag.id, code: '', label: '', is_visible: true, is_mandatory: false, is_repeatable: false, help_text: '' };
+            this.isNewSubfieldOpen = true;
+        },
+
+        editSubfield(sub) {
+            this.subfield = { ...sub };
+            this.isEditSubfieldOpen = true;
         }
-    });
+    }
+}
 </script>
 
 <style>
