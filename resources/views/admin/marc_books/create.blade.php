@@ -3,48 +3,52 @@
 @section('content')
 <div class="space-y-6 w-full pb-20" x-data="catalogWizard()">
     <!-- Header Section -->
-    <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+    <div class="flex justify-between items-start bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('MARC21_Cataloging_Form') }}</h2>
             <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Cataloging_Instruction') }}</p>
+            <div class="mt-4 flex flex-col gap-2 md:flex-row md:items-center">
+                <label class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-0">{{ __('Cataloging_Framework') }}</label>
+                <select x-model="formData.framework" name="framework"
+                    onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
+                    class="w-full md:w-[360px] px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                    @foreach($frameworks as $fw)
+                        <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
+                            {{ $fw->name }} ({{ $fw->code }})
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('admin.marc.book') }}"
-                class="px-5 py-2.5 rounded-lg text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition">{{ __('Cancel') }}</a>
+                class="flex items-center px-4 py-2.5 text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Quay lại
+            </a>
         </div>
     </div>
 
-    <!-- Progress Steps -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-        <div class="flex items-center justify-between">
+    <!-- Tabs Navigation -->
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+        <div class="flex border-b border-gray-200 dark:border-slate-700">
             <template x-for="(step, index) in steps" :key="index">
-                <div class="flex items-center flex-1">
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300"
-                            :class="currentStep > index ? 'bg-green-500 text-white' : currentStep === index ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-slate-400'">
-                            <template x-if="currentStep > index">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </template>
-                            <template x-if="currentStep <= index">
-                                <span class="font-bold" x-text="index + 1"></span>
-                            </template>
-                        </div>
-                        <span class="mt-2 text-xs font-semibold text-center" 
-                            :class="currentStep >= index ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500'"
-                            x-text="step.title"></span>
-                    </div>
-                    <div x-show="index < steps.length - 1" 
-                        class="flex-1 h-1 mx-2 transition-all duration-300"
-                        :class="currentStep > index ? 'bg-green-500' : 'bg-gray-200 dark:bg-slate-700'"></div>
-                </div>
+                <button type="button" 
+                    @click="goToStep(index)"
+                    class="flex-1 py-4 px-6 text-sm font-semibold transition-all duration-200 focus:outline-none flex items-center justify-center space-x-3"
+                    :class="currentStep === index ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'">
+                    <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                          :class="currentStep === index ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-400'"
+                          x-text="index + 1"></span>
+                    <span x-text="step.title"></span>
+                </button>
             </template>
         </div>
     </div>
 
     <form id="catalogForm" action="{{ route('admin.marc.book.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
+        <input type="hidden" name="tab" :value="currentStep">
 
         <!-- Step 1: Đầu biểu (Leader/Metadata) -->
         <div x-show="currentStep === 0" x-cloak class="space-y-6">
@@ -60,20 +64,6 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cover_Image') }}</label>
                         <input type="file" name="cover_image" accept="image/*" 
                             class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-                    </div>
-
-                    <!-- Framework -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Framework') }}</label>
-                        <select x-model="formData.framework" name="framework" 
-                            onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            @foreach($frameworks as $fw)
-                                <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
-                                    {{ $fw->name }} ({{ $fw->code }})
-                                </option>
-                            @endforeach
-                        </select>
                     </div>
 
                     <!-- Status -->
@@ -364,29 +354,34 @@
             </div>
         </div>
 
-        <!-- Navigation Buttons -->
-        <div class="flex justify-between bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
-            <button type="button" @click="prevStep" x-show="currentStep > 0"
-                class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition">
-                {{ __('Previous') }}
-            </button>
-            <div class="flex-1"></div>
-            <button type="button" @click="nextStep" x-show="currentStep < 3"
-                class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-lg shadow-indigo-100 dark:shadow-none">
-                {{ __('Next') }}
-            </button>
-            <button type="submit" x-show="currentStep === 3"
-                class="px-6 py-2.5 rounded-lg text-sm font-semibold bg-green-600 hover:bg-green-700 text-white transition shadow-lg shadow-green-100 dark:shadow-none">
-                {{ __('Save_Record') }}
+        <!-- Action Buttons -->
+        <div class="flex justify-end bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+            <button type="button" @click="submitForm()"
+                class="px-8 py-3 rounded-xl text-sm font-bold bg-green-600 hover:bg-green-700 text-white transition shadow-lg shadow-green-100 dark:shadow-none flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                <span>{{ __('Save_Record') }}</span>
             </button>
         </div>
     </form>
 </div>
 
+@php
+    $initialFields = [];
+    foreach($definitions as $tag) {
+        $initialFields[$tag->tag] = [
+            'tag' => $tag->tag,
+            'label' => $tag->label,
+            'ind1' => ' ',
+            'ind2' => ' ',
+            'subfields' => [['code' => '', 'value' => '']],
+            'subfieldDefinitions' => $tag->subfields->map(fn($s) => ['code' => ltrim(trim((string) $s->code), '$'), 'label' => $s->label])
+        ];
+    }
+@endphp
 <script>
 function catalogWizard() {
     return {
-        currentStep: 0,
+        currentStep: parseInt(new URLSearchParams(window.location.search).get('tab')) || 0,
         steps: [
             { title: '{{ __("Leader_Info") }}' },
             { title: '{{ __("Cataloging") }}' },
@@ -394,7 +389,7 @@ function catalogWizard() {
             { title: '{{ __("Preview") }}' }
         ],
         formData: {
-            framework: '{{ $frameworks->where('id', $frameworkId)->first()->code ?? 'AVMARC21' }}',
+            framework: "{{ $frameworks->where('id', $frameworkId)->first()->code ?? 'AVMARC21' }}",
             status: 'pending',
             subject_category: 'Article',
             record_type: 'book',
@@ -404,21 +399,11 @@ function catalogWizard() {
             document_format: 'none',
             cataloging_standard: 'AACR2'
         },
-        marcFields: {
-            @foreach($definitions as $tag)
-            '{{ $tag->tag }}': {
-                tag: '{{ $tag->tag }}',
-                label: '{{ $tag->label }}',
-                ind1: ' ',
-                ind2: ' ',
-                subfields: [{ code: '', value: '' }],
-                subfieldDefinitions: @json($tag->subfields->map(fn($s) => ['code' => $s->code, 'label' => $s->label]))
-            },
-            @endforeach
-        },
+        marcFields: @json($initialFields),
         getSubfieldLabel(tag, code) {
             if (!this.marcFields[tag]) return '';
-            const def = this.marcFields[tag].subfieldDefinitions.find(d => d.code === code);
+            const normalizedCode = (code ?? '').toString().trim().replace(/^\$/, '');
+            const def = this.marcFields[tag].subfieldDefinitions.find(d => d.code === normalizedCode);
             return def ? def.label : '';
         },
         getActiveFields() {
@@ -427,15 +412,18 @@ function catalogWizard() {
                 return f.subfields.some(s => (s.code && s.code.trim() !== '') || (s.value && s.value.trim() !== ''));
             });
         },
+        goToStep(index) {
+            this.currentStep = index;
+            // Update URL without refresh
+            const url = new URL(window.location);
+            url.searchParams.set('tab', index);
+            window.history.pushState({}, '', url);
+        },
         nextStep() {
-            if (this.currentStep < this.steps.length - 1) {
-                this.currentStep++;
-            }
+            this.goToStep(this.currentStep + 1);
         },
         prevStep() {
-            if (this.currentStep > 0) {
-                this.currentStep--;
-            }
+            this.goToStep(this.currentStep - 1);
         },
         submitForm() {
             document.getElementById('catalogForm').submit();

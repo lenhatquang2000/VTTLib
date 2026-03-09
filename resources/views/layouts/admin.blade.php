@@ -16,6 +16,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         [x-cloak] {
@@ -353,6 +354,47 @@
             }));
         });
     </script>
+    
+    <!-- Scroll To Top/Bottom Button -->
+    <div x-data="{
+        isAtTop: true,
+        scrollToPosition() {
+            const main = document.querySelector('main');
+            if (!main) return;
+            if (this.isAtTop) {
+                main.scrollTo({ top: main.scrollHeight, behavior: 'smooth' });
+            } else {
+                main.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    }" 
+    x-init="
+        $nextTick(() => {
+            const main = document.querySelector('main');
+            if (main) {
+                main.addEventListener('scroll', () => {
+                    isAtTop = main.scrollTop < 100;
+                });
+            }
+        })
+    "
+    class="fixed bottom-6 right-8 z-[90]">
+        <button @click="scrollToPosition()"
+            class="p-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg shadow-indigo-300/50 dark:shadow-none transition-all duration-300 group flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900"
+            :title="isAtTop ? 'Cuộn xuống cuối' : 'Cuộn lên đầu'">
+            
+            <!-- Icon Scroll To Top (Up arrow) - Shows when NOT at top -->
+            <svg x-show="!isAtTop" x-cloak class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+            </svg>
+            
+            <!-- Icon Scroll To Bottom (Down arrow) - Shows when AT top -->
+            <svg x-show="isAtTop" class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </button>
+    </div>
+
     @stack('scripts')
 </body>
 

@@ -7,7 +7,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Cataloged_Records') }}</h2>
                 <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Catalog_Instruction_Index') }}</p>
             </div>
-            <a href="{{ route('admin.marc.book.create') }}"
+            <a href="{{ route('admin.marc.book.form') }}"
                 class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center shadow-lg shadow-indigo-100 dark:shadow-none">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -49,7 +49,9 @@
                                 }
                             }
                         @endphp
-                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
+                        <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition cursor-pointer"
+                            data-edit-url="{{ route('admin.marc.book.form', $record->id) }}"
+                            title="{{ __('Edit') }}">
                             <td class="px-6 py-4 font-mono text-gray-400 dark:text-slate-500">#{{ $record->id }}</td>
                             <td class="px-6 py-4">
                                 <span class="block font-mono text-[10px] text-gray-500 dark:text-slate-500">{{ $record->leader }}</span>
@@ -79,7 +81,7 @@
                                     class="text-green-600 hover:text-green-800 font-bold text-xs uppercase">{{ __('Distribute') }}</a>
                                 <a href="{{ route('admin.marc.book.show', $record->id) }}"
                                     class="text-indigo-600 hover:text-indigo-800 font-bold text-xs uppercase">{{ __('Review') }}</a>
-                                <a href="{{ route('admin.marc.book.edit', $record->id) }}"
+                                <a href="{{ route('admin.marc.book.form', $record->id) }}"
                                     class="text-amber-600 hover:text-amber-800 font-bold text-xs uppercase">{{ __('Edit') }}</a>
                             </td>
                         </tr>
@@ -107,3 +109,19 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('tr[data-edit-url]').forEach(function (row) {
+        row.addEventListener('dblclick', function (event) {
+            // Keep default behavior when double-clicking interactive controls inside the row.
+            if (event.target.closest('a, button, input, select, textarea, label')) {
+                return;
+            }
+            window.location.href = row.dataset.editUrl;
+        });
+    });
+});
+</script>
+@endpush

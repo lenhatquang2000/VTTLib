@@ -27,29 +27,73 @@ class MarcBookController extends Controller
         return view('admin.marc_books.index', compact('records'));
     }
 
-    public function create(Request $request)
+    public function form(Request $request, ?BibliographicRecord $record = null)
     {
-        $frameworks = MarcFramework::where('is_active', true)->get();
-        $frameworkId = $request->query('framework_id');
+        if ($record) {
+            $record->load('fields.subfields', 'items');
+        }
 
-        if (!$frameworkId && $frameworks->isNotEmpty()) {
+        $frameworks = MarcFramework::where('is_active', true)->get();
+        $frameworkId = $record
+            ? optional($frameworks->firstWhere('code', $record->framework))->id
+            : $request->query('framework_id');
+
+        if (!$frameworkId && !$record && $frameworks->isNotEmpty()) {
             // Default to STANDARD if available, else first
             $standard = $frameworks->where('code', 'STANDARD')->first();
             $frameworkId = $standard ? $standard->id : $frameworks->first()->id;
         }
 
         $currentFramework = MarcFramework::find($frameworkId);
-        
-        // Fetch visible tags for the selected framework via pivot table
-        $definitions = $currentFramework ? $currentFramework->tags()
-            ->with(['subfields' => function ($q) {
-                $q->where('is_visible', true)->orderBy('code');
-            }])
-            ->wherePivot('is_visible', true)
-            ->get() : collect();
+
+        if ($record) {
+            // In edit mode: keep framework-visible tags, but always include exact tag/subfield
+            // definitions already used by the record so labels resolve correctly from DB.
+            $frameworkDefinitions = $currentFramework ? $currentFramework->tags()
+                ->with(['subfields' => function ($q) {
+                    $q->orderBy('code');
+                }])
+                ->wherePivot('is_visible', true)
+                ->get() : collect();
+
+            $recordTags = $record->fields->pluck('tag')->unique()->values();
+            $recordDefinitions = MarcTagDefinition::whereIn('tag', $recordTags)
+                ->with(['subfields' => function ($q) {
+                    $q->orderBy('code');
+                }])
+                ->get();
+
+            $definitionsByTag = $frameworkDefinitions->keyBy('tag');
+            foreach ($recordDefinitions as $recordDefinition) {
+                if ($definitionsByTag->has($recordDefinition->tag)) {
+                    $existing = $definitionsByTag->get($recordDefinition->tag);
+                    $mergedSubfields = $existing->subfields
+                        ->keyBy(fn ($s) => strtolower(trim((string) $s->code)))
+                        ->union($recordDefinition->subfields->keyBy(fn ($s) => strtolower(trim((string) $s->code))))
+                        ->values();
+                    $existing->setRelation('subfields', $mergedSubfields);
+                    $definitionsByTag->put($recordDefinition->tag, $existing);
+                } else {
+                    $definitionsByTag->put($recordDefinition->tag, $recordDefinition);
+                }
+            }
+            $definitions = $definitionsByTag->values();
+        } else {
+            // Create mode: only show visible tags/subfields configured for the selected framework.
+            $definitions = $currentFramework ? $currentFramework->tags()
+                ->with(['subfields' => function ($q) {
+                    $q->where('is_visible', true)->orderBy('code');
+                }])
+                ->wherePivot('is_visible', true)
+                ->get() : collect();
+        }
 
         $documentTypes = DocumentType::active()->ordered()->get();
         $locations = StorageLocation::where('is_active', true)->with('branch')->get();
+
+        if ($record) {
+            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId'));
+        }
 
         return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId'));
     }
@@ -136,7 +180,8 @@ class MarcBookController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('admin.marc.book')->with('success', __('Record_Created_Successfully'));
+            $tab = $request->input('tab', 0);
+            return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Created_Successfully'));
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -182,20 +227,6 @@ class MarcBookController extends Controller
         return back()->with('success', __('Status_Updated_Successfully'));
     }
 
-    public function edit(BibliographicRecord $record)
-    {
-        $record->load('fields.subfields');
-        $framework = MarcFramework::where('code', $record->framework)->first();
-        
-        $definitions = $framework ? $framework->tags()
-            ->with(['subfields' => function($q) {
-                $q->where('is_visible', true)->orderBy('code');
-            }])
-            ->wherePivot('is_visible', true)
-            ->get() : collect();
-        return view('admin.marc_books.edit', compact('record', 'definitions'));
-    }
-
     public function update(Request $request, BibliographicRecord $record)
     {
         DB::beginTransaction();
@@ -219,7 +250,7 @@ class MarcBookController extends Controller
                 // Check if the tag has any valid content
                 $hasValidSubfields = false;
                 foreach ($subfieldEntries as $entry) {
-                    if (!empty($entry['code']) && !empty($entry['value'])) {
+                    if (!empty($entry['code']) && (!empty($entry['value']) || $entry['value'] === '0')) {
                         $hasValidSubfields = true;
                         break;
                     }
@@ -239,9 +270,10 @@ class MarcBookController extends Controller
                     ]
                 );
 
+                $fieldSubfieldIds = [];
                 // 2. Handle Subfields of this field
                 foreach ($subfieldEntries as $entry) {
-                    if (!empty($entry['code']) && !empty($entry['value'])) {
+                    if (!empty($entry['code']) && (!empty($entry['value']) || $entry['value'] === '0')) {
                         $subfield = $marcField->subfields()->updateOrCreate(
                             ['id' => $entry['id'] ?? null],
                             [
@@ -249,19 +281,61 @@ class MarcBookController extends Controller
                                 'value' => $entry['value']
                             ]
                         );
-                        $submittedSubfieldIds[] = $subfield->id;
+                        $fieldSubfieldIds[] = $subfield->id;
                     }
                 }
 
                 // Delete subfields of this field that were NOT submitted
-                $marcField->subfields()->whereNotIn('id', $submittedSubfieldIds)->delete();
+                $marcField->subfields()->whereNotIn('id', $fieldSubfieldIds)->delete();
             }
 
             // Delete fields (Tags) that were NOT submitted or are now empty
             $record->fields()->whereNotIn('tag', $submittedFieldTags)->delete();
 
+            // Process distribution items (Add, Update, Delete)
+            $items = $request->input('items', []);
+            $submittedItemIds = [];
+            
+            foreach ($items as $itemData) {
+                if (!empty($itemData['document_type_id']) && !empty($itemData['storage_location_id'])) {
+                    // Update existing
+                    if (!empty($itemData['id'])) {
+                        $bookItem = BookItem::find($itemData['id']);
+                        if ($bookItem && $bookItem->bibliographic_record_id == $record->id) {
+                            $bookItem->update([
+                                'document_type_id' => $itemData['document_type_id'],
+                                'storage_location_id' => $itemData['storage_location_id'],
+                            ]);
+                            $submittedItemIds[] = $bookItem->id;
+                        }
+                    } else {
+                        // Create new
+                        $quantity = (int) ($itemData['quantity'] ?? 1);
+                        for ($i = 0; $i < $quantity; $i++) {
+                            $newItem = BookItem::create([
+                                'bibliographic_record_id' => $record->id,
+                                'document_type_id' => $itemData['document_type_id'],
+                                'storage_location_id' => $itemData['storage_location_id'],
+                                'barcode' => $this->barcodeService->getNextCode('item'),
+                                'accession_number' => $this->generateAccessionNumber(),
+                                'quantity' => 1,
+                                'status' => 'available'
+                            ]);
+                            $submittedItemIds[] = $newItem->id;
+                            $this->barcodeService->incrementCounter('item', $newItem->barcode);
+                        }
+                    }
+                }
+            }
+            
+            // Note: In typical library systems, deleting cataloged items might be restricted 
+            // if they are on loan. We assume deletion is allowed here for items removed from UI.
+            // Be careful with cascading deletes.
+            $record->items()->whereNotIn('id', $submittedItemIds)->delete();
+
             DB::commit();
-            return redirect()->route('admin.marc.book')->with('success', __('Record_Updated_Successfully'));
+            $tab = $request->input('tab', 0);
+            return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Updated_Successfully'));
 
         } catch (\Exception $e) {
             DB::rollBack();

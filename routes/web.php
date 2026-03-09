@@ -75,9 +75,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::delete('/marc-definitions/subfield/{subfield}', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'destroySubfield'])->name('admin.marc.subfield.destroy');
 
     Route::get('/marc-books', [\App\Http\Controllers\Admin\MarcBookController::class, 'index'])->name('admin.marc.book');
-    Route::get('/marc-books/create', [\App\Http\Controllers\Admin\MarcBookController::class, 'create'])->name('admin.marc.book.create');
+    Route::get('/marc-books/form/{record?}', [\App\Http\Controllers\Admin\MarcBookController::class, 'form'])
+        ->whereNumber('record')
+        ->name('admin.marc.book.form');
     Route::get('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'show'])->name('admin.marc.book.show');
-    Route::get('/marc-books/{record}/edit', [\App\Http\Controllers\Admin\MarcBookController::class, 'edit'])->name('admin.marc.book.edit');
     Route::post('/marc-books', [\App\Http\Controllers\Admin\MarcBookController::class, 'store'])->name('admin.marc.book.store');
     Route::put('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'update'])->name('admin.marc.book.update');
     Route::put('/marc-books/{record}/status', [\App\Http\Controllers\Admin\MarcBookController::class, 'updateStatus'])->name('admin.marc.book.status');
