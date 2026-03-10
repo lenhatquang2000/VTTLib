@@ -21,10 +21,148 @@ class MarcBookController extends Controller
         $this->barcodeService = $barcodeService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $records = BibliographicRecord::with('fields.subfields')->paginate(10);
-        return view('admin.marc_books.index', compact('records'));
+        $query = BibliographicRecord::with('fields.subfields');
+        
+        // Advanced search filters
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                // Search in title (245$a)
+                $q->whereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                    $fieldQuery->where('tag', '245')
+                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                            $subfieldQuery->where('code', 'a')
+                                ->where('value', 'like', '%' . $searchTerm . '%');
+                        });
+                })
+                // Search in author (100$a)
+                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                    $fieldQuery->where('tag', '100')
+                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                            $subfieldQuery->where('code', 'a')
+                                ->where('value', 'like', '%' . $searchTerm . '%');
+                        });
+                })
+                // Search in ISBN (020$a)
+                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                    $fieldQuery->where('tag', '020')
+                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                            $subfieldQuery->where('code', 'a')
+                                ->where('value', 'like', '%' . $searchTerm . '%');
+                        });
+                })
+                // Search in publisher (260$b)
+                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                    $fieldQuery->where('tag', '260')
+                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                            $subfieldQuery->where('code', 'b')
+                                ->where('value', 'like', '%' . $searchTerm . '%');
+                        });
+                })
+                // Search in subject (650$a)
+                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                    $fieldQuery->where('tag', '650')
+                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                            $subfieldQuery->where('code', 'a')
+                                ->where('value', 'like', '%' . $searchTerm . '%');
+                        });
+                })
+                // Search in notes (500$a)
+                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                    $fieldQuery->where('tag', '500')
+                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                            $subfieldQuery->where('code', 'a')
+                                ->where('value', 'like', '%' . $searchTerm . '%');
+                        });
+                });
+            });
+        }
+        
+        // Filter by framework
+        if ($request->filled('framework')) {
+            $query->where('framework', $request->framework);
+        }
+        
+        // Filter by record type
+        if ($request->filled('record_type')) {
+            $query->where('record_type', $request->record_type);
+        }
+        
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter by subject category
+        if ($request->filled('subject_category')) {
+            $query->where('subject_category', $request->subject_category);
+        }
+        
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        // Filter by specific MARC tag
+        if ($request->filled('marc_tag') && $request->filled('marc_value')) {
+            $query->whereHas('fields', function ($fieldQuery) use ($request) {
+                $fieldQuery->where('tag', $request->marc_tag)
+                    ->whereHas('subfields', function ($subfieldQuery) use ($request) {
+                        $subfieldQuery->where('value', 'like', '%' . $request->marc_value . '%');
+                    });
+            });
+        }
+        
+        // Sort options
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+        
+        switch ($sortBy) {
+            case 'title':
+                $query->orderBy(function ($q) {
+                    $q->selectRaw('COALESCE(
+                        (SELECT value FROM marc_subfields 
+                         JOIN marc_fields ON marc_subfields.marc_field_id = marc_fields.id 
+                         WHERE marc_fields.bibliographic_record_id = bibliographic_records.id 
+                         AND marc_fields.tag = "245" AND marc_subfields.code = "a" 
+                         LIMIT 1), "") as title');
+                }, $sortOrder);
+                break;
+            case 'author':
+                $query->orderBy(function ($q) {
+                    $q->selectRaw('COALESCE(
+                        (SELECT value FROM marc_subfields 
+                         JOIN marc_fields ON marc_subfields.marc_field_id = marc_fields.id 
+                         WHERE marc_fields.bibliographic_record_id = bibliographic_records.id 
+                         AND marc_fields.tag = "100" AND marc_subfields.code = "a" 
+                         LIMIT 1), "") as author');
+                }, $sortOrder);
+                break;
+            default:
+                $query->orderBy($sortBy, $sortOrder);
+        }
+        
+        $records = $query->paginate(10)->withQueryString();
+        
+        // Get search filters data
+        $frameworks = MarcFramework::where('is_active', true)->pluck('code', 'code');
+        $recordTypes = BibliographicRecord::distinct()->pluck('record_type');
+        $subjectCategories = BibliographicRecord::distinct()->pluck('subject_category');
+        $commonMarcTags = ['245', '100', '020', '260', '650', '500', '082', '852'];
+        
+        return view('admin.marc_books.index', compact(
+            'records', 
+            'frameworks', 
+            'recordTypes', 
+            'subjectCategories',
+            'commonMarcTags'
+        ));
     }
 
     public function form(Request $request, ?BibliographicRecord $record = null)

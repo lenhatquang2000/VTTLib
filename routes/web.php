@@ -83,6 +83,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::put('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'update'])->name('admin.marc.book.update');
     Route::put('/marc-books/{record}/status', [\App\Http\Controllers\Admin\MarcBookController::class, 'updateStatus'])->name('admin.marc.book.status');
 
+    // MARC Import & Export
+    Route::get('/marc-import', [\App\Http\Controllers\Admin\MarcImportController::class, 'index'])->name('admin.marc.import.index');
+    Route::get('/marc-import/template', [\App\Http\Controllers\Admin\MarcImportController::class, 'downloadTemplate'])->name('admin.marc.import.template');
+    Route::post('/marc-import/upload', [\App\Http\Controllers\Admin\MarcImportController::class, 'upload'])->name('admin.marc.import.upload');
+    Route::post('/marc-import/process', [\App\Http\Controllers\Admin\MarcImportController::class, 'process'])->name('admin.marc.import.process');
+
+    // MARC Reports
+    Route::get('/marc-reports', [\App\Http\Controllers\Admin\MarcReportController::class, 'index'])->name('admin.marc.reports.index');
+    Route::post('/marc-reports/generate', [\App\Http\Controllers\Admin\MarcReportController::class, 'generate'])->name('admin.marc.reports.generate');
+
     // Distribution & Inventory
     Route::get('/marc-books/{record}/distribution', [\App\Http\Controllers\Admin\BookDistributionController::class, 'index'])->name('admin.marc.book.distribution');
     Route::post('/marc-books/{record}/distribution', [\App\Http\Controllers\Admin\BookDistributionController::class, 'store'])->name('admin.marc.book.distribution.store');

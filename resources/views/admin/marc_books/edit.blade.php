@@ -586,6 +586,18 @@ function catalogWizard() {
             { title: '{{ __("Distribution") }}' },
             { title: '{{ __("Preview") }}' }
         ],
+        init() {
+            // Auto-scroll to tabs section when page loads with tab parameter
+            const tabParam = new URLSearchParams(window.location.search).get('tab');
+            if (tabParam !== null) {
+                this.$nextTick(() => {
+                    const tabsElement = document.querySelector('.bg-white.dark\\:bg-slate-900.rounded-xl.shadow-sm.border');
+                    if (tabsElement) {
+                        tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+        },
         formData: {
             framework: "{{ $record->framework ?? ($frameworks->where('id', $frameworkId ?? null)->first()->code ?? 'AVMARC21') }}",
             status: "{{ $record->status ?? 'pending' }}",

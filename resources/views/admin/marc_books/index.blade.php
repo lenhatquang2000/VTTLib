@@ -16,6 +16,160 @@
             </a>
         </div>
 
+        <!-- Advanced Search Section -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div class="p-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Advanced Search') }}</h3>
+                
+                <form method="GET" class="space-y-4">
+                    @csrf
+                    
+                    <!-- Basic Search -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Search in Title, Author, ISBN, Publisher, Subject, Notes') }}</label>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                placeholder="{{ __('Enter search terms...') }}"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Sort By') }}</label>
+                            <div class="flex space-x-2">
+                                <select name="sort_by" 
+                                    class="flex-1 px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>{{ __('Created Date') }}</option>
+                                    <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
+                                    <option value="author" {{ request('sort_by') == 'author' ? 'selected' : '' }}>{{ __('Author') }}</option>
+                                    <option value="updated_at" {{ request('sort_by') == 'updated_at' ? 'selected' : '' }}>{{ __('Updated Date') }}</option>
+                                </select>
+                                <select name="sort_order"
+                                    class="px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>{{ __('Desc') }}</option>
+                                    <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>{{ __('Asc') }}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filters Row 1 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Framework') }}</label>
+                            <select name="framework"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">{{ __('All Frameworks') }}</option>
+                                @foreach($frameworks as $code => $name)
+                                    <option value="{{ $code }}" {{ request('framework') == $code ? 'selected' : '' }}>{{ $code }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Record Type') }}</label>
+                            <select name="record_type"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">{{ __('All Types') }}</option>
+                                @foreach($recordTypes as $type)
+                                    <option value="{{ $type }}" {{ request('record_type') == $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Status') }}</label>
+                            <select name="status"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">{{ __('All Status') }}</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Subject Category') }}</label>
+                            <select name="subject_category"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">{{ __('All Categories') }}</option>
+                                @foreach($subjectCategories as $category)
+                                    <option value="{{ $category }}" {{ request('subject_category') == $category ? 'selected' : '' }}>{{ $category }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Filters Row 2 -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date From') }}</label>
+                            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date To') }}</label>
+                            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('MARC Tag') }}</label>
+                            <select name="marc_tag"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">{{ __('Select Tag') }}</option>
+                                @foreach($commonMarcTags as $tag)
+                                    <option value="{{ $tag }}" {{ request('marc_tag') == $tag ? 'selected' : '' }}>{{ $tag }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('MARC Value') }}</label>
+                            <input type="text" name="marc_value" value="{{ request('marc_value') }}" 
+                                placeholder="{{ __('Tag value...') }}"
+                                class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-3">
+                        <button type="submit" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition">
+                            <i class="fas fa-search mr-2"></i>
+                            {{ __('Search') }}
+                        </button>
+                        <a href="{{ route('admin.marc.book') }}" 
+                            class="px-6 py-2.5 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition">
+                            {{ __('Clear') }}
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results Summary -->
+        @if(request()->anyFilled(['search', 'framework', 'record_type', 'status', 'subject_category', 'date_from', 'date_to', 'marc_tag', 'marc_value']))
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-blue-800 dark:text-blue-200">
+                        {{ __('Found :count records matching your criteria', ['count' => $records->total()]) }}
+                    </p>
+                    @if(request()->filled('search'))
+                        <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                            {{ __('Search term: ":term"', ['term' => request('search')]) }}
+                        </p>
+                    @endif
+                </div>
+                <a href="{{ route('admin.marc.book') }}" 
+                    class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    {{ __('Clear filters') }}
+                </a>
+            </div>
+        </div>
+        @endif
+
+        <!-- Results Table -->
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 dark:bg-slate-800/50 text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 tracking-wider">
@@ -76,13 +230,33 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-right space-x-2">
-                                <a href="{{ route('admin.marc.book.distribution', $record->id) }}"
-                                    class="text-green-600 hover:text-green-800 font-bold text-xs uppercase">{{ __('Distribute') }}</a>
-                                <a href="{{ route('admin.marc.book.show', $record->id) }}"
-                                    class="text-indigo-600 hover:text-indigo-800 font-bold text-xs uppercase">{{ __('Review') }}</a>
-                                <a href="{{ route('admin.marc.book.form', $record->id) }}"
-                                    class="text-amber-600 hover:text-amber-800 font-bold text-xs uppercase">{{ __('Edit') }}</a>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end space-x-1">
+                                    <!-- Tab 1: Leader Info -->
+                                    <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=0"
+                                        class="inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                        title="{{ __('Leader_Info') }}">
+                                        <i class="fas fa-info-circle text-xs"></i>
+                                    </a>
+                                    <!-- Tab 2: Cataloging -->
+                                    <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=1"
+                                        class="inline-flex items-center px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                                        title="{{ __('Cataloging') }}">
+                                        <i class="fas fa-book text-xs"></i>
+                                    </a>
+                                    <!-- Tab 3: Distribution -->
+                                    <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=2"
+                                        class="inline-flex items-center px-2 py-1 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
+                                        title="{{ __('Distribution') }}">
+                                        <i class="fas fa-share-alt text-xs"></i>
+                                    </a>
+                                    <!-- Tab 4: Preview -->
+                                    <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=3"
+                                        class="inline-flex items-center px-2 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded text-xs font-medium hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
+                                        title="{{ __('Preview') }}">
+                                        <i class="fas fa-eye text-xs"></i>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -112,16 +286,35 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('tr[data-edit-url]').forEach(function (row) {
-        row.addEventListener('dblclick', function (event) {
-            // Keep default behavior when double-clicking interactive controls inside the row.
-            if (event.target.closest('a, button, input, select, textarea, label')) {
-                return;
-            }
-            window.location.href = row.dataset.editUrl;
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle advanced search
+    const toggleSearch = document.getElementById('toggleSearch');
+    const advancedSearch = document.getElementById('advancedSearch');
+    
+    if (toggleSearch && advancedSearch) {
+        toggleSearch.addEventListener('click', function() {
+            advancedSearch.classList.toggle('hidden');
         });
-    });
+    }
+    
+    // MARC tag and value validation
+    const marcTag = document.querySelector('select[name="marc_tag"]');
+    const marcValue = document.querySelector('input[name="marc_value"]');
+    
+    function validateMarcFields() {
+        if (marcTag.value && !marcValue.value) {
+            marcValue.setCustomValidity('{{ __('Please enter a MARC value when tag is selected') }}');
+        } else if (!marcTag.value && marcValue.value) {
+            marcTag.setCustomValidity('{{ __('Please select a MARC tag when value is entered') }}');
+        } else {
+            marcValue.setCustomValidity('');
+        }
+    }
+    
+    if (marcTag && marcValue) {
+        marcTag.addEventListener('change', validateMarcFields);
+        marcValue.addEventListener('input', validateMarcFields);
+    }
 });
 </script>
 @endpush
