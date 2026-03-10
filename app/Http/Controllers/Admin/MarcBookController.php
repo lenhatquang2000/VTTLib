@@ -90,12 +90,15 @@ class MarcBookController extends Controller
 
         $documentTypes = DocumentType::active()->ordered()->get();
         $locations = StorageLocation::where('is_active', true)->with('branch')->get();
+        $branches = \App\Models\Branch::with('storageLocations')->where('is_active', true)->get();
+        $nextBarcode = $this->barcodeService->previewNextBarcode('item');
 
         if ($record) {
-            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId'));
+            $record->load('items.branch', 'items.storageLocation');
+            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode'));
         }
 
-        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId'));
+        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode'));
     }
 
     public function store(Request $request)
@@ -159,23 +162,35 @@ class MarcBookController extends Controller
             // Process distribution items
             $items = $request->input('items', []);
             foreach ($items as $itemData) {
-                if (!empty($itemData['document_type_id']) && !empty($itemData['storage_location_id'])) {
-                    $quantity = (int) ($itemData['quantity'] ?? 1);
-                    
-                    for ($i = 0; $i < $quantity; $i++) {
-                        BookItem::create([
-                            'bibliographic_record_id' => $record->id,
-                            'document_type_id' => $itemData['document_type_id'],
-                            'storage_location_id' => $itemData['storage_location_id'],
-                            'barcode' => $this->barcodeService->getNextCode('item'),
-                            'accession_number' => $this->generateAccessionNumber(),
-                            'quantity' => 1,
-                            'status' => 'available'
-                        ]);
-                        
-                        // Increment counter if service is used
-                        $this->barcodeService->incrementCounter('item', $itemData['barcode'] ?? '');
+                if (!empty($itemData['storage_location_id'])) {
+                    $itemPayload = [
+                        'bibliographic_record_id' => $record->id,
+                        'branch_id' => $itemData['branch_id'] ?? null,
+                        'storage_location_id' => $itemData['storage_location_id'],
+                        'barcode' => $itemData['barcode'] ?? null,
+                        'accession_number' => $itemData['accession_number'] ?? $this->generateAccessionNumber(),
+                        'storage_type' => $itemData['storage_type'] ?? 'Book',
+                        'quantity' => $itemData['quantity'] ?? 1,
+                        'status' => $itemData['status'] ?? 'available',
+                        'order_code' => $itemData['order_code'] ?? null,
+                        'waits_for_print' => isset($itemData['waits_for_print']) ? (bool)$itemData['waits_for_print'] : false,
+                        'notes' => $itemData['notes'] ?? null,
+                        'volume_issue' => $itemData['volume_issue'] ?? null,
+                        'day' => $itemData['day'] ?? null,
+                        'month_season' => $itemData['month_season'] ?? null,
+                        'year' => $itemData['year'] ?? null,
+                        'shelf' => $itemData['shelf'] ?? null,
+                        'shelf_position' => $itemData['shelf_position'] ?? null,
+                        'location' => $itemData['location'] ?? null,
+                        'temporary_location' => $itemData['temporary_location'] ?? null,
+                    ];
+
+                    if (empty($itemPayload['barcode'])) {
+                        $itemPayload['barcode'] = $this->barcodeService->getNextCode('item');
+                        $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
                     }
+
+                    BookItem::create($itemPayload);
                 }
             }
 
@@ -297,33 +312,45 @@ class MarcBookController extends Controller
             $submittedItemIds = [];
             
             foreach ($items as $itemData) {
-                if (!empty($itemData['document_type_id']) && !empty($itemData['storage_location_id'])) {
+                if (!empty($itemData['storage_location_id'])) {
+                    $itemPayload = [
+                        'branch_id' => $itemData['branch_id'] ?? null,
+                        'storage_location_id' => $itemData['storage_location_id'],
+                        'barcode' => $itemData['barcode'] ?? null,
+                        'accession_number' => $itemData['accession_number'] ?? $this->generateAccessionNumber(),
+                        'storage_type' => $itemData['storage_type'] ?? 'Book',
+                        'quantity' => $itemData['quantity'] ?? 1,
+                        'status' => $itemData['status'] ?? 'available',
+                        'order_code' => $itemData['order_code'] ?? null,
+                        'waits_for_print' => isset($itemData['waits_for_print']) ? (bool)$itemData['waits_for_print'] : false,
+                        'notes' => $itemData['notes'] ?? null,
+                        'volume_issue' => $itemData['volume_issue'] ?? null,
+                        'day' => $itemData['day'] ?? null,
+                        'month_season' => $itemData['month_season'] ?? null,
+                        'year' => $itemData['year'] ?? null,
+                        'shelf' => $itemData['shelf'] ?? null,
+                        'shelf_position' => $itemData['shelf_position'] ?? null,
+                        'location' => $itemData['location'] ?? null,
+                        'temporary_location' => $itemData['temporary_location'] ?? null,
+                    ];
+
                     // Update existing
                     if (!empty($itemData['id'])) {
                         $bookItem = BookItem::find($itemData['id']);
                         if ($bookItem && $bookItem->bibliographic_record_id == $record->id) {
-                            $bookItem->update([
-                                'document_type_id' => $itemData['document_type_id'],
-                                'storage_location_id' => $itemData['storage_location_id'],
-                            ]);
+                            $bookItem->update($itemPayload);
                             $submittedItemIds[] = $bookItem->id;
                         }
                     } else {
                         // Create new
-                        $quantity = (int) ($itemData['quantity'] ?? 1);
-                        for ($i = 0; $i < $quantity; $i++) {
-                            $newItem = BookItem::create([
-                                'bibliographic_record_id' => $record->id,
-                                'document_type_id' => $itemData['document_type_id'],
-                                'storage_location_id' => $itemData['storage_location_id'],
-                                'barcode' => $this->barcodeService->getNextCode('item'),
-                                'accession_number' => $this->generateAccessionNumber(),
-                                'quantity' => 1,
-                                'status' => 'available'
-                            ]);
-                            $submittedItemIds[] = $newItem->id;
-                            $this->barcodeService->incrementCounter('item', $newItem->barcode);
+                        $itemPayload['bibliographic_record_id'] = $record->id;
+                        if (empty($itemPayload['barcode'])) {
+                            $itemPayload['barcode'] = $this->barcodeService->getNextCode('item');
+                            $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
                         }
+                        
+                        $newItem = BookItem::create($itemPayload);
+                        $submittedItemIds[] = $newItem->id;
                     }
                 }
             }
