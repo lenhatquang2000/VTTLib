@@ -11,6 +11,9 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -118,7 +121,7 @@
                             :class="sidebarOpen ? 'justify-between' : 'justify-center'"
                             class="w-full flex items-center px-4 py-3.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-2xl transition group">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
+                                <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
                                 <span x-show="sidebarOpen" x-cloak
                                     class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
                             </div>
@@ -140,7 +143,7 @@
                     <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
                         :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
                         class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
-                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center" :class="sidebarOpen ? '' : 'w-full'">
+                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors" :class="sidebarOpen ? '' : 'w-full'">
                             {!! $tab->icon !!}
                         </div>
                         <span x-show="sidebarOpen" x-cloak
