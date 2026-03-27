@@ -1,0 +1,5 @@
+title,author,isbn,publisher,publication_year,issn,subject,classification,location,notes,language,description,record_type
+Lập trình Laravel 10 căn bản,Nguyễn Văn A,978-604-1-12345-6,Hà Nội | NXB Giáo Dục | 2023,2023,,Lập trình Web,005.13,Kệ sách A1,Tài liệu hướng dẫn thực hành,vietnamese,Sách hướng dẫn học Laravel từ cơ bản đến nâng cao,book
+Cấu trúc dữ liệu và Giải thuật,Trần Thị B,978-604-2-98765-4,TP.HCM | NXB Trẻ | 2022,2022,,Công nghệ thông tin,005.73,Kệ sách B2,Tài liệu tham khảo,vietnamese,Phân tích các thuật toán cơ bản,book
+Tạp chí Tin học & Đời sống,Nhiều tác giả,,Hà Nội | NXB Khoa Học | 2024,2024,1234-5678,Tin học,004,,Số đặc biệt tháng 3,,Tạp chí định kỳ,serial
+Tối ưu hóa cơ sở dữ liệu,Lê Văn C,9781234567897,Đà Nẵng | NXB Công Nghệ | 2021,2021,,Cơ sở dữ liệu,005.74,Kệ sách A2,,vietnamese,Kỹ thuật tối ưu truy vấn SQL,book

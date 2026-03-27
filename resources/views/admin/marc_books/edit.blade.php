@@ -7,23 +7,14 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Modify_MARC_Record') }}</h2>
             <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Update_Instruction', ['id' => $record->id]) }}</p>
-            <div class="mt-4 flex flex-col gap-2 md:flex-row md:items-center">
-                <label class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-0">{{ __('Cataloging_Framework') }}</label>
-                <select x-model="formData.framework" name="framework"
-                    onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
-                    class="w-full md:w-[360px] px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                    @foreach($frameworks as $fw)
-                        <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
-                            {{ $fw->name }} ({{ $fw->code }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Update_Instruction', ['id' => $record->id]) }}</p>
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('admin.marc.book') }}"
                 class="flex items-center px-4 py-2.5 text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
                 Quay lại
             </a>
         </div>
@@ -33,13 +24,13 @@
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
         <div class="flex border-b border-gray-200 dark:border-slate-700">
             <template x-for="(step, index) in steps" :key="index">
-                <button type="button" 
+                <button type="button"
                     @click="goToStep(index)"
                     class="flex-1 py-4 px-6 text-sm font-semibold transition-all duration-200 focus:outline-none flex items-center justify-center space-x-3"
                     :class="currentStep === index ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'">
                     <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
-                          :class="currentStep === index ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-400'"
-                          x-text="index + 1"></span>
+                        :class="currentStep === index ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-400'"
+                        x-text="index + 1"></span>
                     <span x-text="step.title"></span>
                 </button>
             </template>
@@ -58,86 +49,154 @@
                     <h3 class="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">{{ __('Record_Leader') }}</h3>
                     <p class="text-sm text-gray-500 dark:text-slate-400">{{ __('Leader_Instruction') }}</p>
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <!-- Cover Image -->
-                    <div class="md:col-span-2 pb-4 border-b border-gray-100 dark:border-slate-800">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cover_Image') }}</label>
-                        <input type="file" name="cover_image" accept="image/*" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
+                    <!-- LEFT COLUMN: All Selections -->
+                    <div class="lg:col-span-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <!-- Framework Selection (Full Width in Left Column) -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">
+                                    {{ __('Cataloging_Framework') }} <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select x-model="formData.framework" name="framework"
+                                        onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                        @foreach($frameworks as $fw)
+                                        <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
+                                            {{ $fw->name }} ({{ $fw->code }})
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-[9px] text-gray-400 uppercase tracking-widest font-bold">
+                                    {{ __('Page will reload on change') }}
+                                </p>
+                            </div>
+
+
+                            <!-- Status -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
+                                <select x-model="formData.status" name="status"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="pending">{{ __('New_Status_Text') }}</option>
+                                    <option value="approved">{{ __('Approved') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Subject Category -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Subject_Category') }}</label>
+                                <select x-model="formData.subject_category" name="subject_category"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="Article">{{ __('Selected_Article') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Record Type -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Record_Type') }}</label>
+                                <select x-model="formData.record_type" name="record_type"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="book">{{ __('Language_Material_Text') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Serial Frequency -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Frequency') }}</label>
+                                <select x-model="formData.serial_frequency" name="serial_frequency"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="unknown">{{ __('Unknown_Frequency') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Publication Date Type -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Publication_Date_Type') }}</label>
+                                <select x-model="formData.date_type" name="date_type"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="bc">{{ __('BC_Date_Involved') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Serial Acquisition Method -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Acquisition_Method') }}</label>
+                                <select x-model="formData.acquisition_method" name="acquisition_method"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="untraced">{{ __('Untraced_Serials_Text') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Document Format -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Document_Format') }}</label>
+                                <select x-model="formData.document_format" name="document_format"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="none">{{ __('None_Format') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Cataloging Standard -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Standard') }}</label>
+                                <select x-model="formData.cataloging_standard" name="cataloging_standard"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="AACR2">AACR-2</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Status -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
-                        <select x-model="formData.status" name="status" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="pending">{{ __('New_Status_Text') }}</option>
-                            <option value="approved">{{ __('Approved') }}</option>
-                        </select>
-                    </div>
+                    <!-- RIGHT COLUMN: Full Height Cover Image -->
+                    <div class="lg:col-span-4 flex flex-col h-full">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3 text-center">{{ __('Cover_Image') }}</label>
+                        <div class="flex-grow flex flex-col items-center justify-start">
+                            <!-- Clickable Image Preview Area (Stretches to fill) -->
+                            <div class="relative group cursor-pointer w-full h-full min-h-[450px]" @click="$refs.coverInput.click()">
+                                <template x-if="coverPreview">
+                                    <div class="relative w-full h-full rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900/50 shadow-xl bg-gray-50 dark:bg-slate-800 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-indigo-500/10">
+                                        <img :src="coverPreview" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
 
-                    <!-- Subject Category -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Subject_Category') }}</label>
-                        <select x-model="formData.subject_category" name="subject_category" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="Article">{{ __('Selected_Article') }}</option>
-                        </select>
-                    </div>
+                                        <!-- Hover Overlay -->
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-end pb-12">
+                                            <div class="bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 px-6 py-3 rounded-xl text-sm font-bold shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                                {{ __('Edit_Cover_Image') }}
+                                            </div>
+                                        </div>
 
-                    <!-- Record Type -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Record_Type') }}</label>
-                        <select x-model="formData.record_type" name="record_type" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="book">{{ __('Language_Material_Text') }}</option>
-                        </select>
-                    </div>
+                                        <button type="button" @click.stop="removeCover()" class="absolute top-4 right-4 bg-rose-500 hover:bg-rose-600 text-white p-2.5 rounded-full shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </template>
+                                <template x-if="!coverPreview">
+                                    <div class="w-full h-full min-h-[450px] rounded-2xl border-4 border-dashed border-gray-200 dark:border-slate-800 flex flex-col items-center justify-center bg-gray-50/50 dark:bg-slate-900/30 transition-all duration-300 group-hover:border-indigo-400 dark:group-hover:border-indigo-500 group-hover:bg-indigo-50/30 dark:group-hover:bg-indigo-900/10">
+                                        <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-lg mb-4 text-gray-400 dark:text-slate-600 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-all group-hover:scale-110">
+                                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.3em] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-center px-8">
+                                            {{ __('Add_Cover_Image') }}
+                                        </span>
+                                    </div>
+                                </template>
 
-                    <!-- Serial Frequency -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Frequency') }}</label>
-                        <select x-model="formData.serial_frequency" name="serial_frequency" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="unknown">{{ __('Unknown_Frequency') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Publication Date Type -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Publication_Date_Type') }}</label>
-                        <select x-model="formData.date_type" name="date_type" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="bc">{{ __('BC_Date_Involved') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Serial Acquisition Method -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Acquisition_Method') }}</label>
-                        <select x-model="formData.acquisition_method" name="acquisition_method" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="untraced">{{ __('Untraced_Serials_Text') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Document Format -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Document_Format') }}</label>
-                        <select x-model="formData.document_format" name="document_format" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="none">{{ __('None_Format') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Cataloging Standard -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Standard') }}</label>
-                        <select x-model="formData.cataloging_standard" name="cataloging_standard" 
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="AACR2">AACR-2</option>
-                        </select>
+                                <!-- Hidden Input -->
+                                <input type="file" name="cover_image" id="cover_image_input" x-ref="coverInput" class="hidden" accept="image/*" @change="previewCover($event)">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -146,78 +205,82 @@
         <!-- Step 2: Biên mục (MARC Fields) -->
         <div x-show="currentStep === 1" x-cloak class="space-y-6">
             @foreach($definitions as $tag)
-                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden"
-                    x-data="{ expanded: {{ $tag->tag == '245' ? 'true' : 'false' }} }">
-                    <div class="p-4 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center cursor-pointer border-b border-gray-50 dark:border-slate-800"
-                        @click="expanded = !expanded">
-                        <div class="flex items-center space-x-4">
-                            <span class="bg-gray-800 dark:bg-slate-950 text-white px-3 py-1 rounded font-mono font-bold">{{ $tag->tag }}</span>
-                            <h4 class="font-bold text-gray-700 dark:text-slate-200 uppercase text-xs">{{ $tag->label }}</h4>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex flex-col items-center">
-                                <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Ind</span>
-                                <div class="flex space-x-1">
-                                    <input type="text" name="fields[{{ $tag->tag }}][ind1]" x-model="marcFields['{{ $tag->tag }}'].ind1" placeholder="#" maxlength="1"
-                                        class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
-                                        title="{{ __('Indicator') }} 1"
-                                        @click.stop>
-                                    <input type="text" name="fields[{{ $tag->tag }}][ind2]" x-model="marcFields['{{ $tag->tag }}'].ind2" placeholder="#" maxlength="1"
-                                        class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
-                                        title="{{ __('Indicator') }} 2"
-                                        @click.stop>
-                                </div>
-                            </div>
-                            <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
-                                :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden"
+                x-data="{ expanded: {{ $tag->tag == '245' ? 'true' : 'false' }} }">
+                <div class="p-4 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center cursor-pointer border-b border-gray-50 dark:border-slate-800"
+                    @click="expanded = !expanded">
+                    <div class="flex items-center space-x-4">
+                        <span class="bg-gray-800 dark:bg-slate-950 text-white px-3 py-1 rounded font-mono font-bold">{{ $tag->tag }}</span>
+                        <h4 class="font-bold text-gray-700 dark:text-slate-200 uppercase text-xs">{{ $tag->label }}</h4>
                     </div>
-
-                    <div class="p-6" x-show="expanded" x-cloak x-collapse>
-                        <div class="space-y-4">
-                            <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
-                                <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
-                                    <!-- Subfield Selector -->
-                                    <div class="w-full md:w-1/3">
-                                        <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'" 
-                                                x-model="row.code"
-                                                x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
-                                                x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
-                                                class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
-                                            <option value="">{{ __('Select_Subfield') }}</option>
-                                            <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
-                                                <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
-                                            </template>
-                                        </select>
-                                    </div>
-
-                                    <!-- Value Input -->
-                                    <div class="w-full md:w-2/3 flex gap-3">
-                                        <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][id]'" x-model="row.id">
-                                        <input type="text" 
-                                               :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'" 
-                                               x-model="row.value"
-                                               placeholder="{{ __('Enter_Value') }}"
-                                               class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
-                                        
-                                        <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.splice(index, 1)" 
-                                            class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </template>
+                    <div class="flex items-center space-x-4">
+                        <div class="flex flex-col items-center">
+                            <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Ind</span>
+                            <div class="flex space-x-1">
+                                <input type="text" name="fields[{{ $tag->tag }}][ind1]" x-model="marcFields['{{ $tag->tag }}'].ind1" placeholder="#" maxlength="1"
+                                    class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                    title="{{ __('Indicator') }} 1"
+                                    @click.stop>
+                                <input type="text" name="fields[{{ $tag->tag }}][ind2]" x-model="marcFields['{{ $tag->tag }}'].ind2" placeholder="#" maxlength="1"
+                                    class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                    title="{{ __('Indicator') }} 2"
+                                    @click.stop>
+                            </div>
                         </div>
-
-                        <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.push({ id: null, code: '', value: '' })" 
-                                class="mt-5 inline-flex items-center px-4 py-2.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-all">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            {{ __('Add_Subfield') }}
-                        </button>
+                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
+                            :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
                     </div>
                 </div>
+
+                <div class="p-6" x-show="expanded" x-cloak x-collapse>
+                    <div class="space-y-4">
+                        <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
+                            <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
+                                <!-- Subfield Selector -->
+                                <div class="w-full md:w-1/3">
+                                    <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
+                                        x-model="row.code"
+                                        x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
+                                        x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
+                                        <option value="">{{ __('Select_Subfield') }}</option>
+                                        <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
+                                            <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
+                                        </template>
+                                    </select>
+                                </div>
+
+                                <!-- Value Input -->
+                                <div class="w-full md:w-2/3 flex gap-3">
+                                    <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][id]'" x-model="row.id">
+                                    <input type="text"
+                                        :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'"
+                                        x-model="row.value"
+                                        placeholder="{{ __('Enter_Value') }}"
+                                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+
+                                    <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.splice(index, 1)"
+                                        class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.push({ id: null, code: '', value: '' })"
+                        class="mt-5 inline-flex items-center px-4 py-2.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-all">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        {{ __('Add_Subfield') }}
+                    </button>
+                </div>
+            </div>
             @endforeach
         </div>
 
@@ -278,7 +341,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1">
                                 <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Branch') }}</label>
-                                <select x-model="newItem.branch_id" 
+                                <select x-model="newItem.branch_id"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
                                     <option value="">-- {{ __('Select') }} --</option>
                                     <template x-for="branch in branches" :key="branch.id">
@@ -301,7 +364,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1">
                                 <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Storage Type') }}</label>
-                                <select x-model="newItem.storage_type" 
+                                <select x-model="newItem.storage_type"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
                                     <option value="Book">{{ __('Book') }}</option>
                                     <option value="Daily newspaper">{{ __('Daily newspaper') }}</option>
@@ -310,7 +373,7 @@
                             </div>
                             <div class="space-y-1">
                                 <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Status') }}</label>
-                                <select x-model="newItem.status" 
+                                <select x-model="newItem.status"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
                                     <option value="available">{{ __('Available') }}</option>
                                     <option value="borrowed">{{ __('Borrowed') }}</option>
@@ -343,12 +406,18 @@
 
                         <div class="flex gap-2 pt-2">
                             <button type="button" @click="addItem()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center">
-                                <svg x-show="editingIndex === null" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                <svg x-show="editingIndex !== null" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                <svg x-show="editingIndex === null" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                </svg>
+                                <svg x-show="editingIndex !== null" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
                                 <span x-text="editingIndex !== null ? '{{ __('Update Item') }}' : '{{ __('Include Item') }}'"></span>
                             </button>
                             <button type="button" x-show="editingIndex !== null" @click="resetNewItem()" class="px-4 py-3 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 rounded-xl hover:bg-gray-200 transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -403,10 +472,14 @@
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end space-x-2">
                                                 <button type="button" @click="editItem(index)" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                    </svg>
                                                 </button>
                                                 <button type="button" @click="removeItem(index)" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
                                                 </button>
                                             </div>
                                         </td>
@@ -416,7 +489,9 @@
                                     <tr>
                                         <td colspan="4" class="px-6 py-20 text-center">
                                             <div class="flex flex-col items-center">
-                                                <svg class="w-12 h-12 text-gray-200 dark:text-slate-800 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                                <svg class="w-12 h-12 text-gray-200 dark:text-slate-800 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                                </svg>
                                                 <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ __('No items added yet') }}</span>
                                             </div>
                                         </td>
@@ -437,9 +512,9 @@
                         <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC PREVIEW</span>
                         <h3 class="text-white font-bold text-sm leading-none">{{ __('MARC21_Cataloging_Form') }}</h3>
                     </div>
-                    <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80">00000nam a2200000 i 4500</span>
+                    <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80" x-text="leader"></span>
                 </div>
-                
+
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse">
                         <thead>
@@ -462,7 +537,51 @@
                                     <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono">##</span>
                                 </td>
                                 <td class="py-4 pr-8">
-                                    <span class="text-slate-700 dark:text-slate-300 font-mono" x-text="'00000nam a2200000 i 4500'"></span>
+                                    <span class="text-slate-700 dark:text-slate-300 font-mono" x-text="leader"></span>
+                                </td>
+                            </tr>
+
+                            <!-- Control Fields (Auto-generated) -->
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="pl-8 py-4 whitespace-nowrap align-top">
+                                    <div class="flex items-baseline space-x-3">
+                                        <span class="text-indigo-600 font-bold tracking-tight">001</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">CONTROL NUMBER</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
+                                    <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono">##</span>
+                                </td>
+                                <td class="py-4 pr-8">
+                                    <span class="text-slate-700 dark:text-slate-300 font-mono" x-text="autoFields.tag001"></span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="pl-8 py-4 whitespace-nowrap align-top">
+                                    <div class="flex items-baseline space-x-3">
+                                        <span class="text-indigo-600 font-bold tracking-tight">005</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">LATEST TRANSACTION</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
+                                    <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono">##</span>
+                                </td>
+                                <td class="py-4 pr-8">
+                                    <span class="text-slate-700 dark:text-slate-300 font-mono" x-text="autoFields.tag005"></span>
+                                </td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="pl-8 py-4 whitespace-nowrap align-top">
+                                    <div class="flex items-baseline space-x-3">
+                                        <span class="text-indigo-600 font-bold tracking-tight">008</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">FIXED DATA</span>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
+                                    <span class="text-slate-400 tracking-[0.2em] text-xs opacity-60 font-mono">##</span>
+                                </td>
+                                <td class="py-4 pr-8">
+                                    <span class="text-slate-700 dark:text-slate-300 font-mono" x-text="autoFields.tag008"></span>
                                 </td>
                             </tr>
 
@@ -484,9 +603,9 @@
                                                 <div class="flex items-start space-x-2.5">
                                                     <span class="text-emerald-600 dark:text-emerald-400 font-bold shrink-0 font-mono" x-text="'$' + (sub.code || '?')"></span>
                                                     <span class="text-slate-700 dark:text-slate-300 grow break-words min-w-0 leading-relaxed" x-text="sub.value || '...'"></span>
-                                                    <span class="shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[8px] px-1.5 py-0.5 rounded font-sans uppercase tracking-widest mt-1" 
-                                                          x-show="sub.code && getSubfieldLabel(field.tag, sub.code)"
-                                                          x-text="'[' + getSubfieldLabel(field.tag, sub.code) + ']'"></span>
+                                                    <span class="shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[8px] px-1.5 py-0.5 rounded font-sans uppercase tracking-widest mt-1"
+                                                        x-show="sub.code && getSubfieldLabel(field.tag, sub.code)"
+                                                        x-text="'[' + getSubfieldLabel(field.tag, sub.code) + ']'"></span>
                                                 </div>
                                             </template>
                                         </div>
@@ -500,179 +619,185 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-end bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+        <div class="flex justify-start bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
             <button type="button" @click="submitForm()"
                 class="px-8 py-3 rounded-xl text-sm font-bold bg-green-600 hover:bg-green-700 text-white transition shadow-lg shadow-green-100 dark:shadow-none flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                <span>{{ __('Save_Record') }}</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <span>{{ __('Update') }}</span>
             </button>
         </div>
     </form>
 </div>
 
 @php
-    $initialFields = [];
-    foreach($definitions as $tag) {
-        $existingField = $record->fields->where('tag', $tag->tag)->first();
-        $subfieldsData = [['id' => null, 'code' => '', 'value' => '']];
-        $subfieldDefinitions = $tag->subfields
-            ->map(fn($s) => ['code' => strtolower(ltrim(trim((string) $s->code), '$')), 'label' => $s->label])
-            ->keyBy('code');
-        
-        if ($existingField && $existingField->subfields->count() > 0) {
-            $subfieldsData = $existingField->subfields->map(function($s) {
-                return [
-                    'id' => $s->id,
-                    'code' => strtolower(ltrim(trim((string) $s->code), '$')),
-                    'value' => $s->value
-                ];
-            })->toArray();
+$initialFields = [];
+foreach($definitions as $tag) {
+$existingField = $record->fields->where('tag', $tag->tag)->first();
+$subfieldsData = [['id' => null, 'code' => '', 'value' => '']];
+$subfieldDefinitions = $tag->subfields
+->map(fn($s) => ['code' => strtolower(ltrim(trim((string) $s->code), '$')), 'label' => $s->label])
+->keyBy('code');
 
-            // Ensure every saved subfield code exists in the select options.
-            foreach ($existingField->subfields as $savedSubfield) {
-                $savedCode = strtolower(ltrim(trim((string) $savedSubfield->code), '$'));
-                if ($savedCode !== '' && !$subfieldDefinitions->has($savedCode)) {
-                    $subfieldDefinitions->put($savedCode, [
-                        'code' => $savedCode,
-                        'label' => __('Saved')
-                    ]);
-                }
-            }
-        }
+if ($existingField && $existingField->subfields->count() > 0) {
+$subfieldsData = $existingField->subfields->map(function($s) {
+return [
+'id' => $s->id,
+'code' => strtolower(ltrim(trim((string) $s->code), '$')),
+'value' => $s->value
+];
+})->toArray();
 
-        $initialFields[$tag->tag] = [
-            'tag' => $tag->tag,
-            'label' => $tag->label,
-            'ind1' => $existingField->indicator1 ?? ' ',
-            'ind2' => $existingField->indicator2 ?? ' ',
-            'subfields' => $subfieldsData,
-            'subfieldDefinitions' => $subfieldDefinitions->values()
-        ];
-    }
-    
-    $initialItemsData = (isset($record) && $record->items->count() > 0) 
-        ? $record->items->map(fn($i) => [
-            'id' => $i->id, 
-            'branch_id' => $i->branch_id,
-            'storage_location_id' => $i->storage_location_id, 
-            'quantity' => $i->quantity, 
-            'barcode' => $i->barcode, 
-            'accession_number' => $i->accession_number,
-            'storage_type' => $i->storage_type,
-            'status' => $i->status,
-            'order_code' => $i->order_code,
-            'waits_for_print' => $i->waits_for_print,
-            'notes' => $i->notes,
-            'volume_issue' => $i->volume_issue,
-            'day' => $i->day,
-            'month_season' => $i->month_season,
-            'year' => $i->year,
-            'shelf' => $i->shelf,
-            'shelf_position' => $i->shelf_position,
-            'location' => $i->location,
-            'temporary_location' => $i->temporary_location
-        ])
-        : [];
+// Ensure every saved subfield code exists in the select options.
+foreach ($existingField->subfields as $savedSubfield) {
+$savedCode = strtolower(ltrim(trim((string) $savedSubfield->code), '$'));
+if ($savedCode !== '' && !$subfieldDefinitions->has($savedCode)) {
+$subfieldDefinitions->put($savedCode, [
+'code' => $savedCode,
+'label' => __('Saved')
+]);
+}
+}
+}
+
+$initialFields[$tag->tag] = [
+'tag' => $tag->tag,
+'label' => $tag->label,
+'ind1' => $existingField->indicator1 ?? ' ',
+'ind2' => $existingField->indicator2 ?? ' ',
+'subfields' => $subfieldsData,
+'subfieldDefinitions' => $subfieldDefinitions->values()
+];
+}
+
+$initialItemsData = (isset($record) && $record->items->count() > 0)
+? $record->items->map(fn($i) => [
+'id' => $i->id,
+'branch_id' => $i->branch_id,
+'storage_location_id' => $i->storage_location_id,
+'quantity' => $i->quantity,
+'barcode' => $i->barcode,
+'accession_number' => $i->accession_number,
+'storage_type' => $i->storage_type,
+'status' => $i->status,
+'order_code' => $i->order_code,
+'waits_for_print' => $i->waits_for_print,
+'notes' => $i->notes,
+'volume_issue' => $i->volume_issue,
+'day' => $i->day,
+'month_season' => $i->month_season,
+'year' => $i->year,
+'shelf' => $i->shelf,
+'shelf_position' => $i->shelf_position,
+'location' => $i->location,
+'temporary_location' => $i->temporary_location
+])
+: [];
 @endphp
 <script>
-const itemsData = @json($initialItemsData);
+    const itemsData = @json($initialItemsData);
 
-function catalogWizard() {
-    return {
-        currentStep: parseInt(new URLSearchParams(window.location.search).get('tab')) || 0,
-        steps: [
-            { title: '{{ __("Leader_Info") }}' },
-            { title: '{{ __("Cataloging") }}' },
-            { title: '{{ __("Distribution") }}' },
-            { title: '{{ __("Preview") }}' }
-        ],
-        init() {
-            // Auto-scroll to tabs section when page loads with tab parameter
-            const tabParam = new URLSearchParams(window.location.search).get('tab');
-            if (tabParam !== null) {
-                this.$nextTick(() => {
-                    const tabsElement = document.querySelector('.bg-white.dark\\:bg-slate-900.rounded-xl.shadow-sm.border');
-                    if (tabsElement) {
-                        tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
-            }
-        },
-        formData: {
-            framework: "{{ $record->framework ?? ($frameworks->where('id', $frameworkId ?? null)->first()->code ?? 'AVMARC21') }}",
-            status: "{{ $record->status ?? 'pending' }}",
-            subject_category: "{{ $record->subject_category ?? 'Article' }}",
-            record_type: "{{ $record->record_type ?? 'book' }}",
-            serial_frequency: "{{ $record->serial_frequency ?? 'unknown' }}",
-            date_type: "{{ $record->date_type ?? 'bc' }}",
-            acquisition_method: "{{ $record->acquisition_method ?? 'untraced' }}",
-            document_format: "{{ $record->document_format ?? 'none' }}",
-            cataloging_standard: "{{ $record->cataloging_standard ?? 'AACR2' }}"
-        },
-        marcFields: @json($initialFields),
-        items: @json($initialItemsData),
-        branches: @json($branches),
-        editingIndex: null,
-        newItem: {
-            id: null,
-            branch_id: '',
-            storage_location_id: '',
-            barcode: '',
-            accession_number: '',
-            storage_type: 'Book',
-            quantity: 1,
-            status: 'available',
-            order_code: '',
-            waits_for_print: false,
-            notes: '',
-            volume_issue: '',
-            day: '',
-            month_season: '',
-            year: '',
-            shelf: '',
-            shelf_position: '',
-            location: '',
-            temporary_location: ''
-        },
-        get activeLocations() {
-            if (!this.newItem.branch_id) return [];
-            const branch = this.branches.find(b => b.id == this.newItem.branch_id);
-            return branch ? branch.storage_locations : [];
-        },
-        getBranchName(id) {
-            const branch = this.branches.find(b => b.id == id);
-            return branch ? branch.name : '-';
-        },
-        getLocationName(branchId, locationId) {
-            const branch = this.branches.find(b => b.id == branchId);
-            if (!branch) return '-';
-            const loc = branch.storage_locations.find(l => l.id == locationId);
-            return loc ? loc.name : '-';
-        },
-        addItem() {
-            if (!this.newItem.storage_location_id) {
-                alert('Vui lòng chọn vị trí lưu trữ');
-                return;
-            }
-            if (this.editingIndex !== null) {
-                this.items[this.editingIndex] = JSON.parse(JSON.stringify(this.newItem));
-                this.editingIndex = null;
-            } else {
-                this.items.push(JSON.parse(JSON.stringify(this.newItem)));
-            }
-            this.resetNewItem();
-        },
-        editItem(index) {
-            this.editingIndex = index;
-            this.newItem = JSON.parse(JSON.stringify(this.items[index]));
-        },
-        removeItem(index) {
-            if (confirm('Bạn có chắc chắn muốn xóa bản sách này?')) {
-                this.items.splice(index, 1);
-            }
-        },
-        resetNewItem() {
-            this.newItem = {
+    function catalogWizard() {
+        return {
+            currentStep: parseInt(new URLSearchParams(window.location.search).get('tab')) || 0,
+            steps: [{
+                    title: '{{ __("Leader_Info") }}'
+                },
+                {
+                    title: '{{ __("Cataloging") }}'
+                },
+                {
+                    title: '{{ __("Distribution") }}'
+                },
+                {
+                    title: '{{ __("Preview") }}'
+                }
+            ],
+            init() {
+                // Auto-scroll to tabs section when page loads with tab parameter
+                const tabParam = new URLSearchParams(window.location.search).get('tab');
+                if (tabParam !== null) {
+                    this.$nextTick(() => {
+                        const tabsElement = document.querySelector('.bg-white.dark\\:bg-slate-900.rounded-xl.shadow-sm.border');
+                        if (tabsElement) {
+                            tabsElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                }
+            },
+            formData: {
+                framework: "{{ $record->framework ?? ($frameworks->where('id', $frameworkId ?? null)->first()->code ?? 'AVMARC21') }}",
+                status: "{{ $record->status ?? 'pending' }}",
+                subject_category: "{{ $record->subject_category ?? 'Article' }}",
+                record_type: "{{ $record->record_type ?? 'book' }}",
+                serial_frequency: "{{ $record->serial_frequency ?? 'unknown' }}",
+                date_type: "{{ $record->date_type ?? 'bc' }}",
+                acquisition_method: "{{ $record->acquisition_method ?? 'untraced' }}",
+                document_format: "{{ $record->document_format ?? 'none' }}",
+                cataloging_standard: "{{ $record->cataloging_standard ?? 'AACR2' }}"
+            },
+            get leader() {
+                let s = '00000';
+                s += (this.formData.status === 'pending' ? 'n' : 'c');
+                s += (this.formData.record_type === 'book' ? 'a' : 'm');
+                s += 'm';
+                s += ' ';
+                s += 'a';
+                s += '2200000';
+                s += ' ';
+                s += (this.formData.cataloging_standard === 'AACR2' ? 'i' : 'a');
+                s += ' ';
+                s += '4500';
+                return s;
+            },
+            get autoFields() {
+                const now = new Date();
+                const pad = (n) => n.toString().padStart(2, '0');
+
+                // 001 - Using record ID or 'NEW'
+                const tag001 = "{{ $record->id ?? 'NEW' }}".padStart(4, '0');
+
+                // 005 - YYYYMMDDHHMMSS.0
+                const tag005 = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) +
+                    pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds()) + '.0';
+
+                // 008 - YYMMDD + Date Type + Date 1 + Country + Language ...
+                const yy = now.getFullYear().toString().slice(-2);
+                const mm = pad(now.getMonth() + 1);
+                const dd = pad(now.getDate());
+
+                // Determine s (single) or c (current/serial) based on record type
+                const dateType = (this.formData.record_type === 'serial') ? 'c' : 's';
+                const year = now.getFullYear();
+
+                const tag008 = yy + mm + dd + dateType + year + '    vn            000 0 vi d';
+
+                return {
+                    tag001,
+                    tag005,
+                    tag008
+                };
+            },
+            coverPreview: "{{ $record->cover_image ? asset('storage/' . $record->cover_image) : '' }}",
+            previewCover(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.coverPreview = URL.createObjectURL(file);
+                }
+            },
+            removeCover() {
+                this.coverPreview = '';
+                document.getElementById('cover_image_input').value = '';
+            },
+            marcFields: @json($initialFields),
+            items: @json($initialItemsData),
+            branches: @json($branches),
+            editingIndex: null,
+            newItem: {
                 id: null,
                 branch_id: '',
                 storage_location_id: '',
@@ -692,73 +817,110 @@ function catalogWizard() {
                 shelf_position: '',
                 location: '',
                 temporary_location: ''
-            };
-            this.editingIndex = null;
-        },
-        getSubfieldLabel(tag, code) {
-            if (!this.marcFields[tag]) return '';
-            const normalizedCode = (code ?? '').toString().trim().replace(/^\$/, '').toLowerCase();
-            const def = this.marcFields[tag].subfieldDefinitions.find(d => d.code === normalizedCode);
-            return def ? def.label : '';
-        },
-        getActiveFields() {
-            // Lấy các field có ít nhất 1 subfield đã chọn code hoặc đã nhập value
-            return Object.values(this.marcFields).filter(f => {
-                return f.subfields.some(s => (s.code && s.code.trim() !== '') || (s.value && s.value.trim() !== ''));
-            });
-        },
-        debugSubfieldBindings() {
-            try {
-                console.group('[MARC DEBUG] Subfield bindings');
-                Object.entries(this.marcFields).forEach(([tag, field]) => {
-                    const definitions = (field.subfieldDefinitions || []).map(d => ({
-                        code: (d.code ?? '').toString(),
-                        label: d.label ?? ''
-                    }));
-                    (field.subfields || []).forEach((sub, idx) => {
-                        const rawCode = (sub.code ?? '').toString();
-                        const normalizedCode = rawCode.trim().replace(/^\$/, '').toLowerCase();
-                        const matched = definitions.find(d => d.code === normalizedCode);
-                        console.log({
-                            tag,
-                            rowIndex: idx,
-                            rawCode,
-                            normalizedCode,
-                            value: sub.value ?? '',
-                            hasDefinitions: definitions.length > 0,
-                            definitionCodes: definitions.map(d => d.code),
-                            matchedCode: matched?.code ?? null,
-                            matchedLabel: matched?.label ?? null
-                        });
-                    });
+            },
+            get activeLocations() {
+                if (!this.newItem.branch_id) return [];
+                const branch = this.branches.find(b => b.id == this.newItem.branch_id);
+                return branch ? branch.storage_locations : [];
+            },
+            getBranchName(id) {
+                const branch = this.branches.find(b => b.id == id);
+                return branch ? branch.name : '-';
+            },
+            getLocationName(branchId, locationId) {
+                const branch = this.branches.find(b => b.id == branchId);
+                if (!branch) return '-';
+                const loc = branch.storage_locations.find(l => l.id == locationId);
+                return loc ? loc.name : '-';
+            },
+            addItem() {
+                if (!this.newItem.storage_location_id) {
+                    alert('Vui lòng chọn vị trí lưu trữ');
+                    return;
+                }
+                if (this.editingIndex !== null) {
+                    this.items[this.editingIndex] = JSON.parse(JSON.stringify(this.newItem));
+                    this.editingIndex = null;
+                } else {
+                    this.items.push(JSON.parse(JSON.stringify(this.newItem)));
+                }
+                this.resetNewItem();
+            },
+            editItem(index) {
+                this.editingIndex = index;
+                this.newItem = JSON.parse(JSON.stringify(this.items[index]));
+            },
+            removeItem(index) {
+                if (confirm('Bạn có chắc chắn muốn xóa bản sách này?')) {
+                    this.items.splice(index, 1);
+                }
+            },
+            resetNewItem() {
+                this.newItem = {
+                    id: null,
+                    branch_id: '',
+                    storage_location_id: '',
+                    barcode: '',
+                    accession_number: '',
+                    storage_type: 'Book',
+                    quantity: 1,
+                    status: 'available',
+                    order_code: '',
+                    waits_for_print: false,
+                    notes: '',
+                    volume_issue: '',
+                    day: '',
+                    month_season: '',
+                    year: '',
+                    shelf: '',
+                    shelf_position: '',
+                    location: '',
+                    temporary_location: ''
+                };
+                this.editingIndex = null;
+            },
+            getSubfieldLabel(tag, code) {
+                if (!this.marcFields[tag]) return '';
+                const normalizedCode = (code ?? '').toString().trim().replace(/^\$/, '').toLowerCase();
+                const def = this.marcFields[tag].subfieldDefinitions.find(d => d.code === normalizedCode);
+                return def ? def.label : '';
+            },
+            getActiveFields() {
+                // Lấy các field có ít nhất 1 subfield đã chọn code hoặc đã nhập value
+                return Object.values(this.marcFields).filter(f => {
+                    return f.subfields.some(s => (s.code && s.code.trim() !== '') || (s.value && s.value.trim() !== ''));
                 });
-                console.groupEnd();
-            } catch (e) {
-                console.error('[MARC DEBUG] Failed to inspect subfield bindings', e);
-            }
-        },
-        goToStep(index) {
-            this.currentStep = index;
-            // Update URL without refresh
-            const url = new URL(window.location);
-            url.searchParams.set('tab', index);
-            window.history.pushState({}, '', url);
+            },
+            debugSubfieldBindings() {
+                // Debug function removed for cleaner console
+            },
+            goToStep(index) {
+                this.currentStep = index;
+                // Update URL without refresh
+                const url = new URL(window.location);
+                url.searchParams.set('tab', index);
+                window.history.pushState({}, '', url);
 
-            if (index === 1) {
-                this.$nextTick(() => this.debugSubfieldBindings());
+                if (index === 1) {
+                    this.$nextTick(() => this.debugSubfieldBindings());
+                }
+            },
+            nextStep() {
+                this.goToStep(this.currentStep + 1);
+            },
+            prevStep() {
+                this.goToStep(this.currentStep - 1);
+            },
+            submitForm() {
+                // Ensure currentStep is updated before form submission
+                const url = new URL(window.location);
+                url.searchParams.set('tab', this.currentStep);
+                window.history.replaceState({}, '', url.toString());
+
+                document.getElementById('catalogForm').submit();
             }
-        },
-        nextStep() {
-            this.goToStep(this.currentStep + 1);
-        },
-        prevStep() {
-            this.goToStep(this.currentStep - 1);
-        },
-        submitForm() {
-            document.getElementById('catalogForm').submit();
         }
     }
-}
 </script>
 
 <style>

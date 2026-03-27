@@ -14,8 +14,13 @@ class LogActivity
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
+        // Update last activity time for session expiration check
+        if (auth()->check()) {
+            session(['last_activity' => time()]);
+        }
+
         $response = $next($request);
 
         // Only log if authenticated and it's not a simple GET request for common assets
@@ -28,17 +33,32 @@ class LogActivity
                 $action = $request->route()->getName() ?? $action;
             }
 
-            ActivityLog::create([
-                'user_id' => auth()->id(),
-                'action' => $action,
-                'method' => $request->method(),
-                'url' => $request->fullUrl(),
-                'status_code' => $response->getStatusCode(),
-                'request_data' => $request->except(['password', 'password_confirmation', '_token']),
-                'ip_address' => $request->ip()
-            ]);
+            $this->logActivity($action, $request);
         }
 
         return $response;
+    }
+
+    /**
+     * Log user activity
+     */
+    private function logActivity(string $action, Request $request)
+    {
+        try {
+            $user = auth()->user();
+            
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'action' => $action,
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'created_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            // Silent fail - don't break the request if logging fails
+            \Log::error('Activity logging failed: ' . $e->getMessage());
+        }
     }
 }

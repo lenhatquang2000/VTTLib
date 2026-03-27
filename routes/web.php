@@ -33,7 +33,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
     // Identity and Privilege Management
-    Route::group(['prefix' => 'users'], function() {
+    Route::group(['prefix' => 'users'], function () {
         Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/privileges', [UserController::class, 'privileges'])->name('admin.users.privileges');
         Route::get('/check-username', [UserController::class, 'checkUsername'])->name('admin.users.check');
@@ -82,12 +82,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/marc-books', [\App\Http\Controllers\Admin\MarcBookController::class, 'store'])->name('admin.marc.book.store');
     Route::put('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'update'])->name('admin.marc.book.update');
     Route::put('/marc-books/{record}/status', [\App\Http\Controllers\Admin\MarcBookController::class, 'updateStatus'])->name('admin.marc.book.status');
+    Route::delete('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'destroy'])->name('admin.marc.book.destroy');
 
     // MARC Import & Export
     Route::get('/marc-import', [\App\Http\Controllers\Admin\MarcImportController::class, 'index'])->name('admin.marc.import.index');
     Route::get('/marc-import/template', [\App\Http\Controllers\Admin\MarcImportController::class, 'downloadTemplate'])->name('admin.marc.import.template');
     Route::post('/marc-import/upload', [\App\Http\Controllers\Admin\MarcImportController::class, 'upload'])->name('admin.marc.import.upload');
+    
+    // MARC Export
+    Route::get('/marc-export', [\App\Http\Controllers\Admin\MarcBookController::class, 'exportIndex'])->name('admin.marc.export.index');
+    Route::get('/marc-export/download', [\App\Http\Controllers\Admin\MarcBookController::class, 'export'])->name('admin.marc.export.download');
     Route::post('/marc-import/process', [\App\Http\Controllers\Admin\MarcImportController::class, 'process'])->name('admin.marc.import.process');
+    Route::post('/marc-import/create-framework', [\App\Http\Controllers\Admin\MarcImportController::class, 'createFrameworkFromFile'])->name('admin.marc.import.create-framework');
 
     // MARC Reports
     Route::get('/marc-reports', [\App\Http\Controllers\Admin\MarcReportController::class, 'index'])->name('admin.marc.reports.index');
@@ -117,7 +123,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings/library', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateLibraryInfo'])->name('admin.settings.library.update');
     Route::post('/settings/policy', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updatePolicy'])->name('admin.settings.policy.update');
-    
+
     Route::post('/settings/barcode', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeBarcodeConfig'])->name('admin.settings.barcode.store');
     Route::put('/settings/barcode/{config}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateBarcodeConfig'])->name('admin.settings.barcode.update');
     Route::delete('/settings/barcode/{config}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'deleteBarcodeConfig'])->name('admin.settings.barcode.destroy');
@@ -125,7 +131,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/settings/branches', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeBranch'])->name('admin.settings.branches.store');
     Route::put('/settings/branches/{branch}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateBranch'])->name('admin.settings.branches.update');
     Route::delete('/settings/branches/{branch}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'deleteBranch'])->name('admin.settings.branches.destroy');
-    
+
     Route::post('/settings/locations', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeLocation'])->name('admin.settings.locations.store');
     Route::put('/settings/locations/{location}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateLocation'])->name('admin.settings.locations.update');
     Route::delete('/settings/locations/{location}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'deleteLocation'])->name('admin.settings.locations.destroy');
@@ -139,16 +145,16 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/circulation/patron-groups', [\App\Http\Controllers\Admin\CirculationController::class, 'storePatronGroup'])->name('admin.circulation.patron-groups.store');
     Route::put('/circulation/patron-groups/{patronGroup}', [\App\Http\Controllers\Admin\CirculationController::class, 'updatePatronGroup'])->name('admin.circulation.patron-groups.update');
     Route::delete('/circulation/patron-groups/{patronGroup}', [\App\Http\Controllers\Admin\CirculationController::class, 'deletePatronGroup'])->name('admin.circulation.patron-groups.destroy');
-    
+
     Route::post('/circulation/policies', [\App\Http\Controllers\Admin\CirculationController::class, 'storePolicy'])->name('admin.circulation.policies.store');
     Route::put('/circulation/policies/{policy}', [\App\Http\Controllers\Admin\CirculationController::class, 'updatePolicy'])->name('admin.circulation.policies.update');
     Route::delete('/circulation/policies/{policy}', [\App\Http\Controllers\Admin\CirculationController::class, 'deletePolicy'])->name('admin.circulation.policies.destroy');
-    
+
     Route::get('/circulation/loan-desk', [\App\Http\Controllers\Admin\CirculationController::class, 'loanDesk'])->name('admin.circulation.loan-desk');
     Route::post('/circulation/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'checkout'])->name('admin.circulation.checkout');
     Route::post('/circulation/checkin', [\App\Http\Controllers\Admin\CirculationController::class, 'checkin'])->name('admin.circulation.checkin');
     Route::post('/circulation/renew/{loan}', [\App\Http\Controllers\Admin\CirculationController::class, 'renew'])->name('admin.circulation.renew');
-    
+
     Route::get('/circulation/fines', [\App\Http\Controllers\Admin\CirculationController::class, 'fines'])->name('admin.circulation.fines');
     Route::post('/circulation/fines/{fine}/pay', [\App\Http\Controllers\Admin\CirculationController::class, 'payFine'])->name('admin.circulation.fines.pay');
     Route::post('/circulation/fines/{fine}/waive', [\App\Http\Controllers\Admin\CirculationController::class, 'waiveFine'])->name('admin.circulation.fines.waive');

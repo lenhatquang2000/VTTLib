@@ -4,167 +4,502 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ __('Login') }} - VTTLib</title>
-
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Outfit', 'sans-serif'],
-                    },
-                }
-            },
-            darkMode: 'class'
-        }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            @apply bg-slate-50 text-slate-900 transition-colors duration-300;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #533483 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
-        .dark body {
-            @apply bg-slate-950 text-slate-100;
+        
+        /* Darkling theme effects */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.2) 0%, transparent 50%);
+            animation: floatingGradient 20s ease-in-out infinite;
         }
+        
+        @keyframes floatingGradient {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-20px, -20px) rotate(120deg); }
+            66% { transform: translate(20px, -10px) rotate(240deg); }
+        }
+        
+        /* Animated particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 1200px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            z-index: 10;
+        }
+        
         .login-card {
-            @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl transition-all duration-300;
+            background: rgba(30, 30, 46, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(139, 92, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 480px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
-        input:focus {
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+        
+        .login-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+        
+        .logo {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+        
+        .login-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(15, 23, 42, 0.8);
+            border: 2px solid rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: #e2e8f0;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .form-input:focus {
+            border-color: #8b5cf6;
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .form-input:focus + .input-icon {
+            color: #8b5cf6;
+        }
+        
+        .form-input::placeholder {
+            color: #64748b;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4);
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 1.5rem;
+        }
+        
+        .back-link:hover {
+            color: #8b5cf6;
+        }
+        
+        .back-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .security-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .language-switcher {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .lang-btn {
+            padding: 0.375rem 0.75rem;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 6px;
+            color: #cbd5e1;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .lang-btn:hover {
+            background: rgba(139, 92, 246, 0.2);
+            color: #ffffff;
+        }
+        
+        .lang-btn.active {
+            background: #8b5cf6;
+            color: #ffffff;
+            border-color: #8b5cf6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 1rem;
+            }
+            
+            .login-card {
+                padding: 2rem;
+                border-radius: 16px;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+            
+            .login-title {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        /* Error states */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 
-<body class="h-full antialiased font-sans">
-    
-    <!-- Header/Nav decoration -->
-    <div class="absolute top-0 left-0 w-full h-1 bg-indigo-600"></div>
-
-    <!-- Language Switcher -->
-    <!-- Theme & Language Sync -->
-    <div class="absolute top-6 right-8 flex items-center space-x-6">
-         <!-- Language Switcher -->
-         <div class="flex items-center space-x-3">
-             <a href="{{ route('lang.switch', 'vi') }}" class="text-[10px] font-black tracking-widest {{ app()->getLocale() == 'vi' ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600' }} transition-colors uppercase">VI</a>
-             <span class="w-1 h-1 bg-slate-200 dark:bg-slate-700 rounded-full"></span>
-             <a href="{{ route('lang.switch', 'en') }}" class="text-[10px] font-black tracking-widest {{ app()->getLocale() == 'en' ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600' }} transition-colors uppercase">EN</a>
-         </div>
-
-         <span class="w-px h-4 bg-slate-200 dark:bg-slate-700"></span>
-
-         <!-- Theme Toggle -->
-         <button onclick="toggleTheme()" class="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm">
-            <svg id="sun-icon" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707M16.95 16.95l.707.707M7.05 7.05l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z"></path></svg>
-            <svg id="moon-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-         </button>
+<body class="h-full">
+    <!-- Animated Particles -->
+    <div class="particles">
+        <div class="particle" style="width: 4px; height: 4px; left: 10%; animation-delay: 0s; animation-duration: 15s;"></div>
+        <div class="particle" style="width: 3px; height: 3px; left: 20%; animation-delay: 2s; animation-duration: 12s;"></div>
+        <div class="particle" style="width: 5px; height: 5px; left: 30%; animation-delay: 4s; animation-duration: 18s;"></div>
+        <div class="particle" style="width: 2px; height: 2px; left: 40%; animation-delay: 1s; animation-duration: 14s;"></div>
+        <div class="particle" style="width: 6px; height: 6px; left: 50%; animation-delay: 3s; animation-duration: 16s;"></div>
+        <div class="particle" style="width: 3px; height: 3px; left: 60%; animation-delay: 5s; animation-duration: 13s;"></div>
+        <div class="particle" style="width: 4px; height: 4px; left: 70%; animation-delay: 2.5s; animation-duration: 15s;"></div>
+        <div class="particle" style="width: 5px; height: 5px; left: 80%; animation-delay: 4.5s; animation-duration: 17s;"></div>
+        <div class="particle" style="width: 3px; height: 3px; left: 90%; animation-delay: 1.5s; animation-duration: 14s;"></div>
     </div>
-
-    <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-md">
-            <div class="flex justify-center mb-6">
-                <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-indigo-100">
-                    V
-                </div>
-            </div>
-            <h2 class="text-center text-3xl font-bold tracking-tight text-slate-900 dark:text-white font-display">
-                {{ __('Hệ thống Quản lý') }}
-            </h2>
-            <p class="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">
-                {{ __('Nhập thông tin định danh để tiếp tục.') }}
-            </p>
-        </div>
-
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[400px]">
-            <div class="login-card px-8 py-10 rounded-[2.5rem]">
-                <form class="space-y-6" action="{{ route('agent.login.store') }}" method="POST">
-                    @csrf
-
-                    <div class="space-y-1.5">
-                        <label for="username" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] pl-1 block">
-                            {{ __('Username') }}
-                        </label>
-                        <div class="relative group">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-300 group-focus-within:text-indigo-500 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            </span>
-                            <input id="username" name="username" type="text" value="{{ old('username') }}" required
-                                class="block w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 py-3.5 pl-11 pr-4 text-slate-900 dark:text-slate-100 text-sm font-medium outline-none border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition-all duration-200"
-                                placeholder="{{ __('Tên tài khoản') }}">
-                        </div>
-                        @error('username')
-                            <p class="mt-1.5 text-[11px] text-rose-500 font-bold pl-1 uppercase">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label for="password" class="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] pl-1 block">
-                            {{ __('Mật khẩu') }}
-                        </label>
-                        <div class="relative group">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-slate-300 group-focus-within:text-indigo-500 transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                            </span>
-                            <input id="password" name="password" type="password" required
-                                class="block w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 py-3.5 pl-11 pr-4 text-slate-900 dark:text-slate-100 text-sm font-medium outline-none border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-800 transition-all duration-200"
-                                placeholder="••••••••">
-                        </div>
-                        @error('password')
-                            <p class="mt-1.5 text-[11px] text-rose-500 font-bold pl-1 uppercase">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="pt-2">
-                        <button type="submit"
-                            class="flex w-full justify-center items-center rounded-2xl bg-indigo-600 px-4 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:shadow-indigo-200 transition-all duration-300 transform active:scale-95">
-                            {{ __('Đăng nhập hệ thống') }}
-                            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        </button>
-                    </div>
-                </form>
-
-                <div class="mt-10 flex flex-col items-center">
-                    <p class="text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em] mb-4">Secured by VTTLib</p>
-                    <div class="flex space-x-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
-                    </div>
+    
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Language Switcher -->
+            <div class="language-switcher" x-data="{ open: false }">
+                <button @click="open = !open" class="lang-btn" :class="{ 'active': app()->getLocale() == 'vi' }">
+                    {{ app()->getLocale() == 'vi' ? 'VI' : 'EN' }}
+                </button>
+                <div x-show="open" x-cloak
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 transform scale-95"
+                     x-transition:enter-end="opacity-100 transform scale-100"
+                     x-transition:leave="transition ease-in duration-200"
+                     x-transition:leave-start="opacity-100 transform scale-100"
+                     x-transition:leave-end="opacity-0 transform scale-95"
+                     class="absolute top-full left-0 mt-2 z-50">
+                    <a href="{{ route('lang.switch', 'vi') }}" class="lang-btn {{ app()->getLocale() == 'vi' ? 'active' : '' }}">VI</a>
+                    <a href="{{ route('lang.switch', 'en') }}" class="lang-btn {{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
                 </div>
             </div>
             
-            <p class="mt-8 text-center text-xs text-slate-400">
-                &copy; {{ date('Y') }} VTTLib System. All rights reserved.
-            </p>
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                {{ __('Secured by VTTLib') }}
+            </div>
+            
+            <!-- Login Header -->
+            <div class="login-header">
+                <div class="logo">VTTLib</div>
+                <h1 class="login-title">{{ __('Hệ thống Quản lý') }}</h1>
+                <p class="login-subtitle">{{ __('Nhập thông tin định danh để tiếp tục.') }}</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form action="{{ route('agent.login.store') }}" method="POST" class="space-y-6">
+                @csrf
+                
+                <!-- Error Messages -->
+                @if($errors->any())
+                    <div class="error-message">
+                        @foreach($errors->all() as $error)
+                            <div>{{ $error }}</div>
+                        @endforeach
+                    </div>
+                @endif
+                
+                <!-- Username Field -->
+                <div class="form-group">
+                    <label for="username" class="form-label">{{ __('Username') }}</label>
+                    <div class="input-wrapper">
+                        <input 
+                            id="username" 
+                            name="username" 
+                            type="text" 
+                            value="{{ old('username') }}" 
+                            required
+                            class="form-input"
+                            placeholder="{{ __('Tên tài khoản') }}"
+                            autocomplete="username"
+                        >
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password" class="form-label">{{ __('Mật khẩu') }}</label>
+                    <div class="input-wrapper">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            required
+                            class="form-input"
+                            placeholder="••••••••"
+                            autocomplete="current-password"
+                        >
+                        <i class="fas fa-lock input-icon"></i>
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
+                    {{ __('Đăng nhập hệ thống') }}
+                </button>
+            </form>
+            
+            <!-- Back to Home -->
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="{{ url('/') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    {{ __('Back to Home') }}
+                </a>
+            </div>
         </div>
     </div>
-    <script>
-        function toggleTheme() {
-            const isDark = document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            updateIcons();
-        }
-
-        function updateIcons() {
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('sun-icon').classList.toggle('hidden', !isDark);
-            document.getElementById('moon-icon').classList.toggle('hidden', isDark);
-        }
-
-        // Init theme
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-        updateIcons();
-    </script>
 </body>
 </html>

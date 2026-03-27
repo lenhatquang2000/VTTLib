@@ -1,6 +1,24 @@
 @extends('layouts.client')
 
 @section('content')
+    <!-- Session Message Alert -->
+    @if($message ?? null)
+        <div class="bg-yellow-50 border-l-4 border-yellow-200 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 1.36-1.361 0-1.492.585-1.361 1.492 0 1.361.586 1.361 0 1.492-.585 1.361-1.492 0-1.361-.586-1.361zm0 9.427c0 1.36-.585 1.36-1.361 0-1.492.585-1.361 1.492 0 1.361.586 1.361zm0-9.427c0-1.36.585-1.36-1.361 0-1.492-.585-1.361-1.492 0-1.361-.586-1.361z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        {{ $message }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Hero Section -->
     <div class="relative bg-white overflow-hidden">
         <div class="max-w-7xl mx-auto">

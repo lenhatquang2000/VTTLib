@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 use App\Imports\MarcRecordsImport;
 use App\Exports\MarcTemplateExport;
 
@@ -26,10 +27,10 @@ class MarcImportController extends Controller
         $frameworks = MarcFramework::where('is_active', true)->get();
         $documentTypes = DocumentType::where('is_active', true)->get();
         $storageLocations = StorageLocation::where('is_active', true)->get();
-        
+
         return view('admin.marc_import.index', compact(
             'frameworks',
-            'documentTypes', 
+            'documentTypes',
             'storageLocations'
         ));
     }
@@ -41,9 +42,11 @@ class MarcImportController extends Controller
     {
         $frameworkId = $request->get('framework_id');
         $framework = MarcFramework::find($frameworkId);
-        
-        return Excel::download(new MarcTemplateExport($framework), 
-            'marc_import_template_' . $framework->code . '.xlsx');
+
+        return Excel::download(
+            new MarcTemplateExport($framework),
+            'marc_import_template_' . $framework->code . '.xlsx'
+        );
     }
 
     /**
@@ -60,20 +63,20 @@ class MarcImportController extends Controller
         try {
             $file = $request->file('excel_file');
             $framework = MarcFramework::find($request->framework_id);
-            
+
             // Store file temporarily
             $filePath = $file->store('temp/imports', 'local');
-            
+
             // Import and validate
             $import = new MarcRecordsImport($framework, $request->action_type);
-            Excel::import($import, $filePath);
-            
+            Excel::import($import, $filePath, 'local');
+
             // Get results
             $results = $import->getResults();
-            
+
             // Clean up temp file
-            unlink(storage_path('app/' . $filePath));
-            
+            Storage::disk('local')->delete($filePath);
+
             return response()->json([
                 'success' => true,
                 'message' => __('File processed successfully'),
@@ -82,10 +85,10 @@ class MarcImportController extends Controller
                     'valid_rows' => $results['valid_rows'],
                     'invalid_rows' => $results['invalid_rows'],
                     'errors' => $results['errors'],
-                    'preview' => $results['preview']
+                    'preview' => $results['preview'],
+                    'valid_data' => $results['valid_data']
                 ]
             ]);
-            
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -107,10 +110,10 @@ class MarcImportController extends Controller
 
         try {
             DB::beginTransaction();
-            
+
             $framework = MarcFramework::find($request->framework_id);
             $results = [];
-            
+
             foreach ($request->validated_data as $rowIndex => $data) {
                 try {
                     if ($request->action_type === 'create') {
@@ -118,14 +121,13 @@ class MarcImportController extends Controller
                     } else {
                         $record = $this->updateMarcRecord($data, $framework);
                     }
-                    
+
                     $results[] = [
                         'row_index' => $rowIndex,
                         'success' => true,
                         'record_id' => $record->id,
                         'title' => $this->extractTitle($record)
                     ];
-                    
                 } catch (\Exception $e) {
                     $results[] = [
                         'row_index' => $rowIndex,
@@ -134,18 +136,17 @@ class MarcImportController extends Controller
                     ];
                 }
             }
-            
+
             DB::commit();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => __('Import completed successfully'),
                 'data' => $results
             ]);
-            
         } catch (\Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => __('Import failed: ') . $e->getMessage()
@@ -173,7 +174,7 @@ class MarcImportController extends Controller
 
         // Create MARC fields and subfields
         $this->createMarcFields($record, $data, $framework);
-        
+
         return $record;
     }
 
@@ -184,7 +185,7 @@ class MarcImportController extends Controller
     {
         // Find existing record by identifier (title + author + ISBN)
         $record = $this->findExistingRecord($data);
-        
+
         if (!$record) {
             throw new \Exception(__('Record not found for update'));
         }
@@ -198,7 +199,7 @@ class MarcImportController extends Controller
         // Update MARC fields
         $record->fields()->delete();
         $this->createMarcFields($record, $data, $framework);
-        
+
         return $record;
     }
 
@@ -208,19 +209,19 @@ class MarcImportController extends Controller
     protected function createMarcFields(BibliographicRecord $record, array $data, MarcFramework $framework)
     {
         $fieldMappings = $this->getFieldMappings($framework);
-        
+
         foreach ($fieldMappings as $excelColumn => $marcTag) {
             if (empty($data[$excelColumn])) {
                 continue;
             }
-            
+
             // Create field
             $field = $record->fields()->create([
                 'tag' => $marcTag,
                 'indicator1' => $this->getIndicator($data, $marcTag, 1),
                 'indicator2' => $this->getIndicator($data, $marcTag, 2)
             ]);
-            
+
             // Create subfields
             $subfields = $this->parseSubfields($data[$excelColumn], $marcTag);
             foreach ($subfields as $code => $value) {
@@ -260,7 +261,7 @@ class MarcImportController extends Controller
     protected function parseSubfields(string $value, string $marcTag): array
     {
         $subfields = [];
-        
+
         switch ($marcTag) {
             case '245': // Title
                 $subfields['a'] = $value;
@@ -291,7 +292,7 @@ class MarcImportController extends Controller
             default:
                 $subfields['a'] = $value;
         }
-        
+
         return $subfields;
     }
 
@@ -302,7 +303,7 @@ class MarcImportController extends Controller
     {
         // Default leader for books
         $leader = '01234nam a2200000 a 4500';
-        
+
         // Customize based on data
         if (isset($data['record_type'])) {
             switch ($data['record_type']) {
@@ -314,7 +315,7 @@ class MarcImportController extends Controller
                     break;
             }
         }
-        
+
         return $leader;
     }
 
@@ -324,7 +325,7 @@ class MarcImportController extends Controller
     protected function findExistingRecord(array $data): ?BibliographicRecord
     {
         $query = BibliographicRecord::query();
-        
+
         // Try to find by ISBN first
         if (!empty($data['isbn'])) {
             $query->whereHas('fields.subfields', function ($q) use ($data) {
@@ -333,7 +334,7 @@ class MarcImportController extends Controller
                 $q->where('tag', '020');
             });
         }
-        
+
         // Try by title + author
         if (!empty($data['title']) && !empty($data['author'])) {
             $query->orWhere(function ($q) use ($data) {
@@ -348,8 +349,122 @@ class MarcImportController extends Controller
                 });
             });
         }
-        
+
         return $query->first();
+    }
+
+    /**
+     * Create a new framework based on the headers of an Excel file
+     */
+    public function createFrameworkFromFile(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls,csv|max:10240',
+            'framework_name' => 'required|string|max:255',
+            'framework_code' => 'required|string|max:20|unique:marc_frameworks,code'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $file = $request->file('excel_file');
+            $filePath = $file->store('temp/imports', 'local');
+            $fullPath = Storage::disk('local')->path($filePath);
+
+            // Get headers
+            $headings = (new \Maatwebsite\Excel\HeadingRowImport)->toArray($fullPath);
+            $headers = $headings[0][0] ?? [];
+
+            if (empty($headers)) {
+                throw new \Exception(__('Could not find any headers in the file.'));
+            }
+
+            // Create framework
+            $framework = MarcFramework::create([
+                'name' => $request->framework_name,
+                'code' => $request->framework_code,
+                'is_active' => true
+            ]);
+
+            // Map headers to MARC tags
+            $order = 1;
+            $customTagCounter = 900;
+
+            foreach ($headers as $header) {
+                if (empty($header)) continue;
+
+                $tagCode = $this->guessMarcTag($header);
+
+                if ($tagCode === '9XX') {
+                    $tagCode = (string)$customTagCounter++;
+                }
+
+                // Create or find tag definition
+                $tag = MarcTagDefinition::firstOrCreate(
+                    ['tag' => $tagCode],
+                    ['label' => ucwords(str_replace(['_', '-'], ' ', $header))]
+                );
+
+                // Attach to framework
+                $framework->tags()->attach($tag->id, [
+                    'is_visible' => true,
+                    'order' => $order++
+                ]);
+
+                // Ensure subfield 'a' exists
+                if ($tag->subfields()->where('code', 'a')->count() === 0) {
+                    $tag->subfields()->create([
+                        'code' => 'a',
+                        'label' => 'Standard subfield',
+                        'is_visible' => true
+                    ]);
+                }
+            }
+
+            DB::commit();
+            Storage::disk('local')->delete($filePath);
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Framework created successfully based on file headers.'),
+                'data' => [
+                    'framework_id' => $framework->id,
+                    'framework_name' => $framework->name
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            if (isset($filePath)) Storage::disk('local')->delete($filePath);
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Guess MARC tag based on header name
+     */
+    protected function guessMarcTag($header)
+    {
+        $header = strtolower(trim($header));
+        $mappings = [
+            'title' => '245',
+            'author' => '100',
+            'publisher' => '260',
+            'publication_year' => '260',
+            'isbn' => '020',
+            'issn' => '022',
+            'subject' => '650',
+            'classification' => '082',
+            'location' => '852',
+            'notes' => '500',
+            'language' => '008',
+            'description' => '520',
+            'barcode' => '952',
+        ];
+
+        return $mappings[$header] ?? '9XX';
     }
 
     /**
@@ -371,7 +486,7 @@ class MarcImportController extends Controller
             $titleSubfield = $titleField->subfields()->where('code', 'a')->first();
             return $titleSubfield ? $titleSubfield->value : 'Untitled';
         }
-        
+
         return 'Untitled';
     }
 }

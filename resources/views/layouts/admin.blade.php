@@ -11,7 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
@@ -91,65 +91,65 @@
 
         <nav class="flex-1 px-4 py-8 space-y-2.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
             @php
-                $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
+            $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
             @endphp
             @foreach(Auth::user()->getSidebarTabs() as $tab)
-                @php
-                    // Using direct query to avoid unknown method lint if model is not inferred
-                    $assignedChildren = \App\Models\Sidebar::where('parent_id', $tab->id)
-                        ->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
-                            $q->whereIn('role_user_id', $roleUserIds);
-                        })->orderBy('order')->get();
-                    
-                    $hasChildren = $assignedChildren->isNotEmpty();
-                    $isParentActive = false;
-                    if ($hasChildren) {
-                        foreach ($assignedChildren as $child) {
-                            if ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) {
-                                $isParentActive = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        $isParentActive = ($tab->route_name != '#' && request()->routeIs($tab->route_name . '*'));
-                    }
-                @endphp
+            @php
+            // Using direct query to avoid unknown method lint if model is not inferred
+            $assignedChildren = \App\Models\Sidebar::where('parent_id', $tab->id)
+            ->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
+            $q->whereIn('role_user_id', $roleUserIds);
+            })->orderBy('order')->get();
 
-                @if($hasChildren)
-                    <div class="space-y-1.5" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
-                        <button @click="sidebarOpen ? (open = !open) : (sidebarOpen = true, open = true)"
-                            :class="sidebarOpen ? 'justify-between' : 'justify-center'"
-                            class="w-full flex items-center px-4 py-3.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-2xl transition group">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
-                                <span x-show="sidebarOpen" x-cloak
-                                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
-                            </div>
-                            <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
-                                :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div x-show="open && sidebarOpen" x-cloak x-collapse class="pl-12 space-y-1">
-                            @foreach($assignedChildren as $child)
-                                <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
-                                    class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
-                                    {{ __($child->name) }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @else
-                    <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
-                        :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                        class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
-                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors" :class="sidebarOpen ? '' : 'w-full'">
-                            {!! $tab->icon !!}
-                        </div>
+            $hasChildren = $assignedChildren->isNotEmpty();
+            $isParentActive = false;
+            if ($hasChildren) {
+            foreach ($assignedChildren as $child) {
+            if ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) {
+            $isParentActive = true;
+            break;
+            }
+            }
+            } else {
+            $isParentActive = ($tab->route_name != '#' && request()->routeIs($tab->route_name . '*'));
+            }
+            @endphp
+
+            @if($hasChildren)
+            <div class="space-y-1.5" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
+                <button @click="sidebarOpen ? (open = !open) : (sidebarOpen = true, open = true)"
+                    :class="sidebarOpen ? 'justify-between' : 'justify-center'"
+                    class="w-full flex items-center px-4 py-3.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-2xl transition group">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
                         <span x-show="sidebarOpen" x-cloak
                             class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
+                    </div>
+                    <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
+                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div x-show="open && sidebarOpen" x-cloak x-collapse class="pl-12 space-y-1">
+                    @foreach($assignedChildren as $child)
+                    <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
+                        class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
+                        {{ __($child->name) }}
                     </a>
-                @endif
+                    @endforeach
+                </div>
+            </div>
+            @else
+            <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
+                :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
+                class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
+                <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors" :class="sidebarOpen ? '' : 'w-full'">
+                    {!! $tab->icon !!}
+                </div>
+                <span x-show="sidebarOpen" x-cloak
+                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
+            </a>
+            @endif
             @endforeach
         </nav>
 
@@ -170,7 +170,7 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col overflow-hidden min-w-0">
         <!-- Topbar -->
         <header
             class="h-16 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between px-6 z-10 transition-colors duration-300">
@@ -313,15 +313,34 @@
                 toasts: [],
                 init() {
                     const sessionToasts = [];
-                    @if(session('success')) sessionToasts.push({ message: @js(session('success')), type: 'success' }); @endif
-                    @if(session('error')) sessionToasts.push({ message: @js(session('error')), type: 'error' }); @endif
-                    @if(session('warning')) sessionToasts.push({ message: @js(session('warning')), type: 'warning' }); @endif
-                    @if(session('info')) sessionToasts.push({ message: @js(session('info')), type: 'info' }); @endif
+                    @if(session('success')) sessionToasts.push({
+                        message: @js(session('success')),
+                        type: 'success'
+                    });
+                    @endif
+                    @if(session('error')) sessionToasts.push({
+                        message: @js(session('error')),
+                        type: 'error'
+                    });
+                    @endif
+                    @if(session('warning')) sessionToasts.push({
+                        message: @js(session('warning')),
+                        type: 'warning'
+                    });
+                    @endif
+                    @if(session('info')) sessionToasts.push({
+                        message: @js(session('info')),
+                        type: 'info'
+                    });
+                    @endif
 
                     @if($errors->any())
-                        @foreach($errors->all() as $error)
-                            sessionToasts.push({ message: @js($error), type: 'error' });
-                        @endforeach
+                    @foreach($errors->all() as $error)
+                    sessionToasts.push({
+                        message: @js($error),
+                        type: 'error'
+                    });
+                    @endforeach
                     @endif
 
                     // Process initial toasts with delay to ensure animations work
@@ -357,7 +376,7 @@
             }));
         });
     </script>
-    
+
     <!-- Scroll To Top/Bottom Button -->
     <div x-data="{
         isAtTop: true,
@@ -370,8 +389,8 @@
                 main.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
-    }" 
-    x-init="
+    }"
+        x-init="
         $nextTick(() => {
             const main = document.querySelector('main');
             if (main) {
@@ -381,16 +400,16 @@
             }
         })
     "
-    class="fixed bottom-6 right-8 z-[90]">
+        class="fixed bottom-6 right-8 z-[90]">
         <button @click="scrollToPosition()"
             class="p-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg shadow-indigo-300/50 dark:shadow-none transition-all duration-300 group flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900"
             :title="isAtTop ? 'Cuộn xuống cuối' : 'Cuộn lên đầu'">
-            
+
             <!-- Icon Scroll To Top (Up arrow) - Shows when NOT at top -->
             <svg x-show="!isAtTop" x-cloak class="w-5 h-5 transition-transform duration-300 group-hover:-translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
             </svg>
-            
+
             <!-- Icon Scroll To Bottom (Down arrow) - Shows when AT top -->
             <svg x-show="isAtTop" class="w-5 h-5 transition-transform duration-300 group-hover:translate-y-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>

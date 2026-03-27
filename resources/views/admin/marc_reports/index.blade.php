@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-6 w-full">
+<div class="space-y-6">
     <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('MARC Cataloging Reports') }}</h2>
@@ -23,31 +23,31 @@
                 @csrf
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Framework') }}</label>
-                    <select name="framework_id" 
+                    <select name="framework_id"
                         class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         <option value="">{{ __('All Frameworks') }}</option>
                         @foreach($frameworks as $framework)
-                            <option value="{{ $framework->id }}" {{ request('framework_id') == $framework->id ? 'selected' : '' }}>
-                                {{ $framework->name }} ({{ $framework->code }})
-                            </option>
+                        <option value="{{ $framework->id }}" {{ request('framework_id') == $framework->id ? 'selected' : '' }}>
+                            {{ $framework->name }} ({{ $framework->code }})
+                        </option>
                         @endforeach
                     </select>
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date From') }}</label>
                     <input type="date" name="date_from" value="{{ $dateRange['from']->format('Y-m-d') }}"
                         class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
-                
+
                 <div>
                     <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date To') }}</label>
                     <input type="date" name="date_to" value="{{ $dateRange['to']->format('Y-m-d') }}"
                         class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                 </div>
-                
+
                 <div class="flex items-end">
-                    <button type="submit" 
+                    <button type="submit"
                         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition">
                         {{ __('Apply Filters') }}
                     </button>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Statistics Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -69,7 +69,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -81,7 +81,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -93,7 +93,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
             <div class="flex items-center justify-between">
                 <div>
@@ -193,10 +193,10 @@
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
         <div class="p-6">
             <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Generate Detailed Reports') }}</h3>
-            
+
             <form id="reportForm" class="space-y-4">
                 @csrf
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Report Type') }}</label>
@@ -208,7 +208,7 @@
                             <option value="detailed">{{ __('Detailed Records') }}</option>
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Format') }}</label>
                         <select name="format" required
@@ -217,35 +217,35 @@
                             <option value="excel">{{ __('Excel Download') }}</option>
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Framework') }}</label>
                         <select name="framework_id"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="">{{ __('All Frameworks') }}</option>
                             @foreach($frameworks as $framework)
-                                <option value="{{ $framework->id }}">{{ $framework->name }}</option>
+                            <option value="{{ $framework->id }}">{{ $framework->name }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date From') }}</label>
                         <input type="date" name="date_from" value="{{ $dateRange['from']->format('Y-m-d') }}" required
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date To') }}</label>
                         <input type="date" name="date_to" value="{{ $dateRange['to']->format('Y-m-d') }}" required
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                 </div>
-                
+
                 <div class="flex space-x-3">
-                    <button type="submit" 
+                    <button type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg text-sm font-semibold transition">
                         <i class="fas fa-file-export mr-2"></i>
                         {{ __('Generate Report') }}
@@ -259,62 +259,63 @@
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const reportForm = document.getElementById('reportForm');
-    const resetBtn = document.getElementById('resetReportForm');
-    
-    // Handle form submission
-    reportForm.addEventListener('submit', async function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(reportForm);
-        const format = formData.get('format');
-        
-        if (format === 'excel') {
-            // Download Excel file
-            const params = new URLSearchParams(formData);
-            window.location.href = `/topsecret/marc-reports/generate?${params.toString()}`;
-        } else {
-            // Show web view
-            try {
-                const response = await fetch('/topsecret/marc-reports/generate', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    document.addEventListener('DOMContentLoaded', function() {
+        const reportForm = document.getElementById('reportForm');
+        const resetBtn = document.getElementById('resetReportForm');
+
+        // Handle form submission
+        reportForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(reportForm);
+            const format = formData.get('format');
+
+            if (format === 'excel') {
+                // Download Excel file
+                const params = new URLSearchParams(formData);
+                window.location.href = `/topsecret/marc-reports/generate?${params.toString()}`;
+            } else {
+                // Show web view
+                try {
+                    const response = await fetch('/topsecret/marc-reports/generate', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // Open report in new window
+                        const reportWindow = window.open('', '_blank');
+                        reportWindow.document.write(result.html);
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: "{{ __('Error') }}",
+                            text: result.message
+                        });
                     }
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Open report in new window
-                    const reportWindow = window.open('', '_blank');
-                    reportWindow.document.write(result.html);
-                } else {
+                } catch (error) {
                     Swal.fire({
                         icon: 'error',
-                        title: '{{ __('Error') }}',
-                        text: result.message
+                        title: "{{ __('Error') }}",
+                        text: error.message
                     });
                 }
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: '{{ __('Error') }}',
-                    text: error.message
-                });
             }
-        }
+        });
+
+        // Reset form
+        resetBtn.addEventListener('click', function() {
+            reportForm.reset();
+        });
     });
-    
-    // Reset form
-    resetBtn.addEventListener('click', function() {
-        reportForm.reset();
-    });
-});
 </script>
 @endpush

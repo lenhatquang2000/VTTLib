@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('client.home');
+        // Check for session expired message
+        $message = $request->session('message');
+        
+        return view('client.home', compact('message'));
     }
 }

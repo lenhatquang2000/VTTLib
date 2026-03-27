@@ -24,7 +24,7 @@ class MarcBookController extends Controller
     public function index(Request $request)
     {
         $query = BibliographicRecord::with('fields.subfields');
-        
+
         // Advanced search filters
         if ($request->filled('search')) {
             $searchTerm = $request->search;
@@ -37,78 +37,78 @@ class MarcBookController extends Controller
                                 ->where('value', 'like', '%' . $searchTerm . '%');
                         });
                 })
-                // Search in author (100$a)
-                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
-                    $fieldQuery->where('tag', '100')
-                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
-                            $subfieldQuery->where('code', 'a')
-                                ->where('value', 'like', '%' . $searchTerm . '%');
-                        });
-                })
-                // Search in ISBN (020$a)
-                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
-                    $fieldQuery->where('tag', '020')
-                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
-                            $subfieldQuery->where('code', 'a')
-                                ->where('value', 'like', '%' . $searchTerm . '%');
-                        });
-                })
-                // Search in publisher (260$b)
-                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
-                    $fieldQuery->where('tag', '260')
-                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
-                            $subfieldQuery->where('code', 'b')
-                                ->where('value', 'like', '%' . $searchTerm . '%');
-                        });
-                })
-                // Search in subject (650$a)
-                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
-                    $fieldQuery->where('tag', '650')
-                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
-                            $subfieldQuery->where('code', 'a')
-                                ->where('value', 'like', '%' . $searchTerm . '%');
-                        });
-                })
-                // Search in notes (500$a)
-                ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
-                    $fieldQuery->where('tag', '500')
-                        ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
-                            $subfieldQuery->where('code', 'a')
-                                ->where('value', 'like', '%' . $searchTerm . '%');
-                        });
-                });
+                    // Search in author (100$a)
+                    ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                        $fieldQuery->where('tag', '100')
+                            ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                                $subfieldQuery->where('code', 'a')
+                                    ->where('value', 'like', '%' . $searchTerm . '%');
+                            });
+                    })
+                    // Search in ISBN (020$a)
+                    ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                        $fieldQuery->where('tag', '020')
+                            ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                                $subfieldQuery->where('code', 'a')
+                                    ->where('value', 'like', '%' . $searchTerm . '%');
+                            });
+                    })
+                    // Search in publisher (260$b)
+                    ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                        $fieldQuery->where('tag', '260')
+                            ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                                $subfieldQuery->where('code', 'b')
+                                    ->where('value', 'like', '%' . $searchTerm . '%');
+                            });
+                    })
+                    // Search in subject (650$a)
+                    ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                        $fieldQuery->where('tag', '650')
+                            ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                                $subfieldQuery->where('code', 'a')
+                                    ->where('value', 'like', '%' . $searchTerm . '%');
+                            });
+                    })
+                    // Search in notes (500$a)
+                    ->orWhereHas('fields', function ($fieldQuery) use ($searchTerm) {
+                        $fieldQuery->where('tag', '500')
+                            ->whereHas('subfields', function ($subfieldQuery) use ($searchTerm) {
+                                $subfieldQuery->where('code', 'a')
+                                    ->where('value', 'like', '%' . $searchTerm . '%');
+                            });
+                    });
             });
         }
-        
+
         // Filter by framework
         if ($request->filled('framework')) {
             $query->where('framework', $request->framework);
         }
-        
+
         // Filter by record type
         if ($request->filled('record_type')) {
             $query->where('record_type', $request->record_type);
         }
-        
+
         // Filter by status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-        
+
         // Filter by subject category
         if ($request->filled('subject_category')) {
             $query->where('subject_category', $request->subject_category);
         }
-        
+
         // Filter by date range
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
-        
+
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
-        
+
         // Filter by specific MARC tag
         if ($request->filled('marc_tag') && $request->filled('marc_value')) {
             $query->whereHas('fields', function ($fieldQuery) use ($request) {
@@ -118,11 +118,11 @@ class MarcBookController extends Controller
                     });
             });
         }
-        
+
         // Sort options
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        
+
         switch ($sortBy) {
             case 'title':
                 $query->orderBy(function ($q) {
@@ -147,19 +147,19 @@ class MarcBookController extends Controller
             default:
                 $query->orderBy($sortBy, $sortOrder);
         }
-        
+
         $records = $query->paginate(10)->withQueryString();
-        
+
         // Get search filters data
         $frameworks = MarcFramework::where('is_active', true)->pluck('code', 'code');
         $recordTypes = BibliographicRecord::distinct()->pluck('record_type');
         $subjectCategories = BibliographicRecord::distinct()->pluck('subject_category');
         $commonMarcTags = ['245', '100', '020', '260', '650', '500', '082', '852'];
-        
+
         return view('admin.marc_books.index', compact(
-            'records', 
-            'frameworks', 
-            'recordTypes', 
+            'records',
+            'frameworks',
+            'recordTypes',
             'subjectCategories',
             'commonMarcTags'
         ));
@@ -206,8 +206,8 @@ class MarcBookController extends Controller
                 if ($definitionsByTag->has($recordDefinition->tag)) {
                     $existing = $definitionsByTag->get($recordDefinition->tag);
                     $mergedSubfields = $existing->subfields
-                        ->keyBy(fn ($s) => strtolower(trim((string) $s->code)))
-                        ->union($recordDefinition->subfields->keyBy(fn ($s) => strtolower(trim((string) $s->code))))
+                        ->keyBy(fn($s) => strtolower(trim((string) $s->code)))
+                        ->union($recordDefinition->subfields->keyBy(fn($s) => strtolower(trim((string) $s->code))))
                         ->values();
                     $existing->setRelation('subfields', $mergedSubfields);
                     $definitionsByTag->put($recordDefinition->tag, $existing);
@@ -233,10 +233,10 @@ class MarcBookController extends Controller
 
         if ($record) {
             $record->load('items.branch', 'items.storageLocation');
-            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode'));
+            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode', 'barcodeService'));
         }
 
-        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode'));
+        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode', 'barcodeService'));
     }
 
     public function store(Request $request)
@@ -271,8 +271,8 @@ class MarcBookController extends Controller
             foreach ($fields as $tag => $data) {
                 $subfieldEntries = $data['subfields'] ?? [];
                 $hasData = false;
-                foreach($subfieldEntries as $entry) {
-                    if(!empty($entry['code']) && !empty($entry['value'])) {
+                foreach ($subfieldEntries as $entry) {
+                    if (!empty($entry['code']) && !empty($entry['value'])) {
                         $hasData = true;
                         break;
                     }
@@ -328,14 +328,19 @@ class MarcBookController extends Controller
                         $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
                     }
 
-                    BookItem::create($itemPayload);
+                    $newItem = BookItem::create($itemPayload);
+                    
+                    // Save barcode as SVG file
+                    $this->barcodeService->saveAsFile(
+                        $newItem->barcode, 
+                        'items/barcodes/' . $newItem->barcode . '.svg'
+                    );
                 }
             }
 
             DB::commit();
             $tab = $request->input('tab', 0);
             return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Created_Successfully'));
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error while cataloging: ' . $e->getMessage())->withInput();
@@ -357,7 +362,7 @@ class MarcBookController extends Controller
         $record->load('fields.subfields');
         // Fetch definitions to show human-readable labels in the review page
         $definitions = MarcTagDefinition::with('subfields')->get()->keyBy('tag');
-        
+
         return view('admin.marc_books.show', compact('record', 'definitions'));
     }
 
@@ -390,16 +395,27 @@ class MarcBookController extends Controller
             }
             $record->update(['leader' => $leader]);
 
+            // Update record metadata if provided
+            $metadataFields = ['status', 'subject_category', 'record_type', 'serial_frequency', 
+                              'date_type', 'acquisition_method', 'document_format', 'cataloging_standard'];
+            
+            foreach ($metadataFields as $field) {
+                if ($request->has($field)) {
+                    $record->$field = $request->$field;
+                }
+            }
+            $record->save();
+
             $fields = $request->input('fields', []);
             $sequence = 0;
-
+            
             // Track IDs to delete later
             $submittedFieldTags = [];
             $submittedSubfieldIds = [];
 
             foreach ($fields as $tag => $data) {
                 $subfieldEntries = $data['subfields'] ?? [];
-                
+
                 // Check if the tag has any valid content
                 $hasValidSubfields = false;
                 foreach ($subfieldEntries as $entry) {
@@ -414,14 +430,28 @@ class MarcBookController extends Controller
                 $submittedFieldTags[] = $tag;
 
                 // 1. Update or Create MarcField
-                $marcField = $record->fields()->updateOrCreate(
-                    ['tag' => $tag],
-                    [
+                // First try to find existing field by tag (get the first one)
+                $existingField = $record->fields()
+                    ->where('tag', $tag)
+                    ->first();
+                    
+                if ($existingField) {
+                    // Update existing field indicators
+                    $existingField->update([
                         'indicator1' => $data['ind1'] ?? ' ',
                         'indicator2' => $data['ind2'] ?? ' ',
-                        'sequence' => $sequence++
-                    ]
-                );
+                        'sequence' => $sequence
+                    ]);
+                    $marcField = $existingField;
+                } else {
+                    // Create new field only if not exists
+                    $marcField = $record->fields()->create([
+                        'tag' => $tag,
+                        'indicator1' => $data['ind1'] ?? ' ',
+                        'indicator2' => $data['ind2'] ?? ' ',
+                        'sequence' => $sequence
+                    ]);
+                }
 
                 $fieldSubfieldIds = [];
                 // 2. Handle Subfields of this field
@@ -442,13 +472,14 @@ class MarcBookController extends Controller
                 $marcField->subfields()->whereNotIn('id', $fieldSubfieldIds)->delete();
             }
 
-            // Delete fields (Tags) that were NOT submitted or are now empty
-            $record->fields()->whereNotIn('tag', $submittedFieldTags)->delete();
+            // Debug: Log field operations
+            \Log::info('Submitted field tags:', $submittedFieldTags);
+            \Log::info('Fields after update:', $record->fields()->with('subfields')->get()->toArray());
 
             // Process distribution items (Add, Update, Delete)
             $items = $request->input('items', []);
             $submittedItemIds = [];
-            
+
             foreach ($items as $itemData) {
                 if (!empty($itemData['storage_location_id'])) {
                     $itemPayload = [
@@ -478,6 +509,14 @@ class MarcBookController extends Controller
                         if ($bookItem && $bookItem->bibliographic_record_id == $record->id) {
                             $bookItem->update($itemPayload);
                             $submittedItemIds[] = $bookItem->id;
+                            
+                            // Save barcode as SVG file if barcode changed or is new
+                            if (!empty($bookItem->barcode)) {
+                                $this->barcodeService->saveAsFile(
+                                    $bookItem->barcode, 
+                                    'items/barcodes/' . $bookItem->barcode . '.svg'
+                                );
+                            }
                         }
                     } else {
                         // Create new
@@ -486,13 +525,19 @@ class MarcBookController extends Controller
                             $itemPayload['barcode'] = $this->barcodeService->getNextCode('item');
                             $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
                         }
-                        
+
                         $newItem = BookItem::create($itemPayload);
                         $submittedItemIds[] = $newItem->id;
+                        
+                        // Save barcode as SVG file
+                        $this->barcodeService->saveAsFile(
+                            $newItem->barcode, 
+                            'items/barcodes/' . $newItem->barcode . '.svg'
+                        );
                     }
                 }
             }
-            
+
             // Note: In typical library systems, deleting cataloged items might be restricted 
             // if they are on loan. We assume deletion is allowed here for items removed from UI.
             // Be careful with cascading deletes.
@@ -501,10 +546,85 @@ class MarcBookController extends Controller
             DB::commit();
             $tab = $request->input('tab', 0);
             return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Updated_Successfully'));
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Error while updating: ' . $e->getMessage())->withInput();
         }
+    }
+
+    public function destroy(BibliographicRecord $record)
+    {
+        DB::beginTransaction();
+        try {
+            // Associated fields, subfields and items will be deleted based on DB constraints or manual deletion
+            // Since we use DB::beginTransaction, let's ensure cleanup
+            $record->items()->delete();
+            foreach ($record->fields as $field) {
+                $field->subfields()->delete();
+                $field->delete();
+            }
+            $record->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => __('Record_Deleted_Successfully')
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error while deleting: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Show export page
+     */
+    public function exportIndex(Request $request)
+    {
+        $frameworks = MarcFramework::where('is_active', true)->get();
+        $documentTypes = DocumentType::active()->ordered()->get();
+        
+        return view('admin.marc_books.export', compact('frameworks', 'documentTypes'));
+    }
+
+    /**
+     * Export MARC records to Excel
+     */
+    public function export(Request $request)
+    {
+        $query = BibliographicRecord::with(['items', 'fields.subfields']);
+        
+        // Apply filters
+        if ($request->filled('framework_id')) {
+            $query->where('framework_id', $request->framework_id);
+        }
+        
+        if ($request->filled('document_type_id')) {
+            $query->where('document_type_id', $request->document_type_id);
+        }
+        
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+        
+        $records = $query->orderBy('created_at', 'desc')->get();
+        
+        $includeItems = $request->boolean('include_items', false);
+        
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\MarcRecordsExport($records, $includeItems),
+            'marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
+        );
     }
 }
