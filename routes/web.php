@@ -121,7 +121,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
 
     // System Infrastructure Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'index'])->name('admin.settings.index');
-    Route::post('/settings/library', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateLibraryInfo'])->name('admin.settings.library.update');
+    Route::post('/settings', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'update'])->name('admin.settings.update');
+    
+    // Sidebar Management
+    Route::get('/sidebar-management', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'index'])->name('admin.sidebar.index');
+    Route::put('/sidebar-management/order', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'updateOrder'])->name('admin.sidebar.order');
+    Route::put('/sidebar-management/parent', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'updateParent'])->name('admin.sidebar.parent');
+    Route::put('/sidebar-management/toggle-active', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'toggleActive'])->name('admin.sidebar.toggle-active');
     Route::post('/settings/policy', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updatePolicy'])->name('admin.settings.policy.update');
 
     Route::post('/settings/barcode', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeBarcodeConfig'])->name('admin.settings.barcode.store');

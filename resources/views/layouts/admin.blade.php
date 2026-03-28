@@ -57,6 +57,7 @@
             darkMode: 'class',
         }
     </script>
+    @stack('styles')
 </head>
 
 <body

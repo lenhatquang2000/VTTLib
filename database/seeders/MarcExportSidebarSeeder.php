@@ -24,7 +24,7 @@ class MarcExportSidebarSeeder extends Seeder
                 'parent_id' => null,
                 'name' => 'MARC Export',
                 'route_name' => 'admin.marc.export.index',
-                'icon' => 'fas fa-download',
+                'icon' => '<i class="fas fa-download"></i>',
                 'order' => 6, // After existing MARC items
                 'created_at' => now(),
                 'updated_at' => now(),
