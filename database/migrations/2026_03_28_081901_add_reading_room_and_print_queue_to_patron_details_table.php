@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('patron_details', function (Blueprint $table) {
+            $table->boolean('is_reading_room_only')->default(false)->after('notes');
+            $table->boolean('add_to_print_queue')->default(false)->after('is_reading_room_only');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('patron_details', function (Blueprint $table) {
+            $table->dropColumn(['is_reading_room_only', 'add_to_print_queue']);
+        });
+    }
+};

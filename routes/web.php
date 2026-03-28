@@ -112,6 +112,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::patch('/patrons/{id}/renew', [\App\Http\Controllers\Admin\PatronController::class, 'renew'])->name('admin.patrons.renew');
     Route::delete('/patrons/{id}', [\App\Http\Controllers\Admin\PatronController::class, 'destroy'])->name('admin.patrons.destroy');
 
+    // Patron Import (Batch Import)
+    Route::get('/patrons/import', [\App\Http\Controllers\Admin\PatronImportController::class, 'index'])->name('admin.patrons.import.index');
+    Route::get('/patrons/import/template', [\App\Http\Controllers\Admin\PatronImportController::class, 'downloadTemplate'])->name('admin.patrons.import.template');
+    Route::post('/patrons/import/upload', [\App\Http\Controllers\Admin\PatronImportController::class, 'upload'])->name('admin.patrons.import.upload');
+    Route::get('/patrons/import/preview', [\App\Http\Controllers\Admin\PatronImportController::class, 'preview'])->name('admin.patrons.import.preview');
+    Route::post('/patrons/import/process', [\App\Http\Controllers\Admin\PatronImportController::class, 'process'])->name('admin.patrons.import.process');
+    Route::post('/patrons/import/images', [\App\Http\Controllers\Admin\PatronImportController::class, 'uploadImages'])->name('admin.patrons.import.images');
+
     // Patron Configuration
     Route::get('/patron-groups', [PatronGroupController::class, 'index'])->name('admin.patrons.groups.index');
     Route::post('/patron-groups', [PatronGroupController::class, 'store'])->name('admin.patrons.groups.store');

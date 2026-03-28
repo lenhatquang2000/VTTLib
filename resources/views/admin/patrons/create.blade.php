@@ -41,10 +41,16 @@
                     </div>
                 </div>
                 <input type="file" name="profile_image" id="avatar-input" class="hidden" accept="image/*" onchange="previewAvatar(this)">
-                <button type="button" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                    <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    {{ __('Đặt mặc định') }}
-                </button>
+                <div class="flex space-x-2 w-full">
+                    <button type="button" onclick="document.getElementById('avatar-input').click()" class="flex-1 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        {{ __('Chọn ảnh') }}
+                    </button>
+                    <button type="button" onclick="removeAvatar()" class="flex-1 bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors">
+                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        {{ __('Xoá ảnh') }}
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
@@ -60,6 +66,24 @@
                     <div class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="is_waiting_for_print" value="1" class="sr-only peer" checked>
                         <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                    </div>
+                </label>
+                
+                <!-- NEW: Reading Room Only -->
+                <label class="flex items-center justify-between group cursor-pointer">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ __('Đọc tại chỗ') }}</span>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="is_reading_room_only" value="1" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                    </div>
+                </label>
+                
+                <!-- NEW: Add to Print Queue -->
+                <label class="flex items-center justify-between group cursor-pointer">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ __('Thêm vào danh sách chờ in') }}</span>
+                    <div class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="add_to_print_queue" value="1" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </div>
                 </label>
             </div>
@@ -323,6 +347,13 @@
             }
             reader.readAsDataURL(input.files[0]);
         }
+    }
+    
+    function removeAvatar() {
+        document.getElementById('avatar-preview').src = '#';
+        document.getElementById('avatar-preview').classList.add('hidden');
+        document.getElementById('avatar-placeholder').classList.remove('hidden');
+        document.getElementById('avatar-input').value = '';
     }
 
     function addAddressField() {

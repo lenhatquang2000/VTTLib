@@ -143,44 +143,29 @@ class PatronController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // Mandatory
             'patron_code' => 'required|string|unique:patron_details,patron_code',
             'name' => 'required|string|max:255',
             'display_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'expiry_date' => 'required|date',
-            
-            // Optional Identity
-            'mssv' => 'nullable|string|max:50|unique:patron_details,mssv',
-            'id_card' => 'nullable|string|max:20',
-            'phone_contact' => 'nullable|string|max:50',
             'patron_group_id' => 'required|exists:patron_groups,id',
-            'classification' => 'nullable|string',
+            'registration_date' => 'required|date',
+            'expiry_date' => 'required|date|after:registration_date',
             
-            // Personal
-            'dob' => 'nullable|date',
-            'gender' => 'nullable|in:male,female,other',
-            'profile_image' => 'nullable|image|max:2048',
-            
-            // Organization
-            'school_name' => 'nullable|string|max:255',
-            'batch' => 'nullable|string|max:255',
-            'department' => 'nullable|string|max:255',
-            'position_class' => 'nullable|string|max:255',
-            
-            // Contact
+            // Personal Information
+            'id_card' => 'nullable|string|max:50',
+            'mssv' => 'nullable|string|max:50',
+            'phone_contact' => 'nullable|string|max:20',
             'phone' => 'nullable|string|max:20',
             'fax' => 'nullable|string|max:20',
-            'address1' => 'nullable|string|max:500',
-            'address2' => 'nullable|string|max:500',
-            'branch' => 'nullable|string',
-            
-            // System/Status
-            'card_status' => 'required|string',
-            'is_read_only' => 'boolean',
-            'is_waiting_for_print' => 'boolean',
-            'registration_date' => 'required|date',
+            'dob' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'school_name' => 'nullable|string|max:255',
+            'batch' => 'nullable|string|max:100',
+            'department' => 'nullable|string|max:255',
+            'position_class' => 'nullable|string|max:255',
+            'branch' => 'nullable|string|max:255',
+            'classification' => 'nullable|string|max:255',
             
             // Financial
             'card_fee' => 'nullable|numeric',
@@ -214,7 +199,7 @@ class PatronController extends Controller
                 'mssv' => $validated['mssv'] ?? null,
                 'phone_contact' => $validated['phone_contact'] ?? null,
                 'display_name' => $validated['display_name'],
-                'card_status' => $validated['card_status'],
+                'card_status' => 'normal',
                 'is_read_only' => $request->boolean('is_read_only'),
                 'is_waiting_for_print' => $request->boolean('is_waiting_for_print'),
                 'dob' => $validated['dob'] ?? null,
@@ -236,6 +221,8 @@ class PatronController extends Controller
                 'expiry_date' => $validated['expiry_date'],
                 'creator_id' => auth()->id(),
                 'notes' => $validated['notes'] ?? null,
+                'is_reading_room_only' => $request->boolean('is_reading_room_only'),
+                'add_to_print_queue' => $request->boolean('add_to_print_queue'),
             ]);
 
             // 4. Multiple Addresses Handling

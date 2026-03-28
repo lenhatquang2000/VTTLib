@@ -36,7 +36,9 @@ class PatronDetail extends Model
         'registration_date',
         'expiry_date',
         'creator_id',
-        'notes'
+        'notes',
+        'is_reading_room_only',
+        'add_to_print_queue'
     ];
 
     public function user()

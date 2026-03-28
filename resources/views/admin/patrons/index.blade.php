@@ -11,6 +11,10 @@
             <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">{{ __('Manage and audit library member identities.') }}</p>
         </div>
         <div class="flex items-center space-x-3">
+            <a href="{{ route('admin.patrons.import.index') }}" class="bg-emerald-600 text-white px-6 py-2.5 rounded-xl shadow-md transition-all hover:bg-emerald-500 flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                <span>{{ __('Import Excel') }}</span>
+            </a>
             <a href="{{ route('admin.patrons.create') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl shadow-md transition-all hover:bg-indigo-500">
                 {{ __('Add New Patron') }}
             </a>
