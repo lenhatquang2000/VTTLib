@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-    <title>{{ __('Admin Dashboard') }} - {{ config('app.name', 'Laravel') }}</title>
+    <title><?php echo e(__('Admin Dashboard')); ?> - <?php echo e(config('app.name', 'Laravel')); ?></title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -20,7 +20,7 @@
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <style>
         [x-cloak] {
             display: none !important;
@@ -68,7 +68,7 @@
             darkMode: 'class',
         }
     </script>
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 
 <body
@@ -102,11 +102,11 @@
         </div>
 
         <nav class="flex-1 px-4 py-8 space-y-2.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
-            @php
+            <?php
             $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
-            @endphp
-            @foreach(Auth::user()->getSidebarTabs() as $tab)
-            @php
+            ?>
+            <?php $__currentLoopData = Auth::user()->getSidebarTabs(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tab): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php
             // Using direct query to avoid unknown method lint if model is not inferred
             $assignedChildren = \App\Models\Sidebar::where('parent_id', $tab->id)
             ->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
@@ -125,17 +125,17 @@
             } else {
             $isParentActive = ($tab->route_name != '#' && request()->routeIs($tab->route_name . '*'));
             }
-            @endphp
+            ?>
 
-            @if($hasChildren)
-            <div class="space-y-1.5" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
+            <?php if($hasChildren): ?>
+            <div class="space-y-1.5" x-data="{ open: <?php echo e($isParentActive ? 'true' : 'false'); ?> }">
                 <button @click="sidebarOpen ? (open = !open) : (sidebarOpen = true, open = true)"
                     :class="sidebarOpen ? 'justify-between' : 'justify-center'"
                     class="w-full flex items-center px-4 py-3.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-2xl transition group">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
+                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors"><?php echo $tab->icon; ?></div>
                         <span x-show="sidebarOpen" x-cloak
-                            class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
+                            class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap"><?php echo e(__($tab->name)); ?></span>
                     </div>
                     <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
                         :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,31 +143,33 @@
                     </svg>
                 </button>
                 <div x-show="open && sidebarOpen" x-cloak x-collapse class="pl-12 space-y-1">
-                    @foreach($assignedChildren as $child)
-                    <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
-                        class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
-                        {{ __($child->name) }}
+                    <?php $__currentLoopData = $assignedChildren; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e((!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#'); ?>"
+                        class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 <?php echo e(($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition'); ?> whitespace-nowrap">
+                        <?php echo e(__($child->name)); ?>
+
                     </a>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>
-            @else
-            <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
+            <?php else: ?>
+            <a href="<?php echo e((!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#'); ?>"
                 :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
+                class="flex items-center py-3.5 <?php echo e($isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white'); ?> rounded-2xl group transition">
                 <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors" :class="sidebarOpen ? '' : 'w-full'">
-                    {!! $tab->icon !!}
+                    <?php echo $tab->icon; ?>
+
                 </div>
                 <span x-show="sidebarOpen" x-cloak
-                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
+                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap"><?php echo e(__($tab->name)); ?></span>
             </a>
-            @endif
-            @endforeach
+            <?php endif; ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </nav>
 
         <div class="p-4 border-t border-slate-800 dark:border-slate-800/50 overflow-hidden">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
+            <form method="POST" action="<?php echo e(route('logout')); ?>">
+                <?php echo csrf_field(); ?>
                 <button type="submit" :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
                     class="w-full flex items-center py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 group transition">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +177,7 @@
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
                         </path>
                     </svg>
-                    <span x-show="sidebarOpen" x-cloak class="ml-3 whitespace-nowrap">{{ __('Logout') }}</span>
+                    <span x-show="sidebarOpen" x-cloak class="ml-3 whitespace-nowrap"><?php echo e(__('Logout')); ?></span>
                 </button>
             </form>
         </div>
@@ -196,7 +198,8 @@
                             d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100 leading-tight">{{ __('Dashboard') }}
+                <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100 leading-tight"><?php echo e(__('Dashboard')); ?>
+
                 </h2>
             </div>
             <div class="flex items-center space-x-2">
@@ -219,11 +222,11 @@
                 <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
 
                 <div class="flex items-center space-x-2 mr-2">
-                    <a href="{{ route('lang.switch', 'vi') }}"
-                        class="text-xs font-bold {{ app()->getLocale() == 'vi' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500' }} hover:text-indigo-500 transition">VI</a>
+                    <a href="<?php echo e(route('lang.switch', 'vi')); ?>"
+                        class="text-xs font-bold <?php echo e(app()->getLocale() == 'vi' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500'); ?> hover:text-indigo-500 transition">VI</a>
                     <span class="text-gray-300 dark:text-slate-700">|</span>
-                    <a href="{{ route('lang.switch', 'en') }}"
-                        class="text-xs font-bold {{ app()->getLocale() == 'en' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500' }} hover:text-indigo-500 transition">EN</a>
+                    <a href="<?php echo e(route('lang.switch', 'en')); ?>"
+                        class="text-xs font-bold <?php echo e(app()->getLocale() == 'en' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500'); ?> hover:text-indigo-500 transition">EN</a>
                 </div>
 
                 <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
@@ -241,16 +244,19 @@
                 <div class="flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-800">
                     <div class="text-right mr-3 hidden sm:block">
                         <p class="text-sm font-bold text-gray-800 dark:text-slate-100 leading-none mb-1">
-                            {{ Auth::user()->full_name ?? Auth::user()->name }}
+                            <?php echo e(Auth::user()->full_name ?? Auth::user()->name); ?>
+
                         </p>
                         <p
                             class="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
-                            {{ Auth::user()->roles->pluck('display_name')->implode(', ') }}
+                            <?php echo e(Auth::user()->roles->pluck('display_name')->implode(', ')); ?>
+
                         </p>
                     </div>
                     <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20 ring-2 ring-white dark:ring-slate-900"
-                        title="{{ Auth::user()->name ?? '' }}">
-                        {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
+                        title="<?php echo e(Auth::user()->name ?? ''); ?>">
+                        <?php echo e(substr(Auth::user()->name ?? 'A', 0, 1)); ?>
+
                     </div>
                 </div>
             </div>
@@ -259,8 +265,27 @@
         <!-- Page Content -->
         <main
             class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-slate-950 p-6 transition-colors duration-300">
-            <x-breadcrumb />
-            @yield('content')
+            <?php if (isset($component)) { $__componentOriginal269900abaed345884ce342681cdc99f6 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal269900abaed345884ce342681cdc99f6 = $attributes; } ?>
+<?php $component = App\View\Components\Breadcrumb::resolve([] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('breadcrumb'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\App\View\Components\Breadcrumb::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal269900abaed345884ce342681cdc99f6)): ?>
+<?php $attributes = $__attributesOriginal269900abaed345884ce342681cdc99f6; ?>
+<?php unset($__attributesOriginal269900abaed345884ce342681cdc99f6); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal269900abaed345884ce342681cdc99f6)): ?>
+<?php $component = $__componentOriginal269900abaed345884ce342681cdc99f6; ?>
+<?php unset($__componentOriginal269900abaed345884ce342681cdc99f6); ?>
+<?php endif; ?>
+            <?php echo $__env->yieldContent('content'); ?>
         </main>
     </div>
     <!-- Toast Notifications -->
@@ -325,35 +350,35 @@
                 toasts: [],
                 init() {
                     const sessionToasts = [];
-                    @if(session('success')) sessionToasts.push({
-                        message: @js(session('success')),
+                    <?php if(session('success')): ?> sessionToasts.push({
+                        message: <?php echo \Illuminate\Support\Js::from(session('success'))->toHtml() ?>,
                         type: 'success'
                     });
-                    @endif
-                    @if(session('error')) sessionToasts.push({
-                        message: @js(session('error')),
+                    <?php endif; ?>
+                    <?php if(session('error')): ?> sessionToasts.push({
+                        message: <?php echo \Illuminate\Support\Js::from(session('error'))->toHtml() ?>,
                         type: 'error'
                     });
-                    @endif
-                    @if(session('warning')) sessionToasts.push({
-                        message: @js(session('warning')),
+                    <?php endif; ?>
+                    <?php if(session('warning')): ?> sessionToasts.push({
+                        message: <?php echo \Illuminate\Support\Js::from(session('warning'))->toHtml() ?>,
                         type: 'warning'
                     });
-                    @endif
-                    @if(session('info')) sessionToasts.push({
-                        message: @js(session('info')),
+                    <?php endif; ?>
+                    <?php if(session('info')): ?> sessionToasts.push({
+                        message: <?php echo \Illuminate\Support\Js::from(session('info'))->toHtml() ?>,
                         type: 'info'
                     });
-                    @endif
+                    <?php endif; ?>
 
-                    @if($errors->any())
-                    @foreach($errors->all() as $error)
+                    <?php if($errors->any()): ?>
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                     sessionToasts.push({
-                        message: @js($error),
+                        message: <?php echo \Illuminate\Support\Js::from($error)->toHtml() ?>,
                         type: 'error'
                     });
-                    @endforeach
-                    @endif
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endif; ?>
 
                     // Process initial toasts with delay to ensure animations work
                     sessionToasts.forEach((t, i) => {
@@ -446,7 +471,8 @@
         </button>
     </div>
 
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 
 </html>
+<?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/layouts/admin.blade.php ENDPATH**/ ?>
