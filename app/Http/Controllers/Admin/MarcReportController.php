@@ -56,38 +56,59 @@ class MarcReportController extends Controller
     public function generate(Request $request)
     {
         $request->validate([
-            'report_type' => 'required|in:summary,productivity,quality,detailed',
-            'date_from' => 'required|date',
-            'date_to' => 'required|date|after_or_equal:date_from',
+            'report_type' => 'required|in:summary,productivity,quality,detailed,framework,document_type,department,comprehensive,statistics,catalog,category,new,published,year',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date|after_or_equal:date_from',
             'framework_id' => 'nullable|exists:marc_frameworks,id',
             'format' => 'required|in:web,excel,pdf'
         ]);
 
+        // Handle empty dates
+        $dateFrom = $request->filled('date_from') ? Carbon::parse($request->date_from) : Carbon::now()->subDays(30);
+        $dateTo = $request->filled('date_to') ? Carbon::parse($request->date_to)->endOfDay() : Carbon::now()->endOfDay();
+        
         $dateRange = [
-            'from' => Carbon::parse($request->date_from),
-            'to' => Carbon::parse($request->date_to)->endOfDay()
+            'from' => $dateFrom,
+            'to' => $dateTo
         ];
 
         $frameworkId = $request->framework_id;
 
+        // Route to appropriate report generator
         switch ($request->report_type) {
             case 'summary':
-                $data = $this->generateSummaryReport($dateRange, $frameworkId);
-                break;
             case 'productivity':
-                $data = $this->generateProductivityReport($dateRange, $frameworkId);
-                break;
             case 'quality':
-                $data = $this->generateQualityReport($dateRange, $frameworkId);
-                break;
             case 'detailed':
-                $data = $this->generateDetailedReport($dateRange, $frameworkId);
+                $data = $this->generateMarcReport($request->report_type, $dateRange, $frameworkId);
+                break;
+                
+            case 'framework':
+            case 'document_type':
+            case 'department':
+            case 'comprehensive':
+                $data = $this->generateSubsystemReport($request->report_type, $dateRange, $frameworkId);
+                break;
+                
+            case 'statistics':
+            case 'catalog':
+            case 'category':
+            case 'new':
+            case 'published':
+            case 'year':
+                $data = $this->generateDocumentReport($request->report_type, $dateRange);
                 break;
         }
 
         if ($request->format === 'excel') {
             return Excel::download(new MarcReportsExport($data, $request->report_type), 
-                'marc_report_' . $request->report_type . '_' . $request->date_from . '_to_' . $request->date_to . '.xlsx');
+                'marc_report_' . $request->report_type . '_' . $dateFrom->format('Y-m-d') . '_to_' . $dateTo->format('Y-m-d') . '.xlsx');
+        }
+
+        if ($request->format === 'pdf') {
+            // For now, return Excel for PDF too - you can implement PDF generation later
+            return Excel::download(new MarcReportsExport($data, $request->report_type), 
+                'marc_report_' . $request->report_type . '_' . $dateFrom->format('Y-m-d') . '_to_' . $dateTo->format('Y-m-d') . '.xlsx');
         }
 
         return view('admin.marc_reports.' . $request->report_type, [
@@ -95,6 +116,243 @@ class MarcReportController extends Controller
             'dateRange' => $dateRange,
             'framework' => $frameworkId ? MarcFramework::find($frameworkId) : null
         ]);
+    }
+
+    /**
+     * Generate MARC reports (existing functionality)
+     */
+    protected function generateMarcReport($reportType, array $dateRange, ?int $frameworkId): array
+    {
+        switch ($reportType) {
+            case 'summary':
+                return $this->generateSummaryReport($dateRange, $frameworkId);
+            case 'productivity':
+                return $this->generateProductivityReport($dateRange, $frameworkId);
+            case 'quality':
+                return $this->generateQualityReport($dateRange, $frameworkId);
+            case 'detailed':
+                return $this->generateDetailedReport($dateRange, $frameworkId);
+        }
+    }
+
+    /**
+     * Generate subsystem reports
+     */
+    protected function generateSubsystemReport($reportType, array $dateRange, ?int $frameworkId): array
+    {
+        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
+        
+        if ($frameworkId) {
+            $framework = MarcFramework::find($frameworkId);
+            $query->where('framework', $framework->code);
+        }
+
+        switch ($reportType) {
+            case 'framework':
+                return $this->generateFrameworkReport($query, $dateRange);
+            case 'document_type':
+                return $this->generateDocumentTypeReport($query, $dateRange);
+            case 'department':
+                return $this->generateDepartmentReport($query, $dateRange);
+            case 'comprehensive':
+                return $this->generateComprehensiveReport($query, $dateRange);
+        }
+    }
+
+    /**
+     * Generate document reports
+     */
+    protected function generateDocumentReport($reportType, array $dateRange): array
+    {
+        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
+
+        switch ($reportType) {
+            case 'statistics':
+                return $this->generateDocumentStatistics($query, $dateRange);
+            case 'catalog':
+                return $this->generateDocumentCatalog($query, $dateRange);
+            case 'category':
+                return $this->generateDocumentCategory($query, $dateRange);
+            case 'new':
+                return $this->generateNewDocuments($query, $dateRange);
+            case 'published':
+                return $this->generatePublishedDocuments($query, $dateRange);
+            case 'year':
+                return $this->generateDocumentYearReport($query, $dateRange);
+        }
+    }
+
+    /**
+     * Generate framework report
+     */
+    protected function generateFrameworkReport($query, array $dateRange): array
+    {
+        $byFramework = $query->selectRaw('framework, COUNT(*) as count')
+            ->groupBy('framework')
+            ->get();
+
+        return [
+            'title' => 'Báo cáo theo Framework',
+            'data' => $byFramework,
+            'date_range' => $dateRange,
+            'total' => $byFramework->sum('count')
+        ];
+    }
+
+    /**
+     * Generate document type report
+     */
+    protected function generateDocumentTypeReport($query, array $dateRange): array
+    {
+        $byType = $query->selectRaw('document_type_id, COUNT(*) as count')
+            ->with('documentType')
+            ->groupBy('document_type_id')
+            ->get();
+
+        return [
+            'title' => 'Báo cáo theo Loại Tài liệu',
+            'data' => $byType,
+            'date_range' => $dateRange,
+            'total' => $byType->sum('count')
+        ];
+    }
+
+    /**
+     * Generate department report
+     */
+    protected function generateDepartmentReport($query, array $dateRange): array
+    {
+        $byUser = $query->selectRaw('user_id, COUNT(*) as count')
+            ->with('user')
+            ->groupBy('user_id')
+            ->get();
+
+        return [
+            'title' => 'Báo cáo Theo Phòng Ban',
+            'data' => $byUser,
+            'date_range' => $dateRange,
+            'total' => $byUser->sum('count')
+        ];
+    }
+
+    /**
+     * Generate comprehensive report
+     */
+    protected function generateComprehensiveReport($query, array $dateRange): array
+    {
+        return [
+            'title' => 'Báo cáo Tổng Hợp',
+            'framework_stats' => $this->generateFrameworkReport($query, $dateRange),
+            'type_stats' => $this->generateDocumentTypeReport($query, $dateRange),
+            'department_stats' => $this->generateDepartmentReport($query, $dateRange),
+            'date_range' => $dateRange
+        ];
+    }
+
+    /**
+     * Generate document statistics
+     */
+    protected function generateDocumentStatistics($query, array $dateRange): array
+    {
+        $total = $query->count();
+        $byStatus = $query->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get();
+
+        return [
+            'title' => 'Thống kê Tài liệu',
+            'total_records' => $total,
+            'by_status' => $byStatus,
+            'date_range' => $dateRange
+        ];
+    }
+
+    /**
+     * Generate document catalog
+     */
+    protected function generateDocumentCatalog($query, array $dateRange): array
+    {
+        $records = $query->with(['documentType', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return [
+            'title' => 'Danh mục Tài liệu',
+            'records' => $records,
+            'total' => $records->count(),
+            'date_range' => $dateRange
+        ];
+    }
+
+    /**
+     * Generate document category report
+     */
+    protected function generateDocumentCategory($query, array $dateRange): array
+    {
+        $byCategory = $query->selectRaw('document_type_id, COUNT(*) as count')
+            ->with('documentType')
+            ->groupBy('document_type_id')
+            ->get();
+
+        return [
+            'title' => 'Tài liệu Theo Thể loại',
+            'data' => $byCategory,
+            'date_range' => $dateRange,
+            'total' => $byCategory->sum('count')
+        ];
+    }
+
+    /**
+     * Generate new documents report
+     */
+    protected function generateNewDocuments($query, array $dateRange): array
+    {
+        $records = $query->with(['documentType', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return [
+            'title' => 'Tài liệu Mới',
+            'records' => $records,
+            'total' => $records->count(),
+            'date_range' => $dateRange
+        ];
+    }
+
+    /**
+     * Generate published documents report
+     */
+    protected function generatePublishedDocuments($query, array $dateRange): array
+    {
+        $records = $query->where('status', 'approved')
+            ->with(['documentType', 'user'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return [
+            'title' => 'Tài liệu Đã Xuất bản',
+            'records' => $records,
+            'total' => $records->count(),
+            'date_range' => $dateRange
+        ];
+    }
+
+    /**
+     * Generate document year report
+     */
+    protected function generateDocumentYearReport($query, array $dateRange): array
+    {
+        $byYear = $query->selectRaw('YEAR(created_at) as year, COUNT(*) as count')
+            ->groupBy('year')
+            ->orderBy('year', 'desc')
+            ->get();
+
+        return [
+            'title' => 'Theo Năm Xuất bản',
+            'data' => $byYear,
+            'date_range' => $dateRange,
+            'total' => $byYear->sum('count')
+        ];
     }
 
     /**

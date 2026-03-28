@@ -621,10 +621,68 @@ class MarcBookController extends Controller
         $records = $query->orderBy('created_at', 'desc')->get();
         
         $includeItems = $request->boolean('include_items', false);
+        $format = $request->get('format', 'excel');
         
-        return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\MarcRecordsExport($records, $includeItems),
-            'marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
-        );
+        switch ($format) {
+            case 'csv':
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\MarcRecordsExport($records, $includeItems),
+                    'marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.csv'
+                );
+                
+            case 'marc':
+                // Generate MARC format file
+                $marcContent = $this->generateMarcFormat($records, $includeItems);
+                return response($marcContent)
+                    ->header('Content-Type', 'application/marc')
+                    ->header('Content-Disposition', 'attachment; filename="marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.mrc"');
+                
+            case 'excel':
+            default:
+                return \Maatwebsite\Excel\Facades\Excel::download(
+                    new \App\Exports\MarcRecordsExport($records, $includeItems),
+                    'marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
+                );
+        }
+    }
+
+    /**
+     * Generate MARC format content
+     */
+    private function generateMarcFormat($records, $includeItems = false)
+    {
+        $marcContent = '';
+        
+        foreach ($records as $record) {
+            // Leader
+            $leader = str_pad($record->id, 12, '0', STR_PAD_LEFT) . 'nam a22        4500';
+            $marcContent .= $leader . "\n";
+            
+            // Control fields
+            $marcContent .= "001  " . str_pad($record->id, 12, '0', STR_PAD_LEFT) . "\n";
+            $marcContent .= "008  " . now()->format('ymd') . 's        uu    |||||    ||| d' . "\n";
+            
+            // Data fields
+            foreach ($record->fields as $field) {
+                $tag = $field->tag;
+                $indicators = ($field->indicator1 ?? ' ') . ($field->indicator2 ?? ' ');
+                
+                $subfields = '';
+                foreach ($field->subfields as $subfield) {
+                    $subfields .= '$' . $subfield->code . $subfield->value;
+                }
+                
+                $marcContent .= sprintf("%-3s  %s%s\n", $tag, $indicators, $subfields);
+            }
+            
+            // Include items if requested
+            if ($includeItems && $record->items) {
+                foreach ($record->items as $item) {
+                    $marcContent .= "952  $$a" . $item->barcode . "$$b" . ($item->location ?? '') . "$$c" . ($item->status ?? '') . "\n";
+                }
+            }
+        }
+        
+        return $marcContent;
     }
 }
