@@ -54,6 +54,11 @@ class PatronDetail extends Model
         return $this->belongsTo(PatronGroup::class);
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch', 'id');
+    }
+
     public function loanTransactions()
     {
         return $this->hasMany(LoanTransaction::class);

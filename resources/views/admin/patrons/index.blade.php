@@ -1,19 +1,17 @@
 @extends('layouts.admin')
 
+@section('title', __('Patron Management'))
+
 @section('content')
 <div class="space-y-6 pb-12">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">{{ __('Patron Management') }}</h1>
-            <p class="text-slate-500 text-sm font-medium mt-1">{{ __('Manage and audit library member identities.') }}</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Patron Management') }}</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">{{ __('Manage and audit library member identities.') }}</p>
         </div>
-        <div class="flex items-center space-x-3 text-[10px] font-black uppercase tracking-widest">
-            <span class="text-slate-400 mr-2">{{ __('Lọc theo trạng thái') }}:</span>
-            <button class="text-indigo-600 border-b-2 border-indigo-600 pb-1">{{ __('Tất cả') }}</button>
-            <button class="text-slate-400 hover:text-slate-600 pb-1">{{ __('Đang hoạt động') }}</button>
-            <button class="text-slate-400 hover:text-slate-600 pb-1">{{ __('Đã khóa') }}</button>
-            <a href="{{ route('admin.patrons.create') }}" class="ml-4 bg-indigo-600 text-white px-6 py-2.5 rounded-xl shadow-md transition-all hover:bg-indigo-500">
+        <div class="flex items-center space-x-3">
+            <a href="{{ route('admin.patrons.create') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl shadow-md transition-all hover:bg-indigo-500">
                 {{ __('Add New Patron') }}
             </a>
         </div>
@@ -26,103 +24,447 @@
         </div>
     @endif
 
-    <!-- Card Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-        @forelse($patrons as $patron)
-            <div class="group relative bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full max-w-[420px] mx-auto min-h-[240px] overflow-hidden">
-                <!-- Logo Watermark Background -->
-                <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
-                    <img src="{{ asset('assets/imgs/logo-vttu.png') }}" class="w-1/2">
+    <!-- Search and Filters Section -->
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Search & Filters') }}</h2>
+        
+        <form method="GET" action="{{ route('admin.patrons.index') }}" class="space-y-4">
+            <!-- Search Bar -->
+            <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input type="text" 
+                               name="search" 
+                               value="{{ $search ?? '' }}" 
+                               placeholder="{{ __('Search patrons...') }}" 
+                               class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
                 </div>
                 
-                <!-- Top Row: Label & Checkbox -->
-                <div class="flex justify-between items-start mb-4">
-                    <span class="text-[12px] font-black text-indigo-700 tracking-tight uppercase">{{ __('Library Card') }}</span>
-                    <label class="cursor-pointer">
-                        <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                    </label>
+                <select name="search_field" class="px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="all" {{ ($searchField ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Fields') }}</option>
+                    <option value="patron_code" {{ ($searchField ?? '') == 'patron_code' ? 'selected' : '' }}>{{ __('Patron Code') }}</option>
+                    <option value="name" {{ ($searchField ?? '') == 'name' ? 'selected' : '' }}>{{ __('Name') }}</option>
+                    <option value="email" {{ ($searchField ?? '') == 'email' ? 'selected' : '' }}>{{ __('Email') }}</option>
+                    <option value="phone" {{ ($searchField ?? '') == 'phone' ? 'selected' : '' }}>{{ __('Phone') }}</option>
+                    <option value="address" {{ ($searchField ?? '') == 'address' ? 'selected' : '' }}>{{ __('Address') }}</option>
+                </select>
+                
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition">
+                    {{ __('Search') }}
+                </button>
+                
+                <a href="{{ route('admin.patrons.index') }}" class="bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-400 px-6 py-2.5 rounded-lg text-sm font-semibold transition">
+                    {{ __('Clear') }}
+                </a>
+            </div>
+
+            <!-- Advanced Filters -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Status') }}</label>
+                    <select name="status" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="all" {{ ($status ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Status') }}</option>
+                        <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                        <option value="locked" {{ ($status ?? '') == 'locked' ? 'selected' : '' }}>{{ __('Locked') }}</option>
+                    </select>
                 </div>
 
-                <!-- Middle Content -->
-                <div class="flex space-x-5">
-                    <!-- Left: Profile Photo -->
-                    <div class="w-[110px] h-[140px] flex-shrink-0 bg-slate-100 border border-slate-200 overflow-hidden">
-                        @if($patron->profile_image)
-                            <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center">
-                                <svg class="w-12 h-12 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                            </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Patron Group') }}</label>
+                    <select name="patron_group" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="all" {{ ($patronGroup ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Groups') }}</option>
+                        @if(isset($patronGroups))
+                            @foreach($patronGroups as $group)
+                                <option value="{{ $group->id }}" {{ ($patronGroup ?? '') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                            @endforeach
                         @endif
-                    </div>
+                    </select>
+                </div>
 
-                    <!-- Right: Info Details -->
-                    <div class="flex-1 flex flex-col pt-1">
-                        <h2 class="text-[16px] font-black text-indigo-700 uppercase leading-none mb-4 truncate">{{ $patron->display_name }}</h2>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Branch') }}</label>
+                    <select name="branch" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="all" {{ ($branch ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Branches') }}</option>
+                        @if(isset($branches))
+                            @foreach($branches as $branchItem)
+                                <option value="{{ $branchItem->id }}" {{ ($branch ?? '') == $branchItem->id ? 'selected' : '' }}>{{ $branchItem->name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Per Page') }}</label>
+                    <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="15" {{ ($perPage ?? 15) == 15 ? 'selected' : '' }}>15</option>
+                        <option value="30" {{ ($perPage ?? '') == 30 ? 'selected' : '' }}>30</option>
+                        <option value="50" {{ ($perPage ?? '') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ ($perPage ?? '') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Date Range -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date From') }}</label>
+                    <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date To') }}</label>
+                    <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- View Mode Toggle & Results Count -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <span class="text-sm text-gray-600 dark:text-slate-400">
+                @if(isset($patrons))
+                    {{ __('Showing :count of :total results', ['count' => $patrons->count(), 'total' => $patrons->total()]) }}
+                @else
+                    {{ __('No results to display') }}
+                @endif
+            </span>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('View Mode:') }}</span>
+            <div class="bg-gray-100 dark:bg-slate-800 rounded-lg p-1 flex">
+                <button onclick="changeViewMode('card')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? 'card') == 'card' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    {{ __('Cards') }}
+                </button>
+                <button onclick="changeViewMode('grid')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? '') == 'grid' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                    </svg>
+                    {{ __('Grid') }}
+                </button>
+                <button onclick="changeViewMode('list')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? '') == 'list' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    {{ __('List') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Display -->
+    @if(isset($patrons) && $patrons->count() > 0)
+        <!-- Card View (Default) -->
+        @if(($viewMode ?? 'card') == 'card')
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                @forelse($patrons as $patron)
+                    <div class="group relative bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full max-w-[420px] mx-auto min-h-[240px] overflow-hidden">
+                        <!-- Logo Watermark Background -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                            <img src="{{ asset('assets/imgs/logo-vttu.png') }}" class="w-1/2">
+                        </div>
                         
-                        <div class="space-y-3 mb-4">
-                            <div class="text-[12px] font-bold text-indigo-600">
-                                {{ date('d/m/Y', strtotime($patron->registration_date)) }} - {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
+                        <!-- Top Row: Label & Checkbox -->
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-[12px] font-black text-indigo-700 tracking-tight uppercase">{{ __('Library Card') }}</span>
+                            <label class="cursor-pointer">
+                                <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            </label>
+                        </div>
+
+                        <!-- Middle Content -->
+                        <div class="flex space-x-5">
+                            <!-- Left: Profile Photo -->
+                            <div class="w-[110px] h-[140px] flex-shrink-0 bg-slate-100 border border-slate-200 overflow-hidden">
+                                @if($patron->profile_image)
+                                    <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                    </div>
+                                @endif
                             </div>
-                            <!-- Barcode Area -->
-                            <div class="relative">
-                                <div class="h-[45px] w-full bg-white flex items-center justify-start overflow-hidden">
-                                    {!! $barcodeService->renderSvg($patron->patron_code) !!}
-                                </div>
-                                <div class="text-[10px] font-black font-mono text-indigo-700 text-left tracking-[0.2em] mt-1">
-                                    {{ $patron->patron_code }}
+
+                            <!-- Right: Info Details -->
+                            <div class="flex-1 flex flex-col pt-1">
+                                <h2 class="text-[16px] font-black text-indigo-700 uppercase leading-none mb-4 truncate">{{ $patron->display_name }}</h2>
+                                
+                                <div class="space-y-3 mb-4">
+                                    <div class="text-[12px] font-bold text-indigo-600">
+                                        {{ date('d/m/Y', strtotime($patron->registration_date)) }} - {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
+                                    </div>
+                                    <!-- Barcode Area -->
+                                    <div class="relative">
+                                        <div class="h-[45px] w-full bg-white flex items-center justify-start overflow-hidden">
+                                            {!! $barcodeService->renderSvg($patron->patron_code) !!}
+                                        </div>
+                                        <div class="text-[10px] font-black font-mono text-indigo-700 text-left tracking-[0.2em] mt-1">
+                                            {{ $patron->patron_code }}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Card Overlay for Quick Actions -->
+                        <div class="absolute bottom-3 right-5 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 shadow-sm" title="{{ __('Lock/Unlock') }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                </button>
+                            </form>
+                            <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
+                                class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            </button>
+                            <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-rose-500 shadow-sm">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Status Dot -->
+                        <div class="absolute top-3 right-3">
+                            <div class="w-3 h-3 rounded-full {{ $patron->card_status == 'normal' ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                        </div>
                     </div>
-                </div>
+                @empty
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-gray-500 dark:text-slate-400">{{ __('No patrons found.') }}</p>
+                    </div>
+                @endforelse
+            </div>
 
-                <!-- Card Overlay for Quick Actions (Hidden but functional) -->
-                <div class="absolute bottom-3 right-5 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
-                        @csrf @method('PATCH')
-                        <button type="submit" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 shadow-sm" title="{{ __('Lock/Unlock') }}">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        </button>
-                    </form>
-                    <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
-                        class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 shadow-sm">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    </button>
-                    <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-rose-500 shadow-sm">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Status Dot -->
-                <div class="absolute bottom-3 left-5 flex items-center space-x-1.5">
-                    <div class="w-2 h-2 rounded-full @if($patron->card_status == 'normal') bg-emerald-500 @else bg-rose-500 @endif shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">{{ $patron->card_status == 'normal' ? __('Active') : __('Locked') }}</span>
-                    @if($patron->is_waiting_for_print)
-                        <span class="w-1.5 h-1.5 rounded-full bg-orange-400 ml-2"></span>
-                        <span class="text-[8px] font-black uppercase tracking-widest text-orange-400">{{ __('Queue') }}</span>
-                    @endif
+        <!-- Grid View -->
+        @elseif(($viewMode ?? '') == 'grid')
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
+                    @forelse($patrons as $patron)
+                        <div class="text-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all duration-200 group cursor-pointer">
+                            <!-- Checkbox for bulk selection -->
+                            <div class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                </label>
+                            </div>
+                            
+                            <!-- Avatar -->
+                            <div class="w-16 h-16 mx-auto mb-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative">
+                                @if($patron->profile_image)
+                                    <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                    </div>
+                                @endif
+                                <!-- Status indicator -->
+                                <div class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white {{ $patron->card_status == 'normal' ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                            </div>
+                            
+                            <!-- Name -->
+                            <h3 class="font-semibold text-sm text-gray-900 dark:text-slate-100 truncate mb-1" title="{{ $patron->display_name }}">
+                                {{ $patron->display_name }}
+                            </h3>
+                            
+                            <!-- Code -->
+                            <p class="text-xs text-gray-500 dark:text-slate-400 font-mono mb-2">{{ $patron->patron_code }}</p>
+                            
+                            <!-- Group -->
+                            @if($patron->patronGroup)
+                                <p class="text-xs text-indigo-600 dark:text-indigo-400 mb-2 truncate">{{ $patron->patronGroup->name }}</p>
+                            @endif
+                            
+                            <!-- Status Badge -->
+                            <div class="flex justify-center mb-3">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $patron->card_status == 'normal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
+                                    {{ $patron->card_status == 'normal' ? __('Active') : __('Locked') }}
+                                </span>
+                            </div>
+                            
+                            <!-- Quick Actions -->
+                            <div class="flex justify-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
+                                    @csrf @method('PATCH')
+                                    <button type="submit" class="p-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400" title="{{ __('Lock/Unlock') }}">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                    </button>
+                                </form>
+                                <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
+                                    class="p-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400" title="{{ __('Renew') }}">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                </button>
+                                <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="p-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" title="{{ __('Delete') }}">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-span-full text-center py-12">
+                            <p class="text-gray-500 dark:text-slate-400">{{ __('No patrons found.') }}</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
-        @empty
-            <div class="col-span-full py-20 bg-white border border-dashed border-slate-200 rounded-xl flex flex-col items-center">
-                <svg class="w-12 h-12 text-slate-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M9 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zm-3 4a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">{{ __('No patrons found') }}</p>
+
+        <!-- List View -->
+        @elseif(($viewMode ?? '') == 'list')
+            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 dark:bg-slate-800">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
+                                    <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Patron') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Code') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Email') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Phone') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Group') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Branch') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Status') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Registration') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Expiry') }}</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+                            @forelse($patrons as $patron)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mr-3">
+                                                @if($patron->profile_image)
+                                                    <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <div class="w-full h-full flex items-center justify-center">
+                                                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $patron->display_name }}</div>
+                                                <div class="text-xs text-gray-500 dark:text-slate-400">{{ $patron->user->email ?? '' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-slate-100 font-mono">{{ $patron->patron_code }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->user->email ?? '' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->phone ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->patronGroup->name ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->branch ?? '-' }}</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $patron->card_status == 'normal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
+                                            <span class="w-2 h-2 mr-1.5 rounded-full {{ $patron->card_status == 'normal' ? 'bg-green-400' : 'bg-red-400' }}"></span>
+                                            {{ $patron->card_status == 'normal' ? __('Active') : __('Locked') }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
+                                        {{ date('d/m/Y', strtotime($patron->registration_date)) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
+                                        <span class="{{ \Carbon\Carbon::parse($patron->expiry_date)->isPast() ? 'text-red-600 font-semibold' : '' }}">
+                                            {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <div class="flex items-center space-x-2">
+                                            <!-- View Details -->
+                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300" title="{{ __('View Details') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                            </a>
+                                            
+                                            <!-- Toggle Status -->
+                                            <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
+                                                @csrf @method('PATCH')
+                                                <button type="submit" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300" title="{{ __('Lock/Unlock') }}">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                </button>
+                                            </form>
+                                            
+                                            <!-- Renew -->
+                                            <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
+                                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="{{ __('Renew') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            </button>
+                                            
+                                            <!-- Edit -->
+                                            <a href="#" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="{{ __('Edit') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            </a>
+                                            
+                                            <!-- Delete -->
+                                            <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" title="{{ __('Delete') }}">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="11" class="px-6 py-12 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                            <p class="text-gray-500 dark:text-slate-400">{{ __('No patrons found.') }}</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        @endforelse
-    </div>
-    
-    @if($patrons->hasPages())
-        <div class="mt-12 flex justify-center">
-            {{ $patrons->links() }}
+        @endif
+
+        <!-- Pagination -->
+        @if($patrons->hasPages())
+            <div class="mt-6">
+                {{ $patrons->links() }}
+            </div>
+        @endif
+    @else
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-12 text-center">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">{{ __('No patrons found') }}</h3>
+            <p class="text-gray-500 dark:text-slate-400">{{ __('Try adjusting your search criteria or filters.') }}</p>
         </div>
     @endif
 </div>
 
-<!-- Renew Modal (unchanged style but clean) -->
+<!-- Renew Modal -->
 <div id="renewModal" class="fixed inset-0 z-[100] hidden">
     <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeRenewModal()"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
@@ -148,16 +490,23 @@
 </div>
 
 <script>
-    function openRenewModal(patron) {
-        document.getElementById('renewForm').action = `/topsecret/patrons/${patron.id}/renew`;
-        document.getElementById('renewPatronName').textContent = patron.name;
-        document.getElementById('renew_expiry_date').value = patron.expiry;
-        document.getElementById('renewModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeRenewModal() {
-        document.getElementById('renewModal').classList.add('hidden');
-        document.body.style.overflow = 'auto';
-    }
+function changeViewMode(mode) {
+    const url = new URL(window.location);
+    url.searchParams.set('view_mode', mode);
+    window.location.href = url.toString();
+}
+
+function openRenewModal(patron) {
+    document.getElementById('renewForm').action = `/topsecret/patrons/${patron.id}/renew`;
+    document.getElementById('renewPatronName').textContent = patron.name;
+    document.getElementById('renew_expiry_date').value = patron.expiry;
+    document.getElementById('renewModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeRenewModal() {
+    document.getElementById('renewModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
 </script>
 @endsection

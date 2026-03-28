@@ -24,11 +24,106 @@ class PatronController extends Controller
         $this->barcodeService = $barcodeService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $patrons = PatronDetail::with('user')->latest()->paginate(15);
-        $barcodeService = $this->barcodeService; // For rendering in view
-        return view('admin.patrons.index', compact('patrons', 'barcodeService'));
+        // Get search and filter parameters
+        $search = $request->get('search', '');
+        $searchField = $request->get('search_field', 'all'); // all, patron_code, name, email, phone, address
+        $status = $request->get('status', 'all'); // all, active, locked
+        $patronGroup = $request->get('patron_group', 'all');
+        $branch = $request->get('branch', 'all');
+        $dateFrom = $request->get('date_from', '');
+        $dateTo = $request->get('date_to', '');
+        $viewMode = $request->get('view_mode', 'card'); // card, grid, list
+        $perPage = $request->get('per_page', 15);
+
+        // Build query
+        $query = PatronDetail::with(['user', 'patronGroup']);
+
+        // Search functionality
+        if (!empty($search)) {
+            switch ($searchField) {
+                case 'patron_code':
+                    $query->where('patron_code', 'LIKE', "%{$search}%");
+                    break;
+                case 'name':
+                    $query->where('display_name', 'LIKE', "%{$search}%");
+                    break;
+                case 'email':
+                    $query->whereHas('user', function($q) use ($search) {
+                        $q->where('email', 'LIKE', "%{$search}%");
+                    });
+                    break;
+                case 'phone':
+                    $query->where('phone', 'LIKE', "%{$search}%");
+                    break;
+                case 'address':
+                    $query->whereHas('addresses', function($q) use ($search) {
+                        $q->where('address', 'LIKE', "%{$search}%");
+                    });
+                    break;
+                default: // all
+                    $query->where(function($q) use ($search) {
+                        $q->where('patron_code', 'LIKE', "%{$search}%")
+                          ->orWhere('display_name', 'LIKE', "%{$search}%")
+                          ->orWhere('phone', 'LIKE', "%{$search}%")
+                          ->orWhereHas('user', function($subQ) use ($search) {
+                              $subQ->where('email', 'LIKE', "%{$search}%");
+                          })
+                          ->orWhereHas('addresses', function($subQ) use ($search) {
+                              $subQ->where('address', 'LIKE', "%{$search}%");
+                          });
+                    });
+            }
+        }
+
+        // Status filter
+        if ($status !== 'all') {
+            $query->where('card_status', $status === 'active' ? 'normal' : 'locked');
+        }
+
+        // Patron group filter
+        if ($patronGroup !== 'all') {
+            $query->where('patron_group_id', $patronGroup);
+        }
+
+        // Branch filter - branch is a string field, not a relationship
+        if ($branch !== 'all') {
+            $query->where('branch', $branch);
+        }
+
+        // Date range filter
+        if (!empty($dateFrom)) {
+            $query->whereDate('registration_date', '>=', $dateFrom);
+        }
+        if (!empty($dateTo)) {
+            $query->whereDate('registration_date', '<=', $dateTo);
+        }
+
+        // Order and paginate
+        $patrons = $query->latest('registration_date')->paginate($perPage)->withQueryString();
+
+        // Get filter data
+        $patronGroups = PatronGroup::where('is_active', true)->get();
+        $branches = Branch::all();
+
+        $barcodeService = $this->barcodeService;
+
+        return view('admin.patrons.index', compact(
+            'patrons', 
+            'barcodeService', 
+            'patronGroups', 
+            'branches',
+            'viewMode',
+            'search',
+            'searchField',
+            'status',
+            'patronGroup',
+            'branch',
+            'dateFrom',
+            'dateTo',
+            'perPage'
+        ));
     }
 
     public function create()
