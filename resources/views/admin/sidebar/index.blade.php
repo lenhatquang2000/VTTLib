@@ -7,9 +7,31 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
     /* ============================================
-       BASE RESET & CUSTOM PROPERTIES
+       LIGHT & DARK THEME CUSTOM PROPERTIES
     ============================================ */
     :root {
+        /* Light theme colors */
+        --clr-bg-light:        #fafbfc;
+        --clr-surface-light:   #ffffff;
+        --clr-glass-light:     rgba(255,255,255,0.8);
+        --clr-border-light:    rgba(0,0,0,0.08);
+        --clr-border-hl-light: rgba(59,130,246,0.3);
+        --clr-violet-light:    #3b82f6;
+        --clr-indigo-light:    #6366f1;
+        --clr-pink-light:      #ec4899;
+        --clr-cyan-light:      #06b6d4;
+        --clr-emerald-light:   #10b981;
+        --clr-amber-light:     #f59e0b;
+        --clr-text-light:      #1e293b;
+        --clr-text-sub-light:  #64748b;
+        --clr-text-dim-light:  #94a3b8;
+        --shadow-sm-light:     0 2px 8px rgba(0,0,0,.08);
+        --shadow-lg-light:     0 20px 50px rgba(0,0,0,.12);
+        --shadow-glow-light:   0 0 30px rgba(59,130,246,.2);
+    }
+
+    .dark {
+        /* Dark theme colors */
         --clr-bg:        #080b14;
         --clr-surface:   #0d1117;
         --clr-glass:     rgba(255,255,255,0.04);
@@ -23,19 +45,46 @@
         --clr-amber:     #f59e0b;
         --clr-text:      #f1f5f9;
         --clr-text-sub:  #94a3b8;
-        --clr-text-dim:  #475569;
-        --radius-xl:     20px;
-        --radius-lg:     14px;
-        --radius-md:     10px;
+        --clr-text-dim:  #64748b;
         --shadow-sm:     0 2px 8px rgba(0,0,0,.4);
         --shadow-lg:     0 20px 50px rgba(0,0,0,.6);
         --shadow-glow:   0 0 30px rgba(139,92,246,.25);
+    }
+
+    /* Default to light theme */
+    :root:not(.dark) {
+        --clr-bg:        var(--clr-bg-light);
+        --clr-surface:   var(--clr-surface-light);
+        --clr-glass:     var(--clr-glass-light);
+        --clr-border:    var(--clr-border-light);
+        --clr-border-hl: var(--clr-border-hl-light);
+        --clr-violet:    var(--clr-violet-light);
+        --clr-indigo:    var(--clr-indigo-light);
+        --clr-pink:      var(--clr-pink-light);
+        --clr-cyan:      var(--clr-cyan-light);
+        --clr-emerald:   var(--clr-emerald-light);
+        --clr-amber:     var(--clr-amber-light);
+        --clr-text:      var(--clr-text-light);
+        --clr-text-sub:  var(--clr-text-sub-light);
+        --clr-text-dim:  var(--clr-text-dim-light);
+        --shadow-sm:     var(--shadow-sm-light);
+        --shadow-lg:     var(--shadow-lg-light);
+        --shadow-glow:   var(--shadow-glow-light);
+    }
+
+    /* ============================================
+       BASE RESET & CUSTOM PROPERTIES
+    ============================================ */
+    :root {
+        --radius-xl:     20px;
+        --radius-lg:     14px;
+        --radius-md:     10px;
         --transition:    0.28s cubic-bezier(.4,0,.2,1);
     }
 
     /* Override main background */
     main {
-        background: radial-gradient(ellipse at 0% 0%, #13102a 0%, #080b14 45%, #0a1220 100%) !important;
+        background: radial-gradient(ellipse at 0% 0%, var(--clr-bg) 0%, var(--clr-bg) 45%, var(--clr-bg) 100%) !important;
         min-height: 100vh;
         padding: 2rem !important;
         font-family: 'Inter', sans-serif !important;
@@ -170,16 +219,16 @@
         color: #fff;
     }
 
-    .btn-reset {
-        background: rgba(255,255,255,.06);
-        border: 1.5px solid var(--clr-border);
-        color: var(--clr-text-sub);
+    .btn-add {
+        background: rgba(255,255,255,.08);
+        border: 1.5px solid rgba(139,92,246,.3);
+        color: #a78bfa;
     }
 
-    .btn-reset:hover {
-        background: rgba(139,92,246,.12);
-        border-color: var(--clr-border-hl);
-        color: var(--clr-text);
+    .btn-add:hover {
+        background: rgba(139,92,246,.15);
+        border-color: rgba(139,92,246,.5);
+        color: #c4b5fd;
         transform: translateY(-2px);
     }
 
@@ -816,28 +865,240 @@
         border-radius: var(--radius-lg);
     }
 
-    /* ROOT add-more zone */
-    .root-drop-hint {
-        text-align: center;
-        padding: .75rem;
-        border: 2px dashed rgba(139,92,246,.15);
+    /* ============================================
+       MODAL STYLES
+    ============================================ */
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal.hidden {
+        display: none;
+    }
+
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+        position: relative;
+        background: var(--clr-bg-card);
+        border: 1px solid var(--clr-border);
         border-radius: var(--radius-lg);
-        color: var(--clr-text-dim);
-        font-size: .78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: .06em;
-        margin-top: .5rem;
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+        color: var(--clr-text-primary);
+    }
+
+    .max-w-lg {
+        max-width: 32rem;
+    }
+
+    .w-full {
+        width: 100%;
+    }
+
+    .space-y-4 > * + * {
+        margin-top: 1rem;
+    }
+
+    .flex {
+        display: flex;
+    }
+
+    .items-center {
+        align-items: center;
+    }
+
+    .justify-end {
+        justify-content: flex-end;
+    }
+
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .mt-6 {
+        margin-top: 1.5rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 1rem;
+    }
+
+    .mb-1 {
+        margin-bottom: 0.25rem;
+    }
+
+    .text-lg {
+        font-size: 1.125rem;
+    }
+
+    .text-sm {
+        font-size: 0.875rem;
+    }
+
+    .font-bold {
+        font-weight: 700;
+    }
+
+    .font-medium {
+        font-weight: 500;
+    }
+
+    .block {
+        display: block;
+    }
+
+    .rounded {
+        border-radius: 0.375rem;
+    }
+
+    /* ============================================
+       FORM ELEMENTS
+    ============================================ */
+    .input-field {
+        background: var(--clr-bg-secondary);
+        border: 1px solid var(--clr-border);
+        color: var(--clr-text-primary);
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
         transition: all var(--transition);
     }
 
-    .root-drop-hint.active {
-        border-color: rgba(139,92,246,.5);
-        background: rgba(139,92,246,.05);
-        color: #a78bfa;
+    .input-field:focus {
+        outline: none;
+        border-color: var(--clr-accent);
+        box-shadow: 0 0 0 3px rgba(139,92,246,0.1);
+    }
+
+    .input-field::placeholder {
+        color: var(--clr-text-muted);
+    }
+
+    /* Select dropdown styling */
+    select.input-field {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
+    /* Custom dropdown arrow color for dark theme */
+    .dark select.input-field {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    }
+
+    .btn-secondary {
+        background: var(--clr-bg-secondary);
+        border: 1px solid var(--clr-border);
+        color: var(--clr-text-secondary);
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition);
+    }
+
+    .btn-secondary:hover {
+        background: var(--clr-bg-tertiary);
+        border-color: var(--clr-border-light);
+        color: var(--clr-text-primary);
+    }
+
+    .btn-primary {
+        background: var(--clr-accent);
+        border: 1px solid var(--clr-accent);
+        color: #ffffff;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all var(--transition);
+    }
+
+    .btn-primary:hover {
+        background: var(--clr-accent-hover);
+        border-color: var(--clr-accent-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(139,92,246,0.4);
+    }
+
+    label {
+        color: var(--clr-text-primary);
+        cursor: pointer;
+    }
+
+    input[type="checkbox"] {
+        accent-color: var(--clr-accent);
     }
 </style>
 @endpush
+
+{{-- Add New Item Modal --}}
+<div id="addItemModal" class="modal hidden">
+    <div class="modal-backdrop" onclick="closeAddModal()"></div>
+    <div class="modal-content max-w-lg">
+        <h3 class="text-lg font-bold mb-4">{{ __('Add New Sidebar Item') }}</h3>
+        <form id="addItemForm" method="POST">
+            @csrf
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">{{ __('Item Name') }} *</label>
+                    <input type="text" name="name" required class="input-field w-full" placeholder="{{ __('Enter item name') }}">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">{{ __('Icon') }} (FontAwesome class)</label>
+                    <input type="text" name="icon" class="input-field w-full" placeholder="fas fa-home" value="fas fa-circle">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">{{ __('Route Name') }}</label>
+                    <input type="text" name="route_name" class="input-field w-full" placeholder="admin.dashboard">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">{{ __('Parent Item') }}</label>
+                    <select name="parent_id" class="input-field w-full">
+                        <option value="">{{ __('— Root —') }}</option>
+                        @foreach($sidebarItems as $item)
+                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="is_active" id="newItemActive" value="1" checked class="rounded">
+                    <label for="newItemActive" class="text-sm">{{ __('Active') }}</label>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button type="button" onclick="closeAddModal()" class="btn-secondary">{{ __('Cancel') }}</button>
+                <button type="submit" class="btn-primary">{{ __('Add Item') }}</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @section('content')
 
@@ -857,10 +1118,13 @@
 ══════════════════════════════════════════════ --}}
 <div class="sbm-header">
     <div class="sbm-header-left">
-        <h1><i class="fas fa-layer-group me-2"></i>Sidebar Management</h1>
+        <h1><i class="fas fa-layer-group me-2"></i>{{ __('Sidebar Management') }}</h1>
         <p>Kéo thả để sắp xếp thứ tự &amp; cấp bậc các mục menu</p>
     </div>
     <div class="sbm-actions">
+        <button class="btn-sbm btn-add" onclick="openAddModal()">
+            <i class="fas fa-plus"></i> Thêm mục mới
+        </button>
         <button class="btn-sbm btn-reset" onclick="handleReset()">
             <i class="fas fa-undo"></i> Reset
         </button>
@@ -1352,12 +1616,48 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBadgeNumbers();
 });
 
-// Warn before leaving with unsaved order changes
-window.addEventListener('beforeunload', e => {
-    if (pendingChanges) {
-        e.preventDefault();
-        e.returnValue = '';
-    }
+/* =============================================
+   ADD NEW ITEM MODAL
+============================================= */
+function openAddModal() {
+    document.getElementById('addItemModal').classList.remove('hidden');
+}
+
+function closeAddModal() {
+    document.getElementById('addItemModal').classList.add('hidden');
+    document.getElementById('addItemForm').reset();
+}
+
+/* =============================================
+   FORM SUBMISSION
+============================================= */
+document.getElementById('addItemForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    showToast('Đang thêm mục mới…', 'info');
+    
+    fetch('{{ route("admin.sidebar.store") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast('Đã thêm mục mới thành công!', 'success');
+            closeAddModal();
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.message || 'Lỗi thêm mục mới', 'error');
+        }
+    })
+    .catch(() => showToast('Lỗi kết nối server', 'error'));
 });
 </script>
 

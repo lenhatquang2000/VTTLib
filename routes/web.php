@@ -125,6 +125,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     
     // Sidebar Management
     Route::get('/sidebar-management', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'index'])->name('admin.sidebar.index');
+    Route::post('/sidebar-management', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'store'])->name('admin.sidebar.store');
     Route::put('/sidebar-management/order', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'updateOrder'])->name('admin.sidebar.order');
     Route::put('/sidebar-management/parent', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'updateParent'])->name('admin.sidebar.parent');
     Route::put('/sidebar-management/toggle-active', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'toggleActive'])->name('admin.sidebar.toggle-active');

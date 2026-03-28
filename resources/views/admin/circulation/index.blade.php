@@ -2,30 +2,34 @@
 
 @section('content')
 <div class="space-y-8">
+<div class="circulation-page">
+    {{-- Success/Error Messages --}}
     @if(session('success'))
-        <div class="bg-green-900/20 border border-green-500 text-green-400 p-4 text-xs font-mono rounded">
+        <div class="bg-green-900/20 border border-green-500 text-green-400 p-4 text-xs font-mono rounded mb-6">
             [OK] {{ session('success') }}
         </div>
     @endif
     @if(session('error'))
-        <div class="bg-red-900/20 border border-red-500 text-red-400 p-4 text-xs font-mono rounded">
+        <div class="bg-red-900/20 border border-red-500 text-red-400 p-4 text-xs font-mono rounded mb-6">
             [ERROR] {{ session('error') }}
         </div>
     @endif
 
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold">{{ __('Circulation_Policies') }}</h1>
-            <p class="text-sm text-gray-400 mt-1">{{ __('Manage_patron_groups_and_loan_policies') }}</p>
-        </div>
-        <div class="flex gap-2">
-            <button onclick="openModal('addPatronGroupModal')" class="btn-primary">
-                {{ __('Add_Patron_Group') }}
-            </button>
-            <a href="{{ route('admin.circulation.loan-desk') }}" class="btn-secondary">
-                {{ __('Loan_Desk') }}
-            </a>
+    {{-- Page Header --}}
+    <div class="page-header">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="page-title">{{ __('Circulation_Policies') }}</h1>
+                <p class="page-subtitle">{{ __('Manage_patron_groups_and_loan_policies') }}</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="openModal('addPatronGroupModal')" class="btn-primary">
+                    {{ __('Add_Patron_Group') }}
+                </button>
+                <a href="{{ route('admin.circulation.loan-desk') }}" class="btn-secondary">
+                    {{ __('Loan_Desk') }}
+                </a>
+            </div>
         </div>
     </div>
 
@@ -66,46 +70,52 @@
                 </div>
 
                 @forelse($group->circulationPolicies as $policy)
-                <div class="bg-gray-800/50 rounded p-3 mb-2 {{ $policy->is_active ? 'border-l-4 border-green-500' : '' }}">
+                <div class="policy-card {{ $policy->is_active ? 'active' : '' }}">
                     <div class="flex justify-between items-start">
                         <div>
-                            <span class="font-medium">{{ $policy->name }}</span>
+                            <span class="font-medium text-lg">{{ $policy->name }}</span>
                             @if($policy->is_active)
                                 <span class="ml-2 text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded">{{ __('Active') }}</span>
                             @endif
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="editPolicy({{ json_encode($policy) }})" class="text-blue-400 hover:text-blue-300 text-xs">
+                            <button onclick="editPolicy({{ json_encode($policy) }})" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
                                 {{ __('Edit') }}
                             </button>
                             <form action="{{ route('admin.circulation.policies.destroy', $policy) }}" method="POST" class="inline"
                                 onsubmit="return confirm('{{ __('Delete_this_policy?') }}')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-red-400 hover:text-red-300 text-xs">{{ __('Delete') }}</button>
+                                <button type="submit" class="text-red-400 hover:text-red-300 text-sm transition-colors">{{ __('Delete') }}</button>
                             </form>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 text-xs text-gray-400">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
                         <div>
                             <span class="block text-gray-500">{{ __('Loan_Days') }}</span>
-                            <span class="font-mono">{{ $policy->max_loan_days }}</span>
+                            <span class="font-mono font-semibold">{{ $policy->max_loan_days }}</span>
                         </div>
                         <div>
                             <span class="block text-gray-500">{{ __('Max_Items') }}</span>
-                            <span class="font-mono">{{ $policy->max_items }}</span>
+                            <span class="font-mono font-semibold">{{ $policy->max_items }}</span>
                         </div>
                         <div>
                             <span class="block text-gray-500">{{ __('Fine/Day') }}</span>
-                            <span class="font-mono">{{ number_format($policy->fine_per_day) }}đ</span>
+                            <span class="font-mono font-semibold">{{ number_format($policy->fine_per_day) }}đ</span>
                         </div>
                         <div>
                             <span class="block text-gray-500">{{ __('Renewals') }}</span>
-                            <span class="font-mono">{{ $policy->max_renewals }}</span>
+                            <span class="font-mono font-semibold">{{ $policy->max_renewals }}</span>
                         </div>
                     </div>
                 </div>
                 @empty
-                <p class="text-sm text-gray-500 italic">{{ __('No_policies_defined') }}</p>
+                <div class="text-center py-8 text-gray-500">
+                    <p class="text-lg">{{ __('No_policies_defined') }}</p>
+                    <button onclick="openAddPolicyModal({{ $group->id }}, '{{ $group->name }}')" 
+                        class="mt-4 btn-primary">
+                        {{ __('Add_Policy') }}
+                    </button>
+                </div>
                 @endforelse
             </div>
         </div>
@@ -376,20 +386,246 @@
     </div>
 </div>
 
+@push('styles')
 <style>
-    .modal { position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; }
-    .modal.hidden { display: none; }
-    .modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.8); }
-    .modal-content { position: relative; background: #1f2937; border: 1px solid #374151; border-radius: 0.5rem; padding: 1.5rem; max-width: 28rem; width: 100%; max-height: 90vh; overflow-y: auto; }
-    .modal-content.max-w-2xl { max-width: 42rem; }
-    .input-field { background: #111827; border: 1px solid #374151; border-radius: 0.375rem; padding: 0.5rem 0.75rem; color: #fff; font-size: 0.875rem; }
-    .input-field:focus { outline: none; border-color: #3b82f6; }
-    .btn-primary { background: #3b82f6; color: #fff; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-secondary { background: #374151; color: #fff; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; }
-    .btn-secondary:hover { background: #4b5563; }
-    .card-admin { background: #1f2937; border: 1px solid #374151; }
+/* ════════════════════════════════════════════════
+   CIRCULATION THEME - DARK & LIGHT MODE SUPPORT
+════════════════════════════════════════════════ */
+
+/* Root CSS Variables for Dark Theme */
+:root {
+    --clr-bg: #0a0a0a;
+    --clr-bg-secondary: #111111;
+    --clr-bg-tertiary: #1a1a1a;
+    --clr-bg-card: #1f1f1f;
+    --clr-text-primary: #ffffff;
+    --clr-text-secondary: #e5e5e5;
+    --clr-text-muted: #9ca3af;
+    --clr-border: #2a2a2a;
+    --clr-border-light: #3a3a3a;
+    --clr-accent: #3b82f6;
+    --clr-accent-hover: #2563eb;
+    --clr-success: #10b981;
+    --clr-warning: #f59e0b;
+    --clr-error: #ef4444;
+    --clr-gradient-start: #1a1a1a;
+    --clr-gradient-end: #0a0a0a;
+    --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* Light Theme Variables */
+.dark {
+    --clr-bg: #f8fafc;
+    --clr-bg-secondary: #ffffff;
+    --clr-bg-tertiary: #f1f5f9;
+    --clr-bg-card: #ffffff;
+    --clr-text-primary: #1e293b;
+    --clr-text-secondary: #475569;
+    --clr-text-muted: #64748b;
+    --clr-border: #e2e8f0;
+    --clr-border-light: #cbd5e1;
+    --clr-accent: #3b82f6;
+    --clr-accent-hover: #2563eb;
+    --clr-success: #10b981;
+    --clr-warning: #f59e0b;
+    --clr-error: #ef4444;
+    --clr-gradient-start: #f8fafc;
+    --clr-gradient-end: #f1f5f9;
+    --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Page Container */
+.circulation-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--clr-gradient-start) 0%, var(--clr-gradient-end) 100%);
+    color: var(--clr-text-primary);
+    padding: 2rem;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-accent-hover) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.025em;
+}
+
+.page-subtitle {
+    color: var(--clr-text-muted);
+    font-size: 1.125rem;
+    font-weight: 400;
+}
+
+/* Cards */
+.card-admin {
+    background: var(--clr-bg-card);
+    border: 1px solid var(--clr-border);
+    box-shadow: var(--shadow-primary);
+    transition: all 0.3s ease;
+}
+
+.card-admin:hover {
+    box-shadow: var(--shadow-secondary);
+    transform: translateY(-2px);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--clr-accent) 0%, var(--clr-accent-hover) 100%);
+    color: #ffffff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-primary);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-secondary);
+}
+
+.btn-secondary {
+    background: var(--clr-bg-tertiary);
+    color: var(--clr-text-secondary);
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border: 1px solid var(--clr-border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: var(--clr-bg-secondary);
+    border-color: var(--clr-border-light);
+}
+
+/* Form Elements */
+.input-field {
+    background: var(--clr-bg-secondary);
+    border: 1px solid var(--clr-border);
+    border-radius: 0.375rem;
+    padding: 0.75rem;
+    color: var(--clr-text-primary);
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--clr-accent);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Policy Cards */
+.policy-card {
+    background: var(--clr-bg-secondary);
+    border: 1px solid var(--clr-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.policy-card:hover {
+    background: var(--clr-bg-tertiary);
+    border-color: var(--clr-border-light);
+}
+
+.policy-card.active {
+    border-left: 4px solid var(--clr-success);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--clr-bg-card);
+    border: 1px solid var(--clr-border);
+    border-radius: 0.75rem;
+    padding: 2rem;
+    max-width: 28rem;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-secondary);
+}
+
+.modal-content.max-w-2xl {
+    max-width: 42rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .circulation-page {
+        padding: 1rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card-admin {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.btn-primary, .btn-secondary {
+    animation: fadeIn 0.3s ease-out;
+}
 </style>
+@endpush
 
 <script>
     function openModal(id) {

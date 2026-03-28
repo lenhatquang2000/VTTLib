@@ -82,20 +82,38 @@ class SidebarManagementController extends Controller
         ]);
     }
 
-    public function toggleActive(Request $request)
+    public function store(Request $request)
     {
         $request->validate([
-            'id' => 'required|integer|exists:sidebars,id',
+            'name' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'route_name' => 'nullable|string|max:255',
+            'parent_id' => 'nullable|integer|exists:sidebars,id',
+            'is_active' => 'boolean',
         ]);
 
-        $sidebar = Sidebar::find($request->id);
-        $sidebar->is_active = !$sidebar->is_active;
-        $sidebar->save();
+        $data = $request->only(['name', 'icon', 'route_name', 'parent_id', 'is_active']);
+
+        // Set default icon if not provided
+        if (empty($data['icon'])) {
+            $data['icon'] = '<i class="fas fa-circle"></i>';
+        }
+
+        // Set order based on existing items
+        $maxOrder = Sidebar::max('order') ?? 0;
+        $data['order'] = $maxOrder + 1;
+
+        // Prevent circular reference if parent is set
+        if ($data['parent_id']) {
+            $this->preventCircularReference(null, $data['parent_id']); // New item has no ID yet
+        }
+
+        $sidebar = Sidebar::create($data);
 
         return response()->json([
             'success' => true,
-            'message' => __('Sidebar status updated successfully'),
-            'is_active' => $sidebar->is_active
+            'message' => __('Sidebar item created successfully'),
+            'item' => $sidebar
         ]);
     }
 
