@@ -293,4 +293,70 @@ class PatronController extends Controller
         ActivityLog::log('patron_deleted', $patron);
         return redirect()->route('admin.patrons.index')->with('success', __('Patron moved to archives.'));
     }
+
+    /**
+     * Bulk update patrons
+     */
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'patron_ids' => 'required|array',
+            'patron_ids.*' => 'exists:users,id',
+            'fields' => 'required|array',
+            'fields.*' => 'in:patron_group_id,branch_id,is_active,expiry_date,phone'
+        ]);
+
+        $patronIds = $request->patron_ids;
+        $fields = $request->fields;
+        $updateData = [];
+
+        // Build update data based on selected fields
+        foreach ($fields as $field) {
+            if ($request->has($field) && $request->input($field) !== '') {
+                $updateData[$field] = $request->input($field);
+            }
+        }
+
+        if (empty($updateData)) {
+            return back()->with('error', 'Vui lòng chọn ít nhất một trường và nhập giá trị mới.');
+        }
+
+        // Update patrons
+        $updatedCount = User::whereIn('id', $patronIds)->update($updateData);
+
+        // Log activity
+        ActivityLog::log('patrons_bulk_updated', null, [
+            'patron_count' => $updatedCount,
+            'updated_fields' => array_keys($updateData)
+        ]);
+
+        return back()->with('success', "Đã cập nhật thông tin cho {$updatedCount} độc giả thành công.");
+    }
+
+    /**
+     * Bulk delete patrons
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'patron_ids' => 'required|array',
+            'patron_ids.*' => 'exists:users,id'
+        ]);
+
+        $patronIds = $request->patron_ids;
+        
+        // Get patrons before deletion for logging
+        $patrons = User::whereIn('id', $patronIds)->get(['name', 'email']);
+        
+        // Soft delete patrons
+        $deletedCount = User::whereIn('id', $patronIds)->delete();
+
+        // Log activity
+        ActivityLog::log('patrons_bulk_deleted', null, [
+            'patron_count' => $deletedCount,
+            'deleted_patrons' => $patrons->pluck('name')->toArray()
+        ]);
+
+        return back()->with('success', "Đã xóa {$deletedCount} độc giả thành công.");
+    }
 }

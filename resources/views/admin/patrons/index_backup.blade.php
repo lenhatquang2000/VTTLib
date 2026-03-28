@@ -240,29 +240,20 @@
                             </div>
 
                             <!-- Right: Info Details -->
-                            <div class="flex-1 flex flex-col pt-1">
-                                <h2 class="text-[16px] font-black text-indigo-700 dark:text-indigo-400 uppercase leading-none mb-4 truncate">{{ $patron->display_name }}</h2>
-                                
-                                <div class="space-y-3 mb-4">
-                                    <div class="text-[12px] font-bold text-indigo-600 dark:text-indigo-400">
-                                        {{ date('d/m/Y', strtotime($patron->registration_date)) }} - {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
-                                    </div>
-                                    <!-- Barcode Area -->
-                                    <div class="relative">
-                                        <div class="h-[45px] w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-start overflow-hidden">
-                                            {!! $barcodeService->renderSvg($patron->patron_code) !!}
-                                        </div>
-                                        <div class="text-[10px] font-black font-mono text-indigo-700 dark:text-indigo-400 text-left tracking-[0.2em] mt-1">
-                                            {{ $patron->patron_code }}
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </div>
 
-                        <!-- Card Overlay for Quick Actions -->
-                        <div class="absolute bottom-3 right-5 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
+                            <!-- Middle Content -->
+                            <div class="flex space-x-5">
+                                <!-- Left: Profile Photo -->
+                                <div class="w-[110px] h-[140px] flex-shrink-0 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 overflow-hidden">
+                                    @if($patron->profile_image)
+                                        <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <svg class="w-12 h-12 text-slate-300 dark:text-slate-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                        </div>
+                                    @endif
+                                </div>
                                 @csrf @method('PATCH')
                                 <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm" title="{{ __('Lock/Unlock') }}">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
