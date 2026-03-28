@@ -169,7 +169,7 @@
         @if(($viewMode ?? 'card') == 'card')
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                 @forelse($patrons as $patron)
-                    <div class="group relative bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full max-w-[420px] mx-auto min-h-[240px] overflow-hidden">
+                    <div class="group relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full max-w-[420px] mx-auto min-h-[240px] overflow-hidden">
                         <!-- Logo Watermark Background -->
                         <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
                             <img src="{{ asset('assets/imgs/logo-vttu.png') }}" class="w-1/2">
@@ -177,39 +177,39 @@
                         
                         <!-- Top Row: Label & Checkbox -->
                         <div class="flex justify-between items-start mb-4">
-                            <span class="text-[12px] font-black text-indigo-700 tracking-tight uppercase">{{ __('Library Card') }}</span>
+                            <span class="text-[12px] font-black text-indigo-700 dark:text-indigo-400 tracking-tight uppercase">{{ __('Library Card') }}</span>
                             <label class="cursor-pointer">
-                                <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
                             </label>
                         </div>
 
                         <!-- Middle Content -->
                         <div class="flex space-x-5">
                             <!-- Left: Profile Photo -->
-                            <div class="w-[110px] h-[140px] flex-shrink-0 bg-slate-100 border border-slate-200 overflow-hidden">
+                            <div class="w-[110px] h-[140px] flex-shrink-0 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 overflow-hidden">
                                 @if($patron->profile_image)
                                     <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                        <svg class="w-12 h-12 text-slate-300 dark:text-slate-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                                     </div>
                                 @endif
                             </div>
 
                             <!-- Right: Info Details -->
                             <div class="flex-1 flex flex-col pt-1">
-                                <h2 class="text-[16px] font-black text-indigo-700 uppercase leading-none mb-4 truncate">{{ $patron->display_name }}</h2>
+                                <h2 class="text-[16px] font-black text-indigo-700 dark:text-indigo-400 uppercase leading-none mb-4 truncate">{{ $patron->display_name }}</h2>
                                 
                                 <div class="space-y-3 mb-4">
-                                    <div class="text-[12px] font-bold text-indigo-600">
+                                    <div class="text-[12px] font-bold text-indigo-600 dark:text-indigo-400">
                                         {{ date('d/m/Y', strtotime($patron->registration_date)) }} - {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
                                     </div>
                                     <!-- Barcode Area -->
                                     <div class="relative">
-                                        <div class="h-[45px] w-full bg-white flex items-center justify-start overflow-hidden">
+                                        <div class="h-[45px] w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-start overflow-hidden">
                                             {!! $barcodeService->renderSvg($patron->patron_code) !!}
                                         </div>
-                                        <div class="text-[10px] font-black font-mono text-indigo-700 text-left tracking-[0.2em] mt-1">
+                                        <div class="text-[10px] font-black font-mono text-indigo-700 dark:text-indigo-400 text-left tracking-[0.2em] mt-1">
                                             {{ $patron->patron_code }}
                                         </div>
                                     </div>
@@ -221,17 +221,17 @@
                         <div class="absolute bottom-3 right-5 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 shadow-sm" title="{{ __('Lock/Unlock') }}">
+                                <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm" title="{{ __('Lock/Unlock') }}">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 </button>
                             </form>
                             <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
-                                class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-indigo-600 shadow-sm">
+                                class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </button>
                             <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="p-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 hover:text-rose-500 shadow-sm">
+                                <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 shadow-sm">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
                             </form>

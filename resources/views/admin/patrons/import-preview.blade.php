@@ -163,7 +163,33 @@
 
             <!-- Data Preview -->
             <div class="border-t border-slate-200 dark:border-slate-700 pt-6 mb-8">
-                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4">{{ __('Data Preview (First 10 rows)') }}</h3>
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        {{ __('Data Preview') }}
+                        @if(!$showAll)
+                            ({{ __('First :count rows', ['count' => min(10, count($previewData))]) }})
+                        @else
+                            ({{ __('All :count rows', ['count' => count($previewData)]) }})
+                        @endif
+                    </h3>
+                    
+                    @if(count($data) > 10)
+                        <div class="flex gap-2">
+                            @if(!$showAll)
+                                <a href="{{ route('admin.patrons.import.preview') }}?show_all=1" 
+                                   class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                    {{ __('Show All (:count rows)', ['count' => count($data)]) }}
+                                </a>
+                            @else
+                                <a href="{{ route('admin.patrons.import.preview') }}" 
+                                   class="px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors">
+                                    {{ __('Show Less (10 rows)') }}
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
                         <thead class="bg-slate-50 dark:bg-slate-800">
@@ -176,7 +202,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                            @foreach(array_slice($data, 0, 10) as $row)
+                            @foreach($previewData as $index => $row)
                                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-800">
                                     @foreach(array_slice($columns, 0, 8) as $column)
                                         <td class="px-4 py-3 text-slate-900 dark:text-slate-100">
@@ -187,9 +213,14 @@
                             @endforeach
                         </tbody>
                     </table>
-                    @if(count($data) > 10)
-                        <div class="text-center py-3 text-xs text-slate-500 dark:text-slate-400">
-                            {{ __('Showing first 10 of :count rows', ['count' => count($data)]) }}
+                    
+                    @if(!$showAll && count($data) > 10)
+                        <div class="text-center py-3 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-b-lg">
+                            {{ __('Showing first :count of :total rows', ['count' => count($previewData), 'total' => count($data)]) }}
+                        </div>
+                    @elseif($showAll)
+                        <div class="text-center py-3 text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-b-lg">
+                            {{ __('Showing all :count rows', ['count' => count($previewData)]) }}
                         </div>
                     @endif
                 </div>

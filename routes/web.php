@@ -114,7 +114,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
 
     // Patron Import (Batch Import)
     Route::get('/patrons/import', [\App\Http\Controllers\Admin\PatronImportController::class, 'index'])->name('admin.patrons.import.index');
-    Route::get('/patrons/import/template', [\App\Http\Controllers\Admin\PatronImportController::class, 'downloadTemplate'])->name('admin.patrons.import.template');
+    Route::get('/patrons/import/template', [\App\Http\Controllers\Admin\PatronImportController::class, 'template'])->name('admin.patrons.import.template');
     Route::post('/patrons/import/upload', [\App\Http\Controllers\Admin\PatronImportController::class, 'upload'])->name('admin.patrons.import.upload');
     Route::get('/patrons/import/preview', [\App\Http\Controllers\Admin\PatronImportController::class, 'preview'])->name('admin.patrons.import.preview');
     Route::post('/patrons/import/process', [\App\Http\Controllers\Admin\PatronImportController::class, 'process'])->name('admin.patrons.import.process');
