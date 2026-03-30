@@ -14,6 +14,7 @@ use App\Models\PatronGroup;
 use App\Services\BarcodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class PatronController extends Controller
 {
@@ -138,6 +139,131 @@ class PatronController extends Controller
         $patronGroups = PatronGroup::where('is_active', true)->get();
         
         return view('admin.patrons.create', compact('branches', 'patronGroups', 'nextCode'));
+    }
+
+    public function edit($id)
+    {
+        $patron = PatronDetail::findOrFail($id);
+        $branches = Branch::all();
+        $patronGroups = PatronGroup::where('is_active', true)->get();
+        
+        return view('admin.patrons.edit', compact('patron', 'branches', 'patronGroups'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $patron = PatronDetail::findOrFail($id);
+        $user = $patron->user;
+
+        $validated = $request->validate([
+            'patron_code' => 'required|string|unique:patron_details,patron_code,' . $patron->id,
+            'name' => 'required|string|max:255',
+            'display_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'patron_group_id' => 'required|exists:patron_groups,id',
+            'registration_date' => 'required|date',
+            'expiry_date' => 'required|date|after:registration_date',
+            'phone' => 'nullable|string|max:20',
+            'date_of_birth' => 'nullable|date',
+            'gender' => 'nullable|in:male,female,other',
+            'addresses' => 'nullable|array',
+            'addresses.*' => 'nullable|string|max:500',
+            'branch_id' => 'nullable|exists:branches,id',
+            'department' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:1000',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
+
+        // Update user information
+        $user->update([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+
+        // Update patron information
+        $patronData = [
+            'patron_code' => $validated['patron_code'],
+            'patron_group_id' => $validated['patron_group_id'],
+            'registration_date' => $validated['registration_date'],
+            'expiry_date' => $validated['expiry_date'],
+            'phone' => $validated['phone'],
+            'date_of_birth' => $validated['date_of_birth'],
+            'gender' => $validated['gender'],
+            'branch_id' => $validated['branch_id'],
+            'department' => $validated['department'],
+            'notes' => $validated['notes'],
+        ];
+
+        // Handle addresses - take first address as primary
+        if (isset($validated['addresses']) && is_array($validated['addresses']) && !empty($validated['addresses'])) {
+            $patronData['address'] = $validated['addresses'][0];
+        } else {
+            $patronData['address'] = null;
+        }
+
+        // Handle profile image upload
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            
+            // Sanitize filename - remove special characters
+            $originalName = $image->getClientOriginalName();
+            $extension = $image->getClientOriginalExtension();
+            $sanitizedName = time() . '_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $extension;
+            
+            $destinationPath = 'public/patrons/avatars/' . $sanitizedName;
+            $fullPath = storage_path('app/' . $destinationPath);
+            
+            // Use file_get_contents + file_put_contents method
+            try {
+                $fileContent = file_get_contents($image->getPathname());
+                if ($fileContent === false) {
+                    throw new \Exception('Cannot read temp file');
+                }
+                
+                // Ensure directory exists
+                $dir = dirname($fullPath);
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0755, true);
+                }
+                
+                $result = file_put_contents($fullPath, $fileContent);
+                if ($result === false) {
+                    throw new \Exception('Cannot write to destination');
+                }
+                
+            } catch (\Exception $e) {
+                // Fallback to move method
+                try {
+                    $destinationDir = storage_path('app/public/patrons/avatars/');
+                    if (!is_dir($destinationDir)) {
+                        mkdir($destinationDir, 0755, true);
+                    }
+                    
+                    $image->move($destinationDir, $sanitizedName);
+                    
+                } catch (\Exception $e2) {
+                    return back()->with('error', 'Failed to upload image: ' . $e2->getMessage());
+                }
+            }
+            
+            // Delete old image if exists
+            if ($patron->profile_image) {
+                Storage::delete('public/' . $patron->profile_image);
+            }
+            
+            $patronData['profile_image'] = 'patrons/avatars/' . $sanitizedName;
+        }
+
+        $patron->update($patronData);
+
+        // Log activity
+        ActivityLog::log('patron_updated', $patron, [
+            'patron_code' => $patron->patron_code,
+            'display_name' => $patron->display_name
+        ]);
+
+        return redirect()->route('admin.patrons.index')
+            ->with('success', __('Patron information updated successfully.'));
     }
 
     public function store(Request $request)
