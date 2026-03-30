@@ -59,65 +59,6 @@
     </div>
 </div>
 
-<!-- Transaction Modal -->
-<div id="transactionModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeTransactionModal()"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all">
-            <div class="px-8 py-5 bg-slate-50 border-b border-slate-100">
-                <h3 class="text-lg font-black text-slate-800 tracking-tight uppercase"><?php echo e(__('Giao dịch tài chính')); ?></h3>
-                <p class="text-indigo-600 text-[10px] font-bold mt-1 uppercase" id="transactionPatronName"></p>
-                <p class="text-slate-500 text-xs mt-1">Số dư hiện tại: <span id="currentBalance" class="font-bold"></span></p>
-            </div>
-            <form id="transactionForm" method="POST" class="p-8 space-y-5">
-                <?php echo csrf_field(); ?>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Loại giao dịch')); ?></label>
-                    <select name="type" id="transaction_type" required 
-                        class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                        <option value=""><?php echo e(__('Chọn loại giao dịch')); ?></option>
-                        <option value="deposit"><?php echo e(__('Thêm tiền')); ?></option>
-                        <option value="withdraw"><?php echo e(__('Rút tiền')); ?></option>
-                        <option value="fee"><?php echo e(__('Phí dịch vụ')); ?></option>
-                        <option value="fine"><?php echo e(__('Phạt')); ?></option>
-                        <option value="penalty"><?php echo e(__('Phạt khác')); ?></option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Số tiền')); ?></label>
-                    <input type="number" name="amount" id="transaction_amount" required step="0.01" min="0.01"
-                        class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
-                        placeholder="Nhập số tiền...">
-                </div>
-                <div class="space-y-2" id="paymentMethodDiv" style="display: none;">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Phương thức thanh toán')); ?></label>
-                    <select name="payment_method" id="payment_method"
-                        class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                        <option value="cash"><?php echo e(__('Tiền mặt')); ?></option>
-                        <option value="transfer"><?php echo e(__('Chuyển khoản')); ?></option>
-                        <option value="card"><?php echo e(__('Thẻ')); ?></option>
-                    </select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Mô tả')); ?></label>
-                    <input type="text" name="description" required
-                        class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
-                        placeholder="Nhập mô tả giao dịch...">
-                </div>
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Ghi chú')); ?></label>
-                    <textarea name="notes" rows="2"
-                        class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
-                        placeholder="Ghi chú thêm (không bắt buộc)..."></textarea>
-                </div>
-                <div class="flex space-x-3 pt-4 border-t border-slate-50">
-                    <button type="button" onclick="closeTransactionModal()" class="flex-1 bg-white border border-slate-200 text-slate-400 py-3 rounded-xl uppercase text-[10px] font-black hover:bg-slate-50 transition-all"><?php echo e(__('Hủy')); ?></button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-[10px] font-black shadow-md hover:bg-indigo-500 transition-all"><?php echo e(__('Thực hiện')); ?></button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script>
 // Modal functions
@@ -143,20 +84,10 @@ function openUnlockModal(patron) {
 function closeUnlockModal() {
     document.getElementById('unlockModal').classList.add('hidden');
     document.body.style.overflow = 'auto';
+    document.getElementById('charge_fee').checked = false;
+    document.getElementById('unlock_fee').disabled = true;
 }
 
-function openTransactionModal(patron) {
-    document.getElementById('transactionForm').action = `/topsecret/patrons/${patron.id}/transactions`;
-    document.getElementById('transactionPatronName').textContent = patron.name;
-    document.getElementById('currentBalance').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(patron.balance);
-    document.getElementById('transactionModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeTransactionModal() {
-    document.getElementById('transactionModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
 
 // Toggle payment method based on transaction type
 document.addEventListener('DOMContentLoaded', function() {

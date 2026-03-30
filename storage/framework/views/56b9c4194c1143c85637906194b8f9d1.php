@@ -414,6 +414,17 @@
         container.appendChild(div);
     }
 </script>
+
+<script>
+function openRenewModal() {
+    document.getElementById('renewModal').classList.remove('hidden');
+}
+
+function closeRenewModal() {
+    document.getElementById('renewModal').classList.add('hidden');
+}
+</script>
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/patrons/edit.blade.php ENDPATH**/ ?>

@@ -409,4 +409,15 @@
         container.appendChild(div);
     }
 </script>
+
+<script>
+function openRenewModal() {
+    document.getElementById('renewModal').classList.remove('hidden');
+}
+
+function closeRenewModal() {
+    document.getElementById('renewModal').classList.add('hidden');
+}
+</script>
+
 @endsection

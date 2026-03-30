@@ -622,6 +622,315 @@
 <!-- Include Patron Management Modals -->
 <?php echo $__env->make('admin.patrons.modals', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
+<!-- Transaction Modal with 5 Tabs -->
+<div id="transactionModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeTransactionModal()"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden">
+        <!-- Header -->
+        <div class="px-8 py-6 border-b border-slate-50 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-slate-800 dark:text-slate-200 tracking-tight uppercase"><?php echo e(__('Giao dịch tài chính')); ?></h3>
+                    <p class="text-indigo-600 dark:text-indigo-400 text-sm font-bold mt-1" id="transactionPatronName"></p>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400"><?php echo e(__('Số dư hiện tại')); ?>:</span>
+                        <span class="text-sm font-bold" id="currentBalance"></span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTransactionModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+            <button type="button" onclick="switchTransactionTab('add')" id="tab-add" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span class="text-xs font-black uppercase tracking-wider"><?php echo e(__('Nạp tiền')); ?></span>
+            </button>
+            <button type="button" onclick="switchTransactionTab('print')" id="tab-print" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                <span class="text-xs font-black uppercase tracking-wider"><?php echo e(__('In ấn')); ?></span>
+            </button>
+            <button type="button" onclick="switchTransactionTab('fine')" id="tab-fine" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-xs font-black uppercase tracking-wider"><?php echo e(__('Phạt mượn sách')); ?></span>
+            </button>
+            <button type="button" onclick="switchTransactionTab('service')" id="tab-service" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <span class="text-xs font-black uppercase tracking-wider"><?php echo e(__('Dịch vụ khác')); ?></span>
+            </button>
+            <button type="button" onclick="switchTransactionTab('withdraw')" id="tab-withdraw" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
+                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                <span class="text-xs font-black uppercase tracking-wider"><?php echo e(__('Rút tiền')); ?></span>
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <form id="transactionForm" method="POST" class="p-8">
+            <?php echo csrf_field(); ?>
+            
+            <!-- Add Money Tab -->
+            <div id="tab-content-add" class="transaction-content space-y-6">
+                <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-emerald-800 dark:text-emerald-200"><?php echo e(__('Nạp tiền vào tài khoản')); ?></h4>
+                            <p class="text-sm text-emerald-600 dark:text-emerald-400"><?php echo e(__('Tăng số dư cho độc giả')); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="type" value="add">
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Số tiền')); ?> <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 font-bold">₫</span>
+                            <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Phương thức')); ?></label>
+                        <select name="payment_method" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all appearance-none">
+                            <option value="cash"><?php echo e(__('Tiền mặt')); ?></option>
+                            <option value="transfer"><?php echo e(__('Chuyển khoản')); ?></option>
+                            <option value="card"><?php echo e(__('Thẻ ngân hàng')); ?></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Print Fee Tab -->
+            <div id="tab-content-print" class="transaction-content space-y-6 hidden">
+                <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-blue-800 dark:text-blue-200"><?php echo e(__('Phí in ấn')); ?></h4>
+                            <p class="text-sm text-blue-600 dark:text-blue-400"><?php echo e(__('Phí in tài liệu, sách, báo cáo')); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="type" value="print">
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Số tiền')); ?> <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 font-bold">₫</span>
+                            <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Loại in')); ?></label>
+                        <select name="print_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none">
+                            <option value="document"><?php echo e(__('Tài liệu')); ?></option>
+                            <option value="book"><?php echo e(__('Sách')); ?></option>
+                            <option value="report"><?php echo e(__('Báo cáo')); ?></option>
+                            <option value="other"><?php echo e(__('Khác')); ?></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fine Tab -->
+            <div id="tab-content-fine" class="transaction-content space-y-6 hidden">
+                <div class="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-rose-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-rose-800 dark:text-rose-200"><?php echo e(__('Phạt mượn sách')); ?></h4>
+                            <p class="text-sm text-rose-600 dark:text-rose-400"><?php echo e(__('Phạt trả muộn, làm mất, hư hỏng')); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="type" value="fine">
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Số tiền')); ?> <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-rose-600 font-bold">₫</span>
+                            <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Loại phạt')); ?></label>
+                        <select name="fine_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all appearance-none">
+                            <option value="late"><?php echo e(__('Trả muộn')); ?></option>
+                            <option value="lost"><?php echo e(__('Làm mất')); ?></option>
+                            <option value="damaged"><?php echo e(__('Hư hỏng')); ?></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Fee Tab -->
+            <div id="tab-content-service" class="transaction-content space-y-6 hidden">
+                <div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-purple-800 dark:text-purple-200"><?php echo e(__('Dịch vụ khác')); ?></h4>
+                            <p class="text-sm text-purple-600 dark:text-purple-400"><?php echo e(__('Phí dịch vụ thư viện khác')); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="type" value="service">
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Số tiền')); ?> <span class="text-rose-500">*</span></label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600 font-bold">₫</span>
+                            <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all">
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Loại dịch vụ')); ?></label>
+                        <select name="service_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all appearance-none">
+                            <option value="membership"><?php echo e(__('Thành viên')); ?></option>
+                            <option value="research"><?php echo e(__('Nghiên cứu')); ?></option>
+                            <option value="consulting"><?php echo e(__('Tư vấn')); ?></option>
+                            <option value="other"><?php echo e(__('Khác')); ?></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Withdraw Tab -->
+            <div id="tab-content-withdraw" class="transaction-content space-y-6 hidden">
+                <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-6">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-amber-800 dark:text-amber-200"><?php echo e(__('Rút tiền khỏi tài khoản')); ?></h4>
+                            <p class="text-sm text-amber-600 dark:text-amber-400"><?php echo e(__('Hoàn tiền cho độc giả')); ?></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="type" value="withdraw">
+                
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Số tiền')); ?> <span class="text-rose-500">*</span></label>
+                    <div class="relative">
+                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-600 font-bold">₫</span>
+                        <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
+                    </div>
+                    <p class="text-xs text-slate-500"><?php echo e(__('Số dư khả dụng')); ?>: <span id="availableBalance"></span> ₫</p>
+                </div>
+            </div>
+
+            <!-- Common Fields -->
+            <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Mô tả')); ?></label>
+                    <input type="text" name="description" placeholder="<?php echo e(__('Nhập mô tả giao dịch...')); ?>"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1"><?php echo e(__('Ghi chú')); ?></label>
+                    <textarea name="notes" rows="3" placeholder="<?php echo e(__('Nhập ghi chú thêm...')); ?>"
+                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all resize-none"></textarea>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex space-x-4 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <button type="button" onclick="closeTransactionModal()" class="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-400 py-3 rounded-xl uppercase text-[10px] font-black hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                    <?php echo e(__('Hủy')); ?>
+
+                </button>
+                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-[10px] font-black hover:bg-indigo-500 transition-all">
+                    <?php echo e(__('Xác nhận giao dịch')); ?>
+
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openTransactionModal(patron) {
+    document.getElementById('transactionForm').action = `/topsecret/patrons/${patron.id}/transactions`;
+    document.getElementById('transactionPatronName').textContent = patron.name;
+    document.getElementById('currentBalance').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(patron.balance);
+    document.getElementById('availableBalance').textContent = new Intl.NumberFormat('vi-VN').format(patron.balance);
+    document.getElementById('transactionModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeTransactionModal() {
+    document.getElementById('transactionModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function switchTransactionTab(tab) {
+    // Hide all content
+    document.querySelectorAll('.transaction-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active state from all tabs
+    document.querySelectorAll('.transaction-tab').forEach(tabBtn => {
+        tabBtn.classList.remove('border-emerald-500', 'border-blue-500', 'border-rose-500', 'border-purple-500', 'border-amber-500',
+                                'text-emerald-600', 'text-blue-600', 'text-rose-600', 'text-purple-600', 'text-amber-600',
+                                'bg-emerald-50', 'bg-blue-50', 'bg-rose-50', 'bg-purple-50', 'bg-amber-50',
+                                'dark:bg-emerald-500/10', 'dark:bg-blue-500/10', 'dark:bg-rose-500/10', 'dark:bg-purple-500/10', 'dark:bg-amber-500/10',
+                                'dark:text-emerald-400', 'dark:text-blue-400', 'dark:text-rose-400', 'dark:text-purple-400', 'dark:text-amber-400');
+        tabBtn.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400', 'dark:hover:text-slate-300');
+    });
+    
+    // Show selected content
+    document.getElementById('tab-content-' + tab).classList.remove('hidden');
+    
+    // Activate selected tab
+    const activeTab = document.getElementById('tab-' + tab);
+    activeTab.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400');
+    
+    if (tab === 'add') {
+        activeTab.classList.add('border-emerald-500', 'text-emerald-600', 'bg-emerald-50', 
+                               'dark:bg-emerald-500/10', 'dark:text-emerald-400');
+    } else if (tab === 'print') {
+        activeTab.classList.add('border-blue-500', 'text-blue-600', 'bg-blue-50', 
+                               'dark:bg-blue-500/10', 'dark:text-blue-400');
+    } else if (tab === 'fine') {
+        activeTab.classList.add('border-rose-500', 'text-rose-600', 'bg-rose-50', 
+                               'dark:bg-rose-500/10', 'dark:text-rose-400');
+    } else if (tab === 'service') {
+        activeTab.classList.add('border-purple-500', 'text-purple-600', 'bg-purple-50', 
+                               'dark:bg-purple-500/10', 'dark:text-purple-400');
+    } else if (tab === 'withdraw') {
+        activeTab.classList.add('border-amber-500', 'text-amber-600', 'bg-amber-50', 
+                               'dark:bg-amber-500/10', 'dark:text-amber-400');
+    }
+}
+</script>
+
 <script>
 // Bulk Actions JavaScript
 let selectedPatrons = [];
