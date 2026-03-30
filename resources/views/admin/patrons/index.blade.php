@@ -261,17 +261,47 @@
                         </div>
 
                         <!-- Card Overlay for Quick Actions -->
-                        <div class="absolute bottom-3 right-5 flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
-                                @csrf @method('PATCH')
-                                <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm" title="{{ __('Lock/Unlock') }}">
+                        <div class="absolute bottom-3 right-5 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <!-- Lock/Unlock -->
+                            @if($patron->card_status == 'normal')
+                                <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-yellow-600 dark:hover:text-yellow-400 shadow-sm" title="{{ __('Lock Card') }}">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 </button>
-                            </form>
+                            @else
+                                <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400 shadow-sm" title="{{ __('Unlock Card') }}">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                </button>
+                            @endif
+                            
+                            <!-- Financial Transaction -->
+                            <button type="button" onclick="openTransactionModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 shadow-sm" title="{{ __('Financial Transaction') }}">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </button>
+                            
+                            <!-- Print Queue -->
+                            @if($patron->isInPrintQueue())
+                                <form action="{{ route('admin.patrons.remove-from-print-queue', $patron->id) }}" method="POST" class="inline">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm" title="{{ __('Remove from Print Queue') }}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                    </button>
+                                </form>
+                            @else
+                                <form action="{{ route('admin.patrons.add-to-print-queue', $patron->id) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-gray-400 shadow-sm" title="{{ __('Add to Print Queue') }}">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    </button>
+                                </form>
+                            @endif
+                            
+                            <!-- Renew -->
                             <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
                                 class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             </button>
+                            
+                            <!-- Delete -->
                             <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 shadow-sm">
@@ -447,13 +477,38 @@
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             </a>
                                             
-                                            <!-- Toggle Status -->
-                                            <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
-                                                @csrf @method('PATCH')
-                                                <button type="submit" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300" title="{{ __('Lock/Unlock') }}">
+                                            <!-- Lock/Unlock -->
+                                            @if($patron->card_status == 'normal')
+                                                <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300" title="{{ __('Lock Card') }}">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                                 </button>
-                                            </form>
+                                            @else
+                                                <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="{{ __('Unlock Card') }}">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                                </button>
+                                            @endif
+                                            
+                                            <!-- Financial Transaction -->
+                                            <button type="button" onclick="openTransactionModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="{{ __('Financial Transaction') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            </button>
+                                            
+                                            <!-- Print Queue -->
+                                            @if($patron->isInPrintQueue())
+                                                <form action="{{ route('admin.patrons.remove-from-print-queue', $patron->id) }}" method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300" title="{{ __('Remove from Print Queue') }}">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('admin.patrons.add-to-print-queue', $patron->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="submit" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300" title="{{ __('Add to Print Queue') }}">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                                    </button>
+                                                </form>
+                                            @endif
                                             
                                             <!-- Renew -->
                                             <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
@@ -538,6 +593,9 @@
 
 <!-- Include Bulk Edit Modal -->
 @include('admin.patrons.bulk-edit')
+
+<!-- Include Patron Management Modals -->
+@include('admin.patrons.modals')
 
 <script>
 // Bulk Actions JavaScript

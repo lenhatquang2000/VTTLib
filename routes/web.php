@@ -129,6 +129,28 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/patrons/cards/generate', [\App\Http\Controllers\Admin\PatronCardController::class, 'generateCards'])->name('admin.patrons.cards.generate');
     Route::get('/patrons/cards/{patron}/preview', [\App\Http\Controllers\Admin\PatronCardController::class, 'previewCard'])->name('admin.patrons.cards.preview');
 
+    // Patron Management Features
+    Route::patch('/patrons/{id}/lock', [\App\Http\Controllers\Admin\PatronController::class, 'lock'])->name('admin.patrons.lock');
+    Route::patch('/patrons/{id}/unlock', [\App\Http\Controllers\Admin\PatronController::class, 'unlock'])->name('admin.patrons.unlock');
+    
+    // Financial Transactions
+    Route::get('/patrons/{id}/transactions', [\App\Http\Controllers\Admin\PatronTransactionController::class, 'index'])->name('admin.patrons.transactions.index');
+    Route::post('/patrons/{id}/transactions', [\App\Http\Controllers\Admin\PatronTransactionController::class, 'store'])->name('admin.patrons.transactions.store');
+    
+    // Print Queue Management
+    Route::get('/patrons/print-queue', [\App\Http\Controllers\Admin\PrintQueueController::class, 'index'])->name('admin.patrons.print-queue.index');
+    Route::post('/patrons/{id}/add-to-print-queue', [\App\Http\Controllers\Admin\PatronController::class, 'addToPrintQueue'])->name('admin.patrons.add-to-print-queue');
+    Route::delete('/patrons/{id}/remove-from-print-queue', [\App\Http\Controllers\Admin\PatronController::class, 'removeFromPrintQueue'])->name('admin.patrons.remove-from-print-queue');
+    Route::post('/patrons/print-queue/{id}/mark-printed', [\App\Http\Controllers\Admin\PrintQueueController::class, 'markPrinted'])->name('admin.patrons.print-queue.mark-printed');
+    Route::delete('/patrons/print-queue/{id}', [\App\Http\Controllers\Admin\PrintQueueController::class, 'destroy'])->name('admin.patrons.print-queue.destroy');
+    
+    // Lock History
+    Route::get('/patrons/{id}/lock-history', [\App\Http\Controllers\Admin\PatronController::class, 'lockHistory'])->name('admin.patrons.lock-history');
+    Route::get('/patrons/lock-history', [\App\Http\Controllers\Admin\PatronController::class, 'allLockHistory'])->name('admin.patrons.lock-history.all');
+    
+    // System Logs
+    Route::get('/patrons/system-logs', [\App\Http\Controllers\Admin\PatronController::class, 'systemLogs'])->name('admin.patrons.system-logs');
+
     // Patron Configuration
     Route::get('/patron-groups', [PatronGroupController::class, 'index'])->name('admin.patrons.groups.index');
     Route::post('/patron-groups', [PatronGroupController::class, 'store'])->name('admin.patrons.groups.store');

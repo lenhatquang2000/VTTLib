@@ -97,12 +97,22 @@ class PatronDetail extends Model
     }
 
     /**
-     * Check if patron can borrow based on policy
+     * Check if patron can borrow items
      */
     public function canBorrow(): bool
     {
-        $policy = $this->patronGroup?->activePolicy;
-        
+        // Check if card is locked
+        if ($this->card_status !== 'normal') {
+            return false;
+        }
+
+        // Check if expired
+        if ($this->expiry_date && now()->greaterThan($this->expiry_date)) {
+            return false;
+        }
+
+        // Get circulation policy
+        $policy = $this->patronGroup->circulationPolicies()->where('is_active', true)->first();
         if (!$policy) {
             return false;
         }
@@ -118,5 +128,162 @@ class PatronDetail extends Model
         }
 
         return true;
+    }
+
+    // Relationships for new features
+    public function transactions()
+    {
+        return $this->hasMany(PatronTransaction::class);
+    }
+
+    public function lockHistory()
+    {
+        return $this->hasMany(PatronLockHistory::class);
+    }
+
+    public function printQueue()
+    {
+        return $this->hasMany(PrintQueue::class);
+    }
+
+    // Methods for patron management
+    public function lock(string $reason, int $lockedBy): bool
+    {
+        $this->update(['card_status' => 'locked']);
+        
+        $this->lockHistory()->create([
+            'action' => PatronLockHistory::ACTION_LOCK,
+            'reason' => $reason,
+            'locked_by' => $lockedBy,
+            'locked_at' => now(),
+        ]);
+
+        ActivityLog::log('patron_locked', $this, [
+            'reason' => $reason,
+            'locked_by' => $lockedBy,
+        ]);
+
+        return true;
+    }
+
+    public function unlock(string $reason, int $unlockedBy, float $unlockFee = 0): bool
+    {
+        $this->update(['card_status' => 'normal']);
+        
+        $this->lockHistory()->create([
+            'action' => PatronLockHistory::ACTION_UNLOCK,
+            'reason' => $reason,
+            'unlock_fee' => $unlockFee,
+            'unlocked_by' => $unlockedBy,
+            'unlocked_at' => now(),
+        ]);
+
+        // Deduct unlock fee if applicable
+        if ($unlockFee > 0) {
+            $this->addTransaction(
+                PatronTransaction::TYPE_FEE,
+                $unlockFee,
+                'Phí mở khóa thẻ',
+                "Phí mở khóa thẻ cho độc giả {$this->display_name}",
+                null,
+                $unlockedBy
+            );
+        }
+
+        ActivityLog::log('patron_unlocked', $this, [
+            'reason' => $reason,
+            'unlocked_by' => $unlockedBy,
+            'unlock_fee' => $unlockFee,
+        ]);
+
+        return true;
+    }
+
+    public function addTransaction(string $type, float $amount, string $description, string $notes = null, string $paymentMethod = null, int $createdBy = null): PatronTransaction
+    {
+        $balanceBefore = $this->balance;
+        $balanceAfter = $balanceBefore;
+
+        // Calculate new balance based on transaction type
+        if ($type === PatronTransaction::TYPE_DEPOSIT) {
+            $balanceAfter += $amount;
+        } else {
+            $balanceAfter -= $amount;
+        }
+
+        // Create transaction
+        $transaction = $this->transactions()->create([
+            'type' => $type,
+            'amount' => $amount,
+            'balance_before' => $balanceBefore,
+            'balance_after' => $balanceAfter,
+            'description' => $description,
+            'notes' => $notes,
+            'payment_method' => $paymentMethod,
+            'created_by' => $createdBy,
+        ]);
+
+        // Update patron balance
+        $this->update(['balance' => $balanceAfter]);
+
+        // Log activity
+        ActivityLog::log('patron_transaction', $this, [
+            'transaction_type' => $type,
+            'amount' => $amount,
+            'description' => $description,
+        ]);
+
+        return $transaction;
+    }
+
+    public function addToPrintQueue(int $addedBy, int $priority = 0, string $notes = null): PrintQueue
+    {
+        // Check if already in queue
+        $existing = $this->printQueue()->pending()->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        $queueItem = $this->printQueue()->create([
+            'priority' => $priority,
+            'notes' => $notes,
+            'added_by' => $addedBy,
+        ]);
+
+        ActivityLog::log('patron_added_to_print_queue', $this, [
+            'priority' => $priority,
+            'added_by' => $addedBy,
+        ]);
+
+        return $queueItem;
+    }
+
+    public function removeFromPrintQueue(): bool
+    {
+        $queueItem = $this->printQueue()->pending()->first();
+        if ($queueItem) {
+            $queueItem->cancel();
+            
+            ActivityLog::log('patron_removed_from_print_queue', $this);
+            
+            return true;
+        }
+
+        return false;
+    }
+
+    public function isInPrintQueue(): bool
+    {
+        return $this->printQueue()->pending()->exists();
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->card_status === 'locked';
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->expiry_date && now()->greaterThan($this->expiry_date);
     }
 }

@@ -359,4 +359,155 @@ class PatronController extends Controller
 
         return back()->with('success', "Đã xóa {$deletedCount} độc giả thành công.");
     }
+
+    /**
+     * Lock patron card
+     */
+    public function lock(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255'
+        ]);
+
+        $patron = PatronDetail::findOrFail($id);
+        
+        if ($patron->isLocked()) {
+            return back()->with('error', 'Thẻ độc giả đã bị khóa.');
+        }
+
+        $patron->lock($request->reason, auth()->id());
+
+        return back()->with('success', 'Đã khóa thẻ độc giả thành công.');
+    }
+
+    /**
+     * Unlock patron card
+     */
+    public function unlock(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+            'unlock_fee' => 'nullable|numeric|min:0'
+        ]);
+
+        $patron = PatronDetail::findOrFail($id);
+        
+        if (!$patron->isLocked()) {
+            return back()->with('error', 'Thẻ độc giả không bị khóa.');
+        }
+
+        $unlockFee = $request->unlock_fee ?? 0;
+        
+        // Check if patron has enough balance for unlock fee
+        if ($unlockFee > 0 && $patron->balance < $unlockFee) {
+            return back()->with('error', 'Độc giả không đủ số dư để trả phí mở khóa.');
+        }
+
+        $patron->unlock($request->reason, auth()->id(), $unlockFee);
+
+        return back()->with('success', 'Đã mở khóa thẻ độc giả thành công.');
+    }
+
+    /**
+     * Add patron to print queue
+     */
+    public function addToPrintQueue($id)
+    {
+        $patron = PatronDetail::findOrFail($id);
+        
+        if ($patron->isInPrintQueue()) {
+            return back()->with('error', 'Độc giả đã có trong danh sách chờ in.');
+        }
+
+        $patron->addToPrintQueue(auth()->id());
+
+        return back()->with('success', 'Đã thêm độc giả vào danh sách chờ in.');
+    }
+
+    /**
+     * Remove patron from print queue
+     */
+    public function removeFromPrintQueue($id)
+    {
+        $patron = PatronDetail::findOrFail($id);
+        
+        if (!$patron->isInPrintQueue()) {
+            return back()->with('error', 'Độc giả không có trong danh sách chờ in.');
+        }
+
+        $patron->removeFromPrintQueue();
+
+        return back()->with('success', 'Đã xóa độc giả khỏi danh sách chờ in.');
+    }
+
+    /**
+     * Show patron lock history
+     */
+    public function lockHistory($id)
+    {
+        $patron = PatronDetail::findOrFail($id);
+        $lockHistory = $patron->lockHistory()->orderBy('created_at', 'desc')->get();
+
+        return view('admin.patrons.lock-history', compact('patron', 'lockHistory'));
+    }
+
+    /**
+     * Show all lock history
+     */
+    public function allLockHistory(Request $request)
+    {
+        $query = PatronLockHistory::with(['patron', 'lockedBy', 'unlockedBy'])
+            ->orderBy('created_at', 'desc');
+
+        // Filter by patron code if provided
+        if ($request->patron_code) {
+            $query->whereHas('patron', function($q) use ($request) {
+                $q->where('patron_code', 'like', '%' . $request->patron_code . '%');
+            });
+        }
+
+        // Filter by date range if provided
+        if ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        $lockHistory = $query->paginate(20);
+
+        return view('admin.patrons.all-lock-history', compact('lockHistory'));
+    }
+
+    /**
+     * Show system logs
+     */
+    public function systemLogs(Request $request)
+    {
+        $query = ActivityLog::where('log_name', 'like', '%patron%')
+            ->orderBy('created_at', 'desc');
+
+        // Filter by log type if provided
+        if ($request->log_type) {
+            $query->where('log_name', $request->log_type);
+        }
+
+        // Filter by date range if provided
+        if ($request->date_from) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->date_to) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Filter by user if provided
+        if ($request->user_id) {
+            $query->where('causer_id', $request->user_id);
+        }
+
+        $logs = $query->paginate(20);
+        $users = User::orderBy('name')->get();
+
+        return view('admin.patrons.system-logs', compact('logs', 'users'));
+    }
 }
