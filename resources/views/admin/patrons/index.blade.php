@@ -2,6 +2,14 @@
 
 @section('title', __('Patron Management'))
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+@endpush
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@endpush
+
 @section('content')
 <div class="space-y-6 pb-12">
     <!-- Header -->
@@ -28,27 +36,25 @@
         </div>
     @endif
 
-    <!-- Search and Filters Section -->
+    <!-- Search Section -->
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-        <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Search & Filters') }}</h2>
+        <!-- Search Header (Always Visible) -->
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100">{{ __('Search & Filters') }}</h2>
+            <button type="button" onclick="toggleFilters()" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium flex items-center space-x-1">
+                <svg id="filterToggleIcon" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+                <span id="filterToggleText">{{ __('Show Filters') }}</span>
+            </button>
+        </div>
         
-        <form method="GET" action="{{ route('admin.patrons.index') }}" class="space-y-4">
-            <!-- Search Bar -->
-            <div class="flex flex-col md:flex-row gap-4">
-                <div class="flex-1">
-                    <div class="relative">
-                        <input type="text" 
-                               name="search" 
-                               value="{{ $search ?? '' }}" 
-                               placeholder="{{ __('Search patrons...') }}" 
-                               class="w-full pl-10 pr-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <svg class="absolute left-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                
-                <select name="search_field" class="px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+        <!-- Search Bar with Field and Button -->
+        <div class="flex flex-col md:flex-row gap-4 items-end">
+            <!-- Search Field (Left) -->
+            <div class="md:w-1/3">
+                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Search Field') }}</label>
+                <select name="search_field" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     <option value="all" {{ ($searchField ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Fields') }}</option>
                     <option value="patron_code" {{ ($searchField ?? '') == 'patron_code' ? 'selected' : '' }}>{{ __('Patron Code') }}</option>
                     <option value="name" {{ ($searchField ?? '') == 'name' ? 'selected' : '' }}>{{ __('Name') }}</option>
@@ -56,75 +62,107 @@
                     <option value="phone" {{ ($searchField ?? '') == 'phone' ? 'selected' : '' }}>{{ __('Phone') }}</option>
                     <option value="address" {{ ($searchField ?? '') == 'address' ? 'selected' : '' }}>{{ __('Address') }}</option>
                 </select>
+            </div>
+            
+            <!-- Search Input (Center) -->
+            <div class="md:flex-1 relative">
+                <input type="text" 
+                       name="search" 
+                       value="{{ $search ?? '' }}" 
+                       placeholder="{{ __('Search patrons...') }}" 
+                       class="w-full pl-10 pr-24 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
                 
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition">
-                    {{ __('Search') }}
+                <!-- Search Button (Right) -->
+                <button type="submit" class="absolute right-2 top-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
                 </button>
+            </div>
+        </div>
+        
+        <!-- Advanced Filters (Collapsible) -->
+        <div id="advancedFilters" class="hidden border-t border-gray-200 dark:border-slate-700 mt-4">
+            <form method="GET" action="{{ route('admin.patrons.index') }}" class=" pt-4 space-y-4">
+                <!-- Advanced Filters Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Status') }}</label>
+                        <select name="status" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="all" {{ ($status ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Status') }}</option>
+                            <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                            <option value="locked" {{ ($status ?? '') == 'locked' ? 'selected' : '' }}>{{ __('Locked') }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Patron Group') }}</label>
+                        <select name="patron_group" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="all" {{ ($patronGroup ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Groups') }}</option>
+                            @if(isset($patronGroups))
+                                @foreach($patronGroups as $group)
+                                    <option value="{{ $group->id }}" {{ ($patronGroup ?? '') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Branch') }}</label>
+                        <select name="branch" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="all" {{ ($branch ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Branches') }}</option>
+                            @if(isset($branches))
+                                @foreach($branches as $branchItem)
+                                    <option value="{{ $branchItem->id }}" {{ ($branch ?? '') == $branchItem->id ? 'selected' : '' }}>{{ $branchItem->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Per Page') }}</label>
+                        <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            <option value="15" {{ ($perPage ?? 15) == 15 ? 'selected' : '' }}>15</option>
+                            <option value="30" {{ ($perPage ?? '') == 30 ? 'selected' : '' }}>30</option>
+                            <option value="50" {{ ($perPage ?? '') == 50 ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ ($perPage ?? '') == 100 ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date From') }}</label>
+                        <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date To') }}</label>
+                        <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                </div>
                 
-                <a href="{{ route('admin.patrons.index') }}" class="bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-400 px-6 py-2.5 rounded-lg text-sm font-semibold transition">
-                    {{ __('Clear') }}
-                </a>
-            </div>
-
-            <!-- Advanced Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Status') }}</label>
-                    <select name="status" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="all" {{ ($status ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Status') }}</option>
-                        <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
-                        <option value="locked" {{ ($status ?? '') == 'locked' ? 'selected' : '' }}>{{ __('Locked') }}</option>
-                    </select>
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-700">
+                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <span>{{ __('Tìm kiếm') }}</span>
+                    </button>
+                    
+                    <button type="button" onclick="clearFilters()" class="px-6 py-2.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        <span>{{ __('Clear') }}</span>
+                    </button>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Patron Group') }}</label>
-                    <select name="patron_group" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="all" {{ ($patronGroup ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Groups') }}</option>
-                        @if(isset($patronGroups))
-                            @foreach($patronGroups as $group)
-                                <option value="{{ $group->id }}" {{ ($patronGroup ?? '') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Branch') }}</label>
-                    <select name="branch" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="all" {{ ($branch ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Branches') }}</option>
-                        @if(isset($branches))
-                            @foreach($branches as $branchItem)
-                                <option value="{{ $branchItem->id }}" {{ ($branch ?? '') == $branchItem->id ? 'selected' : '' }}>{{ $branchItem->name }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Per Page') }}</label>
-                    <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                        <option value="15" {{ ($perPage ?? 15) == 15 ? 'selected' : '' }}>15</option>
-                        <option value="30" {{ ($perPage ?? '') == 30 ? 'selected' : '' }}>30</option>
-                        <option value="50" {{ ($perPage ?? '') == 50 ? 'selected' : '' }}>50</option>
-                        <option value="100" {{ ($perPage ?? '') == 100 ? 'selected' : '' }}>100</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Date Range -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date From') }}</label>
-                    <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date To') }}</label>
-                    <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                </div>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
 
     <!-- Bulk Actions Section -->
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6" id="bulkActionsSection" style="display: none;">
@@ -170,7 +208,7 @@
     </div>
 
     <!-- View Mode Toggle & Results Count -->
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between my-6">
         <div class="flex items-center space-x-4">
             <span class="text-sm text-gray-600 dark:text-slate-400">
                 @if(isset($patrons))
@@ -179,6 +217,27 @@
                     {{ __('No results to display') }}
                 @endif
             </span>
+            
+            <!-- Sort Radio Buttons -->
+            <div class="flex items-center space-x-3">
+                <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('Sort:') }}</span>
+                <div class="flex items-center space-x-2">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="sort" value="desc" 
+                               {{ (request('sort', 'desc') == 'desc') ? 'checked' : '' }}
+                               onchange="changeSort(this.value)"
+                               class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="ml-1 text-sm text-gray-700 dark:text-slate-300">{{ __('Giảm dần') }}</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="sort" value="asc" 
+                               {{ (request('sort') == 'asc') ? 'checked' : '' }}
+                               onchange="changeSort(this.value)"
+                               class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
+                        <span class="ml-1 text-sm text-gray-700 dark:text-slate-300">{{ __('Tăng dần') }}</span>
+                    </label>
+                </div>
+            </div>
         </div>
         
         <div class="flex items-center space-x-2">
@@ -186,19 +245,19 @@
             <div class="bg-gray-100 dark:bg-slate-800 rounded-lg p-1 flex">
                 <button onclick="changeViewMode('card')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? 'card') == 'card' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2 2m0 0V5a2 2 0 00-2 2v4h10z"></path>
                     </svg>
                     {{ __('Cards') }}
                 </button>
                 <button onclick="changeViewMode('grid')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? '') == 'grid' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2zm14 0a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
                     </svg>
                     {{ __('Grid') }}
                 </button>
                 <button onclick="changeViewMode('list')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? '') == 'list' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
                     <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 4h6m6-6v10m0-10V9"></path>
                     </svg>
                     {{ __('List') }}
                 </button>
@@ -307,12 +366,9 @@
                             </a>
                             
                             <!-- Delete -->
-                            <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 shadow-sm">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </form>
+                            <button type="button" onclick="confirmDelete({{ $patron->id }}, '{{ $patron->display_name }}')" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 shadow-sm">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
                         </div>
 
                         <!-- Status Dot -->
@@ -1041,6 +1097,107 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// SweetAlert2 Delete Confirmation
+function confirmDelete(patronId, patronName) {
+    Swal.fire({
+        title: 'Xác nhận xóa?',
+        html: `Bạn có chắc chắn muốn xóa độc giả <strong>${patronName}</strong> không?<br><br><small class="text-red-500">Hành động này không thể hoàn tác!</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Xóa',
+        cancelButtonText: 'Hủy',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/topsecret/patrons/${patronId}`;
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            // Add DELETE method
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+            form.appendChild(methodInput);
+            
+            // Submit form
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+// Sort function
+function changeSort(sortOrder) {
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sortOrder);
+    window.location.href = url.toString();
+}
+
+// Toggle Filters
+function toggleFilters() {
+    const filtersDiv = document.getElementById('advancedFilters');
+    const icon = document.getElementById('filterToggleIcon');
+    const text = document.getElementById('filterToggleText');
+    
+    if (filtersDiv.classList.contains('hidden')) {
+        filtersDiv.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+        text.textContent = '{{ __("Hide Filters") }}';
+        // Set flag that filters are open
+        localStorage.setItem('filtersOpen', 'true');
+    } else {
+        filtersDiv.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+        text.textContent = '{{ __("Show Filters") }}';
+        // Set flag that filters are closed
+        localStorage.setItem('filtersOpen', 'false');
+    }
+}
+
+// Check if filters should be open on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const filtersOpen = localStorage.getItem('filtersOpen') === 'true';
+    if (filtersOpen) {
+        const filtersDiv = document.getElementById('advancedFilters');
+        const icon = document.getElementById('filterToggleIcon');
+        const text = document.getElementById('filterToggleText');
+        
+        if (filtersDiv && icon && text) {
+            filtersDiv.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+            text.textContent = '{{ __("Hide Filters") }}';
+        }
+    }
+});
+
+// Clear Filters
+function clearFilters() {
+    const url = new URL(window.location);
+    // Remove all filter parameters
+    url.searchParams.delete('search');
+    url.searchParams.delete('search_field');
+    url.searchParams.delete('status');
+    url.searchParams.delete('patron_group');
+    url.searchParams.delete('branch');
+    url.searchParams.delete('date_from');
+    url.searchParams.delete('date_to');
+    url.searchParams.delete('per_page');
+    
+    window.location.href = url.toString();
+}
 
 // Existing functions...
 function openRenewModal(patronId) {

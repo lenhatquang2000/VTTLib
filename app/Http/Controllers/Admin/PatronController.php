@@ -11,6 +11,7 @@ use App\Models\Branch;
 use App\Models\PatronAddress;
 use App\Models\ActivityLog;
 use App\Models\PatronGroup;
+use App\Models\PatronLockHistory;
 use App\Services\BarcodeService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -37,6 +38,7 @@ class PatronController extends Controller
         $dateTo = $request->get('date_to', '');
         $viewMode = $request->get('view_mode', 'card'); // card, grid, list
         $perPage = $request->get('per_page', 15);
+        $sort = $request->get('sort', 'desc'); // desc, asc
 
         // Build query
         $query = PatronDetail::with(['user', 'patronGroup']);
@@ -101,8 +103,14 @@ class PatronController extends Controller
             $query->whereDate('registration_date', '<=', $dateTo);
         }
 
-        // Order and paginate
-        $patrons = $query->latest('registration_date')->paginate($perPage)->withQueryString();
+        // Order by sort parameter
+        if ($sort === 'asc') {
+            $query->orderBy('registration_date', 'asc');
+        } else {
+            $query->orderBy('registration_date', 'desc');
+        }
+        
+        $patrons = $query->paginate($perPage)->withQueryString();
 
         // Get filter data
         $patronGroups = PatronGroup::where('is_active', true)->get();
@@ -154,6 +162,12 @@ class PatronController extends Controller
     {
         $patron = PatronDetail::findOrFail($id);
         $user = $patron->user;
+
+        // Lưu thông tin cũ để so sánh
+        $oldData = [
+            'patron' => $patron->toArray(),
+            'user' => $user->toArray(),
+        ];
 
         $validated = $request->validate([
             'patron_code' => 'required|string|unique:patron_details,patron_code,' . $patron->id,
@@ -256,36 +270,131 @@ class PatronController extends Controller
 
         $patron->update($patronData);
 
-        // Log activity
+        // Lưu thông tin mới để so sánh
+        $newData = [
+            'patron' => $patron->fresh()->toArray(),
+            'user' => $user->fresh()->toArray(),
+        ];
+
+        // Tính toán các thay đổi
+        $changes = $this->calculatePatronChanges($oldData, $newData);
+
+        // Log activity với chi tiết thay đổi
         ActivityLog::log('patron_updated', $patron, [
             'patron_code' => $patron->patron_code,
-            'display_name' => $patron->display_name
+            'display_name' => $patron->display_name,
+            'changes' => $changes,
+            'changed_fields' => array_keys($changes)
         ]);
 
         return redirect()->route('admin.patrons.index')
             ->with('success', __('Patron information updated successfully.'));
     }
 
+    /**
+     * Calculate changes between old and new patron data
+     */
+    private function calculatePatronChanges($oldData, $newData)
+    {
+        $changes = [];
+        
+        // Map Vietnamese field names to English for display
+        $fieldNames = [
+            'patron_code' => 'Mã độc giả',
+            'name' => 'Họ và tên',
+            'display_name' => 'Tên hiển thị',
+            'email' => 'Email',
+            'phone' => 'Số điện thoại',
+            'date_of_birth' => 'Ngày sinh',
+            'gender' => 'Giới tính',
+            'address' => 'Địa chỉ',
+            'department' => 'Bộ phận',
+            'notes' => 'Ghi chú',
+            'patron_group_id' => 'Nhóm độc giả',
+            'branch_id' => 'Chi nhánh',
+            'registration_date' => 'Ngày đăng ký',
+            'expiry_date' => 'Ngày hết hạn',
+            'profile_image' => 'Ảnh đại diện'
+        ];
+
+        // Check user changes
+        if (isset($oldData['user']) && isset($newData['user'])) {
+            foreach ($oldData['user'] as $key => $oldValue) {
+                if (isset($newData['user'][$key]) && $oldValue != $newData['user'][$key]) {
+                    $fieldName = $fieldNames[$key] ?? $key;
+                    $changes[$fieldName] = [
+                        'old' => $oldValue,
+                        'new' => $newData['user'][$key]
+                    ];
+                }
+            }
+        }
+
+        // Check patron changes
+        if (isset($oldData['patron']) && isset($newData['patron'])) {
+            foreach ($oldData['patron'] as $key => $oldValue) {
+                if (isset($newData['patron'][$key]) && $oldValue != $newData['patron'][$key]) {
+                    $fieldName = $fieldNames[$key] ?? $key;
+                    $changes[$fieldName] = [
+                        'old' => $oldValue,
+                        'new' => $newData['patron'][$key]
+                    ];
+                }
+            }
+        }
+
+        return $changes;
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'patron_code' => 'required|string|unique:patron_details,patron_code',
+            'patron_code' => 'required|string|unique:patron_details,patron_code|max:50',
             'name' => 'required|string|max:255',
             'display_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
+            'email' => 'required|email|unique:users,email|max:255',
+            'password' => 'required|string|min:6|confirmed',
             'patron_group_id' => 'required|exists:patron_groups,id',
             'registration_date' => 'required|date',
             'expiry_date' => 'required|date|after:registration_date',
             
             // Personal Information
             'id_card' => 'nullable|string|max:50',
-            'mssv' => 'nullable|string|max:50',
+            'mssv' => 'nullable|string|unique:patron_details,mssv|max:50',
             'phone_contact' => 'nullable|string|max:20',
             'phone' => 'nullable|string|max:20',
             'fax' => 'nullable|string|max:20',
             'dob' => 'nullable|date',
             'gender' => 'nullable|in:male,female,other',
+        ], [
+            'patron_code.required' => 'Mã độc giả không được để trống',
+            'patron_code.unique' => 'Mã độc giả đã tồn tại trong hệ thống. Vui lòng chọn mã khác.',
+            'patron_code.max' => 'Mã độc giả không được vượt quá 50 ký tự',
+            'name.required' => 'Họ và tên không được để trống',
+            'name.max' => 'Họ và tên không được vượt quá 255 ký tự',
+            'display_name.required' => 'Tên hiển thị không được để trống',
+            'display_name.max' => 'Tên hiển thị không được vượt quá 255 ký tự',
+            'email.required' => 'Email không được để trống',
+            'email.email' => 'Email không đúng định dạng',
+            'email.unique' => 'Email đã tồn tại trong hệ thống. Vui lòng chọn email khác.',
+            'email.max' => 'Email không được vượt quá 255 ký tự',
+            'password.required' => 'Mật khẩu không được để trống',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
+            'password.confirmed' => 'Xác nhận mật khẩu không khớp',
+            'patron_group_id.required' => 'Nhóm độc giả không được để trống',
+            'patron_group_id.exists' => 'Nhóm độc giả không hợp lệ',
+            'registration_date.required' => 'Ngày đăng ký không được để trống',
+            'registration_date.date' => 'Ngày đăng ký không đúng định dạng',
+            'expiry_date.required' => 'Ngày hết hạn không được để trống',
+            'expiry_date.date' => 'Ngày hết hạn không đúng định dạng',
+            'expiry_date.after' => 'Ngày hết hạn phải sau ngày đăng ký',
+            'mssv.unique' => 'MSSV đã tồn tại trong hệ thống. Vui lòng chọn MSSV khác.',
+            'mssv.max' => 'MSSV không được vượt quá 50 ký tự',
+            'gender.in' => 'Giới tính không hợp lệ',
+        ]);
+
+        // Additional validation rules
+        $additionalValidated = $request->validate([
             'school_name' => 'nullable|string|max:255',
             'batch' => 'nullable|string|max:100',
             'department' => 'nullable|string|max:255',
@@ -299,6 +408,9 @@ class PatronController extends Controller
             'balance' => 'nullable|numeric',
             'notes' => 'nullable|string'
         ]);
+
+        // Merge all validated data
+        $validated = array_merge($validated, $additionalValidated);
 
         $patron = DB::transaction(function () use ($request, $validated) {
             // 1. User
@@ -606,16 +718,23 @@ class PatronController extends Controller
     }
 
     /**
-     * Show system logs
+     * Show patron system logs
      */
     public function systemLogs(Request $request)
     {
-        $query = ActivityLog::where('log_name', 'like', '%patron%')
-            ->orderBy('created_at', 'desc');
+        $query = ActivityLog::where(function($q) {
+            // Chỉ lấy logs liên quan đến patron
+            $q->where('action', 'like', '%patron%')
+              ->orWhere('model_type', 'like', '%Patron%')
+              ->orWhere('model_type', 'like', '%patron%')
+              ->orWhere('details', 'like', '%patron%')
+              ->orWhere('details', 'like', '%độc giả%')
+              ->orWhere('details', 'like', '%bạn đọc%');
+        })->orderBy('created_at', 'desc');
 
         // Filter by log type if provided
         if ($request->log_type) {
-            $query->where('log_name', $request->log_type);
+            $query->where('action', 'like', '%' . $request->log_type . '%');
         }
 
         // Filter by date range if provided
@@ -628,7 +747,7 @@ class PatronController extends Controller
 
         // Filter by user if provided
         if ($request->user_id) {
-            $query->where('causer_id', $request->user_id);
+            $query->where('user_id', $request->user_id);
         }
 
         $logs = $query->paginate(20);

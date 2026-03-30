@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', __('Nhật ký hệ thống'))
+@section('title', __('Nhật Ký Hệ Thống Độc Giả'))
 
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Nhật ký hệ thống') }}</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">{{ __('Xem nhật ký hoạt động của hệ thống') }}</p>
+            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Nhật Ký Hệ Thống Độc Giả') }}</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">{{ __('Xem lịch sử hệ thống liên quan đến độc giả') }}</p>
         </div>
         <div class="flex items-center space-x-3">
             <a href="{{ route('admin.patrons.index') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-medium shadow-md hover:bg-indigo-500">
@@ -84,40 +84,51 @@
                                 {{ $log->created_at->format('d/m/Y H:i:s') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                    {{ $log->log_name == 'patron_locked' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : '' }}
-                                    {{ $log->log_name == 'patron_unlocked' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : '' }}
-                                    {{ $log->log_name == 'patron_transaction' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200' : '' }}
-                                    {{ $log->log_name == 'patron_added_to_print_queue' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200' : '' }}
-                                    {{ $log->log_name == 'patron_removed_from_print_queue' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' : '' }}">
-                                    {{ $log->log_name }}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                    {{ $log->action }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
-                                {{ $log->causer->name ?? 'System' }}
+                                {{ $log->user->name ?? 'System' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
-                                @if($log->subject)
-                                    {{ $log->subject->display_name ?? $log->subject->name ?? 'N/A' }}
+                                @if($log->model_type && $log->model_id)
+                                    {{ class_basename($log->model_type) }} #{{ $log->model_id }}
                                 @else
                                     -
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-900 dark:text-slate-100">
-                                @if($log->properties)
+                                @if($log->details)
                                     <div class="space-y-1">
-                                        @foreach($log->properties as $key => $value)
-                                            @if(is_string($value))
-                                                <p class="text-xs"><span class="font-medium">{{ $key }}:</span> {{ $value }}</p>
-                                            @endif
-                                        @endforeach
+                                        @if(is_array($log->details))
+                                            @foreach($log->details as $key => $value)
+                                                @if($key === 'changes' && is_array($value))
+                                                    <div class="border-l-2 border-blue-400 pl-2 mb-2">
+                                                        <p class="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">Các thay đổi:</p>
+                                                        @foreach($value as $field => $change)
+                                                            <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                                                                <span class="font-medium">{{ $field }}:</span>
+                                                                <span class="line-through text-red-500">{{ $change['old'] ?? 'N/A' }}</span>
+                                                                <span class="mx-1">→</span>
+                                                                <span class="text-green-600">{{ $change['new'] ?? 'N/A' }}</span>
+                                                            </p>
+                                                        @endforeach
+                                                    </div>
+                                                @elseif(is_string($value))
+                                                    <p class="text-xs"><span class="font-medium">{{ $key }}:</span> {{ $value }}</p>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <p class="text-xs">{{ $log->details }}</p>
+                                        @endif
                                     </div>
                                 @else
                                     -
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
-                                {{ $log->properties['ip_address'] ?? '-' }}
+                                {{ $log->ip_address ?? '-' }}
                             </td>
                         </tr>
                     @empty

@@ -47,13 +47,38 @@ class LogActivity
         try {
             $user = auth()->user();
             
+            // Prepare details for patron-related actions
+            $details = [];
+            $modelType = null;
+            $modelId = null;
+            
+            // Check if this is a patron-related action
+            if (str_contains($action, 'patron') || str_contains($request->path(), 'patrons')) {
+                $details['category'] = 'patron_management';
+                
+                // Extract patron ID from request if available
+                if ($request->route('id')) {
+                    $details['patron_id'] = $request->route('id');
+                    $modelType = 'PatronDetail';
+                    $modelId = $request->route('id');
+                }
+                
+                // Add request data for POST/PUT/DELETE
+                if ($request->hasAny(['name', 'email', 'patron_code', 'status'])) {
+                    $details['request_data'] = $request->only(['name', 'email', 'patron_code', 'status']);
+                }
+            }
+            
             ActivityLog::create([
                 'user_id' => $user->id,
                 'action' => $action,
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
+                'model_type' => $modelType,
+                'model_id' => $modelId,
+                'details' => !empty($details) ? $details : null,
+                'request_data' => $request->except(['password', 'password_confirmation', '_token']),
                 'created_at' => now(),
             ]);
         } catch (\Exception $e) {

@@ -65,7 +65,7 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mr-3">
-                                        @if($item->patron->profile_image)
+                                        @if($item->patron && $item->patron->profile_image)
                                             <img src="{{ asset('storage/' . $item->patron->profile_image) }}" class="w-full h-full object-cover">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center">
@@ -74,13 +74,13 @@
                                         @endif
                                     </div>
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $item->patron->display_name }}</div>
-                                        <div class="text-xs text-gray-500 dark:text-slate-400">{{ $item->patron->user->email }}</div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $item->patron->display_name ?? 'N/A' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-slate-400">{{ $item->patron->user->email ?? 'N/A' }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900 dark:text-slate-100 font-mono">{{ $item->patron->patron_code }}</div>
+                                <div class="text-sm text-gray-900 dark:text-slate-100 font-mono">{{ $item->patron->patron_code ?? 'N/A' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $item->priority >= 5 ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' : ($item->priority >= 3 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200') }}">
