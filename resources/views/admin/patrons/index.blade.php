@@ -49,44 +49,59 @@
             </button>
         </div>
         
-        <!-- Search Bar with Field and Button -->
-        <div class="flex flex-col md:flex-row gap-4 items-end">
-            <!-- Search Field (Left) -->
-            <div class="md:w-1/3">
-                <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Search Field') }}</label>
-                <select name="search_field" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <option value="all" {{ ($searchField ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Fields') }}</option>
-                    <option value="patron_code" {{ ($searchField ?? '') == 'patron_code' ? 'selected' : '' }}>{{ __('Patron Code') }}</option>
-                    <option value="name" {{ ($searchField ?? '') == 'name' ? 'selected' : '' }}>{{ __('Name') }}</option>
-                    <option value="email" {{ ($searchField ?? '') == 'email' ? 'selected' : '' }}>{{ __('Email') }}</option>
-                    <option value="phone" {{ ($searchField ?? '') == 'phone' ? 'selected' : '' }}>{{ __('Phone') }}</option>
-                    <option value="address" {{ ($searchField ?? '') == 'address' ? 'selected' : '' }}>{{ __('Address') }}</option>
-                </select>
-            </div>
-            
-            <!-- Search Input (Center) -->
-            <div class="md:flex-1 relative">
-                <input type="text" 
-                       name="search" 
-                       value="{{ $search ?? '' }}" 
-                       placeholder="{{ __('Search patrons...') }}" 
-                       class="w-full pl-10 pr-24 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                <svg class="absolute left-3 top-3 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
+        <!-- Main Search Form -->
+        <form method="GET" action="{{ route('admin.patrons.index') }}" id="mainSearchForm">
+            <!-- Search Bar with Field and Button -->
+            <div class="flex flex-col md:flex-row gap-4 items-end">
+                <!-- Search Field (Left) -->
+                <div class="md:w-1/3">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Search Field') }}</label>
+                    <select name="search_field" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="all" {{ ($searchField ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Fields') }}</option>
+                        <option value="patron_code" {{ ($searchField ?? '') == 'patron_code' ? 'selected' : '' }}>{{ __('Patron Code') }}</option>
+                        <option value="name" {{ ($searchField ?? '') == 'name' ? 'selected' : '' }}>{{ __('Name') }}</option>
+                        <option value="email" {{ ($searchField ?? '') == 'email' ? 'selected' : '' }}>{{ __('Email') }}</option>
+                        <option value="phone" {{ ($searchField ?? '') == 'phone' ? 'selected' : '' }}>{{ __('Phone') }}</option>
+                        <option value="address" {{ ($searchField ?? '') == 'address' ? 'selected' : '' }}>{{ __('Address') }}</option>
+                    </select>
+                </div>
                 
-                <!-- Search Button (Right) -->
-                <button type="submit" class="absolute right-2 top-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <!-- Search Input (Center) -->
+                <div class="md:flex-1 relative">
+                    <input type="text" 
+                           name="search" 
+                           value="{{ $search ?? '' }}" 
+                           placeholder="{{ __('Search patrons...') }}" 
+                           class="w-full pl-10 pr-24 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                    <svg id="searchIcon" class="absolute left-3 top-3 w-5 h-5 text-gray-400 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                     </svg>
-                </button>
+                    
+                    <!-- Search Button (Right) -->
+                    <button type="submit" class="absolute right-2 top-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </div>
+            
+            <!-- Hidden inputs for advanced filters to maintain state -->
+            <input type="hidden" name="status" value="{{ $status ?? 'all' }}">
+            <input type="hidden" name="patron_group" value="{{ $patronGroup ?? 'all' }}">
+            <input type="hidden" name="branch" value="{{ $branch ?? 'all' }}">
+            <input type="hidden" name="per_page" value="{{ $perPage ?? 15 }}">
+            <input type="hidden" name="date_from" value="{{ $dateFrom ?? '' }}">
+            <input type="hidden" name="date_to" value="{{ $dateTo ?? '' }}">
+        </form>
         
         <!-- Advanced Filters (Collapsible) -->
         <div id="advancedFilters" class="hidden border-t border-gray-200 dark:border-slate-700 mt-4">
-            <form method="GET" action="{{ route('admin.patrons.index') }}" class=" pt-4 space-y-4">
+            <form method="GET" action="{{ route('admin.patrons.index') }}" id="advancedFiltersForm" class=" pt-4 space-y-4">
+                <!-- Include search field and search input values -->
+                <input type="hidden" name="search_field" value="{{ $searchField ?? 'all' }}">
+                <input type="hidden" name="search" value="{{ $search ?? '' }}">
+                
                 <!-- Advanced Filters Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
@@ -1151,17 +1166,37 @@ function toggleFilters() {
     const filtersDiv = document.getElementById('advancedFilters');
     const icon = document.getElementById('filterToggleIcon');
     const text = document.getElementById('filterToggleText');
+    const searchIcon = document.getElementById('searchIcon');
+    const searchInput = document.querySelector('input[name="search"]');
     
     if (filtersDiv.classList.contains('hidden')) {
         filtersDiv.classList.remove('hidden');
         icon.style.transform = 'rotate(180deg)';
         text.textContent = '{{ __("Hide Filters") }}';
+        // Hide search icon and adjust padding
+        if (searchIcon) {
+            searchIcon.style.opacity = '0';
+            searchIcon.style.pointerEvents = 'none';
+        }
+        if (searchInput) {
+            searchInput.classList.remove('pl-10');
+            searchInput.classList.add('pl-3');
+        }
         // Set flag that filters are open
         localStorage.setItem('filtersOpen', 'true');
     } else {
         filtersDiv.classList.add('hidden');
         icon.style.transform = 'rotate(0deg)';
         text.textContent = '{{ __("Show Filters") }}';
+        // Show search icon and restore padding
+        if (searchIcon) {
+            searchIcon.style.opacity = '1';
+            searchIcon.style.pointerEvents = 'auto';
+        }
+        if (searchInput) {
+            searchInput.classList.remove('pl-3');
+            searchInput.classList.add('pl-10');
+        }
         // Set flag that filters are closed
         localStorage.setItem('filtersOpen', 'false');
     }
@@ -1174,12 +1209,74 @@ document.addEventListener('DOMContentLoaded', function() {
         const filtersDiv = document.getElementById('advancedFilters');
         const icon = document.getElementById('filterToggleIcon');
         const text = document.getElementById('filterToggleText');
+        const searchIcon = document.getElementById('searchIcon');
+        const searchInput = document.querySelector('input[name="search"]');
         
         if (filtersDiv && icon && text) {
             filtersDiv.classList.remove('hidden');
             icon.style.transform = 'rotate(180deg)';
             text.textContent = '{{ __("Hide Filters") }}';
+            
+            // Hide search icon and adjust padding
+            if (searchIcon) {
+                searchIcon.style.opacity = '0';
+                searchIcon.style.pointerEvents = 'none';
+            }
+            if (searchInput) {
+                searchInput.classList.remove('pl-10');
+                searchInput.classList.add('pl-3');
+            }
         }
+    }
+});    
+    // Sync main search form with advanced filters form
+    const mainSearchForm = document.getElementById('mainSearchForm');
+    if (mainSearchForm) {
+        mainSearchForm.addEventListener('submit', function(e) {
+            // Update hidden inputs with current values from advanced filters
+            const statusSelect = document.querySelector('#advancedFiltersForm select[name="status"]');
+            const patronGroupSelect = document.querySelector('#advancedFiltersForm select[name="patron_group"]');
+            const branchSelect = document.querySelector('#advancedFiltersForm select[name="branch"]');
+            const perPageSelect = document.querySelector('#advancedFiltersForm select[name="per_page"]');
+            const dateFromInput = document.querySelector('#advancedFiltersForm input[name="date_from"]');
+            const dateToInput = document.querySelector('#advancedFiltersForm input[name="date_to"]');
+            
+            if (statusSelect) {
+                document.querySelector('#mainSearchForm input[name="status"]').value = statusSelect.value;
+            }
+            if (patronGroupSelect) {
+                document.querySelector('#mainSearchForm input[name="patron_group"]').value = patronGroupSelect.value;
+            }
+            if (branchSelect) {
+                document.querySelector('#mainSearchForm input[name="branch"]').value = branchSelect.value;
+            }
+            if (perPageSelect) {
+                document.querySelector('#mainSearchForm input[name="per_page"]').value = perPageSelect.value;
+            }
+            if (dateFromInput) {
+                document.querySelector('#mainSearchForm input[name="date_from"]').value = dateFromInput.value;
+            }
+            if (dateToInput) {
+                document.querySelector('#mainSearchForm input[name="date_to"]').value = dateToInput.value;
+            }
+        });
+    }
+    
+    // Sync advanced filters form with main search form
+    const advancedFiltersForm = document.getElementById('advancedFiltersForm');
+    if (advancedFiltersForm) {
+        advancedFiltersForm.addEventListener('submit', function(e) {
+            // Update hidden inputs with current values from main search form
+            const searchFieldSelect = document.querySelector('#mainSearchForm select[name="search_field"]');
+            const searchInput = document.querySelector('#mainSearchForm input[name="search"]');
+            
+            if (searchFieldSelect) {
+                document.querySelector('#advancedFiltersForm input[name="search_field"]').value = searchFieldSelect.value;
+            }
+            if (searchInput) {
+                document.querySelector('#advancedFiltersForm input[name="search"]').value = searchInput.value;
+            }
+        });
     }
 });
 

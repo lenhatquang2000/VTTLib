@@ -42,4 +42,9 @@ class BookItem extends Model
     {
         return $this->belongsTo(StorageLocation::class);
     }
+
+    public function loanTransactions()
+    {
+        return $this->hasMany(LoanTransaction::class);
+    }
 }

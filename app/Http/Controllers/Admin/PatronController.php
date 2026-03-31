@@ -62,7 +62,7 @@ class PatronController extends Controller
                     break;
                 case 'address':
                     $query->whereHas('addresses', function($q) use ($search) {
-                        $q->where('address', 'LIKE', "%{$search}%");
+                        $q->where('address_line', 'LIKE', "%{$search}%");
                     });
                     break;
                 default: // all
@@ -74,7 +74,7 @@ class PatronController extends Controller
                               $subQ->where('email', 'LIKE', "%{$search}%");
                           })
                           ->orWhereHas('addresses', function($subQ) use ($search) {
-                              $subQ->where('address', 'LIKE', "%{$search}%");
+                              $subQ->where('address_line', 'LIKE', "%{$search}%");
                           });
                     });
             }

@@ -207,6 +207,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/circulation/fines/{fine}/pay', [\App\Http\Controllers\Admin\CirculationController::class, 'payFine'])->name('admin.circulation.fines.pay');
     Route::post('/circulation/fines/{fine}/waive', [\App\Http\Controllers\Admin\CirculationController::class, 'waiveFine'])->name('admin.circulation.fines.waive');
 
+    // Circulation Reports
+    Route::prefix('circulation/reports')->name('admin.circulation.reports.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CirculationReportController::class, 'index'])->name('index');
+        Route::post('/export', [\App\Http\Controllers\Admin\CirculationReportController::class, 'export'])->name('export');
+        Route::get('/currently-borrowed', [\App\Http\Controllers\Admin\CirculationReportController::class, 'currentlyBorrowed'])->name('currently_borrowed');
+        Route::get('/patron-service', [\App\Http\Controllers\Admin\CirculationReportController::class, 'patronService'])->name('patron_service');
+        Route::get('/overdue', [\App\Http\Controllers\Admin\CirculationReportController::class, 'overdue'])->name('overdue');
+        Route::get('/top-patrons', [\App\Http\Controllers\Admin\CirculationReportController::class, 'topPatrons'])->name('top_patrons');
+        Route::get('/transaction-history', [\App\Http\Controllers\Admin\CirculationReportController::class, 'transactionHistory'])->name('transaction_history');
+        Route::get('/never-borrowed', [\App\Http\Controllers\Admin\CirculationReportController::class, 'neverBorrowed'])->name('never_borrowed');
+    });
+
     // Metadata Configuration
     Route::get('/document-types', [\App\Http\Controllers\Admin\DocumentTypeController::class, 'index'])->name('admin.document-types.index');
     Route::post('/document-types', [\App\Http\Controllers\Admin\DocumentTypeController::class, 'store'])->name('admin.document-types.store');
