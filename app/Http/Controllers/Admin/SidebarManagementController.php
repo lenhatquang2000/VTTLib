@@ -117,6 +117,23 @@ class SidebarManagementController extends Controller
         ]);
     }
 
+    public function toggleActive(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer|exists:sidebars,id',
+        ]);
+
+        $sidebar = Sidebar::findOrFail($request->id);
+        $sidebar->is_active = !$sidebar->is_active;
+        $sidebar->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => $sidebar->is_active ? __('Sidebar item activated') : __('Sidebar item deactivated'),
+            'is_active' => $sidebar->is_active
+        ]);
+    }
+
     private function preventCircularReference($itemId, $parentId)
     {
         $currentParent = $parentId;

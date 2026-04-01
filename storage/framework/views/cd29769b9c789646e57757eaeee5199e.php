@@ -1,8 +1,6 @@
-@extends('layouts.admin')
+<?php $__env->startSection('title', __('Sidebar Management')); ?>
 
-@section('title', __('Sidebar Management'))
-
-@push('styles')
+<?php $__env->startPush('styles'); ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -1056,121 +1054,115 @@
         accent-color: var(--clr-accent);
     }
 </style>
-@endpush
+<?php $__env->stopPush(); ?>
 
-{{-- Add New Item Modal --}}
+
 <div id="addItemModal" class="modal hidden">
     <div class="modal-backdrop" onclick="closeAddModal()"></div>
     <div class="modal-content max-w-lg">
-        <h3 class="text-lg font-bold mb-4">{{ __('Add New Sidebar Item') }}</h3>
+        <h3 class="text-lg font-bold mb-4"><?php echo e(__('Add New Sidebar Item')); ?></h3>
         <form id="addItemForm" method="POST">
-            @csrf
+            <?php echo csrf_field(); ?>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Item Name') }} *</label>
-                    <input type="text" name="name" required class="input-field w-full" placeholder="{{ __('Enter item name') }}">
+                    <label class="block text-sm font-medium mb-1"><?php echo e(__('Item Name')); ?> *</label>
+                    <input type="text" name="name" required class="input-field w-full" placeholder="<?php echo e(__('Enter item name')); ?>">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Icon') }} (FontAwesome class)</label>
+                    <label class="block text-sm font-medium mb-1"><?php echo e(__('Icon')); ?> (FontAwesome class)</label>
                     <input type="text" name="icon" class="input-field w-full" placeholder="fas fa-home" value="fas fa-circle">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Route Name') }}</label>
+                    <label class="block text-sm font-medium mb-1"><?php echo e(__('Route Name')); ?></label>
                     <input type="text" name="route_name" class="input-field w-full" placeholder="admin.dashboard">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">{{ __('Parent Item') }}</label>
+                    <label class="block text-sm font-medium mb-1"><?php echo e(__('Parent Item')); ?></label>
                     <select name="parent_id" class="input-field w-full">
-                        <option value="">{{ __('— Root —') }}</option>
-                        @foreach($sidebarItems as $item)
-                            <option value="{{ $item->id }}">{{ $item->name }}</option>
-                        @endforeach
+                        <option value=""><?php echo e(__('— Root —')); ?></option>
+                        <?php $__currentLoopData = $sidebarItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($item->id); ?>"><?php echo e($item->name); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </select>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="is_active" id="newItemActive" value="1" checked class="rounded">
-                    <label for="newItemActive" class="text-sm">{{ __('Active') }}</label>
+                    <label for="newItemActive" class="text-sm"><?php echo e(__('Active')); ?></label>
                 </div>
             </div>
             <div class="flex justify-end gap-2 mt-6">
-                <button type="button" onclick="closeAddModal()" class="btn-secondary">{{ __('Cancel') }}</button>
-                <button type="submit" class="btn-primary">{{ __('Add Item') }}</button>
+                <button type="button" onclick="closeAddModal()" class="btn-secondary"><?php echo e(__('Cancel')); ?></button>
+                <button type="submit" class="btn-primary"><?php echo e(__('Add Item')); ?></button>
             </div>
         </form>
     </div>
 </div>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 
-{{-- Save overlay spinner --}}
+
 <div class="save-overlay" id="saveOverlay">
     <div class="save-spinner">
         <div class="spinner-ring"></div>
-        <p>{{ __('Saving changes…') }}</p>
+        <p>Đang lưu thay đổi…</p>
     </div>
 </div>
 
-{{-- Toast container --}}
+
 <div class="toast-stack" id="toastStack"></div>
 
-{{-- ══════════════════════════════════════════════
-     PAGE HEADER
-══════════════════════════════════════════════ --}}
+
 <div class="sbm-header">
     <div class="sbm-header-left">
-        <h1><i class="fas fa-layer-group me-2"></i>{{ __('Sidebar Management') }}</h1>
-        <p>{{ __('Drag and drop to reorder menu items and hierarchy') }}</p>
+        <h1><i class="fas fa-layer-group me-2"></i><?php echo e(__('Sidebar Management')); ?></h1>
+        <p>Kéo thả để sắp xếp thứ tự &amp; cấp bậc các mục menu</p>
     </div>
     <div class="sbm-actions">
         <button class="btn-sbm btn-add" onclick="openAddModal()">
-            <i class="fas fa-plus"></i> {{ __('Add new item') }}
+            <i class="fas fa-plus"></i> Thêm mục mới
         </button>
         <button class="btn-sbm btn-reset" onclick="handleReset()">
-            <i class="fas fa-undo"></i> {{ __('Reset') }}
+            <i class="fas fa-undo"></i> Reset
         </button>
         <button class="btn-sbm btn-save" id="btnSave" onclick="handleSave()">
-            <i class="fas fa-cloud-upload-alt"></i> {{ __('Save changes') }}
+            <i class="fas fa-cloud-upload-alt"></i> Lưu thay đổi
         </button>
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════
-     STATS BAR
-══════════════════════════════════════════════ --}}
+
 <div class="stats-bar">
     <div class="stat-card">
         <div class="stat-icon violet"><i class="fas fa-bars"></i></div>
         <div class="stat-info">
-            <div class="stat-value">{{ $sidebarItems->count() }}</div>
-            <div class="stat-label">{{ __('Total items') }}</div>
+            <div class="stat-value"><?php echo e($sidebarItems->count()); ?></div>
+            <div class="stat-label">Tổng mục</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon emerald"><i class="fas fa-check-circle"></i></div>
         <div class="stat-info">
-            <div class="stat-value">{{ $sidebarItems->where('is_active', true)->count() }}</div>
-            <div class="stat-label">{{ __('Active items') }}</div>
+            <div class="stat-value"><?php echo e($sidebarItems->where('is_active', true)->count()); ?></div>
+            <div class="stat-label">Đang bật</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon amber"><i class="fas fa-eye-slash"></i></div>
         <div class="stat-info">
-            <div class="stat-value">{{ $sidebarItems->where('is_active', false)->count() }}</div>
-            <div class="stat-label">{{ __('Hidden items') }}</div>
+            <div class="stat-value"><?php echo e($sidebarItems->where('is_active', false)->count()); ?></div>
+            <div class="stat-label">Đã ẩn</div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon cyan"><i class="fas fa-sitemap"></i></div>
         <div class="stat-info">
-            <div class="stat-value">{{ $rootItems->count() }}</div>
-            <div class="stat-label">{{ __('Root tabs') }}</div>
+            <div class="stat-value"><?php echo e($rootItems->count()); ?></div>
+            <div class="stat-label">Tabs gốc</div>
         </div>
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════
-     HINT BOX
-══════════════════════════════════════════════ --}}
+
 <div class="hint-box">
     <div class="hint-box-icon"><i class="fas fa-magic"></i></div>
     <div class="hint-box-content">
@@ -1185,9 +1177,7 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════
-     TREE PANEL
-══════════════════════════════════════════════ --}}
+
 <div class="tree-panel">
     <div class="tree-panel-header">
         <h2><i class="fas fa-project-diagram"></i> Cây menu điều hướng</h2>
@@ -1196,159 +1186,164 @@
     <div class="tree-body">
         <div class="sortable-root" id="sortable-root">
 
-            @forelse($rootItems->sortBy('order') as $item)
-            <div class="tree-item" data-id="{{ $item->id }}" data-parent="">
+            <?php $__empty_1 = true; $__currentLoopData = $rootItems->sortBy('order'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+            <div class="tree-item" data-id="<?php echo e($item->id); ?>" data-parent="">
                 <div class="tree-card">
-                    {{-- Drag handle --}}
+                    
                     <div class="drag-handle" title="Kéo để sắp xếp">
                         <i class="fas fa-grip-vertical"></i>
                     </div>
 
-                    {{-- Order badge --}}
-                    <span class="order-badge" title="Thứ tự">{{ $loop->index }}</span>
+                    
+                    <span class="order-badge" title="Thứ tự"><?php echo e($loop->index); ?></span>
 
-                    {{-- Icon --}}
-                    <div class="item-icon-wrap">{!! $item->icon !!}</div>
+                    
+                    <div class="item-icon-wrap"><?php echo $item->icon; ?></div>
 
-                    {{-- Name / Route --}}
+                    
                     <div class="item-info">
-                        <div class="item-name">{{ $item->name }}</div>
-                        @if($item->route_name)
-                            <div class="item-route">{{ $item->route_name }}</div>
-                        @endif
+                        <div class="item-name"><?php echo e($item->name); ?></div>
+                        <?php if($item->route_name): ?>
+                            <div class="item-route"><?php echo e($item->route_name); ?></div>
+                        <?php endif; ?>
                     </div>
 
-                    {{-- Parent selector --}}
+                    
                     <div class="parent-select-wrap">
                         <select class="parent-select"
                                 title="Gán tab cha"
-                                onchange="handleParentChange({{ $item->id }}, this.value)">
+                                onchange="handleParentChange(<?php echo e($item->id); ?>, this.value)">
                             <option value="" selected>— Root —</option>
-                            @foreach($rootItems as $p)
-                                @if($p->id !== $item->id)
-                                    <option value="{{ $p->id }}">{{ $p->name }}</option>
-                                @endif
-                            @endforeach
+                            <?php $__currentLoopData = $rootItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php if($p->id !== $item->id): ?>
+                                    <option value="<?php echo e($p->id); ?>"><?php echo e($p->name); ?></option>
+                                <?php endif; ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
 
-                    {{-- Item actions --}}
+                    
                     <div class="item-actions">
-                        <label class="toggle-pill" title="{{ $item->is_active ? 'Đang bật' : 'Đang tắt' }}">
+                        <label class="toggle-pill" title="<?php echo e($item->is_active ? 'Đang bật' : 'Đang tắt'); ?>">
                             <input type="checkbox"
-                                   id="toggle-{{ $item->id }}"
-                                   {{ $item->is_active ? 'checked' : '' }}
-                                   onchange="handleToggle({{ $item->id }})">
+                                   id="toggle-<?php echo e($item->id); ?>"
+                                   <?php echo e($item->is_active ? 'checked' : ''); ?>
+
+                                   onchange="handleToggle(<?php echo e($item->id); ?>)">
                             <span class="toggle-track"></span>
                             <span class="toggle-thumb"></span>
                         </label>
-                        <span class="id-chip">#{{ $item->id }}</span>
+                        <span class="id-chip">#<?php echo e($item->id); ?></span>
                     </div>
                 </div>
 
-                {{-- Children --}}
-                @if($item->children && $item->children->count() > 0)
-                <div class="tree-children sortable-children" data-parent="{{ $item->id }}">
-                    @foreach($item->children->sortBy('order') as $child)
-                    <div class="tree-item" data-id="{{ $child->id }}" data-parent="{{ $child->parent_id }}">
+                
+                <?php if($item->children && $item->children->count() > 0): ?>
+                <div class="tree-children sortable-children" data-parent="<?php echo e($item->id); ?>">
+                    <?php $__currentLoopData = $item->children->sortBy('order'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="tree-item" data-id="<?php echo e($child->id); ?>" data-parent="<?php echo e($child->parent_id); ?>">
                         <div class="tree-card">
                             <div class="drag-handle" title="Kéo để sắp xếp">
                                 <i class="fas fa-grip-vertical"></i>
                             </div>
-                            <span class="order-badge">{{ $loop->index }}</span>
-                            <div class="item-icon-wrap">{!! $child->icon !!}</div>
+                            <span class="order-badge"><?php echo e($loop->index); ?></span>
+                            <div class="item-icon-wrap"><?php echo $child->icon; ?></div>
                             <div class="item-info">
-                                <div class="item-name">{{ $child->name }}</div>
-                                @if($child->route_name)
-                                    <div class="item-route">{{ $child->route_name }}</div>
-                                @endif
+                                <div class="item-name"><?php echo e($child->name); ?></div>
+                                <?php if($child->route_name): ?>
+                                    <div class="item-route"><?php echo e($child->route_name); ?></div>
+                                <?php endif; ?>
                             </div>
                             <div class="parent-select-wrap">
                                 <select class="parent-select"
                                         title="Gán tab cha"
-                                        onchange="handleParentChange({{ $child->id }}, this.value)">
+                                        onchange="handleParentChange(<?php echo e($child->id); ?>, this.value)">
                                     <option value="">— Root —</option>
-                                    @foreach($rootItems as $p)
-                                        <option value="{{ $p->id }}"
-                                                {{ $child->parent_id == $p->id ? 'selected' : '' }}>
-                                            {{ $p->name }}
+                                    <?php $__currentLoopData = $rootItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($p->id); ?>"
+                                                <?php echo e($child->parent_id == $p->id ? 'selected' : ''); ?>>
+                                            <?php echo e($p->name); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             <div class="item-actions">
                                 <label class="toggle-pill">
                                     <input type="checkbox"
-                                           id="toggle-{{ $child->id }}"
-                                           {{ $child->is_active ? 'checked' : '' }}
-                                           onchange="handleToggle({{ $child->id }})">
+                                           id="toggle-<?php echo e($child->id); ?>"
+                                           <?php echo e($child->is_active ? 'checked' : ''); ?>
+
+                                           onchange="handleToggle(<?php echo e($child->id); ?>)">
                                     <span class="toggle-track"></span>
                                     <span class="toggle-thumb"></span>
                                 </label>
-                                <span class="id-chip">#{{ $child->id }}</span>
+                                <span class="id-chip">#<?php echo e($child->id); ?></span>
                             </div>
                         </div>
 
-                        {{-- Level 3: grandchildren --}}
-                        @if($child->children && $child->children->count() > 0)
-                        <div class="tree-children sortable-children" data-parent="{{ $child->id }}">
-                            @foreach($child->children->sortBy('order') as $grandchild)
-                            <div class="tree-item" data-id="{{ $grandchild->id }}" data-parent="{{ $grandchild->parent_id }}">
+                        
+                        <?php if($child->children && $child->children->count() > 0): ?>
+                        <div class="tree-children sortable-children" data-parent="<?php echo e($child->id); ?>">
+                            <?php $__currentLoopData = $child->children->sortBy('order'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $grandchild): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="tree-item" data-id="<?php echo e($grandchild->id); ?>" data-parent="<?php echo e($grandchild->parent_id); ?>">
                                 <div class="tree-card">
                                     <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
-                                    <span class="order-badge">{{ $loop->index }}</span>
-                                    <div class="item-icon-wrap">{!! $grandchild->icon !!}</div>
+                                    <span class="order-badge"><?php echo e($loop->index); ?></span>
+                                    <div class="item-icon-wrap"><?php echo $grandchild->icon; ?></div>
                                     <div class="item-info">
-                                        <div class="item-name">{{ $grandchild->name }}</div>
-                                        @if($grandchild->route_name)
-                                            <div class="item-route">{{ $grandchild->route_name }}</div>
-                                        @endif
+                                        <div class="item-name"><?php echo e($grandchild->name); ?></div>
+                                        <?php if($grandchild->route_name): ?>
+                                            <div class="item-route"><?php echo e($grandchild->route_name); ?></div>
+                                        <?php endif; ?>
                                     </div>
                                     <div class="parent-select-wrap">
                                         <select class="parent-select"
-                                                onchange="handleParentChange({{ $grandchild->id }}, this.value)">
+                                                onchange="handleParentChange(<?php echo e($grandchild->id); ?>, this.value)">
                                             <option value="">— Root —</option>
-                                            @foreach($rootItems as $p)
-                                                <option value="{{ $p->id }}"
-                                                        {{ $grandchild->parent_id == $p->id ? 'selected' : '' }}>
-                                                    {{ $p->name }}
+                                            <?php $__currentLoopData = $rootItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $p): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($p->id); ?>"
+                                                        <?php echo e($grandchild->parent_id == $p->id ? 'selected' : ''); ?>>
+                                                    <?php echo e($p->name); ?>
+
                                                 </option>
-                                            @endforeach
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         </select>
                                     </div>
                                     <div class="item-actions">
                                         <label class="toggle-pill">
                                             <input type="checkbox"
-                                                   id="toggle-{{ $grandchild->id }}"
-                                                   {{ $grandchild->is_active ? 'checked' : '' }}
-                                                   onchange="handleToggle({{ $grandchild->id }})">
+                                                   id="toggle-<?php echo e($grandchild->id); ?>"
+                                                   <?php echo e($grandchild->is_active ? 'checked' : ''); ?>
+
+                                                   onchange="handleToggle(<?php echo e($grandchild->id); ?>)">
                                             <span class="toggle-track"></span>
                                             <span class="toggle-thumb"></span>
                                         </label>
-                                        <span class="id-chip">#{{ $grandchild->id }}</span>
+                                        <span class="id-chip">#<?php echo e($grandchild->id); ?></span>
                                     </div>
                                 </div>
                             </div>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
-                        @else
-                        <div class="tree-children sortable-children" data-parent="{{ $child->id }}"></div>
-                        @endif
+                        <?php else: ?>
+                        <div class="tree-children sortable-children" data-parent="<?php echo e($child->id); ?>"></div>
+                        <?php endif; ?>
 
                     </div>
-                    @endforeach
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
-                @else
-                <div class="tree-children sortable-children" data-parent="{{ $item->id }}"></div>
-                @endif
+                <?php else: ?>
+                <div class="tree-children sortable-children" data-parent="<?php echo e($item->id); ?>"></div>
+                <?php endif; ?>
 
             </div>
-            @empty
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <div class="empty-state">
                 <i class="fas fa-inbox"></i>
                 Chưa có mục menu nào
             </div>
-            @endforelse
+            <?php endif; ?>
 
             <div class="root-drop-hint" id="rootDropHint">
                 <i class="fas fa-level-down-alt me-1"></i> Kéo vào đây để đặt ở Root Level
@@ -1357,9 +1352,7 @@
     </div>
 </div>
 
-{{-- ══════════════════════════════════════════════
-     SCRIPTS
-══════════════════════════════════════════════ --}}
+
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 
 <script>
@@ -1367,11 +1360,11 @@
    ROUTES (injected from Laravel)
 ============================================= */
 const ROUTES = {
-    order:  '{{ route("admin.sidebar.order") }}',
-    parent: '{{ route("admin.sidebar.parent") }}',
-    toggle: '{{ route("admin.sidebar.toggle-active") }}',
+    order:  '<?php echo e(route("admin.sidebar.order")); ?>',
+    parent: '<?php echo e(route("admin.sidebar.parent")); ?>',
+    toggle: '<?php echo e(route("admin.sidebar.toggle-active")); ?>',
 };
-const CSRF = '{{ csrf_token() }}';
+const CSRF = '<?php echo e(csrf_token()); ?>';
 
 /* =============================================
    STATE
@@ -1639,11 +1632,11 @@ document.getElementById('addItemForm').addEventListener('submit', function(e) {
     
     showToast('Đang thêm mục mới…', 'info');
     
-    fetch('{{ route("admin.sidebar.store") }}', {
+    fetch('<?php echo e(route("admin.sidebar.store")); ?>', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         },
         body: JSON.stringify(data)
     })
@@ -1661,4 +1654,6 @@ document.getElementById('addItemForm').addEventListener('submit', function(e) {
 });
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/sidebar/index.blade.php ENDPATH**/ ?>

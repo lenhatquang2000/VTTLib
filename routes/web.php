@@ -210,10 +210,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/circulation/search-patron', [\App\Http\Controllers\Admin\CirculationController::class, 'searchPatron'])->name('admin.circulation.search-patron');
     Route::get('/circulation/search-book', [\App\Http\Controllers\Admin\CirculationController::class, 'searchBook'])->name('admin.circulation.search-book');
 
-    // AJAX Search Routes
-    Route::get('/circulation/search-patron', [\App\Http\Controllers\Admin\CirculationController::class, 'searchPatron'])->name('admin.circulation.search-patron');
-    Route::get('/circulation/search-book', [\App\Http\Controllers\Admin\CirculationController::class, 'searchBook'])->name('admin.circulation.search-book');
-
     Route::get('/circulation/fines', [\App\Http\Controllers\Admin\CirculationController::class, 'fines'])->name('admin.circulation.fines');
     Route::post('/circulation/fines/{fine}/pay', [\App\Http\Controllers\Admin\CirculationController::class, 'payFine'])->name('admin.circulation.fines.pay');
     Route::post('/circulation/fines/{fine}/waive', [\App\Http\Controllers\Admin\CirculationController::class, 'waiveFine'])->name('admin.circulation.fines.waive');

@@ -109,6 +109,7 @@
             @php
             // Using direct query to avoid unknown method lint if model is not inferred
             $assignedChildren = \App\Models\Sidebar::where('parent_id', $tab->id)
+            ->where('is_active', true)
             ->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
             $q->whereIn('role_user_id', $roleUserIds);
             })->orderBy('order')->get();

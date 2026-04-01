@@ -156,8 +156,17 @@ class CirculationController extends Controller
             ->overdue()
             ->orderBy('due_date')
             ->get();
-
-        return view('admin.circulation.loan-desk', compact('recentLoans', 'overdueLoans'));
+            
+        // Get all lock history with patron relationships
+        $allLockHistory = \App\Models\PatronLockHistory::with(['patron.user', 'lockedBy', 'unlockedBy'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Get all loan transactions for stats calculation
+        $allLoanTransactions = LoanTransaction::with(['patron'])
+            ->get();
+        
+        return view('admin.circulation.loan-desk', compact('recentLoans', 'overdueLoans', 'allLockHistory', 'allLoanTransactions'));
     }
 
     /**
@@ -436,12 +445,20 @@ class CirculationController extends Controller
             $maxLoans = $patron->patronGroup?->activePolicy?->max_items ?? 5;
             $canBorrow = $patron->canBorrow() && $currentLoans < $maxLoans;
 
+            // Get transaction statistics from loan_transactions
+            $totalCheckouts = LoanTransaction::where('patron_detail_id', $patron->id)->count();
+            $totalCheckins = LoanTransaction::where('patron_detail_id', $patron->id)
+                ->whereNotNull('return_date')->count();
+            $totalRenewals = LoanTransaction::where('patron_detail_id', $patron->id)
+                ->sum('renewal_count');
+
             $result = [
                 'success' => true,
                 'data' => [
                     'id' => $patron->id,
                     'patron_code' => $patron->patron_code,
                     'display_name' => $patron->display_name,
+                    'profile_image' => $patron->profile_image,
                     'user' => [
                         'name' => $patron->user?->name
                     ],
@@ -452,7 +469,13 @@ class CirculationController extends Controller
                     'max_loans' => $maxLoans,
                     'outstanding_fine' => $outstandingFine,
                     'can_borrow' => $canBorrow,
-                    'status' => $patron->status
+                    'status' => $patron->status,
+                    'transaction_stats' => [
+                        'total_checkouts' => $totalCheckouts,
+                        'total_checkins' => $totalCheckins,
+                        'total_renewals' => $totalRenewals,
+                        'total_transactions' => $totalCheckouts + $totalCheckins + $totalRenewals
+                    ]
                 ]
             ];
 
@@ -527,7 +550,10 @@ class CirculationController extends Controller
             if ($bookItem->status === 'on_loan' && $bookItem->currentLoan) {
                 $currentLoan = [
                     'patron_name' => $bookItem->currentLoan->patron->display_name ?? $bookItem->currentLoan->patron->user->name,
-                    'due_date' => $bookItem->currentLoan->due_date->format('d/m/Y')
+                    'patron_code' => $bookItem->currentLoan->patron->patron_code,
+                    'due_date' => $bookItem->currentLoan->due_date->format('d/m/Y'),
+                    'is_overdue' => $bookItem->currentLoan->due_date->isPast(),
+                    'overdue_days' => $bookItem->currentLoan->due_date->isPast() ? $bookItem->currentLoan->due_date->diffInDays(now()) : 0
                 ];
             }
 
@@ -539,6 +565,7 @@ class CirculationController extends Controller
                     'title' => $bookItem->bibliographicRecord?->title ?? 'N/A',
                     'author' => $bookItem->bibliographicRecord?->author ?? 'N/A',
                     'call_number' => $bookItem->bibliographicRecord?->call_number ?? 'N/A',
+                    'cover_image' => $bookItem->bibliographicRecord?->cover_image,
                     'status' => $bookItem->status,
                     'current_loan' => $currentLoan
                 ]

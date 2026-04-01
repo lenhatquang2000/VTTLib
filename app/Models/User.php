@@ -24,6 +24,7 @@ class User extends Authenticatable
         $roleUserIds = $this->roles->map(fn($role) => $role->pivot->id);
 
         return Sidebar::whereNull('parent_id')
+            ->where('is_active', true)
             ->where(function ($query) use ($roleUserIds) {
                 // Return parent if it is directly assigned
                 $query->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
