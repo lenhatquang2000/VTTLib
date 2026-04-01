@@ -170,7 +170,7 @@
         modal.classList.remove('hidden');
         content.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>';
 
-        fetch(`/topsecret/activity-logs/${logId}`)
+        fetch(`{{ route('admin.activity-logs.show', ['log' => ':id']) }}`.replace(':id', logId))
             .then(response => response.text())
             .then(html => {
                 const parser = new DOMParser();

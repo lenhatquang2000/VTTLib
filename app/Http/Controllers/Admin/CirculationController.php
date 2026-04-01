@@ -375,4 +375,197 @@ class CirculationController extends Controller
 
         return back()->with('success', __('Fine waived successfully.'));
     }
+
+    // ==================== SEARCH METHODS ====================
+
+    /**
+     * Search patron by code (AJAX)
+     */
+    public function searchPatron(Request $request)
+    {
+        $code = $request->get('code');
+        $startTime = microtime(true);
+        
+        // Log search attempt
+        \Log::info('Patron search initiated', [
+            'code' => $code,
+            'user_id' => auth()->id(),
+            'ip' => $request->ip(),
+            'timestamp' => now()->toISOString()
+        ]);
+        
+        if (!$code || strlen($code) < 2) {
+            \Log::warning('Invalid patron code search attempt', [
+                'code' => $code,
+                'length' => strlen($code ?? ''),
+                'user_id' => auth()->id()
+            ]);
+            
+            return response()->json(['success' => false, 'message' => __('Invalid patron code')]);
+        }
+
+        try {
+            $patron = PatronDetail::with(['user', 'patronGroup.activePolicy'])
+                ->where('patron_code', 'like', $code . '%')
+                ->first();
+
+            if (!$patron) {
+                \Log::info('Patron not found', [
+                    'search_code' => $code,
+                    'user_id' => auth()->id(),
+                    'execution_time' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                ]);
+                
+                return response()->json(['success' => false, 'message' => __('Patron not found')]);
+            }
+
+            // Get current loans count
+            $currentLoans = LoanTransaction::where('patron_detail_id', $patron->id)
+                ->where('status', 'borrowed')
+                ->count();
+
+            // Calculate total outstanding fines
+            $outstandingFine = Fine::whereHas('loanTransaction', function($query) use ($patron) {
+                $query->where('patron_detail_id', $patron->id);
+            })
+            ->where('status', 'unpaid')
+            ->selectRaw('SUM(amount - paid_amount - waived_amount) as outstanding')
+            ->value('outstanding') ?? 0;
+
+            // Check if patron can borrow
+            $maxLoans = $patron->patronGroup?->activePolicy?->max_items ?? 5;
+            $canBorrow = $patron->canBorrow() && $currentLoans < $maxLoans;
+
+            $result = [
+                'success' => true,
+                'data' => [
+                    'id' => $patron->id,
+                    'patron_code' => $patron->patron_code,
+                    'display_name' => $patron->display_name,
+                    'user' => [
+                        'name' => $patron->user?->name
+                    ],
+                    'patron_group' => [
+                        'name' => $patron->patronGroup?->name
+                    ],
+                    'current_loans' => $currentLoans,
+                    'max_loans' => $maxLoans,
+                    'outstanding_fine' => $outstandingFine,
+                    'can_borrow' => $canBorrow,
+                    'status' => $patron->status
+                ]
+            ];
+
+            \Log::info('Patron search completed successfully', [
+                'patron_id' => $patron->id,
+                'patron_code' => $patron->patron_code,
+                'can_borrow' => $canBorrow,
+                'current_loans' => $currentLoans,
+                'outstanding_fine' => $outstandingFine,
+                'user_id' => auth()->id(),
+                'execution_time' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+            ]);
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Patron search error', [
+                'search_code' => $code,
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id(),
+                'execution_time' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+            ]);
+            
+            return response()->json(['success' => false, 'message' => __('Search error: ') . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Search book by barcode (AJAX)
+     */
+    public function searchBook(Request $request)
+    {
+        $barcode = $request->get('barcode');
+        $startTime = microtime(true);
+        
+        // Log search attempt
+        \Log::info('Book search initiated', [
+            'barcode' => $barcode,
+            'user_id' => auth()->id(),
+            'ip' => $request->ip(),
+            'timestamp' => now()->toISOString()
+        ]);
+        
+        if (!$barcode || strlen($barcode) < 2) {
+            \Log::warning('Invalid barcode search attempt', [
+                'barcode' => $barcode,
+                'length' => strlen($barcode ?? ''),
+                'user_id' => auth()->id()
+            ]);
+            
+            return response()->json(['success' => false, 'message' => __('Invalid barcode')]);
+        }
+
+        try {
+            $bookItem = BookItem::with(['bibliographicRecord', 'currentLoan.patron.user'])
+                ->where('barcode', 'like', $barcode . '%')
+                ->first();
+
+            if (!$bookItem) {
+                \Log::info('Book not found', [
+                    'search_barcode' => $barcode,
+                    'user_id' => auth()->id(),
+                    'execution_time' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+                ]);
+                
+                return response()->json(['success' => false, 'message' => __('Book not found')]);
+            }
+
+            // Get current loan information
+            $currentLoan = null;
+            if ($bookItem->status === 'on_loan' && $bookItem->currentLoan) {
+                $currentLoan = [
+                    'patron_name' => $bookItem->currentLoan->patron->display_name ?? $bookItem->currentLoan->patron->user->name,
+                    'due_date' => $bookItem->currentLoan->due_date->format('d/m/Y')
+                ];
+            }
+
+            $result = [
+                'success' => true,
+                'data' => [
+                    'id' => $bookItem->id,
+                    'barcode' => $bookItem->barcode,
+                    'title' => $bookItem->bibliographicRecord?->title ?? 'N/A',
+                    'author' => $bookItem->bibliographicRecord?->author ?? 'N/A',
+                    'call_number' => $bookItem->bibliographicRecord?->call_number ?? 'N/A',
+                    'status' => $bookItem->status,
+                    'current_loan' => $currentLoan
+                ]
+            ];
+
+            \Log::info('Book search completed successfully', [
+                'book_item_id' => $bookItem->id,
+                'barcode' => $bookItem->barcode,
+                'title' => $bookItem->bibliographicRecord?->title,
+                'status' => $bookItem->status,
+                'has_current_loan' => !is_null($currentLoan),
+                'user_id' => auth()->id(),
+                'execution_time' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+            ]);
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            \Log::error('Book search error', [
+                'search_barcode' => $barcode,
+                'error_message' => $e->getMessage(),
+                'error_trace' => $e->getTraceAsString(),
+                'user_id' => auth()->id(),
+                'execution_time' => round((microtime(true) - $startTime) * 1000, 2) . 'ms'
+            ]);
+            
+            return response()->json(['success' => false, 'message' => __('Search error: ') . $e->getMessage()]);
+        }
+    }
 }

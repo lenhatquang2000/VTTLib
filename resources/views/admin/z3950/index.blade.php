@@ -315,7 +315,7 @@
         statusEl.textContent = '{{ __("Testing") }}...';
         statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 animate-pulse';
 
-        fetch('/topsecret/z3950/' + serverId + '/test', {
+        fetch(`{{ route('admin.z3950.test', ['server' => ':id']) }}`.replace(':id', serverId), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',

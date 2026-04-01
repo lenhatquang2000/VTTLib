@@ -180,7 +180,7 @@
     }
 
     function openPayModal(fineId, balance) {
-        document.getElementById('payFineForm').action = '/topsecret/circulation/fines/' + fineId + '/pay';
+        document.getElementById('payFineForm').action = `{{ route('admin.circulation.fines.pay', ['fine' => ':id']) }}`.replace(':id', fineId);
         document.getElementById('payAmount').max = balance;
         document.getElementById('payAmount').value = balance;
         document.getElementById('payMaxAmount').textContent = balance.toLocaleString();
@@ -188,7 +188,7 @@
     }
 
     function openWaiveModal(fineId, balance) {
-        document.getElementById('waiveFineForm').action = '/topsecret/circulation/fines/' + fineId + '/waive';
+        document.getElementById('waiveFineForm').action = `{{ route('admin.circulation.fines.waive', ['fine' => ':id']) }}`.replace(':id', fineId);
         document.getElementById('waiveAmount').max = balance;
         document.getElementById('waiveAmount').value = balance;
         document.getElementById('waiveMaxAmount').textContent = balance.toLocaleString();

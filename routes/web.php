@@ -84,6 +84,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::put('/marc-books/{record}/status', [\App\Http\Controllers\Admin\MarcBookController::class, 'updateStatus'])->name('admin.marc.book.status');
     Route::delete('/marc-books/{record}', [\App\Http\Controllers\Admin\MarcBookController::class, 'destroy'])->name('admin.marc.book.destroy');
 
+    // Barcode Generation
+    Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::class, 'show'])->name('admin.barcode.show');
+
     // MARC Import & Export
     Route::get('/marc-import', [\App\Http\Controllers\Admin\MarcImportController::class, 'index'])->name('admin.marc.import.index');
     Route::get('/marc-import/template', [\App\Http\Controllers\Admin\MarcImportController::class, 'downloadTemplate'])->name('admin.marc.import.template');
@@ -202,6 +205,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/circulation/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'checkout'])->name('admin.circulation.checkout');
     Route::post('/circulation/checkin', [\App\Http\Controllers\Admin\CirculationController::class, 'checkin'])->name('admin.circulation.checkin');
     Route::post('/circulation/renew/{loan}', [\App\Http\Controllers\Admin\CirculationController::class, 'renew'])->name('admin.circulation.renew');
+
+    // AJAX Search Routes
+    Route::get('/circulation/search-patron', [\App\Http\Controllers\Admin\CirculationController::class, 'searchPatron'])->name('admin.circulation.search-patron');
+    Route::get('/circulation/search-book', [\App\Http\Controllers\Admin\CirculationController::class, 'searchBook'])->name('admin.circulation.search-book');
 
     Route::get('/circulation/fines', [\App\Http\Controllers\Admin\CirculationController::class, 'fines'])->name('admin.circulation.fines');
     Route::post('/circulation/fines/{fine}/pay', [\App\Http\Controllers\Admin\CirculationController::class, 'payFine'])->name('admin.circulation.fines.pay');

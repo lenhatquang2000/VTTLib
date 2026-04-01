@@ -320,7 +320,7 @@
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/topsecret/marc-books/${id}`, {
+                        fetch(`{{ route('admin.marc.book.destroy', ['record' => ':id']) }}`.replace(':id', id), {
                                 method: 'DELETE',
                                 headers: {
                                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

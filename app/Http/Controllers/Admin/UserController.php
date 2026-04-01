@@ -41,8 +41,10 @@ class UserController extends Controller
         $users = $this->userService->getUsersForRoot($search, $roleId, $perPage);
         $roles = Role::all();
         $stats = $this->userService->getUserStats();
+        $maxUserId = User::max('id') ?? 0;
+        $sidebars = Sidebar::whereNull('parent_id')->with('children')->orderBy('order')->get();
 
-        return view('admin.users.index', compact('users', 'roles', 'search', 'roleId', 'perPage', 'stats', 'activeRole'));
+        return view('admin.users.index', compact('users', 'roles', 'search', 'roleId', 'perPage', 'stats', 'activeRole', 'maxUserId', 'sidebars'));
     }
 
     /**

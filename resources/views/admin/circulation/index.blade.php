@@ -5,12 +5,12 @@
 <div class="circulation-page">
     {{-- Success/Error Messages --}}
     @if(session('success'))
-        <div class="bg-green-900/20 border border-green-500 text-green-400 p-4 text-xs font-mono rounded mb-6">
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-500 text-green-800 dark:text-green-400 p-4 text-xs font-mono rounded mb-6">
             [OK] {{ session('success') }}
         </div>
     @endif
     @if(session('error'))
-        <div class="bg-red-900/20 border border-red-500 text-red-400 p-4 text-xs font-mono rounded mb-6">
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500 text-red-800 dark:text-red-400 p-4 text-xs font-mono rounded mb-6">
             [ERROR] {{ session('error') }}
         </div>
     @endif
@@ -38,19 +38,19 @@
         @forelse($patronGroups as $group)
         <div class="card-admin rounded-lg overflow-hidden">
             <!-- Group Header -->
-            <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <div>
                     <h3 class="font-bold text-lg">{{ $group->name }}</h3>
-                    <span class="text-xs text-gray-400 font-mono">{{ $group->code }}</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $group->code }}</span>
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="editPatronGroup({{ json_encode($group) }})" class="text-blue-400 hover:text-blue-300 text-sm">
+                    <button onclick="editPatronGroup({{ json_encode($group) }})" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm">
                         {{ __('Edit') }}
                     </button>
                     <form action="{{ route('admin.circulation.patron-groups.destroy', $group) }}" method="POST" class="inline"
                         onsubmit="return confirm('{{ __('Delete_this_patron_group?') }}')">
                         @csrf @method('DELETE')
-                        <button type="submit" class="text-red-400 hover:text-red-300 text-sm">{{ __('Delete') }}</button>
+                        <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm">{{ __('Delete') }}</button>
                     </form>
                 </div>
             </div>
@@ -58,13 +58,13 @@
             <!-- Policies List -->
             <div class="p-4">
                 @if($group->description)
-                    <p class="text-sm text-gray-400 mb-4">{{ $group->description }}</p>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ $group->description }}</p>
                 @endif
 
                 <div class="flex justify-between items-center mb-3">
-                    <h4 class="text-sm font-bold text-gray-300">{{ __('Policies') }}</h4>
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300">{{ __('Policies') }}</h4>
                     <button onclick="openAddPolicyModal({{ $group->id }}, '{{ $group->name }}')" 
-                        class="text-xs text-blue-400 hover:text-blue-300">
+                        class="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
                         + {{ __('Add_Policy') }}
                     </button>
                 </div>
@@ -75,41 +75,41 @@
                         <div>
                             <span class="font-medium text-lg">{{ $policy->name }}</span>
                             @if($policy->is_active)
-                                <span class="ml-2 text-xs bg-green-900/50 text-green-400 px-2 py-0.5 rounded">{{ __('Active') }}</span>
+                                <span class="ml-2 text-xs bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-400 px-2 py-0.5 rounded">{{ __('Active') }}</span>
                             @endif
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="editPolicy({{ json_encode($policy) }})" class="text-blue-400 hover:text-blue-300 text-sm transition-colors">
+                            <button onclick="editPolicy({{ json_encode($policy) }})" class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm transition-colors">
                                 {{ __('Edit') }}
                             </button>
                             <form action="{{ route('admin.circulation.policies.destroy', $policy) }}" method="POST" class="inline"
                                 onsubmit="return confirm('{{ __('Delete_this_policy?') }}')">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-red-400 hover:text-red-300 text-sm transition-colors">{{ __('Delete') }}</button>
+                                <button type="submit" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm transition-colors">{{ __('Delete') }}</button>
                             </form>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
                         <div>
-                            <span class="block text-gray-500">{{ __('Loan_Days') }}</span>
+                            <span class="block text-gray-600 dark:text-gray-500">{{ __('Loan_Days') }}</span>
                             <span class="font-mono font-semibold">{{ $policy->max_loan_days }}</span>
                         </div>
                         <div>
-                            <span class="block text-gray-500">{{ __('Max_Items') }}</span>
+                            <span class="block text-gray-600 dark:text-gray-500">{{ __('Max_Items') }}</span>
                             <span class="font-mono font-semibold">{{ $policy->max_items }}</span>
                         </div>
                         <div>
-                            <span class="block text-gray-500">{{ __('Fine/Day') }}</span>
+                            <span class="block text-gray-600 dark:text-gray-500">{{ __('Fine/Day') }}</span>
                             <span class="font-mono font-semibold">{{ number_format($policy->fine_per_day) }}đ</span>
                         </div>
                         <div>
-                            <span class="block text-gray-500">{{ __('Renewals') }}</span>
+                            <span class="block text-gray-600 dark:text-gray-500">{{ __('Renewals') }}</span>
                             <span class="font-mono font-semibold">{{ $policy->max_renewals }}</span>
                         </div>
                     </div>
                 </div>
                 @empty
-                <div class="text-center py-8 text-gray-500">
+                <div class="text-center py-8 text-gray-500 dark:text-gray-400">
                     <p class="text-lg">{{ __('No_policies_defined') }}</p>
                     <button onclick="openAddPolicyModal({{ $group->id }}, '{{ $group->name }}')" 
                         class="mt-4 btn-primary">
@@ -120,7 +120,7 @@
             </div>
         </div>
         @empty
-        <div class="col-span-2 text-center py-12 text-gray-500">
+        <div class="col-span-2 text-center py-12 text-gray-500 dark:text-gray-400">
             <p>{{ __('No_patron_groups_found') }}</p>
             <button onclick="openModal('addPatronGroupModal')" class="mt-4 btn-primary">
                 {{ __('Create_First_Group') }}
@@ -207,7 +207,7 @@
     <div class="modal-backdrop" onclick="closeModal('addPolicyModal')"></div>
     <div class="modal-content max-w-2xl">
         <h3 class="text-lg font-bold mb-4">{{ __('Add_Circulation_Policy') }}</h3>
-        <p class="text-sm text-gray-400 mb-4">{{ __('For_group') }}: <span id="policyGroupName" class="font-bold text-white"></span></p>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ __('For_group') }}: <span id="policyGroupName" class="font-bold"></span></p>
         <form action="{{ route('admin.circulation.policies.store') }}" method="POST">
             @csrf
             <input type="hidden" name="patron_group_id" id="policyGroupId">
@@ -219,8 +219,8 @@
                 </div>
                 
                 <!-- Loan Settings -->
-                <div class="md:col-span-2 border-t border-gray-700 pt-4 mt-2">
-                    <h4 class="text-sm font-bold text-gray-300 mb-3">{{ __('Loan_Settings') }}</h4>
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{{ __('Loan_Settings') }}</h4>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ __('Max_Loan_Days') }} *</label>
@@ -240,8 +240,8 @@
                 </div>
 
                 <!-- Fine Settings -->
-                <div class="md:col-span-2 border-t border-gray-700 pt-4 mt-2">
-                    <h4 class="text-sm font-bold text-gray-300 mb-3">{{ __('Fine_Settings') }}</h4>
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{{ __('Fine_Settings') }}</h4>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ __('Fine_Per_Day') }} (VND) *</label>
@@ -261,8 +261,8 @@
                 </div>
 
                 <!-- Reservation Settings -->
-                <div class="md:col-span-2 border-t border-gray-700 pt-4 mt-2">
-                    <h4 class="text-sm font-bold text-gray-300 mb-3">{{ __('Reservation_Settings') }}</h4>
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{{ __('Reservation_Settings') }}</h4>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="can_reserve" id="canReserve" value="1" checked class="rounded">
@@ -310,8 +310,8 @@
                 </div>
                 
                 <!-- Loan Settings -->
-                <div class="md:col-span-2 border-t border-gray-700 pt-4 mt-2">
-                    <h4 class="text-sm font-bold text-gray-300 mb-3">{{ __('Loan_Settings') }}</h4>
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{{ __('Loan_Settings') }}</h4>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ __('Max_Loan_Days') }} *</label>
@@ -331,8 +331,8 @@
                 </div>
 
                 <!-- Fine Settings -->
-                <div class="md:col-span-2 border-t border-gray-700 pt-4 mt-2">
-                    <h4 class="text-sm font-bold text-gray-300 mb-3">{{ __('Fine_Settings') }}</h4>
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{{ __('Fine_Settings') }}</h4>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-1">{{ __('Fine_Per_Day') }} (VND) *</label>
@@ -352,8 +352,8 @@
                 </div>
 
                 <!-- Reservation Settings -->
-                <div class="md:col-span-2 border-t border-gray-700 pt-4 mt-2">
-                    <h4 class="text-sm font-bold text-gray-300 mb-3">{{ __('Reservation_Settings') }}</h4>
+                <div class="md:col-span-2 border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">{{ __('Reservation_Settings') }}</h4>
                 </div>
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="can_reserve" id="editCanReserve" value="1" class="rounded">
@@ -392,30 +392,8 @@
    CIRCULATION THEME - DARK & LIGHT MODE SUPPORT
 ════════════════════════════════════════════════ */
 
-/* Root CSS Variables for Dark Theme */
+/* Root CSS Variables for Light Theme (Default) */
 :root {
-    --clr-bg: #0a0a0a;
-    --clr-bg-secondary: #111111;
-    --clr-bg-tertiary: #1a1a1a;
-    --clr-bg-card: #1f1f1f;
-    --clr-text-primary: #ffffff;
-    --clr-text-secondary: #e5e5e5;
-    --clr-text-muted: #9ca3af;
-    --clr-border: #2a2a2a;
-    --clr-border-light: #3a3a3a;
-    --clr-accent: #3b82f6;
-    --clr-accent-hover: #2563eb;
-    --clr-success: #10b981;
-    --clr-warning: #f59e0b;
-    --clr-error: #ef4444;
-    --clr-gradient-start: #1a1a1a;
-    --clr-gradient-end: #0a0a0a;
-    --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-    --shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-}
-
-/* Light Theme Variables */
-.dark {
     --clr-bg: #f8fafc;
     --clr-bg-secondary: #ffffff;
     --clr-bg-tertiary: #f1f5f9;
@@ -434,6 +412,28 @@
     --clr-gradient-end: #f1f5f9;
     --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark Theme Variables */
+.dark {
+    --clr-bg: #0a0a0a;
+    --clr-bg-secondary: #111111;
+    --clr-bg-tertiary: #1a1a1a;
+    --clr-bg-card: #1f1f1f;
+    --clr-text-primary: #ffffff;
+    --clr-text-secondary: #e5e5e5;
+    --clr-text-muted: #9ca3af;
+    --clr-border: #2a2a2a;
+    --clr-border-light: #3a3a3a;
+    --clr-accent: #3b82f6;
+    --clr-accent-hover: #2563eb;
+    --clr-success: #10b981;
+    --clr-warning: #f59e0b;
+    --clr-error: #ef4444;
+    --clr-gradient-start: #1a1a1a;
+    --clr-gradient-end: #0a0a0a;
+    --shadow-primary: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --shadow-secondary: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
 }
 
 /* Page Container */
@@ -643,7 +643,7 @@
     }
 
     function editPatronGroup(group) {
-        document.getElementById('editPatronGroupForm').action = '/topsecret/circulation/patron-groups/' + group.id;
+        document.getElementById('editPatronGroupForm').action = `{{ route('admin.circulation.patron-groups.update', ['patronGroup' => ':id']) }}`.replace(':id', group.id);
         document.getElementById('editGroupName').value = group.name;
         document.getElementById('editGroupCode').value = group.code;
         document.getElementById('editGroupDescription').value = group.description || '';
@@ -653,7 +653,7 @@
     }
 
     function editPolicy(policy) {
-        document.getElementById('editPolicyForm').action = '/topsecret/circulation/policies/' + policy.id;
+        document.getElementById('editPolicyForm').action = `{{ route('admin.circulation.policies.update', ['policy' => ':id']) }}`.replace(':id', policy.id);
         document.getElementById('editPolicyName').value = policy.name;
         document.getElementById('editMaxLoanDays').value = policy.max_loan_days;
         document.getElementById('editMaxItems').value = policy.max_items;

@@ -46,7 +46,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                <form :action="`/topsecret/marc-definitions/framework/${framework.id}`" method="POST" class="space-y-5">
+                <form :action="`{{ route('admin.marc.framework.update', ['framework' => ':id']) }}`.replace(':id', framework.id)" method="POST" class="space-y-5">
                     @csrf @method('PUT')
                     <div>
                         <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Code (Immutable)</label>
@@ -120,7 +120,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                <form :action="`/topsecret/marc-definitions/tag/${tag.id}`" method="POST" class="space-y-5">
+                <form :action="`{{ route('admin.marc.tag.update', ['tag' => ':id']) }}`.replace(':id', tag.id)" method="POST" class="space-y-5">
                     @csrf @method('PUT')
                     <input type="hidden" name="framework_id" value="{{ $frameworkId }}">
                     <div>
@@ -208,7 +208,7 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
-                <form :action="`/topsecret/marc-definitions/subfield/${subfield.id}`" method="POST" class="space-y-4">
+                <form :action="`{{ route('admin.marc.subfield.update', ['subfield' => ':id']) }}`.replace(':id', subfield.id)" method="POST" class="space-y-4">
                     @csrf @method('PUT')
                     <div>
                         <label class="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase mb-2">Subfield Code (Immutable)</label>

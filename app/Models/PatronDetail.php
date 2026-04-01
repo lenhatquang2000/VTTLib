@@ -87,6 +87,14 @@ class PatronDetail extends Model
     }
 
     /**
+     * Get active circulation policy
+     */
+    public function activePolicy()
+    {
+        return $this->belongsTo(CirculationPolicy::class, 'circulation_policy_id');
+    }
+
+    /**
      * Get total outstanding fine amount
      */
     public function getTotalOutstandingFineAttribute(): float
@@ -144,6 +152,14 @@ class PatronDetail extends Model
     public function printQueue()
     {
         return $this->hasMany(PrintQueue::class);
+    }
+
+    /**
+     * Get the display name for the patron
+     */
+    public function getDisplayNameAttribute()
+    {
+        return $this->user->name ?? $this->patron_code;
     }
 
     // Methods for patron management

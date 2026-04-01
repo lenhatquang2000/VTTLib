@@ -255,7 +255,7 @@
         downloadTemplateBtn.addEventListener('click', function() {
             const frameworkId = frameworkSelect.value;
             if (frameworkId) {
-                window.location.href = `/topsecret/marc-import/template?framework_id=${frameworkId}`;
+                window.location.href = `{{ route('admin.marc.import.template') }}?framework_id=${frameworkId}`;
             }
         });
 
@@ -272,7 +272,7 @@
         `;
 
             try {
-                const response = await fetch('/topsecret/marc-import/upload', {
+                const response = await fetch('{{ route('admin.marc.import.upload') }}', {
                     method: 'POST',
                     body: formData,
                     headers: {
@@ -468,7 +468,7 @@
                 });
 
                 try {
-                    const response = await fetch('/topsecret/marc-import/create-framework', {
+                    const response = await fetch('{{ route('admin.marc.import.create-framework') }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
@@ -508,7 +508,7 @@
             this.disabled = true;
             this.innerHTML = `...`;
             try {
-                const response = await fetch('/topsecret/marc-import/process', {
+                const response = await fetch('{{ route('admin.marc.import.process') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

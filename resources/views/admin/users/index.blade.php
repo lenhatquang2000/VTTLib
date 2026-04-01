@@ -267,7 +267,7 @@
                     
                     <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-8">
                         @csrf
-                        <input type="hidden" name="max_id" id="max_id_input" value="{{ User::max('id') ?? 0 }}">
+                        <input type="hidden" name="max_id" id="max_id_input" value="{{ $maxUserId ?? 0 }}">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div class="space-y-3">
                                 <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest pl-3 block">{{ __('Full Subject Name') }}</label>
@@ -400,7 +400,7 @@
         document.getElementById('modal-role-name').innerText = (role || 'N/A').toUpperCase();
 
         const form = document.getElementById('sidebarTabsForm');
-        form.action = `/admin/users/roles/${roleUserId}/tabs`;
+        form.action = `{{ route('admin.users.tabs', ['id' => ':id']) }}`.replace(':id', roleUserId);
 
         const checkboxes = document.querySelectorAll('.sidebar-checkbox');
         checkboxes.forEach(cb => {
@@ -464,7 +464,7 @@
         if (!username) return;
 
         try {
-            const response = await fetch(`/admin/users/check-username?username=${username}`);
+            const response = await fetch(`{{ route('admin.users.check') }}?username=${username}`);
             const data = await response.json();
             
             if (data.exists) {

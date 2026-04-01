@@ -218,7 +218,7 @@
         document.getElementById('modal-subject-name').innerText = name;
         document.getElementById('modal-role-name').innerText = role.toUpperCase();
         const form = document.getElementById('sidebarTabsForm');
-        form.action = `/topsecret/users/roles/${roleUserId}/tabs`;
+        form.action = `{{ route('admin.users.tabs', ['id' => ':id']) }}`.replace(':id', roleUserId);
         const checkboxes = document.querySelectorAll('.sidebar-checkbox');
         checkboxes.forEach(cb => { cb.checked = assignedIds.includes(parseInt(cb.value)); });
         openModal('sidebarModal');

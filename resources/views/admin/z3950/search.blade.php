@@ -227,7 +227,7 @@
         document.getElementById('searchBtn').disabled = true;
         document.getElementById('btnText').textContent = '{{ __("SYNCHRONIZING") }}...';
 
-        fetch('/topsecret/z3950/search', {
+        fetch('{{ route('admin.z3950.doSearch') }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -360,7 +360,7 @@
             return;
         }
 
-        fetch('/topsecret/z3950/import', {
+        fetch('{{ route('admin.z3950.import') }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

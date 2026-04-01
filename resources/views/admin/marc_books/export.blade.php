@@ -517,7 +517,7 @@ function resetForm() {
 function generateSubsystemReport(type, format) {
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/topsecret/marc-reports/generate';
+    form.action = '{{ route('admin.marc.reports.generate') }}';
     form.target = '_blank';
     
     // Add CSRF token

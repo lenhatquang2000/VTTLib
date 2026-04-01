@@ -47,4 +47,9 @@ class BookItem extends Model
     {
         return $this->hasMany(LoanTransaction::class);
     }
+
+    public function currentLoan()
+    {
+        return $this->hasOne(LoanTransaction::class)->where('status', 'borrowed');
+    }
 }

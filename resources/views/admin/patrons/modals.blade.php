@@ -63,7 +63,7 @@
 <script>
 // Modal functions
 function openLockModal(patron) {
-    document.getElementById('lockForm').action = `/topsecret/patrons/${patron.id}/lock`;
+    document.getElementById('lockForm').action = `{{ route('admin.patrons.lock', ['id' => ':id']) }}`.replace(':id', patron.id);
     document.getElementById('lockPatronName').textContent = patron.name;
     document.getElementById('lockModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
@@ -75,7 +75,7 @@ function closeLockModal() {
 }
 
 function openUnlockModal(patron) {
-    document.getElementById('unlockForm').action = `/topsecret/patrons/${patron.id}/unlock`;
+    document.getElementById('unlockForm').action = `{{ route('admin.patrons.unlock', ['id' => ':id']) }}`.replace(':id', patron.id);
     document.getElementById('unlockPatronName').textContent = patron.name;
     document.getElementById('unlockModal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';

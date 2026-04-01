@@ -233,10 +233,10 @@ class MarcBookController extends Controller
 
         if ($record) {
             $record->load('items.branch', 'items.storageLocation');
-            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode', 'barcodeService'));
+            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
         }
 
-        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode', 'barcodeService'));
+        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
     }
 
     public function store(Request $request)
@@ -479,9 +479,17 @@ class MarcBookController extends Controller
             // Process distribution items (Add, Update, Delete)
             $items = $request->input('items', []);
             $submittedItemIds = [];
+            
+            \Log::info('=== DISTRIBUTION ITEMS DEBUG ===');
+            \Log::info('Raw items data:', $items);
+            \Log::info('Items count: ' . count($items));
 
-            foreach ($items as $itemData) {
+            foreach ($items as $index => $itemData) {
+                \Log::info("Processing item {$index}: ", $itemData);
+                
                 if (!empty($itemData['storage_location_id'])) {
+                    \Log::info('Item has storage_location_id, proceeding...');
+                    
                     $itemPayload = [
                         'branch_id' => $itemData['branch_id'] ?? null,
                         'storage_location_id' => $itemData['storage_location_id'],
@@ -502,41 +510,60 @@ class MarcBookController extends Controller
                         'location' => $itemData['location'] ?? null,
                         'temporary_location' => $itemData['temporary_location'] ?? null,
                     ];
+                    
+                    \Log::info('Item payload prepared:', $itemPayload);
 
                     // Update existing
                     if (!empty($itemData['id'])) {
+                        \Log::info('Updating existing item ID: ' . $itemData['id']);
                         $bookItem = BookItem::find($itemData['id']);
                         if ($bookItem && $bookItem->bibliographic_record_id == $record->id) {
+                            \Log::info('Found valid book item, updating...');
                             $bookItem->update($itemPayload);
                             $submittedItemIds[] = $bookItem->id;
+                            \Log::info('Item updated successfully, ID: ' . $bookItem->id);
                             
                             // Save barcode as SVG file if barcode changed or is new
                             if (!empty($bookItem->barcode)) {
+                                \Log::info('Saving barcode SVG for: ' . $bookItem->barcode);
                                 $this->barcodeService->saveAsFile(
                                     $bookItem->barcode, 
                                     'items/barcodes/' . $bookItem->barcode . '.svg'
                                 );
                             }
+                        } else {
+                            \Log::warning('Book item not found or does not belong to this record. Item ID: ' . $itemData['id'] . ', Record ID: ' . $record->id);
                         }
                     } else {
+                        \Log::info('Creating new item...');
                         // Create new
                         $itemPayload['bibliographic_record_id'] = $record->id;
                         if (empty($itemPayload['barcode'])) {
+                            \Log::info('Generating new barcode...');
                             $itemPayload['barcode'] = $this->barcodeService->getNextCode('item');
                             $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
+                            \Log::info('Generated barcode: ' . $itemPayload['barcode']);
                         }
 
+                        \Log::info('Creating BookItem with payload:', $itemPayload);
                         $newItem = BookItem::create($itemPayload);
                         $submittedItemIds[] = $newItem->id;
+                        \Log::info('New item created successfully, ID: ' . $newItem->id);
                         
                         // Save barcode as SVG file
+                        \Log::info('Saving barcode SVG for new item: ' . $newItem->barcode);
                         $this->barcodeService->saveAsFile(
                             $newItem->barcode, 
                             'items/barcodes/' . $newItem->barcode . '.svg'
                         );
                     }
+                } else {
+                    \Log::warning('Item skipped - no storage_location_id. Item data:', $itemData);
                 }
             }
+            
+            \Log::info('Submitted item IDs: ', $submittedItemIds);
+            \Log::info('=== END DISTRIBUTION ITEMS DEBUG ===');
 
             // Note: In typical library systems, deleting cataloged items might be restricted 
             // if they are on loan. We assume deletion is allowed here for items removed from UI.

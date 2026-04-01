@@ -925,7 +925,7 @@
 
 <script>
 function openTransactionModal(patron) {
-    document.getElementById('transactionForm').action = `/topsecret/patrons/${patron.id}/transactions`;
+    document.getElementById('transactionForm').action = `{{ route('admin.patrons.transactions.store', ['id' => ':id']) }}`.replace(':id', patron.id);
     document.getElementById('transactionPatronName').textContent = patron.name;
     document.getElementById('currentBalance').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(patron.balance);
     document.getElementById('availableBalance').textContent = new Intl.NumberFormat('vi-VN').format(patron.balance);
@@ -1130,7 +1130,7 @@ function confirmDelete(patronId, patronName) {
             // Create form and submit
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/topsecret/patrons/${patronId}`;
+            form.action = `{{ route('admin.patrons.destroy', ['id' => ':id']) }}`.replace(':id', patronId);
             
             // Add CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -1315,7 +1315,7 @@ function changeViewMode(mode) {
 }
 
 function openRenewModal(patron) {
-    document.getElementById('renewForm').action = `/topsecret/patrons/${patron.id}/renew`;
+    document.getElementById('renewForm').action = `{{ route('admin.patrons.renew', ['id' => ':id']) }}`.replace(':id', patron.id);
     document.getElementById('renewPatronName').textContent = patron.name;
     document.getElementById('renew_expiry_date').value = patron.expiry;
     document.getElementById('renewModal').classList.remove('hidden');

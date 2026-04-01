@@ -450,7 +450,7 @@
             document.body.style.overflow = 'auto';
         }
         function openEditBarcodeModal(config) {
-            document.getElementById('editBarcodeForm').action = `/topsecret/settings/barcode/${config.id}`;
+            document.getElementById('editBarcodeForm').action = `{{ route('admin.settings.barcode.update', ['config' => ':id']) }}`.replace(':id', config.id);
             document.getElementById('edit_name').value = config.name;
             document.getElementById('edit_prefix').value = config.prefix || '';
             document.getElementById('edit_length').value = config.length;
@@ -458,7 +458,7 @@
             openModal('editBarcodeModal');
         }
         function openEditSupplierModal(supplier) {
-            document.getElementById('editSupplierForm').action = `/topsecret/settings/suppliers/${supplier.id}`;
+            document.getElementById('editSupplierForm').action = `{{ route('admin.settings.suppliers.update', ['supplier' => ':id']) }}`.replace(':id', supplier.id);
             document.getElementById('edit_sup_name').value = supplier.name;
             document.getElementById('edit_sup_code').value = supplier.code;
             document.getElementById('edit_sup_contact').value = supplier.contact_name || '';

@@ -277,11 +277,11 @@
             if (format === 'excel') {
                 // Download Excel file
                 const params = new URLSearchParams(formData);
-                window.location.href = `/topsecret/marc-reports/generate?${params.toString()}`;
+                window.location.href = `{{ route('admin.marc.reports.generate') }}?${params.toString()}`;
             } else {
                 // Show web view
                 try {
-                    const response = await fetch('/topsecret/marc-reports/generate', {
+                    const response = await fetch('{{ route('admin.marc.reports.generate') }}', {
                         method: 'POST',
                         body: formData,
                         headers: {
