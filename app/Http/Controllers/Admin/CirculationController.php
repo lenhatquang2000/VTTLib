@@ -163,7 +163,7 @@ class CirculationController extends Controller
             ->get();
         
         // Get all loan transactions for stats calculation
-        $allLoanTransactions = LoanTransaction::with(['patron'])
+        $allLoanTransactions = LoanTransaction::with(['patron', 'bookItem.bibliographicRecord'])
             ->get();
         
         return view('admin.circulation.loan-desk', compact('recentLoans', 'overdueLoans', 'allLockHistory', 'allLoanTransactions'));
@@ -385,6 +385,160 @@ class CirculationController extends Controller
         return back()->with('success', __('Fine waived successfully.'));
     }
 
+    /**
+     * Book distribution page - View all book items
+     */
+    public function distribution(Request $request)
+    {
+        $query = BookItem::with(['bibliographicRecord', 'branch', 'currentLoan.patron.user']);
+        
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter by branch
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+        
+        // Search by barcode or title
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('barcode', 'like', "%{$search}%")
+                  ->orWhereHas('bibliographicRecord', function($subQ) use ($search) {
+                      $subQ->where('title', 'like', "%{$search}%");
+                  });
+            });
+        }
+        
+        // Get statistics
+        $stats = [
+            'total' => BookItem::count(),
+            'available' => BookItem::where('status', 'available')->count(),
+            'on_loan' => BookItem::where('status', 'on_loan')->count(),
+            'lost' => BookItem::where('status', 'lost')->count(),
+            'damaged' => BookItem::where('status', 'damaged')->count(),
+            'in_processing' => BookItem::where('status', 'in_processing')->count(),
+        ];
+        
+        // Get branches for filter
+        $branches = \App\Models\Branch::pluck('name', 'id');
+        
+        // Paginate results
+        $bookItems = $query->orderBy('created_at', 'desc')->paginate(50);
+        
+        return view('admin.circulation.distribution', compact('bookItems', 'stats', 'branches'));
+    }
+
+    /**
+     * Get book item history (AJAX)
+     */
+    public function getBookItemHistory(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string'
+        ]);
+
+        try {
+            // Find book item
+            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            
+            // Get all loan transactions for this book item with relationships
+            $transactions = LoanTransaction::with(['patron.user', 'patron.patronGroup'])
+                ->where('book_item_id', $bookItem->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Format transaction data
+            $history = $transactions->map(function($transaction) {
+                $statusInfo = $this->getTransactionStatusInfo($transaction);
+                
+                return [
+                    'id' => $transaction->id,
+                    'date' => $transaction->loan_date->format('d/m/Y H:i'),
+                    'due_date' => $transaction->due_date->format('d/m/Y'),
+                    'return_date' => $transaction->return_date?->format('d/m/Y H:i'),
+                    'status' => $transaction->status,
+                    'status_display' => $statusInfo['display'],
+                    'status_color' => $statusInfo['color'],
+                    'notes' => $transaction->notes,
+                    'patron' => [
+                        'name' => $transaction->patron->display_name ?? $transaction->patron->user->name,
+                        'code' => $transaction->patron->patron_code,
+                        'group' => $transaction->patron->patronGroup?->name ?? 'N/A'
+                    ],
+                    'loaned_by' => $transaction->loanedBy?->name ?? 'System',
+                    'renewal_count' => $transaction->renewal_count ?? 0
+                ];
+            });
+
+            // Get book info
+            $bookInfo = [
+                'barcode' => $bookItem->barcode,
+                'title' => $bookItem->bibliographicRecord?->title ?? 'N/A',
+                'author' => $bookItem->bibliographicRecord?->author ?? 'N/A',
+                'current_status' => $bookItem->status,
+                'location' => $bookItem->location ?? 'N/A',
+                'branch' => $bookItem->branch?->name ?? 'N/A'
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'book_info' => $bookInfo,
+                    'history' => $history,
+                    'total_transactions' => $history->count()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lấy lịch sử: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get transaction status display info
+     */
+    private function getTransactionStatusInfo($transaction)
+    {
+        $statusMap = [
+            'borrowed' => [
+                'display' => __('Đã mượn'),
+                'color' => 'blue'
+            ],
+            'returned' => [
+                'display' => __('Đã trả'),
+                'color' => 'green'
+            ],
+            'renewed' => [
+                'display' => __('Đã gia hạn'),
+                'color' => 'yellow'
+            ],
+            'recalled' => [
+                'display' => __('Đã triệu hồi'),
+                'color' => 'yellow'
+            ],
+            'lost' => [
+                'display' => __('Đã khai báo mất'),
+                'color' => 'red'
+            ],
+            'overdue' => [
+                'display' => __('Quá hạn'),
+                'color' => 'red'
+            ]
+        ];
+
+        return $statusMap[$transaction->status] ?? [
+            'display' => ucfirst($transaction->status),
+            'color' => 'gray'
+        ];
+    }
+
     // ==================== SEARCH METHODS ====================
 
     /**
@@ -545,6 +699,16 @@ class CirculationController extends Controller
                 return response()->json(['success' => false, 'message' => __('Book not found')]);
             }
 
+            // Debug bibliographic record data
+            \Log::info('Book item found', [
+                'book_item_id' => $bookItem->id,
+                'barcode' => $bookItem->barcode,
+                'bibliographic_record_id' => $bookItem->bibliographic_record_id,
+                'bibliographic_record_exists' => $bookItem->bibliographicRecord ? true : false,
+                'bibliographic_record_title' => $bookItem->bibliographicRecord?->title,
+                'status' => $bookItem->status
+            ]);
+
             // Get current loan information
             $currentLoan = null;
             if ($bookItem->status === 'on_loan' && $bookItem->currentLoan) {
@@ -593,6 +757,127 @@ class CirculationController extends Controller
             ]);
             
             return response()->json(['success' => false, 'message' => __('Search error: ') . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Process recall - Create new record only
+     */
+    public function recall(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+            'reason' => 'nullable|string'
+        ]);
+        try {
+            DB::beginTransaction();
+            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            $activeLoan = LoanTransaction::where('book_item_id', $bookItem->id)
+                ->where('status', 'borrowed')
+                ->firstOrFail();
+            
+            // Check if book is overdue and set appropriate due date
+            $now = Carbon::now();
+            $originalDueDate = $activeLoan->due_date;
+            
+            if ($originalDueDate->greaterThan($now)) {
+                // Book is NOT overdue → set due date to recall date
+                $newDueDate = $now;
+            } else {
+                // Book IS overdue → keep original due date
+                $newDueDate = $originalDueDate;
+            }
+            
+            $recallTransaction = LoanTransaction::create([
+                'patron_detail_id' => $activeLoan->patron_detail_id,
+                'book_item_id' => $bookItem->id,
+                'circulation_policy_id' => $activeLoan->circulation_policy_id,
+                'loan_date' => $now,
+                'due_date' => $newDueDate,
+                'status' => 'recalled',
+                'loaned_by' => auth()->id(),
+                'loan_branch_id' => $activeLoan->loan_branch_id,
+                'notes' => 'Triệu hồi: ' . ($validated['reason'] ?? 'Không có lý do')
+            ]);
+            
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Ghi nhận hành động triệu hồi thành công',
+                'data' => [
+                    'loan_id' => $recallTransaction->id,
+                    'book_title' => $bookItem->bibliographicRecord->title ?? 'N/A',
+                    'patron_name' => $activeLoan->patron->display_name ?? $activeLoan->patron->user->name ?? 'N/A',
+                    'original_due_date' => $originalDueDate->format('d/m/Y'),
+                    'new_due_date' => $newDueDate->format('d/m/Y'),
+                    'is_overdue' => !$originalDueDate->greaterThan($now)
+                ]
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi ghi nhận triệu hồi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Process declare lost - Create new record only
+     */
+    public function declareLost(Request $request)
+    {
+        $validated = $request->validate([
+            'barcode' => 'required|string',
+            'notes' => 'nullable|string'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Find book item
+            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            
+            // Find active loan transaction
+            $activeLoan = LoanTransaction::where('book_item_id', $bookItem->id)
+                ->where('status', 'borrowed')
+                ->firstOrFail();
+
+            // Create NEW loan transaction record for declare lost action
+            $lostTransaction = LoanTransaction::create([
+                'patron_detail_id' => $activeLoan->patron_detail_id,
+                'book_item_id' => $bookItem->id,
+                'circulation_policy_id' => $activeLoan->circulation_policy_id,
+                'loan_date' => Carbon::now(), // Current time as action date
+                'due_date' => $activeLoan->due_date, // Keep original due date
+                'status' => 'lost', // New status for this record
+                'loaned_by' => auth()->id(),
+                'loan_branch_id' => $activeLoan->loan_branch_id,
+                'notes' => 'Khai báo mất: ' . ($validated['notes'] ?? 'Không có ghi chú')
+            ]);
+
+            // DO NOT update the original loan transaction
+            // DO NOT update book item status
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ghi nhận hành động khai báo mất thành công',
+                'data' => [
+                    'loan_id' => $lostTransaction->id,
+                    'book_title' => $bookItem->bibliographicRecord->title ?? 'N/A',
+                    'patron_name' => $activeLoan->patron->display_name ?? $activeLoan->patron->user->name ?? 'N/A'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi ghi nhận khai báo mất: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

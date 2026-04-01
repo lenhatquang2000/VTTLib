@@ -205,6 +205,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/circulation/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'checkout'])->name('admin.circulation.checkout');
     Route::post('/circulation/checkin', [\App\Http\Controllers\Admin\CirculationController::class, 'checkin'])->name('admin.circulation.checkin');
     Route::post('/circulation/renew/{loan}', [\App\Http\Controllers\Admin\CirculationController::class, 'renew'])->name('admin.circulation.renew');
+    Route::post('/circulation/recall', [\App\Http\Controllers\Admin\CirculationController::class, 'recall'])->name('admin.circulation.recall');
+    Route::post('/circulation/declare-lost', [\App\Http\Controllers\Admin\CirculationController::class, 'declareLost'])->name('admin.circulation.declare-lost');
 
     // AJAX Search Routes
     Route::get('/circulation/search-patron', [\App\Http\Controllers\Admin\CirculationController::class, 'searchPatron'])->name('admin.circulation.search-patron');
@@ -213,6 +215,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/circulation/fines', [\App\Http\Controllers\Admin\CirculationController::class, 'fines'])->name('admin.circulation.fines');
     Route::post('/circulation/fines/{fine}/pay', [\App\Http\Controllers\Admin\CirculationController::class, 'payFine'])->name('admin.circulation.fines.pay');
     Route::post('/circulation/fines/{fine}/waive', [\App\Http\Controllers\Admin\CirculationController::class, 'waiveFine'])->name('admin.circulation.fines.waive');
+    
+    // Book Distribution
+    Route::get('/circulation/distribution', [\App\Http\Controllers\Admin\CirculationController::class, 'distribution'])->name('admin.circulation.distribution');
+    Route::post('/circulation/book-history', [\App\Http\Controllers\Admin\CirculationController::class, 'getBookItemHistory'])->name('admin.circulation.book-history');
 
     // Circulation Reports
     Route::prefix('circulation/reports')->name('admin.circulation.reports.')->group(function () {

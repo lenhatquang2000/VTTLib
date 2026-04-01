@@ -101,7 +101,7 @@
                                 </svg>
                                 {{ __('Thông tin Bạn đọc') }}
                             </h4>
-                            <div id="patronInfo" class="space-y-2">
+                            <div id="patronInfo" class="patron-info-scroll space-y-2">
                                 <div class="text-center text-gray-500 text-sm py-8">
                                     <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -211,13 +211,29 @@
                             </span>
                         </td>
                         <td class="p-3">
-                            <form action="{{ route('admin.circulation.renew', $loan) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="text-blue-400 hover:text-blue-300 text-xs" 
-                                    {{ !$loan->canRenew() ? 'disabled' : '' }}>
-                                    {{ __('Renew') }}
+                            <div class="flex space-x-2">
+                                <form action="{{ route('admin.circulation.renew', $loan) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="text-blue-400 hover:text-blue-300 text-xs" 
+                                        {{ !$loan->canRenew() ? 'disabled' : '' }}>
+                                        {{ __('Renew') }}
+                                    </button>
+                                </form>
+                                <button onclick="recallLoanTransaction('{{ $loan->bookItem->barcode }}', '{{ $loan->bookItem->bibliographicRecord->title }}')" 
+                                        class="text-yellow-400 hover:text-yellow-300 text-xs" 
+                                        title="{{ __("Triệu hồi") }}">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                    </svg>
                                 </button>
-                            </form>
+                                <button onclick="declareLostLoanTransaction('{{ $loan->bookItem->barcode }}', '{{ $loan->bookItem->bibliographicRecord->title }}')" 
+                                        class="text-red-400 hover:text-red-300 text-xs" 
+                                        title="{{ __("Khai báo mất") }}">
+                                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     @endforeach
@@ -230,7 +246,7 @@
     <!-- Recent Transactions -->
     <div class="card-admin rounded-lg overflow-hidden">
         <div class="p-4 border-b border-gray-700">
-            <h3 class="text-lg font-bold">{{ __('Recent_Transactions') }}</h3>
+            <h3 class="text-lg font-bold">{{ __("Hành động gần đây") }}</h3>
         </div>
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
@@ -275,15 +291,31 @@
                         </td>
                         <td class="p-3">
                             @if($loan->status === 'borrowed')
-                                @if($loan->canRenew())
-                                <form action="{{ route('admin.circulation.renew', $loan) }}" method="POST" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-blue-400 hover:text-blue-300 text-xs mr-2">
-                                        {{ __('Renew') }}
+                                <div class="flex items-center space-x-2">
+                                    @if($loan->canRenew())
+                                    <form action="{{ route('admin.circulation.renew', $loan) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-blue-400 hover:text-blue-300 text-xs">
+                                            {{ __('Renew') }}
+                                        </button>
+                                    </form>
+                                    @endif
+                                    <span class="text-xs text-gray-500">({{ $loan->renewal_count }}/{{ $loan->policy->max_renewals ?? '?' }})</span>
+                                    <button onclick="recallLoanTransaction('{{ $loan->bookItem->barcode }}', '{{ $loan->bookItem->bibliographicRecord->title }}')" 
+                                            class="text-yellow-400 hover:text-yellow-300 text-xs" 
+                                            title="{{ __("Triệu hồi") }}">
+                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                        </svg>
                                     </button>
-                                </form>
-                                @endif
-                                <span class="text-xs text-gray-500">({{ $loan->renewal_count }}/{{ $loan->policy->max_renewals ?? '?' }})</span>
+                                    <button onclick="declareLostLoanTransaction('{{ $loan->bookItem->barcode }}', '{{ $loan->bookItem->bibliographicRecord->title }}')" 
+                                            class="text-red-400 hover:text-red-300 text-xs" 
+                                            title="{{ __("Khai báo mất") }}">
+                                        <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             @endif
                         </td>
                     </tr>
@@ -689,53 +721,46 @@ function displayPatronResult(patron) {
         // Update detailed patron info
         if (infoDiv) {
             infoDiv.innerHTML = `
-                <div class="text-center py-6">
-                    <div class="flex justify-center mb-4">
-                        <div class="w-24 h-24 rounded-full overflow-hidden">
-                            ${patron.data.profile_image ? 
-                                `<img src="${patron.data.profile_image}" alt="${patron.data.display_name || 'Patron'}" class="w-full h-full object-cover">` :
-                                `<div class="w-full h-full bg-gray-700 flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                    </svg>
-                                </div>`
-                            }
+                <div class="space-y-4">
+                    <!-- Patron Header Section -->
+                    <div class="flex items-start space-x-4 pb-4 border-b border-gray-600">
+                        <!-- Avatar - Rectangle Vertical -->
+                        <div class="flex-shrink-0">
+                            <div class="w-20 h-24 rounded-lg overflow-hidden">
+                                ${patron.data.profile_image ? 
+                                    `<img src="${patron.data.profile_image}" alt="${patron.data.display_name || 'Patron'}" class="w-full h-full object-cover">` :
+                                    `<div class="w-full h-full bg-gray-700 flex items-center justify-center">
+                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                        </svg>
+                                    </div>`
+                                }
+                            </div>
                         </div>
-                    </div>
-                    <h4 class="text-lg font-semibold text-white mb-1">
-                        ${patron.data.display_name || patron.data.user?.name || 'N/A'}
-                    </h4>
-                    <p class="text-sm text-gray-400 font-mono mb-2">${patron.data.patron_code}</p>
-                    <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${canBorrow ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300'} mb-4">
-                        ${statusIcon}
-                        <span class="ml-1">${borrowingStatus}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4 text-sm mb-4">
-                        <div>
-                            <span class="text-gray-400">{{ __("Số sách đang mượn") }}:</span>
-                            <span class="text-white font-medium ml-1">${loans}</span>
-                        </div>
-                        <div>
-                            <span class="text-gray-400">{{ __("Phí chưa trả") }}:</span>
-                            <span class="text-white font-medium ml-1">${outstandingFine.toLocaleString('vi-VN')}đ</span>
+                        
+                        <!-- Patron Info -->
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-lg font-semibold text-white mb-1">
+                                ${patron.data.display_name || patron.data.user?.name || 'N/A'}
+                            </h4>
+                            <p class="text-sm text-gray-400 font-mono mb-2">${patron.data.patron_code}</p>
+                            <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${canBorrow ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300'} mb-3">
+                                ${statusIcon}
+                                <span class="ml-1">${borrowingStatus}</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <span class="text-gray-400">{{ __("Số sách đang mượn") }}:</span>
+                                    <span class="text-white font-medium ml-1">${loans}</span>
+                                </div>
+                                <div>
+                                    <span class="text-gray-400">{{ __("Phí chưa trả") }}:</span>
+                                    <span class="text-white font-medium ml-1">${outstandingFine.toLocaleString('vi-VN')}đ</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <!-- Action Buttons -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
-                        <button onclick="showRecallModal()" class="flex items-center justify-center px-3 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                            </svg>
-                            {{ __("Triệu hồi") }}
-                        </button>
-                        <button onclick="showDeclareLostModal()" class="flex items-center justify-center px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                            </svg>
-                            {{ __("Khai báo mất") }}
-                        </button>
-                    </div>
                     <!-- Transaction Statistics -->
                     <div class="bg-gray-700/30 rounded-lg p-3 text-sm">
                         <h5 class="text-xs font-semibold text-gray-300 mb-2">{{ __("Lịch sử giao dịch") }}</h5>
@@ -760,8 +785,44 @@ function displayPatronResult(patron) {
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Current Loans Table -->
+                    ${loans > 0 ? `
+                        <div class="bg-gray-700/30 rounded-lg p-3">
+                            <h5 class="text-xs font-semibold text-gray-300 mb-2">{{ __("Tài liệu đang mượn") }} (${loans})</h5>
+                            <div class="overflow-x-auto">
+                                <table class="current-loans-table w-full">
+                                    <thead>
+                                        <tr class="border-b border-gray-600">
+                                            <th class="text-left text-gray-400 pb-1">{{ __("Mã vạch") }}</th>
+                                            <th class="text-left text-gray-400 pb-1">{{ __("Tên tài liệu") }}</th>
+                                            <th class="text-left text-gray-400 pb-1">{{ __("Hết hạn") }}</th>
+                                            <th class="text-right text-gray-400 pb-1">{{ __("Hành động") }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="currentLoansTableBody">
+                                        <tr>
+                                            <td colspan="4" class="text-center text-gray-400 py-2">
+                                                <svg class="w-4 h-4 mx-auto mb-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                </svg>
+                                                {{ __("Đang tải...") }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
+        }
+        
+        // Load current loans after DOM is rendered
+        if (loans > 0) {
+            setTimeout(() => {
+                loadCurrentLoans(patron.data.id);
+            }, 100);
         }
         
         // Update stats AFTER DOM is rendered
@@ -927,5 +988,594 @@ function displayBookError() {
     .btn-secondary { background: #374151; color: #fff; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; }
     .btn-secondary:hover { background: #4b5563; }
     .card-admin { background: #1f2937; border: 1px solid #374151; }
+    .patron-info-scroll { max-height: 600px; overflow-y: auto; }
+    .current-loans-table { font-size: 0.75rem; }
+    .action-btn-sm { padding: 0.25rem 0.5rem; font-size: 0.7rem; }
 </style>
+
+<!-- Recall Modal -->
+<div id="recallModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                {{ __("Triệu hồi tài liệu") }}
+            </h3>
+            <button onclick="closeRecallModal()" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">{{ __("Mã vạch tài liệu") }} *</label>
+                <input type="text" id="recallBookBarcode" class="input-field w-full" placeholder="{{ __("Nhập mã vạch tài liệu cần triệu hồi") }}">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">{{ __("Lý do triệu hồi") }}</label>
+                <textarea id="recallReason" class="input-field w-full" rows="3" placeholder="{{ __("Nhập lý do triệu hồi (không bắt buộc)") }}"></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeRecallModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">
+                    {{ __("Hủy") }}
+                </button>
+                <button onclick="processRecall()" class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg">
+                    {{ __("Triệu hồi") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Declare Lost Modal -->
+<div id="declareLostModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-white flex items-center">
+                <svg class="w-5 h-5 mr-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                {{ __("Khai báo mất tài liệu") }}
+            </h3>
+            <button onclick="closeDeclareLostModal()" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">{{ __("Chọn tài liệu") }} *</label>
+                <div id="declareLostBooksList" class="max-h-40 overflow-y-auto space-y-2">
+                    <!-- Books will be populated here -->
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">{{ __("Ghi chú") }}</label>
+                <textarea id="declareLostNotes" class="input-field w-full" rows="3" placeholder="{{ __("Nhập ghi chú (không bắt buộc)") }}"></textarea>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeDeclareLostModal()" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg">
+                    {{ __("Hủy") }}
+                </button>
+                <button onclick="processDeclareLost()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
+                    {{ __("Khai báo mất") }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load current loans for patron
+function loadCurrentLoans(patronId) {
+    // This would need an API endpoint to get current loans
+    // For now, we'll use the existing loanTransactionsData
+    const tbody = document.getElementById('currentLoansTableBody');
+    if (!tbody) return;
+    
+    // Debug: Log the data structure
+    console.log('loadCurrentLoans - patronId:', patronId);
+    console.log('loadCurrentLoans - loanTransactionsData:', loanTransactionsData);
+    
+    // Filter current loans for this patron from existing data
+    const patronLoans = loanTransactionsData ? loanTransactionsData.filter(loan => 
+        loan.patron_detail_id === patronId && loan.status === 'borrowed'
+    ) : [];
+    
+    console.log('loadCurrentLoans - patronLoans:', patronLoans);
+    
+    if (patronLoans.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="text-center text-gray-400 py-2">
+                    {{ __("Không có tài liệu nào đang mượn") }}
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Generate table rows
+    tbody.innerHTML = patronLoans.map(loan => {
+        const dueDate = loan.due_date ? new Date(loan.due_date).toLocaleDateString('vi-VN') : 'N/A';
+        const isOverdue = loan.due_date && new Date(loan.due_date) < new Date();
+        
+        // Debug: Log each loan structure
+        console.log('Processing loan:', loan);
+        console.log('book_item:', loan.book_item);
+        console.log('bibliographic_record:', loan.book_item?.bibliographic_record);
+        
+        return `
+            <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+                <td class="py-2 text-gray-300 font-mono text-xs">${loan.book_item?.barcode || 'N/A'}</td>
+                <td class="py-2 text-gray-300 text-xs">
+                    <div class="max-w-[200px] truncate" title="${loan.book_item?.bibliographic_record?.title || 'N/A'}">
+                        ${loan.book_item?.bibliographic_record?.title || 'N/A'}
+                    </div>
+                </td>
+                <td class="py-2 text-xs ${isOverdue ? 'text-red-400 font-medium' : 'text-gray-300'}">
+                    ${dueDate}
+                    ${isOverdue ? '<span class="ml-1 text-red-400">⚠️</span>' : ''}
+                </td>
+                <td class="py-2 text-right">
+                    <div class="flex justify-end space-x-1">
+                        <button onclick="recallSpecificBook('${loan.book_item?.barcode || ''}', '${loan.book_item?.bibliographic_record?.title || ''}')" 
+                                class="p-1 text-yellow-400 hover:text-yellow-300 hover:bg-yellow-600/10 rounded transition-colors group"
+                                title="{{ __("Triệu hồi") }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span class="absolute -top-8 right-0 bg-gray-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                {{ __("Triệu hồi") }}
+                            </span>
+                        </button>
+                        <button onclick="declareLostSpecificBook('${loan.book_item?.barcode || ''}', '${loan.book_item?.bibliographic_record?.title || ''}')" 
+                                class="p-1 text-red-400 hover:text-red-300 hover:bg-red-600/10 rounded transition-colors group relative"
+                                title="{{ __("Khai báo mất") }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                            <span class="absolute -top-8 right-0 bg-gray-800 text-xs text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                {{ __("Khai báo mất") }}
+                            </span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Recall specific book
+function recallSpecificBook(barcode, title) {
+    if (!barcode) {
+        Swal.fire({
+            icon: 'error',
+            title: '{{ __("Lỗi") }}',
+            text: '{{ __("Không thể triệu hồi tài liệu này") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    // Pre-fill the recall modal
+    document.getElementById('recallBookBarcode').value = barcode;
+    document.getElementById('recallReason').value = `Triệu hồi tài liệu: ${title}`;
+    showRecallModal();
+}
+
+// Declare specific book lost
+function declareLostSpecificBook(barcode, title) {
+    if (!barcode) {
+        Swal.fire({
+            icon: 'error',
+            title: '{{ __("Lỗi") }}',
+            text: '{{ __("Không thể khai báo mất tài liệu này") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    // Show confirmation
+    Swal.fire({
+        title: '{{ __("Xác nhận khai báo mất tài liệu") }}',
+        html: `<strong>${title}</strong><br><small>${barcode}</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '{{ __("Khai báo mất") }}',
+        cancelButtonText: '{{ __("Hủy") }}'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Here you would make API call to process declare lost
+            console.log('Declaring lost:', { barcode, title });
+            
+            // Show success message
+            Swal.fire({
+                icon: 'success',
+                title: '{{ __("Thành công") }}',
+                text: `{{ __("Khai báo mất tài liệu thành công") }}: ${title}`,
+                confirmButtonColor: '#3b82f6'
+            });
+            
+            // Refresh patron info
+            const patronCode = document.getElementById('patron_code').value.trim();
+            if (patronCode) {
+                searchPatronByCode(patronCode);
+            }
+        }
+    });
+}
+
+// Modal functions
+function showRecallModal() {
+    document.getElementById('recallModal').classList.remove('hidden');
+}
+
+function closeRecallModal() {
+    document.getElementById('recallModal').classList.add('hidden');
+    document.getElementById('recallBookBarcode').value = '';
+    document.getElementById('recallReason').value = '';
+}
+
+function showDeclareLostModal() {
+    document.getElementById('declareLostModal').classList.remove('hidden');
+    loadPatronBooksForDeclareLost();
+}
+
+function closeDeclareLostModal() {
+    document.getElementById('declareLostModal').classList.add('hidden');
+    document.getElementById('declareLostNotes').value = '';
+}
+
+// Load patron books for declare lost
+function loadPatronBooksForDeclareLost() {
+    const patronCode = document.getElementById('patron_code').value.trim();
+    if (!patronCode) return;
+    
+    fetch(`{{ route('admin.circulation.search-patron') }}?patron_code=${encodeURIComponent(patronCode)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.data.current_loans > 0) {
+                // Load current loans for this patron
+                loadCurrentLoansForDeclareLost(data.data.id);
+            } else {
+                document.getElementById('declareLostBooksList').innerHTML = `
+                    <div class="text-gray-400 text-sm text-center py-4">
+                        {{ __("Bạn đọc không có tài liệu đang mượn") }}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading patron books:', error);
+        });
+}
+
+function loadCurrentLoansForDeclareLost(patronId) {
+    // This would need an API endpoint to get current loans
+    // For now, show placeholder
+    document.getElementById('declareLostBooksList').innerHTML = `
+        <div class="space-y-2">
+            <div class="flex items-center p-2 bg-gray-700 rounded">
+                <input type="checkbox" id="book1" class="mr-3">
+                <label for="book1" class="text-sm text-white flex-1">
+                    Tối ưu hóa cơ sở dữ liệu - VTTU000000000001
+                </label>
+            </div>
+            <div class="flex items-center p-2 bg-gray-700 rounded">
+                <input type="checkbox" id="book2" class="mr-3">
+                <label for="book2" class="text-sm text-white flex-1">
+                    Lập trình nâng cao - VTTU000000000002
+                </label>
+            </div>
+        </div>
+    `;
+}
+
+// Process recall
+function processRecall() {
+    const barcode = document.getElementById('recallBookBarcode').value.trim();
+    const reason = document.getElementById('recallReason').value.trim();
+    
+    if (!barcode) {
+        Swal.fire({
+            icon: 'warning',
+            title: '{{ __("Thông báo") }}',
+            text: '{{ __("Vui lòng nhập mã vạch tài liệu") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    // Show loading
+    Swal.fire({
+        title: '{{ __("Đang xử lý") }}',
+        text: '{{ __("Đang triệu hồi tài liệu...") }}',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    // Make API call
+    fetch('{{ route("admin.circulation.recall") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            barcode: barcode,
+            reason: reason
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let message = data.message;
+            
+            // Add due date information to success message
+            if (data.data.is_overdue) {
+                message += `\n\nTài liệu đã quá hạn. Hạn trả không thay đổi: ${data.data.new_due_date}`;
+            } else {
+                message += `\n\nHạn trả đã cập nhật thành ngày triệu hồi: ${data.data.new_due_date}`;
+            }
+            
+            Swal.fire({
+                icon: 'success',
+                title: '{{ __("Thành công") }}',
+                text: message,
+                confirmButtonColor: '#3b82f6'
+            });
+            
+            // Call callback if exists (to add to recent actions)
+            if (window.recallCallback) {
+                window.recallCallback();
+                window.recallCallback = null; // Clear callback
+            }
+            
+            closeRecallModal();
+            
+            // Refresh page after a short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: '{{ __("Lỗi") }}',
+                text: data.message,
+                confirmButtonColor: '#3b82f6'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Recall error:', error);
+        Swal.fire({
+            icon: 'error',
+            title: '{{ __("Lỗi") }}',
+            text: '{{ __("Có lỗi xảy ra khi triệu hồi tài liệu") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+    });
+}
+
+// Process declare lost
+function processDeclareLost() {
+    const checkboxes = document.querySelectorAll('#declareLostBooksList input[type="checkbox"]:checked');
+    const notes = document.getElementById('declareLostNotes').value.trim();
+    
+    if (checkboxes.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: '{{ __("Thông báo") }}',
+            text: '{{ __("Vui lòng chọn ít nhất một tài liệu") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    // Here you would make API call to process declare lost
+    console.log('Processing declare lost:', { selectedBooks: checkboxes.length, notes });
+    
+    // Show success message
+    Swal.fire({
+        icon: 'success',
+        title: '{{ __("Thành công") }}',
+        text: '{{ __("Khai báo mất tài liệu thành công") }}',
+        confirmButtonColor: '#3b82f6'
+    });
+    
+    closeDeclareLostModal();
+}
+
+// Loan Transaction Actions
+function recallLoanTransaction(barcode, title) {
+    if (!barcode) {
+        Swal.fire({
+            icon: 'error',
+            title: '{{ __("Lỗi") }}',
+            text: '{{ __("Không thể triệu hồi tài liệu này") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    // Pre-fill the recall modal
+    document.getElementById('recallBookBarcode').value = barcode;
+    document.getElementById('recallReason').value = `Triệu hồi tài liệu: ${title}`;
+    
+    // Store callback for after recall is processed
+    window.recallCallback = () => {
+        // Add action to recent activities
+        addRecentAction({
+            date: new Date().toISOString(),
+            type: 'recall',
+            patron: 'Thủ thư',
+            book: title,
+            barcode: barcode,
+            status: 'recalled'
+        });
+    };
+    
+    showRecallModal();
+}
+
+function declareLostLoanTransaction(barcode, title) {
+    if (!barcode) {
+        Swal.fire({
+            icon: 'error',
+            title: '{{ __("Lỗi") }}',
+            text: '{{ __("Không thể khai báo mất tài liệu này") }}',
+            confirmButtonColor: '#3b82f6'
+        });
+        return;
+    }
+    
+    // Show confirmation
+    Swal.fire({
+        title: '{{ __("Xác nhận khai báo mất tài liệu") }}',
+        html: `<strong>${title}</strong><br><small>${barcode}</small>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '{{ __("Khai báo mất") }}',
+        cancelButtonText: '{{ __("Hủy") }}'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading
+            Swal.fire({
+                title: '{{ __("Đang xử lý") }}',
+                text: '{{ __("Đang khai báo mất tài liệu...") }}',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Make API call
+            fetch('{{ route("admin.circulation.declare-lost") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    barcode: barcode,
+                    notes: `Khai báo mất từ loan transaction: ${title}`
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Add action to recent activities
+                    addRecentAction({
+                        date: new Date().toISOString(),
+                        type: 'declare_lost',
+                        patron: 'Thủ thư',
+                        book: title,
+                        barcode: barcode,
+                        status: 'lost'
+                    });
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: '{{ __("Thành công") }}',
+                        text: data.message,
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    
+                    // Refresh page after successful action
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '{{ __("Lỗi") }}',
+                        text: data.message,
+                        confirmButtonColor: '#3b82f6'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Declare lost error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '{{ __("Lỗi") }}',
+                    text: '{{ __("Có lỗi xảy ra khi khai báo mất tài liệu") }}',
+                    confirmButtonColor: '#3b82f6'
+                });
+            });
+        }
+    });
+}
+
+// Add recent action to the table
+function addRecentAction(action) {
+    const tbody = document.querySelector('table tbody');
+    if (!tbody) return;
+    
+    // Create new row
+    const newRow = document.createElement('tr');
+    newRow.className = 'hover:bg-gray-800/50';
+    
+    const statusClass = action.type === 'declare_lost' ? 'bg-gray-900/50 text-gray-400' : 
+                       action.type === 'recall' ? 'bg-yellow-900/50 text-yellow-400' : 
+                       'bg-gray-900/50 text-gray-400';
+    
+    const statusText = action.type === 'declare_lost' ? '{{ __("Đã khai báo mất") }}' : 
+                      action.type === 'recall' ? '{{ __("Đã triệu hồi") }}' : 
+                      action.status;
+    
+    newRow.innerHTML = `
+        <td class="p-3 text-xs text-gray-400">${new Date(action.date).toLocaleString('vi-VN')}</td>
+        <td class="p-3">
+            <div class="font-medium">${action.patron}</div>
+            <div class="text-xs text-gray-400">Admin</div>
+        </td>
+        <td class="p-3">
+            <div class="font-medium">${action.book}</div>
+            <div class="text-xs text-gray-400 font-mono">${action.barcode}</div>
+        </td>
+        <td class="p-3">-</td>
+        <td class="p-3">
+            <span class="px-2 py-1 rounded text-xs font-bold ${statusClass}">
+                ${statusText}
+            </span>
+        </td>
+        <td class="p-3">
+            <span class="text-xs text-gray-500">{{ __("Hoàn thành") }}</span>
+        </td>
+    `;
+    
+    // Add to top of table (after thead)
+    const firstRow = tbody.querySelector('tr');
+    if (firstRow) {
+        tbody.insertBefore(newRow, firstRow);
+    } else {
+        tbody.appendChild(newRow);
+    }
+    
+    // Remove empty state message if exists
+    const emptyRow = tbody.querySelector('tr[colspan="6"]');
+    if (emptyRow) {
+        emptyRow.remove();
+    }
+}
+</script>
+
 @endsection

@@ -1104,7 +1104,7 @@
 <div class="save-overlay" id="saveOverlay">
     <div class="save-spinner">
         <div class="spinner-ring"></div>
-        <p>Đang lưu thay đổi…</p>
+        <p><?php echo e(__('Saving changes…')); ?></p>
     </div>
 </div>
 
@@ -1115,17 +1115,20 @@
 <div class="sbm-header">
     <div class="sbm-header-left">
         <h1><i class="fas fa-layer-group me-2"></i><?php echo e(__('Sidebar Management')); ?></h1>
-        <p>Kéo thả để sắp xếp thứ tự &amp; cấp bậc các mục menu</p>
+        <p><?php echo e(__('Drag and drop to reorder menu items and hierarchy')); ?></p>
     </div>
     <div class="sbm-actions">
         <button class="btn-sbm btn-add" onclick="openAddModal()">
-            <i class="fas fa-plus"></i> Thêm mục mới
+            <i class="fas fa-plus"></i> <?php echo e(__('Add new item')); ?>
+
         </button>
         <button class="btn-sbm btn-reset" onclick="handleReset()">
-            <i class="fas fa-undo"></i> Reset
+            <i class="fas fa-undo"></i> <?php echo e(__('Reset')); ?>
+
         </button>
         <button class="btn-sbm btn-save" id="btnSave" onclick="handleSave()">
-            <i class="fas fa-cloud-upload-alt"></i> Lưu thay đổi
+            <i class="fas fa-cloud-upload-alt"></i> <?php echo e(__('Save changes')); ?>
+
         </button>
     </div>
 </div>
@@ -1136,28 +1139,28 @@
         <div class="stat-icon violet"><i class="fas fa-bars"></i></div>
         <div class="stat-info">
             <div class="stat-value"><?php echo e($sidebarItems->count()); ?></div>
-            <div class="stat-label">Tổng mục</div>
+            <div class="stat-label"><?php echo e(__('Total items')); ?></div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon emerald"><i class="fas fa-check-circle"></i></div>
         <div class="stat-info">
             <div class="stat-value"><?php echo e($sidebarItems->where('is_active', true)->count()); ?></div>
-            <div class="stat-label">Đang bật</div>
+            <div class="stat-label"><?php echo e(__('Active items')); ?></div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon amber"><i class="fas fa-eye-slash"></i></div>
         <div class="stat-info">
             <div class="stat-value"><?php echo e($sidebarItems->where('is_active', false)->count()); ?></div>
-            <div class="stat-label">Đã ẩn</div>
+            <div class="stat-label"><?php echo e(__('Hidden items')); ?></div>
         </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon cyan"><i class="fas fa-sitemap"></i></div>
         <div class="stat-info">
             <div class="stat-value"><?php echo e($rootItems->count()); ?></div>
-            <div class="stat-label">Tabs gốc</div>
+            <div class="stat-label"><?php echo e(__('Root tabs')); ?></div>
         </div>
     </div>
 </div>
