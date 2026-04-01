@@ -1,6 +1,9 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
 @section('content')
+<!-- SweetAlert2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
 <div class="space-y-6 w-full pb-20" x-data="catalogWizard()" x-init="$nextTick(() => debugSubfieldBindings())">
     <!-- Header Section -->
     <div class="flex justify-between items-start bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
@@ -436,7 +439,7 @@
                                     <th class="px-6 py-3">{{ __('Identification') }}</th>
                                     <th class="px-6 py-3">{{ __('Storage') }}</th>
                                     <th class="px-6 py-3">{{ __('Status') }}</th>
-                                    <th class="px-6 py-3"></th>
+                                    <th class="px-6 py-3">{{ __('Barcode Image') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
@@ -469,6 +472,21 @@
                                                 <span x-text="item.status"></span>
                                             </span>
                                         </td>
+                                        <td class="px-6 py-4">
+                                            <!-- Barcode Image Display -->
+                                            <div x-show="item.barcode && item.barcode !== 'AUTO'" class="flex items-center">
+                                                <img 
+                                                    :src="`/barcode/${item.barcode}`" 
+                                                    :alt="`Barcode ${item.barcode}`"
+                                                    class="h-10 w-auto border border-gray-200 dark:border-slate-700 rounded bg-white p-1"
+                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+                                                >
+                                                <span class="hidden text-xs text-red-500">Không tải được barcode</span>
+                                            </div>
+                                            <div x-show="!item.barcode || item.barcode === 'AUTO'" class="text-xs text-gray-400 italic">
+                                                Chưa có barcode
+                                            </div>
+                                        </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex items-center justify-end space-x-2">
                                                 <button type="button" @click="editItem(index)" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all">
@@ -487,7 +505,7 @@
                                 </template>
                                 <template x-if="items.length === 0">
                                     <tr>
-                                        <td colspan="4" class="px-6 py-20 text-center">
+                                        <td colspan="5" class="px-6 py-20 text-center">
                                             <div class="flex flex-col items-center">
                                                 <svg class="w-12 h-12 text-gray-200 dark:text-slate-800 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
@@ -835,7 +853,13 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             },
             addItem() {
                 if (!this.newItem.storage_location_id) {
-                    alert('Vui lòng chọn vị trí lưu trữ');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Vui lòng chọn vị trí lưu trữ',
+                        text: 'Bạn cần chọn vị trí lưu trữ trước khi thêm bản sách mới.',
+                        confirmButtonColor: '#3b82f6',
+                        confirmButtonText: 'Đã hiểu'
+                    });
                     return;
                 }
                 if (this.editingIndex !== null) {
@@ -922,6 +946,9 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
         }
     }
 </script>
+
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     [x-cloak] {

@@ -162,6 +162,14 @@ class PatronDetail extends Model
         return $this->user->name ?? $this->patron_code;
     }
 
+    /**
+     * Get the display name for the patron
+     */
+    public function getDisplayNameAttribute()
+    {
+        return $this->user->name ?? $this->patron_code;
+    }
+
     // Methods for patron management
     public function lock(string $reason, int $lockedBy): bool
     {

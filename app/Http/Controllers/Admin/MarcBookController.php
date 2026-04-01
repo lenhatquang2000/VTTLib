@@ -479,7 +479,7 @@ class MarcBookController extends Controller
             // Process distribution items (Add, Update, Delete)
             $items = $request->input('items', []);
             $submittedItemIds = [];
-            
+
             \Log::info('=== DISTRIBUTION ITEMS DEBUG ===');
             \Log::info('Raw items data:', $items);
             \Log::info('Items count: ' . count($items));
@@ -538,11 +538,33 @@ class MarcBookController extends Controller
                         \Log::info('Creating new item...');
                         // Create new
                         $itemPayload['bibliographic_record_id'] = $record->id;
-                        if (empty($itemPayload['barcode'])) {
+                        
+                        // Handle barcode - either use provided or generate new
+                        if (!empty($itemPayload['barcode'])) {
+                            // Check if provided barcode already exists
+                            if (BookItem::where('barcode', $itemPayload['barcode'])->exists()) {
+                                \Log::warning('Barcode already exists, generating new one. Original: ' . $itemPayload['barcode']);
+                                $itemPayload['barcode'] = $this->barcodeService->getNextCode('item');
+                                $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
+                                \Log::info('Generated new barcode: ' . $itemPayload['barcode']);
+                            }
+                        } else {
                             \Log::info('Generating new barcode...');
                             $itemPayload['barcode'] = $this->barcodeService->getNextCode('item');
                             $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
                             \Log::info('Generated barcode: ' . $itemPayload['barcode']);
+                        }
+                        
+                        // Handle accession_number - either use provided or generate new
+                        if (!empty($itemPayload['accession_number'])) {
+                            // Check if provided accession_number already exists
+                            if (BookItem::where('accession_number', $itemPayload['accession_number'])->exists()) {
+                                \Log::warning('Accession number already exists, generating new one. Original: ' . $itemPayload['accession_number']);
+                                $itemPayload['accession_number'] = $this->generateAccessionNumber();
+                                \Log::info('Generated new accession number: ' . $itemPayload['accession_number']);
+                            }
+                        } else {
+                            \Log::info('Using generated accession number: ' . $itemPayload['accession_number']);
                         }
 
                         \Log::info('Creating BookItem with payload:', $itemPayload);
@@ -575,6 +597,16 @@ class MarcBookController extends Controller
             return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Updated_Successfully'));
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            \Log::error('MARC Book Update Error', [
+                'message' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
+            
             return back()->with('error', 'Error while updating: ' . $e->getMessage())->withInput();
         }
     }

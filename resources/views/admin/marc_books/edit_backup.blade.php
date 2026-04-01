@@ -1,19 +1,16 @@
-﻿
+@extends('layouts.admin')
 
-<?php $__env->startSection('content'); ?>
-<!-- SweetAlert2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-
+@section('content')
 <div class="space-y-6 w-full pb-20" x-data="catalogWizard()" x-init="$nextTick(() => debugSubfieldBindings())">
     <!-- Header Section -->
     <div class="flex justify-between items-start bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100"><?php echo e(__('Modify_MARC_Record')); ?></h2>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1"><?php echo e(__('Update_Instruction', ['id' => $record->id])); ?></p>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1"><?php echo e(__('Update_Instruction', ['id' => $record->id])); ?></p>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Modify_MARC_Record') }}</h2>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Update_Instruction', ['id' => $record->id]) }}</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Update_Instruction', ['id' => $record->id]) }}</p>
         </div>
         <div class="flex space-x-3">
-            <a href="<?php echo e(route('admin.marc.book')); ?>"
+            <a href="{{ route('admin.marc.book') }}"
                 class="flex items-center px-4 py-2.5 text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -40,17 +37,17 @@
         </div>
     </div>
 
-    <form id="catalogForm" action="<?php echo e(route('admin.marc.book.update', $record->id)); ?>" method="POST" enctype="multipart/form-data" class="space-y-6">
-        <?php echo csrf_field(); ?>
-        <?php echo method_field('PUT'); ?>
+    <form id="catalogForm" action="{{ route('admin.marc.book.update', $record->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        @csrf
+        @method('PUT')
         <input type="hidden" name="tab" :value="currentStep">
 
         <!-- Step 1: Đầu biểu (Leader/Metadata) -->
         <div x-show="currentStep === 0" x-cloak class="space-y-6">
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-8">
                 <div class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2"><?php echo e(__('Record_Leader')); ?></h3>
-                    <p class="text-sm text-gray-500 dark:text-slate-400"><?php echo e(__('Leader_Instruction')); ?></p>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">{{ __('Record_Leader') }}</h3>
+                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ __('Leader_Instruction') }}</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
@@ -60,17 +57,17 @@
                             <!-- Framework Selection (Full Width in Left Column) -->
                             <div class="md:col-span-2">
                                 <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">
-                                    <?php echo e(__('Cataloging_Framework')); ?> <span class="text-red-500">*</span>
+                                    {{ __('Cataloging_Framework') }} <span class="text-red-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <select x-model="formData.framework" name="framework"
                                         onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
                                         class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                        <?php $__currentLoopData = $frameworks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $fw): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                        <option value="<?php echo e($fw->code); ?>" data-id="<?php echo e($fw->id); ?>" <?php echo e($frameworkId == $fw->id ? 'selected' : ''); ?>>
-                                            <?php echo e($fw->name); ?> (<?php echo e($fw->code); ?>)
+                                        @foreach($frameworks as $fw)
+                                        <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
+                                            {{ $fw->name }} ({{ $fw->code }})
                                         </option>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        @endforeach
                                     </select>
                                     <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,79 +76,78 @@
                                     </div>
                                 </div>
                                 <p class="mt-2 text-[9px] text-gray-400 uppercase tracking-widest font-bold">
-                                    <?php echo e(__('Page will reload on change')); ?>
-
+                                    {{ __('Page will reload on change') }}
                                 </p>
                             </div>
 
 
                             <!-- Status -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Status')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
                                 <select x-model="formData.status" name="status"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="pending"><?php echo e(__('New_Status_Text')); ?></option>
-                                    <option value="approved"><?php echo e(__('Approved')); ?></option>
+                                    <option value="pending">{{ __('New_Status_Text') }}</option>
+                                    <option value="approved">{{ __('Approved') }}</option>
                                 </select>
                             </div>
 
                             <!-- Subject Category -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Subject_Category')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Subject_Category') }}</label>
                                 <select x-model="formData.subject_category" name="subject_category"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="Article"><?php echo e(__('Selected_Article')); ?></option>
+                                    <option value="Article">{{ __('Selected_Article') }}</option>
                                 </select>
                             </div>
 
                             <!-- Record Type -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Record_Type')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Record_Type') }}</label>
                                 <select x-model="formData.record_type" name="record_type"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="book"><?php echo e(__('Language_Material_Text')); ?></option>
+                                    <option value="book">{{ __('Language_Material_Text') }}</option>
                                 </select>
                             </div>
 
                             <!-- Serial Frequency -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Serial_Frequency')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Frequency') }}</label>
                                 <select x-model="formData.serial_frequency" name="serial_frequency"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="unknown"><?php echo e(__('Unknown_Frequency')); ?></option>
+                                    <option value="unknown">{{ __('Unknown_Frequency') }}</option>
                                 </select>
                             </div>
 
                             <!-- Publication Date Type -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Publication_Date_Type')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Publication_Date_Type') }}</label>
                                 <select x-model="formData.date_type" name="date_type"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="bc"><?php echo e(__('BC_Date_Involved')); ?></option>
+                                    <option value="bc">{{ __('BC_Date_Involved') }}</option>
                                 </select>
                             </div>
 
                             <!-- Serial Acquisition Method -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Serial_Acquisition_Method')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Acquisition_Method') }}</label>
                                 <select x-model="formData.acquisition_method" name="acquisition_method"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="untraced"><?php echo e(__('Untraced_Serials_Text')); ?></option>
+                                    <option value="untraced">{{ __('Untraced_Serials_Text') }}</option>
                                 </select>
                             </div>
 
                             <!-- Document Format -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Document_Format')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Document_Format') }}</label>
                                 <select x-model="formData.document_format" name="document_format"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="none"><?php echo e(__('None_Format')); ?></option>
+                                    <option value="none">{{ __('None_Format') }}</option>
                                 </select>
                             </div>
 
                             <!-- Cataloging Standard -->
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3"><?php echo e(__('Cataloging_Standard')); ?></label>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Standard') }}</label>
                                 <select x-model="formData.cataloging_standard" name="cataloging_standard"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
                                     <option value="AACR2">AACR-2</option>
@@ -162,7 +158,7 @@
 
                     <!-- RIGHT COLUMN: Full Height Cover Image -->
                     <div class="lg:col-span-4 flex flex-col h-full">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3 text-center"><?php echo e(__('Cover_Image')); ?></label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3 text-center">{{ __('Cover_Image') }}</label>
                         <div class="flex-grow flex flex-col items-center justify-start">
                             <!-- Clickable Image Preview Area (Stretches to fill) -->
                             <div class="relative group cursor-pointer w-full h-full min-h-[450px]" @click="$refs.coverInput.click()">
@@ -173,8 +169,7 @@
                                         <!-- Hover Overlay -->
                                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-end pb-12">
                                             <div class="bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 px-6 py-3 rounded-xl text-sm font-bold shadow-2xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                                <?php echo e(__('Edit_Cover_Image')); ?>
-
+                                                {{ __('Edit_Cover_Image') }}
                                             </div>
                                         </div>
 
@@ -193,8 +188,7 @@
                                             </svg>
                                         </div>
                                         <span class="text-xs font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.3em] group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors text-center px-8">
-                                            <?php echo e(__('Add_Cover_Image')); ?>
-
+                                            {{ __('Add_Cover_Image') }}
                                         </span>
                                     </div>
                                 </template>
@@ -210,26 +204,26 @@
 
         <!-- Step 2: Biên mục (MARC Fields) -->
         <div x-show="currentStep === 1" x-cloak class="space-y-6">
-            <?php $__currentLoopData = $definitions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tag): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            @foreach($definitions as $tag)
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden"
-                x-data="{ expanded: <?php echo e($tag->tag == '245' ? 'true' : 'false'); ?> }">
+                x-data="{ expanded: {{ $tag->tag == '245' ? 'true' : 'false' }} }">
                 <div class="p-4 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center cursor-pointer border-b border-gray-50 dark:border-slate-800"
                     @click="expanded = !expanded">
                     <div class="flex items-center space-x-4">
-                        <span class="bg-gray-800 dark:bg-slate-950 text-white px-3 py-1 rounded font-mono font-bold"><?php echo e($tag->tag); ?></span>
-                        <h4 class="font-bold text-gray-700 dark:text-slate-200 uppercase text-xs"><?php echo e($tag->label); ?></h4>
+                        <span class="bg-gray-800 dark:bg-slate-950 text-white px-3 py-1 rounded font-mono font-bold">{{ $tag->tag }}</span>
+                        <h4 class="font-bold text-gray-700 dark:text-slate-200 uppercase text-xs">{{ $tag->label }}</h4>
                     </div>
                     <div class="flex items-center space-x-4">
                         <div class="flex flex-col items-center">
                             <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Ind</span>
                             <div class="flex space-x-1">
-                                <input type="text" name="fields[<?php echo e($tag->tag); ?>][ind1]" x-model="marcFields['<?php echo e($tag->tag); ?>'].ind1" placeholder="#" maxlength="1"
+                                <input type="text" name="fields[{{ $tag->tag }}][ind1]" x-model="marcFields['{{ $tag->tag }}'].ind1" placeholder="#" maxlength="1"
                                     class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
-                                    title="<?php echo e(__('Indicator')); ?> 1"
+                                    title="{{ __('Indicator') }} 1"
                                     @click.stop>
-                                <input type="text" name="fields[<?php echo e($tag->tag); ?>][ind2]" x-model="marcFields['<?php echo e($tag->tag); ?>'].ind2" placeholder="#" maxlength="1"
+                                <input type="text" name="fields[{{ $tag->tag }}][ind2]" x-model="marcFields['{{ $tag->tag }}'].ind2" placeholder="#" maxlength="1"
                                     class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
-                                    title="<?php echo e(__('Indicator')); ?> 2"
+                                    title="{{ __('Indicator') }} 2"
                                     @click.stop>
                             </div>
                         </div>
@@ -242,17 +236,17 @@
 
                 <div class="p-6" x-show="expanded" x-cloak x-collapse>
                     <div class="space-y-4">
-                        <template x-for="(row, index) in marcFields['<?php echo e($tag->tag); ?>'].subfields" :key="index">
+                        <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
                             <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
                                 <!-- Subfield Selector -->
                                 <div class="w-full md:w-1/3">
-                                    <select :name="'fields[' + '<?php echo e($tag->tag); ?>' + '][subfields][' + index + '][code]'"
+                                    <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
                                         x-model="row.code"
                                         x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
                                         x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
                                         class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
-                                        <option value=""><?php echo e(__('Select_Subfield')); ?></option>
-                                        <template x-for="def in marcFields['<?php echo e($tag->tag); ?>'].subfieldDefinitions" :key="def.code">
+                                        <option value="">{{ __('Select_Subfield') }}</option>
+                                        <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
                                             <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
                                         </template>
                                     </select>
@@ -260,14 +254,14 @@
 
                                 <!-- Value Input -->
                                 <div class="w-full md:w-2/3 flex gap-3">
-                                    <input type="hidden" :name="'fields[' + '<?php echo e($tag->tag); ?>' + '][subfields][' + index + '][id]'" x-model="row.id">
+                                    <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][id]'" x-model="row.id">
                                     <input type="text"
-                                        :name="'fields[' + '<?php echo e($tag->tag); ?>' + '][subfields][' + index + '][value]'"
+                                        :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'"
                                         x-model="row.value"
-                                        placeholder="<?php echo e(__('Enter_Value')); ?>"
+                                        placeholder="{{ __('Enter_Value') }}"
                                         class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
 
-                                    <button type="button" @click="marcFields['<?php echo e($tag->tag); ?>'].subfields.splice(index, 1)"
+                                    <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.splice(index, 1)"
                                         class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -278,17 +272,16 @@
                         </template>
                     </div>
 
-                    <button type="button" @click="marcFields['<?php echo e($tag->tag); ?>'].subfields.push({ id: null, code: '', value: '' })"
+                    <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.push({ id: null, code: '', value: '' })"
                         class="mt-5 inline-flex items-center px-4 py-2.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-all">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
-                        <?php echo e(__('Add_Subfield')); ?>
-
+                        {{ __('Add_Subfield') }}
                     </button>
                 </div>
             </div>
-            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            @endforeach
         </div>
 
         <!-- Step 3: Phân phối (Distribution) -->
@@ -326,19 +319,19 @@
                     <div class="p-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
                         <h3 class="text-sm font-bold text-gray-800 dark:text-slate-100 uppercase tracking-wider flex items-center">
                             <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2" :class="editingIndex !== null ? 'animate-pulse' : ''"></span>
-                            <span x-text="editingIndex !== null ? '<?php echo e(__('Modify Item')); ?>' : '<?php echo e(__('Add New Item')); ?>'"></span>
+                            <span x-text="editingIndex !== null ? '{{ __('Modify Item') }}' : '{{ __('Add New Item') }}'"></span>
                         </h3>
                     </div>
                     <div class="p-6 space-y-4">
                         <div class="grid grid-cols-1 gap-4">
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Barcode')); ?></label>
+                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Barcode') }}</label>
                                 <input type="text" x-model="newItem.barcode"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-indigo-500 transition-all"
-                                    placeholder="<?php echo e($nextBarcode ?? 'AUTO'); ?>">
+                                    placeholder="{{ $nextBarcode ?? 'AUTO' }}">
                             </div>
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Accession Number')); ?></label>
+                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Accession Number') }}</label>
                                 <input type="text" x-model="newItem.accession_number"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-indigo-500 transition-all"
                                     placeholder="ACC-XXXXXX">
@@ -347,20 +340,20 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Branch')); ?></label>
+                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Branch') }}</label>
                                 <select x-model="newItem.branch_id"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
-                                    <option value="">-- <?php echo e(__('Select')); ?> --</option>
+                                    <option value="">-- {{ __('Select') }} --</option>
                                     <template x-for="branch in branches" :key="branch.id">
                                         <option :value="branch.id" x-text="branch.name"></option>
                                     </template>
                                 </select>
                             </div>
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Storage Location')); ?></label>
+                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Storage Location') }}</label>
                                 <select x-model="newItem.storage_location_id" :disabled="!newItem.branch_id"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none disabled:opacity-50">
-                                    <option value="">-- <?php echo e(__('Select')); ?> --</option>
+                                    <option value="">-- {{ __('Select') }} --</option>
                                     <template x-for="loc in activeLocations" :key="loc.id">
                                         <option :value="loc.id" x-text="loc.name"></option>
                                     </template>
@@ -370,32 +363,32 @@
 
                         <div class="grid grid-cols-2 gap-3">
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Storage Type')); ?></label>
+                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Storage Type') }}</label>
                                 <select x-model="newItem.storage_type"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
-                                    <option value="Book"><?php echo e(__('Book')); ?></option>
-                                    <option value="Daily newspaper"><?php echo e(__('Daily newspaper')); ?></option>
-                                    <option value="Magazine"><?php echo e(__('Magazine')); ?></option>
+                                    <option value="Book">{{ __('Book') }}</option>
+                                    <option value="Daily newspaper">{{ __('Daily newspaper') }}</option>
+                                    <option value="Magazine">{{ __('Magazine') }}</option>
                                 </select>
                             </div>
                             <div class="space-y-1">
-                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Status')); ?></label>
+                                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Status') }}</label>
                                 <select x-model="newItem.status"
                                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
-                                    <option value="available"><?php echo e(__('Available')); ?></option>
-                                    <option value="borrowed"><?php echo e(__('Borrowed')); ?></option>
-                                    <option value="lost"><?php echo e(__('Lost')); ?></option>
-                                    <option value="damaged"><?php echo e(__('Damaged')); ?></option>
+                                    <option value="available">{{ __('Available') }}</option>
+                                    <option value="borrowed">{{ __('Borrowed') }}</option>
+                                    <option value="lost">{{ __('Lost') }}</option>
+                                    <option value="damaged">{{ __('Damaged') }}</option>
                                 </select>
                             </div>
                         </div>
 
                         <div class="p-4 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30 space-y-4">
                             <div class="flex justify-between items-center">
-                                <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest"><?php echo e(__('Technical Specs')); ?></span>
+                                <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">{{ __('Technical Specs') }}</span>
                                 <div class="flex items-center">
                                     <input type="checkbox" x-model="newItem.waits_for_print" id="edit_waits_for_print" class="rounded text-indigo-600 focus:ring-0 w-3 h-3">
-                                    <label for="edit_waits_for_print" class="ml-1.5 text-[8px] font-bold text-gray-500 uppercase"><?php echo e(__('Wait for print')); ?></label>
+                                    <label for="edit_waits_for_print" class="ml-1.5 text-[8px] font-bold text-gray-500 uppercase">{{ __('Wait for print') }}</label>
                                 </div>
                             </div>
                             <div class="grid grid-cols-3 gap-2">
@@ -404,12 +397,12 @@
                                 <input type="number" x-model="newItem.year" placeholder="YYYY" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 text-center px-1">
                             </div>
                             <div class="grid grid-cols-2 gap-2">
-                                <input type="text" x-model="newItem.shelf" placeholder="<?php echo e(__('Shelf')); ?>" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 px-3">
-                                <input type="text" x-model="newItem.shelf_position" placeholder="<?php echo e(__('Position')); ?>" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 px-3">
+                                <input type="text" x-model="newItem.shelf" placeholder="{{ __('Shelf') }}" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 px-3">
+                                <input type="text" x-model="newItem.shelf_position" placeholder="{{ __('Position') }}" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 px-3">
                             </div>
                         </div>
 
-                        <textarea x-model="newItem.notes" rows="2" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm" placeholder="<?php echo e(__('Notes')); ?>..."></textarea>
+                        <textarea x-model="newItem.notes" rows="2" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm" placeholder="{{ __('Notes') }}..."></textarea>
 
                         <div class="flex gap-2 pt-2">
                             <button type="button" @click="addItem()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center">
@@ -419,7 +412,7 @@
                                 <svg x-show="editingIndex !== null" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
-                                <span x-text="editingIndex !== null ? '<?php echo e(__('Update Item')); ?>' : '<?php echo e(__('Include Item')); ?>'"></span>
+                                <span x-text="editingIndex !== null ? '{{ __('Update Item') }}' : '{{ __('Include Item') }}'"></span>
                             </button>
                             <button type="button" x-show="editingIndex !== null" @click="resetNewItem()" class="px-4 py-3 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 rounded-xl hover:bg-gray-200 transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -433,17 +426,17 @@
                 <!-- RIGHT: List Table -->
                 <div class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
                     <div class="p-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-                        <h3 class="text-sm font-bold text-gray-800 dark:text-slate-100 uppercase tracking-wider"><?php echo e(__('Items in Queue')); ?></h3>
-                        <span class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold px-2.5 py-1 rounded-full" x-text="items.length + ' <?php echo e(__('Items')); ?>'"></span>
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-slate-100 uppercase tracking-wider">{{ __('Items in Queue') }}</h3>
+                        <span class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold px-2.5 py-1 rounded-full" x-text="items.length + ' {{ __('Items') }}'"></span>
                     </div>
                     <div class="overflow-x-auto min-h-[400px]">
                         <table class="w-full text-left">
                             <thead class="bg-gray-50 dark:bg-slate-800/50 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest border-b border-gray-100 dark:border-slate-800">
                                 <tr>
-                                    <th class="px-6 py-3"><?php echo e(__('Identification')); ?></th>
-                                    <th class="px-6 py-3"><?php echo e(__('Storage')); ?></th>
-                                    <th class="px-6 py-3"><?php echo e(__('Status')); ?></th>
-                                    <th class="px-6 py-3"><?php echo e(__('Barcode Image')); ?></th>
+                                    <th class="px-6 py-3">{{ __('Identification') }}</th>
+                                    <th class="px-6 py-3">{{ __('Storage') }}</th>
+                                    <th class="px-6 py-3">{{ __('Status') }}</th>
+                                    <th class="px-6 py-3"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
@@ -453,6 +446,24 @@
                                             <div class="flex flex-col">
                                                 <span class="text-sm font-bold text-gray-800 dark:text-slate-200 font-mono" x-text="item.barcode || 'AUTO'"></span>
                                                 <span class="text-[10px] text-gray-400 dark:text-slate-500 font-mono" x-text="'#' + item.accession_number"></span>
+                                                
+                                                <!-- Barcode Image -->
+                                                <div x-show="item.barcode && item.barcode !== 'AUTO'" class="mt-2">
+                                                    <img 
+                                                        :src="`/barcode/${item.barcode}`" 
+                                                        :alt="`Barcode ${item.barcode}`"
+                                                        class="h-12 w-auto border border-gray-200 dark:border-slate-700 rounded bg-white p-1"
+                                                        @error="$event.target.style.display='none'"
+                                                        @load="$event.target.style.display='block'"
+                                                    >
+                                                    <div x-show="$event.target.style.display === 'none'" class="text-[8px] text-red-500 mt-1">
+                                                        Barcode error
+                                                    </div>
+                                                </div>
+                                                
+                                                <div x-show="!item.barcode || item.barcode === 'AUTO'" class="mt-2 text-[8px] text-gray-400 italic">
+                                                    Barcode will be generated on save
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
@@ -463,42 +474,9 @@
                                                     <span class="text-[9px] px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded" x-text="getLocationName(item.branch_id, item.storage_location_id)"></span>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-                                                :class="{
-                                                    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400': item.status === 'available',
-                                                    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': item.status === 'borrowed',
-                                                    'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400': item.status === 'lost',
-                                                    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': item.status === 'damaged'
-                                                }">
-                                                <span class="w-1 h-1 rounded-full bg-current mr-1.5"></span>
-                                                <span x-text="item.status"></span>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <!-- Barcode Image Display -->
-                                            <div x-show="item.barcode && item.barcode !== 'AUTO'" class="flex items-center">
-                                                <img 
-                                                    :src="`/barcode/${item.barcode}`" 
-                                                    :alt="`Barcode ${item.barcode}`"
-                                                    class="h-10 w-auto border border-gray-200 dark:border-slate-700 rounded bg-white p-1"
-                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
-                                                >
-                                                <span class="hidden text-xs text-red-500">Không tải được barcode</span>
-                                            </div>
-                                            <div x-show="!item.barcode || item.barcode === 'AUTO'" class="text-xs text-gray-400 italic">
-                                                Chưa có barcode
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex items-center justify-end space-x-2">
-                                                <button type="button" @click="editItem(index)" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                                    </svg>
-                                                </button>
-                                                <button type="button" @click="removeItem(index)" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all">
+                                            <button type="button" @click="editItem(index)" class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                                     </svg>
@@ -509,12 +487,12 @@
                                 </template>
                                 <template x-if="items.length === 0">
                                     <tr>
-                                        <td colspan="5" class="px-6 py-20 text-center">
+                                        <td colspan="4" class="px-6 py-20 text-center">
                                             <div class="flex flex-col items-center">
                                                 <svg class="w-12 h-12 text-gray-200 dark:text-slate-800 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                                                 </svg>
-                                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest"><?php echo e(__('No items added yet')); ?></span>
+                                                <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ __('No items added yet') }}</span>
                                             </div>
                                         </td>
                                     </tr>
@@ -532,7 +510,7 @@
                 <div class="bg-slate-900 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="flex items-center space-x-3">
                         <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC PREVIEW</span>
-                        <h3 class="text-white font-bold text-sm leading-none"><?php echo e(__('MARC21_Cataloging_Form')); ?></h3>
+                        <h3 class="text-white font-bold text-sm leading-none">{{ __('MARC21_Cataloging_Form') }}</h3>
                     </div>
                     <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80" x-text="leader"></span>
                 </div>
@@ -541,9 +519,9 @@
                     <table class="w-full border-collapse">
                         <thead>
                             <tr class="bg-slate-50 dark:bg-slate-800/50 text-left border-b border-slate-100 dark:border-slate-800">
-                                <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64"><?php echo e(__('Tag')); ?></th>
-                                <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24"><?php echo e(__('Ind')); ?></th>
-                                <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]"><?php echo e(__('Content_Data')); ?></th>
+                                <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Tag') }}</th>
+                                <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Ind') }}</th>
+                                <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Content_Data') }}</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-mono text-sm">
@@ -647,13 +625,13 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                <span><?php echo e(__('Update')); ?></span>
+                <span>{{ __('Update') }}</span>
             </button>
         </div>
     </form>
 </div>
 
-<?php
+@php
 $initialFields = [];
 foreach($definitions as $tag) {
 $existingField = $record->fields->where('tag', $tag->tag)->first();
@@ -716,24 +694,24 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
 'temporary_location' => $i->temporary_location
 ])
 : [];
-?>
+@endphp
 <script>
-    const itemsData = <?php echo json_encode($initialItemsData, 15, 512) ?>;
+    const itemsData = @json($initialItemsData);
 
     function catalogWizard() {
         return {
             currentStep: parseInt(new URLSearchParams(window.location.search).get('tab')) || 0,
             steps: [{
-                    title: '<?php echo e(__("Leader_Info")); ?>'
+                    title: '{{ __("Leader_Info") }}'
                 },
                 {
-                    title: '<?php echo e(__("Cataloging")); ?>'
+                    title: '{{ __("Cataloging") }}'
                 },
                 {
-                    title: '<?php echo e(__("Distribution")); ?>'
+                    title: '{{ __("Distribution") }}'
                 },
                 {
-                    title: '<?php echo e(__("Preview")); ?>'
+                    title: '{{ __("Preview") }}'
                 }
             ],
             init() {
@@ -752,15 +730,15 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 }
             },
             formData: {
-                framework: "<?php echo e($record->framework ?? ($frameworks->where('id', $frameworkId ?? null)->first()->code ?? 'AVMARC21')); ?>",
-                status: "<?php echo e($record->status ?? 'pending'); ?>",
-                subject_category: "<?php echo e($record->subject_category ?? 'Article'); ?>",
-                record_type: "<?php echo e($record->record_type ?? 'book'); ?>",
-                serial_frequency: "<?php echo e($record->serial_frequency ?? 'unknown'); ?>",
-                date_type: "<?php echo e($record->date_type ?? 'bc'); ?>",
-                acquisition_method: "<?php echo e($record->acquisition_method ?? 'untraced'); ?>",
-                document_format: "<?php echo e($record->document_format ?? 'none'); ?>",
-                cataloging_standard: "<?php echo e($record->cataloging_standard ?? 'AACR2'); ?>"
+                framework: "{{ $record->framework ?? ($frameworks->where('id', $frameworkId ?? null)->first()->code ?? 'AVMARC21') }}",
+                status: "{{ $record->status ?? 'pending' }}",
+                subject_category: "{{ $record->subject_category ?? 'Article' }}",
+                record_type: "{{ $record->record_type ?? 'book' }}",
+                serial_frequency: "{{ $record->serial_frequency ?? 'unknown' }}",
+                date_type: "{{ $record->date_type ?? 'bc' }}",
+                acquisition_method: "{{ $record->acquisition_method ?? 'untraced' }}",
+                document_format: "{{ $record->document_format ?? 'none' }}",
+                cataloging_standard: "{{ $record->cataloging_standard ?? 'AACR2' }}"
             },
             get leader() {
                 let s = '00000';
@@ -781,7 +759,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 const pad = (n) => n.toString().padStart(2, '0');
 
                 // 001 - Using record ID or 'NEW'
-                const tag001 = "<?php echo e($record->id ?? 'NEW'); ?>".padStart(4, '0');
+                const tag001 = "{{ $record->id ?? 'NEW' }}".padStart(4, '0');
 
                 // 005 - YYYYMMDDHHMMSS.0
                 const tag005 = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) +
@@ -804,7 +782,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     tag008
                 };
             },
-            coverPreview: "<?php echo e($record->cover_image ? asset('storage/' . $record->cover_image) : ''); ?>",
+            coverPreview: "{{ $record->cover_image ? asset('storage/' . $record->cover_image) : '' }}",
             previewCover(event) {
                 const file = event.target.files[0];
                 if (file) {
@@ -815,9 +793,9 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 this.coverPreview = '';
                 document.getElementById('cover_image_input').value = '';
             },
-            marcFields: <?php echo json_encode($initialFields, 15, 512) ?>,
-            items: <?php echo json_encode($initialItemsData, 15, 512) ?>,
-            branches: <?php echo json_encode($branches, 15, 512) ?>,
+            marcFields: @json($initialFields),
+            items: @json($initialItemsData),
+            branches: @json($branches),
             editingIndex: null,
             newItem: {
                 id: null,
@@ -857,13 +835,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             },
             addItem() {
                 if (!this.newItem.storage_location_id) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Vui lòng chọn vị trí lưu trữ',
-                        text: 'Bạn cần chọn vị trí lưu trữ trước khi thêm bản sách mới.',
-                        confirmButtonColor: '#3b82f6',
-                        confirmButtonText: 'Đã hiểu'
-                    });
+                    alert('Vui lòng chọn vị trí lưu trữ');
                     return;
                 }
                 if (this.editingIndex !== null) {
@@ -891,7 +863,6 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     barcode: '',
                     accession_number: '',
                     storage_type: 'Book',
-                    quantity: 1,
                     status: 'available',
                     order_code: '',
                     waits_for_print: false,
@@ -949,15 +920,12 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             }
         }
     }
+}
 </script>
-
-<!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     [x-cloak] {
         display: none !important;
     }
 </style>
-<?php $__env->stopSection(); ?>
-<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/marc_books/edit.blade.php ENDPATH**/ ?>
+@endsection
