@@ -33,6 +33,9 @@ use App\Http\Controllers\Admin\ActivityLogController;
 
 // Admin Panel Routes (Consolidated for all staff levels)
 Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route('admin.dashboard');
+    });
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
     // Identity and Privilege Management

@@ -51,11 +51,14 @@
                     </div>
 
                     
-                    <div class="tree-subitem group flex items-center opacity-50">
-                        <div class="w-5 h-5 mr-3 border border-slate-300 bg-slate-100 rounded"></div>
-                        <a href="#" class="flex items-center p-2 rounded cursor-not-allowed flex-1">
-                            <i class="fa-solid fa-file-lines mr-2 text-blue-400"></i>
-                            <span class="font-medium"><?php echo e(__('Number of Library Entries')); ?> (Beta)</span>
+                    <div class="tree-subitem group flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer mr-3">
+                            <input type="checkbox" name="reports[]" value="library_entries" class="sr-only peer" checked>
+                            <div class="w-5 h-5 bg-slate-200 peer-focus:outline-none rounded border border-slate-300 peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-all after:content-['✓'] after:hidden peer-checked:after:block after:text-white after:text-[10px] after:text-center after:leading-5"></div>
+                        </label>
+                        <a href="<?php echo e(route('admin.circulation.reports.library_entries')); ?>" class="flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/10 p-2 rounded transition-colors group flex-1">
+                            <i class="fa-solid fa-file-lines mr-2 text-blue-400 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400"><?php echo e(__('Number of Library Entries')); ?></span>
                         </a>
                     </div>
 
@@ -96,11 +99,14 @@
                     </div>
 
                     
-                    <div class="tree-subitem group flex items-center opacity-50">
-                        <div class="w-5 h-5 mr-3 border border-slate-300 bg-slate-100 rounded"></div>
-                        <a href="#" class="flex items-center p-2 rounded cursor-not-allowed flex-1">
-                            <i class="fa-solid fa-file-lines mr-2 text-blue-400"></i>
-                            <span class="font-medium"><?php echo e(__('Website Access Statistics')); ?> (Beta)</span>
+                    <div class="tree-subitem group flex items-center">
+                        <label class="relative inline-flex items-center cursor-pointer mr-3">
+                            <input type="checkbox" name="reports[]" value="website_access" class="sr-only peer" checked>
+                            <div class="w-5 h-5 bg-slate-200 peer-focus:outline-none rounded border border-slate-300 peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-all after:content-['✓'] after:hidden peer-checked:after:block after:text-white after:text-[10px] after:text-center after:leading-5"></div>
+                        </label>
+                        <a href="<?php echo e(route('admin.circulation.reports.website_access')); ?>" class="flex items-center hover:bg-blue-50 dark:hover:bg-blue-900/10 p-2 rounded transition-colors group flex-1">
+                            <i class="fa-solid fa-file-lines mr-2 text-blue-400 group-hover:scale-110 transition-transform"></i>
+                            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400"><?php echo e(__('Website Access Statistics')); ?></span>
                         </a>
                     </div>
 
