@@ -588,17 +588,26 @@ function recallLoanTransaction(barcode, title) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    let message = data.message;
+                    
+                    // Add due date information to success message
+                    if (data.data.is_overdue) {
+                        message += `\n\nTài liệu đã quá hạn. Hạn trả không thay đổi: ${data.data.new_due_date}`;
+                    } else {
+                        message += `\n\nHạn trả đã cập nhật thành ngày triệu hồi: ${data.data.new_due_date}`;
+                    }
+                    
                     Swal.fire({
                         icon: 'success',
                         title: '<?php echo e(__("Thành công")); ?>',
-                        text: data.message,
+                        text: message,
                         confirmButtonColor: '#3b82f6'
                     });
                     
                     // Refresh page after a short delay
                     setTimeout(() => {
                         window.location.reload();
-                    }, 1500);
+                    }, 2000);
                 } else {
                     Swal.fire({
                         icon: 'error',

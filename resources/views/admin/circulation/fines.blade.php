@@ -20,7 +20,7 @@
             <p class="text-sm text-gray-400 mt-1">{{ __('Manage_patron_fines_and_payments') }}</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('admin.circulation.index') }}" class="btn-secondary">
+            <a href="{{ route('admin.circulation.policies.index') }}" class="btn-secondary">
                 {{ __('Policies') }}
             </a>
             <a href="{{ route('admin.circulation.loan-desk') }}" class="btn-secondary">

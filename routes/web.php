@@ -216,9 +216,48 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/circulation/fines/{fine}/pay', [\App\Http\Controllers\Admin\CirculationController::class, 'payFine'])->name('admin.circulation.fines.pay');
     Route::post('/circulation/fines/{fine}/waive', [\App\Http\Controllers\Admin\CirculationController::class, 'waiveFine'])->name('admin.circulation.fines.waive');
     
-    // Book Distribution
-    Route::get('/circulation/distribution', [\App\Http\Controllers\Admin\CirculationController::class, 'distribution'])->name('admin.circulation.distribution');
-    Route::post('/circulation/book-history', [\App\Http\Controllers\Admin\CirculationController::class, 'getBookItemHistory'])->name('admin.circulation.book-history');
+    // Circulation main operations
+    Route::get('/circulation', [\App\Http\Controllers\Admin\CirculationController::class, 'loanDesk'])->name('admin.circulation.loan-desk');
+    Route::post('/circulation/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'checkout'])->name('admin.circulation.checkout');
+    Route::post('/circulation/checkin', [\App\Http\Controllers\Admin\CirculationController::class, 'checkin'])->name('admin.circulation.checkin');
+    Route::post('/circulation/renew/{loan}', [\App\Http\Controllers\Admin\CirculationController::class, 'renew'])->name('admin.circulation.renew');
+    Route::post('/circulation/recall', [\App\Http\Controllers\Admin\CirculationController::class, 'recall'])->name('admin.circulation.recall');
+    Route::post('/circulation/declare-lost', [\App\Http\Controllers\Admin\CirculationController::class, 'declareLost'])->name('admin.circulation.declare-lost');
+
+    // Reading Room Operations
+    Route::post('/circulation/reading-room/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'readingRoomCheckout'])->name('admin.circulation.reading-room.checkout');
+    Route::post('/circulation/reading-room/checkin', [\App\Http\Controllers\Admin\CirculationController::class, 'readingRoomCheckin'])->name('admin.circulation.reading-room.checkin');
+    Route::get('/circulation/reading-room/transactions', [\App\Http\Controllers\Admin\CirculationController::class, 'getReadingRoomTransactions'])->name('admin.circulation.reading-room.transactions');
+    Route::get('/circulation/reading-room/active', [\App\Http\Controllers\Admin\CirculationController::class, 'getActiveReadingRoomTransactions'])->name('admin.circulation.reading-room.active');
+
+    // Hold/Reserve Operations
+    Route::post('/circulation/hold/place', [\App\Http\Controllers\Admin\CirculationController::class, 'placeHold'])->name('admin.circulation.hold.place');
+    Route::post('/circulation/hold/cancel', [\App\Http\Controllers\Admin\CirculationController::class, 'cancelHold'])->name('admin.circulation.hold.cancel');
+    Route::get('/circulation/hold/patron', [\App\Http\Controllers\Admin\CirculationController::class, 'getPatronReservations'])->name('admin.circulation.hold.patron');
+    Route::get('/circulation/hold/all', [\App\Http\Controllers\Admin\CirculationController::class, 'getAllActiveReservations'])->name('admin.circulation.hold.all');
+    Route::post('/circulation/hold/fulfill', [\App\Http\Controllers\Admin\CirculationController::class, 'fulfillReservation'])->name('admin.circulation.hold.fulfill');
+
+    // Circulation Tools
+    Route::get('/circulation/tools', [\App\Http\Controllers\Admin\CirculationController::class, 'tools'])->name('admin.circulation.tools');
+    Route::post('/circulation/patron-history', [\App\Http\Controllers\Admin\CirculationController::class, 'getPatronHistory'])->name('admin.circulation.patron-history');
+    Route::post('/circulation/advanced-search', [\App\Http\Controllers\Admin\CirculationController::class, 'advancedBookSearch'])->name('admin.circulation.advanced-search');
+
+    // Circulation Policies Management - DEDICATED CONTROLLER
+    Route::prefix('circulation/policies')->name('admin.circulation.policies.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'store'])->name('store');
+        Route::get('/{policy}', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'show'])->name('show');
+        Route::get('/{policy}/edit', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'edit'])->name('edit');
+        Route::put('/{policy}', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'update'])->name('update');
+        Route::delete('/{policy}', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'destroy'])->name('destroy');
+        Route::delete('/{policy}/force', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'forceDelete'])->name('force-delete');
+        Route::post('/{policy}/toggle', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'toggleStatus'])->name('toggle');
+        Route::post('/{policy}/duplicate', [\App\Http\Controllers\Admin\CirculationPolicyController::class, 'duplicate'])->name('duplicate');
+    });
+
+    // Circulation Distribution (placeholder for sidebar)
+    Route::get('/circulation/distribution', [\App\Http\Controllers\Admin\CirculationController::class, 'loanDesk'])->name('admin.circulation.distribution');
 
     // Circulation Reports
     Route::prefix('circulation/reports')->name('admin.circulation.reports.')->group(function () {
@@ -230,6 +269,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::get('/top-patrons', [\App\Http\Controllers\Admin\CirculationReportController::class, 'topPatrons'])->name('top_patrons');
         Route::get('/transaction-history', [\App\Http\Controllers\Admin\CirculationReportController::class, 'transactionHistory'])->name('transaction_history');
         Route::get('/never-borrowed', [\App\Http\Controllers\Admin\CirculationReportController::class, 'neverBorrowed'])->name('never_borrowed');
+        Route::get('/library-entries', [\App\Http\Controllers\Admin\CirculationReportController::class, 'libraryEntries'])->name('library_entries');
+        Route::get('/website-access', [\App\Http\Controllers\Admin\CirculationReportController::class, 'websiteAccess'])->name('website_access');
     });
 
     // Metadata Configuration

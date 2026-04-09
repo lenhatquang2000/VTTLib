@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\LoanTransaction;
 use App\Models\BookItem;
 use App\Models\PatronDetail;
+use App\Models\LibraryEntry;
+use App\Models\WebsiteAccess;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -120,5 +122,110 @@ class CirculationReportController extends Controller
             ->paginate(100);
 
         return view('admin.circulation.reports.never-borrowed', compact('items'));
+    }
+
+    /**
+     * Số lượng bạn đọc vào thư viện
+     */
+    public function libraryEntries()
+    {
+        $startDate = request()->get('start_date', Carbon::now()->subDays(30)->format('Y-m-d'));
+        $endDate = request()->get('end_date', Carbon::now()->format('Y-m-d'));
+
+        // Get entries with relationships
+        $entries = LibraryEntry::with(['patron.user', 'branch'])
+            ->forDateRange($startDate, $endDate)
+            ->orderBy('entry_time', 'desc')
+            ->paginate(50);
+
+        // Get statistics
+        $stats = [
+            'total_entries' => LibraryEntry::forDateRange($startDate, $endDate)->count(),
+            'unique_patrons' => LibraryEntry::forDateRange($startDate, $endDate)
+                ->whereNotNull('patron_detail_id')
+                ->distinct('patron_detail_id')
+                ->count(),
+            'average_duration' => LibraryEntry::forDateRange($startDate, $endDate)
+                ->whereNotNull('exit_time')
+                ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, entry_time, exit_time)) as avg_duration')
+                ->value('avg_duration'),
+            'by_purpose' => LibraryEntry::forDateRange($startDate, $endDate)
+                ->selectRaw('purpose, COUNT(*) as count')
+                ->whereNotNull('purpose')
+                ->groupBy('purpose')
+                ->get(),
+            'by_branch' => LibraryEntry::forDateRange($startDate, $endDate)
+                ->selectRaw('branches.name, COUNT(*) as count')
+                ->join('branches', 'library_entries.branch_id', '=', 'branches.id')
+                ->groupBy('branches.id', 'branches.name')
+                ->get(),
+            'daily_stats' => LibraryEntry::forDateRange($startDate, $endDate)
+                ->selectRaw('DATE(entry_time) as date, COUNT(*) as count')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get()
+        ];
+
+        return view('admin.circulation.reports.library-entries', compact('entries', 'stats', 'startDate', 'endDate'));
+    }
+
+    /**
+     * Thống kê lượt truy cập website
+     */
+    public function websiteAccess()
+    {
+        $startDate = request()->get('start_date', Carbon::now()->subDays(30)->format('Y-m-d'));
+        $endDate = request()->get('end_date', Carbon::now()->format('Y-m-d'));
+
+        // Get accesses with relationships
+        $accesses = WebsiteAccess::with('user')
+            ->forDateRange($startDate, $endDate)
+            ->orderBy('access_time', 'desc')
+            ->paginate(100);
+
+        // Get statistics
+        $stats = [
+            'total_visits' => WebsiteAccess::forDateRange($startDate, $endDate)->count(),
+            'unique_sessions' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->distinct('session_id')
+                ->count('session_id'),
+            'unique_visitors' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->distinct('ip_address')
+                ->count('ip_address'),
+            'registered_users' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->whereNotNull('user_id')
+                ->distinct('user_id')
+                ->count('user_id'),
+            'by_device_type' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->selectRaw('device_type, COUNT(*) as count')
+                ->whereNotNull('device_type')
+                ->groupBy('device_type')
+                ->get(),
+            'by_access_type' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->selectRaw('access_type, COUNT(*) as count')
+                ->groupBy('access_type')
+                ->get(),
+            'by_browser' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->selectRaw('browser, COUNT(*) as count')
+                ->whereNotNull('browser')
+                ->groupBy('browser')
+                ->orderByDesc('count')
+                ->limit(10)
+                ->get(),
+            'daily_stats' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->selectRaw('DATE(access_time) as date, COUNT(*) as visits, COUNT(DISTINCT session_id) as sessions')
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get(),
+            'top_pages' => WebsiteAccess::forDateRange($startDate, $endDate)
+                ->selectRaw('page_url, COUNT(*) as count')
+                ->whereNotNull('page_url')
+                ->groupBy('page_url')
+                ->orderByDesc('count')
+                ->limit(10)
+                ->get()
+        ];
+
+        return view('admin.circulation.reports.website-access', compact('accesses', 'stats', 'startDate', 'endDate'));
     }
 }

@@ -22,7 +22,7 @@
             <p class="text-sm text-gray-400 mt-1"><?php echo e(__('Manage_patron_fines_and_payments')); ?></p>
         </div>
         <div class="flex gap-2">
-            <a href="<?php echo e(route('admin.circulation.index')); ?>" class="btn-secondary">
+            <a href="<?php echo e(route('admin.circulation.policies.index')); ?>" class="btn-secondary">
                 <?php echo e(__('Policies')); ?>
 
             </a>

@@ -145,7 +145,7 @@
                 </button>
                 <div x-show="open && sidebarOpen" x-cloak x-collapse class="pl-12 space-y-1">
                     @foreach($assignedChildren as $child)
-                    <a href="{{ (!blank($child->route_name) && $child->route_name !== '#') ? route($child->route_name) : '#' }}"
+                    <a href="{{ (!blank($child->route_name) && $child->route_name !== '#' && Route::has($child->route_name)) ? route($child->route_name) : '#' }}"
                         class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
                         {{ __($child->name) }}
                     </a>
@@ -153,7 +153,7 @@
                 </div>
             </div>
             @else
-            <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#') ? route($tab->route_name) : '#' }}"
+            <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#' && Route::has($tab->route_name)) ? route($tab->route_name) : '#' }}"
                 :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
                 class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
                 <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors" :class="sidebarOpen ? '' : 'w-full'">
