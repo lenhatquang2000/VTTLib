@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\LogActivity::class,
             \App\Http\Middleware\RedirectIfSessionExpired::class,
+            \App\Http\Middleware\TrackWebsiteAccess::class,
         ]);
 
         $middleware->alias([

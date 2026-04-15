@@ -26,6 +26,26 @@ Route::post('/logout', [SecretLoginController::class, 'destroy'])->name('logout'
 // Barcode Generation (Public access for image display)
 Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::class, 'show'])->name('admin.barcode.show');
 
+// Public Website Routes
+Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
+Route::get('/page/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
+Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])->name('site.sitemap');
+Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');
+
+// Public News Routes
+Route::prefix('tin-tuc')->name('news.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\NewsController::class, 'index'])->name('index');
+    Route::get('/{slug}', [\App\Http\Controllers\NewsController::class, 'show'])->name('show');
+    Route::get('/chuyen-muc/{slug}', [\App\Http\Controllers\NewsController::class, 'category'])->name('category');
+    Route::get('/tag/{slug}', [\App\Http\Controllers\NewsController::class, 'tag'])->name('tag');
+    Route::get('/noi-bat', [\App\Http\Controllers\NewsController::class, 'featured'])->name('featured');
+    Route::get('/tim-kiem', [\App\Http\Controllers\NewsController::class, 'search'])->name('search');
+    Route::get('/rss', [\App\Http\Controllers\NewsController::class, 'rss'])->name('rss');
+    Route::get('/sitemap.xml', [\App\Http\Controllers\NewsController::class, 'sitemap'])->name('sitemap');
+    Route::get('/api', [\App\Http\Controllers\NewsController::class, 'api'])->name('api');
+    Route::post('/{news}/like', [\App\Http\Controllers\NewsController::class, 'like'])->name('like');
+});
+
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PatronGroupController;
@@ -37,6 +57,90 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         return redirect()->route('admin.dashboard');
     });
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // Statistics
+    Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('admin.statistics.index');
+
+    // Site Management
+    Route::prefix('site-nodes')->name('admin.site-nodes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SiteNodeController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\SiteNodeController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\SiteNodeController::class, 'store'])->name('store');
+        Route::get('/{siteNode}/edit', [\App\Http\Controllers\Admin\SiteNodeController::class, 'edit'])->name('edit');
+        Route::put('/{siteNode}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'update'])->name('update');
+        Route::delete('/{siteNode}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'destroy'])->name('destroy');
+        Route::post('/{siteNode}/toggle-status', [\App\Http\Controllers\Admin\SiteNodeController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/update-order', [\App\Http\Controllers\Admin\SiteNodeController::class, 'updateOrder'])->name('update-order');
+        
+        // Tree Structure Management Routes
+        Route::get('/tree', [\App\Http\Controllers\Admin\SiteNodeController::class, 'tree'])->name('tree');
+        Route::post('/tree/move', [\App\Http\Controllers\Admin\SiteNodeController::class, 'moveNode'])->name('tree.move');
+        Route::post('/tree/rebuild', [\App\Http\Controllers\Admin\SiteNodeController::class, 'rebuildTree'])->name('tree.rebuild');
+        Route::get('/tree/json', [\App\Http\Controllers\Admin\SiteNodeController::class, 'treeJson'])->name('tree.json');
+        Route::post('/{siteNode}/duplicate', [\App\Http\Controllers\Admin\SiteNodeController::class, 'duplicate'])->name('duplicate');
+        Route::post('/bulk-action', [\App\Http\Controllers\Admin\SiteNodeController::class, 'bulkAction'])->name('bulk-action');
+    });
+
+    // Media Categories Management
+    Route::resource('media-categories', \App\Http\Controllers\Admin\MediaCategoryController::class)->names('admin.media-categories');
+    Route::resource('media-items', \App\Http\Controllers\Admin\MediaItemController::class)->names('admin.media-items');
+
+    // Digital Documents Management
+    Route::resource('digital-categories', \App\Http\Controllers\Admin\DigitalCategoryController::class)->names('admin.digital-categories')->except(['show']);
+    Route::resource('digital-documents', \App\Http\Controllers\Admin\DigitalDocumentController::class)->names('admin.digital-documents')->except(['show']);
+
+    // News Management
+    Route::prefix('news')->name('admin.news.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\NewsController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\NewsController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\NewsController::class, 'store'])->name('store');
+        Route::get('/{news}', [\App\Http\Controllers\Admin\NewsController::class, 'show'])->name('show');
+        Route::get('/{news}/edit', [\App\Http\Controllers\Admin\NewsController::class, 'edit'])->name('edit');
+        Route::put('/{news}', [\App\Http\Controllers\Admin\NewsController::class, 'update'])->name('update');
+        Route::delete('/{news}', [\App\Http\Controllers\Admin\NewsController::class, 'destroy'])->name('destroy');
+        
+        // AJAX Routes
+        Route::post('/{news}/publish', [\App\Http\Controllers\Admin\NewsController::class, 'publish'])->name('publish');
+        Route::post('/{news}/archive', [\App\Http\Controllers\Admin\NewsController::class, 'archive'])->name('archive');
+        Route::post('/{news}/toggle-featured', [\App\Http\Controllers\Admin\NewsController::class, 'toggleFeatured'])->name('toggle-featured');
+        Route::post('/bulk-action', [\App\Http\Controllers\Admin\NewsController::class, 'bulkAction'])->name('bulk-action');
+        Route::get('/statistics', [\App\Http\Controllers\Admin\NewsController::class, 'statistics'])->name('statistics');
+    });
+
+    // News Categories Management
+    Route::prefix('news-categories')->name('admin.news-categories.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'store'])->name('store');
+        Route::get('/{newsCategory}', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'show'])->name('show');
+        Route::get('/{newsCategory}/edit', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'edit'])->name('edit');
+        Route::put('/{newsCategory}', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'update'])->name('update');
+        Route::delete('/{newsCategory}', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'destroy'])->name('destroy');
+        
+        // AJAX Routes
+        Route::post('/{newsCategory}/toggle-status', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/update-order', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'updateOrder'])->name('update-order');
+        Route::get('/json', [\App\Http\Controllers\Admin\NewsCategoryController::class, 'json'])->name('json');
+    });
+
+    // News Tags Management
+    Route::prefix('news-tags')->name('admin.news-tags.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\NewsTagController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\NewsTagController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\NewsTagController::class, 'store'])->name('store');
+        Route::get('/{newsTag}', [\App\Http\Controllers\Admin\NewsTagController::class, 'show'])->name('show');
+        Route::get('/{newsTag}/edit', [\App\Http\Controllers\Admin\NewsTagController::class, 'edit'])->name('edit');
+        Route::put('/{newsTag}', [\App\Http\Controllers\Admin\NewsTagController::class, 'update'])->name('update');
+        Route::delete('/{newsTag}', [\App\Http\Controllers\Admin\NewsTagController::class, 'destroy'])->name('destroy');
+        
+        // AJAX Routes
+        Route::post('/{newsTag}/toggle-status', [\App\Http\Controllers\Admin\NewsTagController::class, 'toggleStatus'])->name('toggle-status');
+        Route::get('/json', [\App\Http\Controllers\Admin\NewsTagController::class, 'json'])->name('json');
+        Route::get('/popular', [\App\Http\Controllers\Admin\NewsTagController::class, 'popular'])->name('popular');
+        Route::post('/merge', [\App\Http\Controllers\Admin\NewsTagController::class, 'merge'])->name('merge');
+        Route::post('/cleanup', [\App\Http\Controllers\Admin\NewsTagController::class, 'cleanup'])->name('cleanup');
+        Route::post('/bulk-action', [\App\Http\Controllers\Admin\NewsTagController::class, 'bulkAction'])->name('bulk-action');
+    });
 
     // Identity and Privilege Management
     Route::group(['prefix' => 'users'], function () {

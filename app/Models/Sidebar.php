@@ -22,4 +22,35 @@ class Sidebar extends Model
     {
         return $this->hasMany(UserRoleSidebar::class, 'sidebar_id');
     }
+
+    /**
+     * Get localized name
+     */
+    public function getLocalizedNameAttribute()
+    {
+        // If name contains a dot, treat as translation key
+        if (strpos($this->name, '.') !== false) {
+            return __($this->name);
+        }
+        
+        // Otherwise, check if there's a translation for this name
+        $translationKey = 'sidebar.' . str_replace([' ', '-'], '_', strtolower($this->name));
+        $translated = __($translationKey);
+        
+        // If translation exists and is different from key, return it
+        if ($translated !== $translationKey) {
+            return $translated;
+        }
+        
+        // Return original name as fallback
+        return $this->name;
+    }
+
+    /**
+     * Get display name with localization
+     */
+    public function getDisplayNameAttribute()
+    {
+        return $this->getLocalizedNameAttribute();
+    }
 }

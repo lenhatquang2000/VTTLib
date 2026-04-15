@@ -20,7 +20,23 @@
     <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        // Configure Tailwind with custom config
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Instrument Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                },
+            },
+            plugins: [],
+        }
+    </script>
+    <style>
+        @import url('https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700');
+    </style>
     <style>
         [x-cloak] {
             display: none !important;
@@ -53,6 +69,191 @@
             height: calc(100vh - 4rem) !important; /* Subtract header height */
             max-height: calc(100vh - 4rem) !important;
         }
+
+        /* Admin Component Classes */
+        .card-admin {
+            @apply bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800;
+        }
+
+        .btn-primary {
+            @apply inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900;
+        }
+
+        .btn-secondary {
+            @apply inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 dark:focus:ring-offset-slate-900;
+        }
+
+        .btn-danger {
+            @apply inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-slate-900;
+        }
+
+        .input-field {
+            @apply w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 transition-colors duration-200;
+        }
+
+        .text-blue-400 {
+            @apply text-blue-500 dark:text-blue-400;
+        }
+
+        .text-green-400 {
+            @apply text-green-500 dark:text-green-400;
+        }
+
+        .text-gray-400 {
+            @apply text-slate-500 dark:text-slate-400;
+        }
+
+        .text-red-400 {
+            @apply text-red-500 dark:text-red-400;
+        }
+
+        .text-yellow-400 {
+            @apply text-yellow-500 dark:text-yellow-400;
+        }
+
+        .text-purple-400 {
+            @apply text-purple-500 dark:text-purple-400;
+        }
+
+        .bg-blue-400 {
+            @apply bg-blue-500 dark:bg-blue-400;
+        }
+
+        .bg-green-400 {
+            @apply bg-green-500 dark:bg-green-400;
+        }
+
+        .bg-gray-400 {
+            @apply bg-slate-500 dark:bg-slate-400;
+        }
+
+        .bg-red-400 {
+            @apply bg-red-500 dark:bg-red-400;
+        }
+
+        .bg-yellow-400 {
+            @apply bg-yellow-500 dark:bg-yellow-400;
+        }
+
+        .bg-purple-400 {
+            @apply bg-purple-500 dark:bg-purple-400;
+        }
+
+        .bg-blue-900\/30 {
+            @apply bg-blue-900 dark:bg-blue-900/30;
+        }
+
+        .bg-green-900\/30 {
+            @apply bg-green-900 dark:bg-green-900/30;
+        }
+
+        .bg-gray-900\/30 {
+            @apply bg-slate-900 dark:bg-slate-900/30;
+        }
+
+        .bg-red-900\/30 {
+            @apply bg-red-900 dark:bg-red-900/30;
+        }
+
+        .bg-yellow-900\/30 {
+            @apply bg-yellow-900 dark:bg-yellow-900/30;
+        }
+
+        .bg-purple-900\/30 {
+            @apply bg-purple-900 dark:bg-purple-900/30;
+        }
+
+        .border-gray-700 {
+            @apply border-slate-700 dark:border-slate-700;
+        }
+
+        .border-gray-800 {
+            @apply border-slate-800 dark:border-slate-800;
+        }
+
+        .hover\:bg-gray-800\/50:hover {
+            @apply hover:bg-slate-800/50 dark:hover:bg-slate-800/50;
+        }
+
+        .bg-gray-900\/50 {
+            @apply bg-slate-900/50 dark:bg-slate-900/50;
+        }
+
+        /* Dark mode select dropdown styling - Stronger rules */
+        select, .input-field {
+            background-color: white !important;
+            color: #1e293b !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+        
+        .dark select, .dark .input-field {
+            background-color: #0f172a !important;
+            color: #f1f5f9 !important;
+            border: 1px solid #475569 !important;
+        }
+        
+        /* Custom dropdown arrow */
+        select {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+            background-position: right 0.5rem center !important;
+            background-repeat: no-repeat !important;
+            background-size: 1.5em 1.5em !important;
+            padding-right: 2.5rem !important;
+        }
+        
+        .dark select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%9ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+        }
+        
+        /* Options styling */
+        select option {
+            background-color: white !important;
+            color: #1e293b !important;
+            padding: 0.5rem !important;
+        }
+        
+        .dark select option {
+            background-color: #0f172a !important;
+            color: #f1f5f9 !important;
+        }
+        
+        /* Add proper padding and border-radius */
+        select, .input-field {
+            padding: 0.5rem 0.75rem !important;
+            border-radius: 0.5rem !important;
+            font-size: 0.875rem !important;
+            line-height: 1.25rem !important;
+            width: 100% !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        select {
+            padding-right: 2.5rem !important;
+        }
+        
+        /* Focus states */
+        select:focus, .input-field:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 2px #3b82f6 !important;
+            border-color: #3b82f6 !important;
+        }
+        
+        .dark select:focus, .dark .input-field:focus {
+            box-shadow: 0 0 0 2px #60a5fa !important;
+            border-color: #60a5fa !important;
+        }
+        
+        /* Hover states */
+        select:hover, .input-field:hover {
+            border-color: #94a3b8 !important;
+        }
+        
+        .dark select:hover, .dark .input-field:hover {
+            border-color: #64748b !important;
+        }
     </style>
 
     <script>
@@ -61,11 +262,6 @@
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
-        }
-
-        // Configure Tailwind dark mode
-        tailwind.config = {
-            darkMode: 'class',
         }
     </script>
     @stack('styles')
@@ -136,7 +332,7 @@
                     <div class="flex items-center">
                         <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
                         <span x-show="sidebarOpen" x-cloak
-                            class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
+                            class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ $tab->display_name }}</span>
                     </div>
                     <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
                         :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -147,7 +343,7 @@
                     @foreach($assignedChildren as $child)
                     <a href="{{ (!blank($child->route_name) && $child->route_name !== '#' && Route::has($child->route_name)) ? route($child->route_name) : '#' }}"
                         class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
-                        {{ __($child->name) }}
+                        {{ $child->display_name }}
                     </a>
                     @endforeach
                 </div>
@@ -160,7 +356,7 @@
                     {!! $tab->icon !!}
                 </div>
                 <span x-show="sidebarOpen" x-cloak
-                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ __($tab->name) }}</span>
+                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ $tab->display_name }}</span>
             </a>
             @endif
             @endforeach
