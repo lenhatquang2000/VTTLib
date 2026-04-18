@@ -67,6 +67,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::get('/create', [\App\Http\Controllers\Admin\SiteNodeController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Admin\SiteNodeController::class, 'store'])->name('store');
         Route::get('/{siteNode}/edit', [\App\Http\Controllers\Admin\SiteNodeController::class, 'edit'])->name('edit');
+        Route::get('/{siteNode}', function (\App\Models\SiteNode $siteNode) {
+            return redirect()->route('admin.site-nodes.edit', $siteNode);
+        })->name('show');
         Route::put('/{siteNode}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'update'])->name('update');
         Route::delete('/{siteNode}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'destroy'])->name('destroy');
         Route::post('/{siteNode}/toggle-status', [\App\Http\Controllers\Admin\SiteNodeController::class, 'toggleStatus'])->name('toggle-status');
@@ -79,6 +82,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::get('/tree/json', [\App\Http\Controllers\Admin\SiteNodeController::class, 'treeJson'])->name('tree.json');
         Route::post('/{siteNode}/duplicate', [\App\Http\Controllers\Admin\SiteNodeController::class, 'duplicate'])->name('duplicate');
         Route::post('/bulk-action', [\App\Http\Controllers\Admin\SiteNodeController::class, 'bulkAction'])->name('bulk-action');
+        
+        // Page Builder Routes
+        Route::get('/{siteNode}/page-builder', [\App\Http\Controllers\Admin\PageBuilderController::class, 'edit'])->name('page-builder');
+        Route::put('/{siteNode}/page-builder', [\App\Http\Controllers\Admin\PageBuilderController::class, 'update'])->name('page-builder.update');
     });
 
     // Media Categories Management

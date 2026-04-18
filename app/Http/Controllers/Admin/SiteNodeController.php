@@ -49,6 +49,7 @@ class SiteNodeController extends Controller
             'menu' => 'Primary Menu',
             'sidebar' => 'Sidebar',
             'footer' => 'Footer',
+            'page' => 'Content Page',
             'hidden' => 'Hidden'
         ]);
 
@@ -76,14 +77,14 @@ class SiteNodeController extends Controller
             'parent_id' => 'nullable|exists:site_nodes,id',
             'icon' => 'nullable|string|max:100',
             'masterpage' => 'nullable|string|max:100',
-            'display_type' => 'required|in:menu,sidebar,footer,hidden',
+            'display_type' => 'required|in:menu,sidebar,footer,hidden,page',
             'target' => 'required|in:_self,_blank',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|string|in:on,off,1,0,yes,no',
             'access_type' => 'required|in:public,auth,roles',
             'allowed_roles' => 'nullable|array',
             'allowed_roles.*' => 'string',
-            'allow_guest' => 'boolean',
-            'content' => 'nullable|string',
+            'allow_guest' => 'nullable|string|in:on,off,1,0,yes,no',
+            'items_data' => 'nullable|string',
             'route_name' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:255',
             'sort_order' => 'integer|min:0',
@@ -113,6 +114,20 @@ class SiteNodeController extends Controller
         DB::beginTransaction();
         try {
             $node = SiteNode::create($validated);
+
+            // Handle items_data for page nodes
+            if ($node->display_type === 'page' && !empty($validated['items_data'])) {
+                $itemsData = json_decode($validated['items_data'], true);
+                if (is_array($itemsData)) {
+                    foreach ($itemsData as $itemData) {
+                        $node->items()->create([
+                            'item_type' => $itemData['item_type'],
+                            'item_data' => $itemData['item_data'],
+                            'sort_order' => $itemData['sort_order']
+                        ]);
+                    }
+                }
+            }
 
             // Log activity
             activity_log('site_node_created', $node, [
@@ -151,6 +166,7 @@ class SiteNodeController extends Controller
             'menu' => 'Menu chính',
             'sidebar' => 'Sidebar', 
             'footer' => 'Footer',
+            'page' => 'Trang nội dung',
             'hidden' => 'Ẩn'
         ];
 
@@ -178,14 +194,14 @@ class SiteNodeController extends Controller
             'parent_id' => 'nullable|exists:site_nodes,id',
             'icon' => 'nullable|string|max:100',
             'masterpage' => 'nullable|string|max:100',
-            'display_type' => 'required|in:menu,sidebar,footer,hidden',
+            'display_type' => 'required|in:menu,sidebar,footer,hidden,page',
             'target' => 'required|in:_self,_blank',
-            'is_active' => 'boolean',
+            'is_active' => 'nullable|string|in:on,off,1,0,yes,no',
             'access_type' => 'required|in:public,auth,roles',
             'allowed_roles' => 'nullable|array',
             'allowed_roles.*' => 'string',
-            'allow_guest' => 'boolean',
-            'content' => 'nullable|string',
+            'allow_guest' => 'nullable|string|in:on,off,1,0,yes,no',
+            'items_data' => 'nullable|string',
             'route_name' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:255',
             'sort_order' => 'integer|min:0',
@@ -194,6 +210,10 @@ class SiteNodeController extends Controller
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string|max:255'
         ]);
+
+        // Convert checkbox values to boolean
+        $validated['is_active'] = in_array($validated['is_active'] ?? null, ['on', '1', 'yes'], true);
+        $validated['allow_guest'] = in_array($validated['allow_guest'] ?? null, ['on', '1', 'yes'], true);
 
         // Prevent self-parenting
         if ($validated['parent_id'] == $siteNode->id) {
@@ -210,6 +230,47 @@ class SiteNodeController extends Controller
         DB::beginTransaction();
         try {
             $siteNode->update($validated);
+
+            // Handle items_data for page nodes
+            if ($siteNode->display_type === 'page' && !empty($validated['items_data'])) {
+                $itemsData = json_decode($validated['items_data'], true);
+                if (is_array($itemsData)) {
+                    // Get existing items
+                    $existingItemIds = $siteNode->items()->pluck('id')->toArray();
+                    $updateItemIds = [];
+
+                    foreach ($itemsData as $itemData) {
+                        if (!empty($itemData['id'])) {
+                            // Update existing item
+                            $item = $siteNode->items()->find($itemData['id']);
+                            if ($item) {
+                                $item->update([
+                                    'item_type' => $itemData['item_type'],
+                                    'item_data' => $itemData['item_data'],
+                                    'sort_order' => $itemData['sort_order']
+                                ]);
+                                $updateItemIds[] = $item->id;
+                            }
+                        } else {
+                            // Create new item
+                            $siteNode->items()->create([
+                                'item_type' => $itemData['item_type'],
+                                'item_data' => $itemData['item_data'],
+                                'sort_order' => $itemData['sort_order']
+                            ]);
+                        }
+                    }
+
+                    // Delete items that are no longer in the list
+                    $itemsToDelete = array_diff($existingItemIds, $updateItemIds);
+                    if (!empty($itemsToDelete)) {
+                        $siteNode->items()->whereIn('id', $itemsToDelete)->delete();
+                    }
+                }
+            } elseif ($siteNode->display_type === 'page') {
+                // If no items_data provided, delete all items for this node
+                $siteNode->items()->delete();
+            }
 
             // Log activity
             activity_log('site_node_updated', $siteNode, [
@@ -325,7 +386,7 @@ class SiteNodeController extends Controller
                     $element['children'] = $children;
                 }
                 // Add has_content flag
-                $element['has_content'] = !empty($element['content']);
+                $element['has_content'] = !empty($element['route_name']) || !empty($element['url']) || ($element['display_type'] === 'page');
                 $branch[] = $element;
             }
         }

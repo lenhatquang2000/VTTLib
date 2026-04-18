@@ -7,6 +7,11 @@
             <p class="text-sm text-gray-400 mt-1"><?php echo e(__('Cập nhật thông tin trang: ')); ?><?php echo e($siteNode->display_name); ?></p>
         </div>
         <div class="flex gap-2">
+            <a href="<?php echo e(route('admin.site-nodes.page-builder', $siteNode)); ?>" class="btn-primary">
+                <i class="fas fa-layer-group mr-2"></i><?php echo e(__('Page Builder')); ?>
+
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
             <a href="<?php echo e(route('admin.site-nodes.index', ['language' => $siteNode->language])); ?>" class="btn-secondary">
                 <i class="fas fa-arrow-left mr-2"></i><?php echo e(__('Quay lại')); ?>
 
@@ -16,7 +21,7 @@
 
     <!-- Form -->
     <div class="card-admin p-6">
-        <form action="<?php echo e(route('admin.site-nodes.update', $siteNode)); ?>" method="POST">
+        <form id="siteNodeForm" action="<?php echo e(route('admin.site-nodes.update', $siteNode)); ?>" method="POST">
             <?php echo csrf_field(); ?>
             <?php echo method_field('PUT'); ?>
             
@@ -220,15 +225,7 @@
                                        value="<?php echo e(old('url', $siteNode->url)); ?>">
                             </div>
                             
-                            <div id="content_options" <?php echo e(old('route_name', $siteNode->route_name) || old('url', $siteNode->url) ? 'style="opacity: 0.5;"' : ''); ?>>
-                                <label class="block text-sm font-medium mb-1">Nội dung trang</label>
-                                <textarea name="content" id="content" rows="8"
-                                          class="input-field w-full"
-                                          <?php echo e(old('route_name', $siteNode->route_name) || old('url', $siteNode->url) ? 'disabled' : ''); ?>
-
-                                          placeholder="Nội dung HTML của trang"><?php echo e(old('content', $siteNode->content)); ?></textarea>
-                                <p class="text-xs text-gray-400 mt-1">Hỗ trợ HTML. Để trống nếu dùng route hoặc URL.</p>
-                            </div>
+                            <?php echo $__env->make('admin.site-nodes.partials.content-options', ['siteNode' => $siteNode], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                         </div>
                     </div>
                     
@@ -264,22 +261,269 @@
                 </div>
             </div>
             
-            <!-- Submit Buttons -->
-            <div class="flex justify-end gap-2 mt-6 pt-6 border-t border-gray-700">
-                <a href="<?php echo e(route('admin.site-nodes.index', ['language' => $siteNode->language])); ?>" 
-                   class="btn-secondary">
-                    Hủy
-                </a>
-                <button type="submit" class="btn-primary">
-                    <i class="fas fa-save mr-2"></i>Cập nhật Node
-                </button>
-            </div>
-        </form>
+            <!-- Action Buttons -->
+    <div class="flex justify-end items-center gap-4 mt-8 pt-6 border-t border-gray-700">
+        <a href="<?php echo e(route('admin.site-nodes.index', ['language' => $siteNode->language])); ?>" 
+           class="px-6 py-2.5 rounded-xl border border-gray-600 text-gray-400 font-semibold hover:bg-gray-700 hover:text-white transition-all duration-200 flex items-center">
+            <i class="fas fa-times mr-2 text-sm opacity-70"></i>Hủy bỏ
+        </a>
+        <button type="submit" 
+                class="px-10 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-lg shadow-blue-900/40 hover:from-blue-500 hover:to-indigo-500 transform hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center">
+            <i class="fas fa-save mr-2 text-sm"></i>Cập nhật Node
+        </button>
+    </div>
+</form>
     </div>
 </div>
 
 <?php $__env->startPush('scripts'); ?>
 <script>
+// Simple Drag & Drop variables
+let draggedItemType = null;
+let draggedItemId = null;
+
+// Drag & Drop functions
+function handleDragStart(event) {
+    draggedItemType = event.target.closest('.available-item').dataset.itemType;
+    draggedItemId = null;
+    event.dataTransfer.effectAllowed = 'copy';
+}
+
+function handleItemDragStart(event) {
+    draggedItemId = event.target.closest('.canvas-item').dataset.itemId;
+    draggedItemType = null;
+    event.dataTransfer.effectAllowed = 'move';
+}
+
+function handleDragOver(event) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = draggedItemId ? 'move' : 'copy';
+}
+
+function handleItemDragOver(event) {
+    event.preventDefault();
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    
+    const canvas = document.getElementById('items-canvas');
+    
+    if (draggedItemType) {
+        // Add new item
+        addItemToCanvas(draggedItemType);
+    } else if (draggedItemId) {
+        // Reorder existing item
+        const draggedElement = document.querySelector(`[data-item-id="${draggedItemId}"]`);
+        if (draggedElement && event.target.closest('.canvas-item') !== draggedElement) {
+            // Simple reorder - just append to end for now
+            canvas.appendChild(draggedElement);
+        }
+    }
+    
+    updateItemsOrder();
+}
+
+function handleItemDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const targetItem = event.target.closest('.canvas-item');
+    const draggedElement = document.querySelector(`[data-item-id="${draggedItemId}"]`);
+    
+    if (targetItem && draggedElement && targetItem !== draggedElement) {
+        const canvas = document.getElementById('items-canvas');
+        const allItems = [...canvas.querySelectorAll('.canvas-item')];
+        const targetIndex = allItems.indexOf(targetItem);
+        const draggedIndex = allItems.indexOf(draggedElement);
+        
+        if (draggedIndex < targetIndex) {
+            targetItem.parentNode.insertBefore(draggedElement, targetItem.nextSibling);
+        } else {
+            targetItem.parentNode.insertBefore(draggedElement, targetItem);
+        }
+        
+        updateItemsOrder();
+    }
+}
+
+function addItemToCanvas(itemType) {
+    const canvas = document.getElementById('items-canvas');
+    const emptyState = canvas.querySelector('.text-center');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    const itemTypes = <?php echo json_encode(App\Models\SiteNodeItem::getAvailableTypes(), 15, 512) ?>;
+    const itemId = 'new_' + Date.now();
+    const defaultData = getDefaultItemData(itemType);
+    const previewText = getItemPreviewText(itemType, defaultData);
+    
+    const itemElement = document.createElement('div');
+    itemElement.className = 'canvas-item mb-4 p-4 bg-white border border-gray-200 rounded-lg';
+    itemElement.dataset.itemId = itemId;
+    itemElement.dataset.itemType = itemType;
+    itemElement.dataset.itemData = JSON.stringify(defaultData);
+    itemElement.draggable = true;
+    itemElement.setAttribute('ondragstart', 'handleItemDragStart(event)');
+    itemElement.setAttribute('ondragover', 'handleItemDragOver(event)');
+    itemElement.setAttribute('ondrop', 'handleItemDrop(event)');
+    
+    itemElement.innerHTML = `
+        <div class="flex items-start justify-between">
+            <div class="flex items-center">
+                <i class="fas fa-grip-vertical text-gray-400 mr-3 cursor-move"></i>
+                <div>
+                    <div class="font-medium text-sm">${itemTypes[itemType] || itemType}</div>
+                    <div class="text-xs text-gray-500 mt-1">${previewText}</div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button type="button" onclick="editItem('${itemId}')" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" onclick="deleteItem('${itemId}')" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `;
+    
+    canvas.appendChild(itemElement);
+}
+
+function getDefaultItemData(itemType) {
+    const defaults = {
+        hero: { title: 'Tiêu đề Hero', subtitle: 'Subtitle Hero', button_text: 'Xem thêm', button_url: '#' },
+        features: { title: 'Tính năng nổi bật', features: [] },
+        text: { content: 'Nội dung văn bản của bạn...' },
+        image: { url: 'https://via.placeholder.com/600x400', alt: 'Image' },
+        button: { text: 'Nút bấm', url: '#', style: 'primary' },
+        gallery: { images: [] },
+        testimonial: { content: 'Nội dung testimonial', author: 'Tên tác giả', role: 'Vai trò' },
+        contact: { email: 'contact@example.com', phone: '0123456789' },
+        divider: { style: 'solid' }
+    };
+    
+    return defaults[itemType] || {};
+}
+
+function getItemPreviewText(itemType, data) {
+    switch(itemType) {
+        case 'hero':
+            return `Hero: ${data.title || 'No title'}`;
+        case 'text':
+            return `Text: ${(data.content || 'No content').substring(0, 50)}...`;
+        case 'image':
+            return `Image: ${data.url || 'No URL'}`;
+        case 'button':
+            return `Button: ${data.text || 'No text'}`;
+        default:
+            return `${itemType} item`;
+    }
+}
+
+function editItem(itemId) {
+    // Simple prompt for now - can be enhanced with modal
+    const itemType = getItemTypeById(itemId);
+    const currentData = getItemDataById(itemId) || getDefaultItemData(itemType);
+    
+    let newValue = prompt('Edit item content (JSON format):', JSON.stringify(currentData, null, 2));
+    if (newValue) {
+        try {
+            const newData = JSON.parse(newValue);
+            updateItemData(itemId, newData);
+        } catch (e) {
+            alert('Invalid JSON format');
+        }
+    }
+}
+
+function deleteItem(itemId) {
+    if (confirm('Bạn có chắc muốn xóa item này?')) {
+        const item = document.querySelector(`[data-item-id="${itemId}"]`);
+        if (item) {
+            item.remove();
+            checkEmptyCanvas();
+            updateItemsOrder();
+        }
+    }
+}
+
+function clearAllItems() {
+    if (confirm('Bạn có chắc muốn xóa tất cả các item?')) {
+        const canvas = document.getElementById('items-canvas');
+        canvas.innerHTML = `
+            <div class="text-center py-12 text-gray-400">
+                <i class="fas fa-layer-group text-4xl mb-3"></i>
+                <p>Kéo các block từ bên trái vào đây để bắt đầu</p>
+            </div>
+        `;
+        updateItemsOrder();
+    }
+}
+
+function checkEmptyCanvas() {
+    const canvas = document.getElementById('items-canvas');
+    const items = canvas.querySelectorAll('.canvas-item');
+    if (items.length === 0) {
+        canvas.innerHTML = `
+            <div class="text-center py-12 text-gray-400">
+                <i class="fas fa-layer-group text-4xl mb-3"></i>
+                <p>Kéo các block từ bên trái vào đây để bắt đầu</p>
+            </div>
+        `;
+    }
+}
+
+function updateItemsOrder() {
+    const canvas = document.getElementById('items-canvas');
+    const items = canvas.querySelectorAll('.canvas-item');
+    const itemsData = [];
+    
+    items.forEach((item, index) => {
+        const itemId = item.dataset.itemId;
+        const itemType = getItemTypeById(itemId);
+        const itemData = getItemDataById(itemId) || getDefaultItemData(itemType);
+        
+        itemsData.push({
+            id: itemId.startsWith('new_') ? null : itemId,
+            item_type: itemType,
+            item_data: itemData,
+            sort_order: index
+        });
+    });
+    
+    document.getElementById('items_data').value = JSON.stringify(itemsData);
+}
+
+function getItemTypeById(itemId) {
+    const item = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (item) {
+        return item.dataset.itemType || 'text';
+    }
+    return 'text';
+}
+
+function getItemDataById(itemId) {
+    const item = document.querySelector(`[data-item-id="${itemId}"]`);
+    if (item && item.dataset.itemData) {
+        try {
+            return JSON.parse(item.dataset.itemData);
+        } catch (e) {
+            return null;
+        }
+    }
+    return null;
+}
+
+function updateItemData(itemId, newData) {
+    // This would need to be implemented to update the item data
+    // and refresh the preview
+    console.log('Update item:', itemId, newData);
+}
+
+// Original functions
 function toggleAccessOptions() {
     const accessType = document.getElementById('access_type').value;
     const roleOptions = document.getElementById('role_options');
@@ -299,10 +543,10 @@ function toggleContentOptions() {
     
     if (routeName || url) {
         contentOptions.style.opacity = '0.5';
-        contentTextarea.disabled = true;
+        if (contentTextarea) contentTextarea.disabled = true;
     } else {
         contentOptions.style.opacity = '1';
-        contentTextarea.disabled = false;
+        if (contentTextarea) contentTextarea.disabled = false;
     }
 }
 
@@ -310,6 +554,18 @@ function toggleContentOptions() {
 document.addEventListener('DOMContentLoaded', function() {
     toggleAccessOptions();
     toggleContentOptions();
+    updateItemsOrder();
+    
+    // Update items_data before form submit
+    const form = document.getElementById('siteNodeForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            updateItemsOrder();
+            const itemsDataValue = document.getElementById('items_data').value;
+            console.log('Form submit - items_data:', itemsDataValue);
+            alert('items_data: ' + itemsDataValue.substring(0, 200) + '...');
+        });
+    }
 });
 </script>
 <?php $__env->stopPush(); ?>

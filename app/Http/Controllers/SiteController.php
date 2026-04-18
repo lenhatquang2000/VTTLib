@@ -16,6 +16,17 @@ class SiteController extends Controller
         $menuItems = SiteNode::getMenuItems('menu');
         $footerItems = SiteNode::getMenuItems('footer');
         
+        $nodeView = 'site.pages.home';
+        if (view()->exists($nodeView)) {
+            return view($nodeView, [
+                'node' => $homeNode,
+                'homeNode' => $homeNode,
+                'menuItems' => $menuItems,
+                'footerItems' => $footerItems,
+                'breadcrumb' => []
+            ]);
+        }
+        
         return view('site.home', compact('homeNode', 'menuItems', 'footerItems'));
     }
 
@@ -51,7 +62,31 @@ class SiteController extends Controller
         $menuItems = SiteNode::getMenuItems('menu');
         $footerItems = SiteNode::getMenuItems('footer');
         $breadcrumb = $node->getBreadcrumb();
+        $previewTemplate = request()->query('preview_template');
+
+        // Priority 1: Check preview template (from query string)
+        if ($previewTemplate) {
+            $previewView = 'site.pages.' . $previewTemplate;
+            if (view()->exists($previewView)) {
+                return view($previewView, compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
+            }
+        }
+
+        // Priority 2: Check masterpage (template selection)
+        if ($node->masterpage) {
+            $templateView = 'site.pages.' . $node->masterpage;
+            if (view()->exists($templateView)) {
+                return view($templateView, compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
+            }
+        }
+
+        // Priority 2: Check node_code (auto template)
+        $nodeView = 'site.pages.' . $node->node_code;
+        if (view()->exists($nodeView)) {
+            return view($nodeView, compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
+        }
         
+        // Priority 3: Fallback default
         return view('site.page', compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
     }
 

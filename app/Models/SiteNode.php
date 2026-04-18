@@ -22,6 +22,9 @@ class SiteNode extends Model
         'allowed_roles',
         'allow_guest',
         'content',
+        'content_html',
+        'content_css',
+        'content_json',
         'route_name',
         'url',
         'sort_order',
@@ -34,6 +37,9 @@ class SiteNode extends Model
     protected $casts = [
         'allowed_roles' => 'array',
         'content' => 'string',
+        'content_html' => 'string',
+        'content_css' => 'string',
+        'content_json' => 'string',
         'is_active' => 'boolean',
         'allow_guest' => 'boolean',
         'sort_order' => 'integer'
@@ -57,6 +63,17 @@ class SiteNode extends Model
     public function activeChildren()
     {
         return $this->children()->where('is_active', true);
+    }
+
+    public function items()
+    {
+        return $this->hasMany(SiteNodeItem::class)
+            ->orderBy('sort_order');
+    }
+
+    public function activeItems()
+    {
+        return $this->items()->where('is_active', true);
     }
 
     /**
