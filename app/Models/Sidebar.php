@@ -34,7 +34,7 @@ class Sidebar extends Model
         }
         
         // Otherwise, check if there's a translation for this name
-        $translationKey = 'sidebar.' . str_replace([' ', '-'], '_', strtolower($this->name));
+        $translationKey = 'sidebar.' . str_replace([' ', '-'], '_', mb_strtolower($this->name, 'UTF-8'));
         $translated = __($translationKey);
         
         // If translation exists and is different from key, return it

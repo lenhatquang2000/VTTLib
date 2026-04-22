@@ -81,6 +81,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::post('/tree/rebuild', [\App\Http\Controllers\Admin\SiteNodeController::class, 'rebuildTree'])->name('tree.rebuild');
         Route::get('/tree/json', [\App\Http\Controllers\Admin\SiteNodeController::class, 'treeJson'])->name('tree.json');
         Route::post('/{siteNode}/duplicate', [\App\Http\Controllers\Admin\SiteNodeController::class, 'duplicate'])->name('duplicate');
+        Route::post('/layout-settings', [\App\Http\Controllers\Admin\SiteNodeController::class, 'updateLayoutSettings'])->name('layout-settings');
         Route::post('/bulk-action', [\App\Http\Controllers\Admin\SiteNodeController::class, 'bulkAction'])->name('bulk-action');
         
         // Page Builder Routes

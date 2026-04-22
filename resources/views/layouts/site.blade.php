@@ -121,8 +121,13 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-2">
-                        <i class="fas fa-book-open text-blue-600 text-2xl"></i>
-                        <span class="font-bold text-xl text-gray-800">Thư viện số</span>
+                        @php $siteLogo = \App\Models\SystemSetting::get('site_logo'); @endphp
+                        @if($siteLogo)
+                            <img src="{{ asset('storage/' . $siteLogo) }}" alt="Logo" class="h-8 w-8 object-contain">
+                        @else
+                            <i class="fas fa-book-open text-blue-600 text-2xl"></i>
+                        @endif
+                        <span class="font-bold text-xl text-gray-800">{{ \App\Models\SystemSetting::get('site_name', 'Thư viện số') }}</span>
                     </a>
                 </div>
 

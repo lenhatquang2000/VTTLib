@@ -1195,5 +1195,60 @@
     "Trang giới thiệu (About)": "Trang giới thiệu (Giới thiệu)",
     "Trang liên hệ (Contact)": "Trang liên hệ (Liên hệ)",
     "Trang dịch vụ (Services)": "Trang dịch vụ (Dịch vụ)",
-    "Trang toàn màn hình (Full width)": "Trang toàn màn hình (Rộng tối đa)"
+    "Trang toàn màn hình (Full width)": "Trang toàn màn hình (Rộng tối đa)",
+
+    "sidebar.dashboard": "Bảng điều khiển",
+    "sidebar.loans": "Mượn trả",
+    "sidebar.cataloging": "Biên mục",
+    "sidebar.content_management": "Quản lý nội dung",
+    "sidebar.user_management": "Quản lý người dùng",
+    "sidebar.patron_management": "Quản lý bạn đọc",
+    "sidebar.system_management": "Quản lý hệ thống",
+    "sidebar.circulation": "Lưu thông",
+
+    "sidebar.marc_framework": "Khung MARC",
+    "sidebar.books": "Sách",
+    "sidebar.document_types": "Loại tài liệu",
+    "sidebar.z39.50_servers": "Máy chủ Z39.50",
+    "sidebar.marc_import": "Nhập MARC",
+    "sidebar.marc_export": "Xuất MARC",
+    "sidebar.marc_reports": "Báo cáo MARC",
+
+    "sidebar.patron_list": "Danh sách bạn đọc",
+    "sidebar.add_new_patron": "Thêm bạn đọc mới",
+    "sidebar.danh_sách_chờ_in_thẻ": "Danh sách chờ in thẻ",
+    "sidebar.lược_sử_khóa_độc_giả": "Lược sử khóa độc giả",
+    "sidebar.nhật_ký_hệ_thống_độc_giả": "Nhật ký hệ thống độc giả",
+    "sidebar.patron_categories": "Nhóm bạn đọc",
+
+    "sidebar.system_settings": "Thiết lập hệ thống",
+    "sidebar.sidebar_management": "Quản lý Sidebar",
+    "sidebar.system_logs": "Nhật ký hệ thống",
+
+    "sidebar.quản_lý_mượn_trả": "Quản lý mượn trả",
+    "sidebar.loan_desk": "Bàn mượn trả",
+    "sidebar.fines": "Phí phạt",
+    "sidebar.reports": "Báo cáo",
+    "sidebar.thông_tin_phân_phối": "Thông tin phân phối",
+    "sidebar.chính_sách_lưu_thông": "Chính sách lưu thông",
+
+    "sidebar.users_list": "Danh sách người dùng",
+    "sidebar.user_privilege_management": "Quản lý quyền hạn",
+    "sidebar.role_management": "Quản lý vai trò",
+
+    "sidebar.site_management": "Quản lý trang web",
+    "sidebar.site_structure": "Cấu trúc trang",
+    "sidebar.add_node": "Thêm Node",
+    "sidebar.news_management": "Quản lý tin tức",
+    "sidebar.all_news": "Tất cả tin tức",
+    "sidebar.create_news": "Tạo tin tức",
+    "sidebar.categories": "Danh mục",
+    "sidebar.tags": "Thẻ tag",
+
+    "Layout Settings": "Cài đặt giao diện",
+    "Configure website logo and banner name": "Cấu hình logo và tên banner trang web",
+    "Banner Name": "Tên Banner",
+    "Logo": "Logo",
+    "Save Settings": "Lưu cài đặt",
+    "Layout settings updated successfully.": "Cập nhật cài đặt giao diện thành công."
 }

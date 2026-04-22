@@ -644,4 +644,34 @@ class SiteNodeController extends Controller
             'help.index' => 'Trợ giúp'
         ];
     }
+
+    public function updateLayoutSettings(Request $request)
+    {
+        $request->validate([
+            'site_name' => 'required|string|max:255',
+            'site_logo' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp,ico|max:2048',
+        ]);
+
+        \App\Models\SystemSetting::set('site_name', $request->input('site_name'), 'site');
+
+        if ($request->hasFile('site_logo')) {
+            $oldLogo = \App\Models\SystemSetting::get('site_logo');
+            if ($oldLogo && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldLogo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldLogo);
+            }
+
+            $path = $request->file('site_logo')->store('site', 'public');
+            \App\Models\SystemSetting::set('site_logo', $path, 'site');
+        }
+
+        if ($request->boolean('remove_logo') && !$request->hasFile('site_logo')) {
+            $oldLogo = \App\Models\SystemSetting::get('site_logo');
+            if ($oldLogo && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldLogo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldLogo);
+            }
+            \App\Models\SystemSetting::set('site_logo', '', 'site');
+        }
+
+        return back()->with('success', __('Layout settings updated successfully.'));
+    }
 }
