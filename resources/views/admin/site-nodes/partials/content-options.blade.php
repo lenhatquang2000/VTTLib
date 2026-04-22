@@ -7,17 +7,11 @@
             <select name="masterpage" id="masterpage_select" class="input-field flex-1 bg-gray-900 border-gray-600">
                 <option value="">-- {{ __('Default (by node code)') }} --</option>
                 @php
-                    $templates = [
-                        'home' => __('Trang chủ hiện đại (Waves)'),
-                        'about' => __('Trang giới thiệu (About)'),
-                        'contact' => __('Trang liên hệ (Contact)'),
-                        'services' => __('Trang dịch vụ (Services)'),
-                        'full-width' => __('Trang toàn màn hình (Full width)'),
-                    ];
+                    $templates = \App\Models\SiteTemplate::where('is_active', true)->orderBy('sort_order')->get();
                 @endphp
-                @foreach($templates as $val => $label)
-                    <option value="{{ $val }}" {{ old('masterpage', $siteNode->masterpage) == $val ? 'selected' : '' }}>
-                        {{ __($label) }}
+                @foreach($templates as $tpl)
+                    <option value="{{ $tpl->template_code }}" {{ old('masterpage', $siteNode->masterpage) == $tpl->template_code ? 'selected' : '' }}>
+                        {{ $tpl->template_name }}
                     </option>
                 @endforeach
             </select>

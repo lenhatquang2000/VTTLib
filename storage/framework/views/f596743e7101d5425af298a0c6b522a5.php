@@ -89,12 +89,14 @@
                 </a>
                 
                 <?php if(empty($node['children'])): ?>
-                    <form action="<?php echo e(route('admin.site-nodes.destroy', $node['id'])); ?>" 
+                    <form id="delete-form-<?php echo e($node['id']); ?>" 
+                          action="<?php echo e(route('admin.site-nodes.destroy', $node['id'])); ?>" 
                           method="POST" 
-                          onsubmit="return confirm('Bạn có chắc muốn xóa node này?')">
+                          class="inline">
                         <?php echo csrf_field(); ?>
                         <?php echo method_field('DELETE'); ?>
-                        <button type="submit" 
+                        <button type="button" 
+                                onclick="confirmDelete(<?php echo e($node['id']); ?>)"
                                 class="action-btn text-red-400 hover:text-red-300"
                                 title="Xóa">
                             <i class="fas fa-trash"></i>
@@ -112,4 +114,27 @@
         <?php endif; ?>
     </div>
 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
+<?php if($level === 0): ?>
+    <script>
+    function confirmDelete(nodeId) {
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: "Bạn có chắc chắn muốn xóa node này? Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Vâng, xóa nó!',
+            cancelButtonText: 'Hủy',
+            background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+            color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#1e293b',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`delete-form-${nodeId}`).submit();
+            }
+        });
+    }
+    </script>
+<?php endif; ?>
 <?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/site-nodes/tree.blade.php ENDPATH**/ ?>

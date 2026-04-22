@@ -29,7 +29,7 @@
                 <!-- Left Column -->
                 <div class="space-y-4">
                     <!-- Basic Information -->
-                    <div class="border-b border-gray-700 pb-4">w
+                    <div class="border-b border-gray-700 pb-4">
                         <h3 class="text-lg font-bold mb-4 text-blue-400">{{ __('Basic Information') }}</h3>
                         
                         <div class="space-y-4">
@@ -105,7 +105,7 @@
                                 <select name="display_type" id="display_type" class="input-field w-full">
                                     @foreach($displayTypes as $value => $label)
                                         <option value="{{ $value }}" {{ old('display_type', $siteNode->display_type) == $value ? 'selected' : '' }}>
-                                            {{ __($label) }}
+                                            {{ is_array($label) ? implode(' ', $label) : (string) $label }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -157,7 +157,7 @@
                                         onchange="toggleAccessOptions()">
                                     @foreach($accessTypes as $value => $label)
                                         <option value="{{ $value }}" {{ old('access_type', $siteNode->access_type) == $value ? 'selected' : '' }}>
-                                            {{ __($label) }}
+                                            {{ is_array($label) ? implode(' ', $label) : (string) $label }}
                                         </option>
                                     @endforeach
                                 </select>

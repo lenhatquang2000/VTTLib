@@ -87,12 +87,14 @@
                 </a>
                 
                 @if(empty($node['children']))
-                    <form action="{{ route('admin.site-nodes.destroy', $node['id']) }}" 
+                    <form id="delete-form-{{ $node['id'] }}" 
+                          action="{{ route('admin.site-nodes.destroy', $node['id']) }}" 
                           method="POST" 
-                          onsubmit="return confirm('Bạn có chắc muốn xóa node này?')">
+                          class="inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" 
+                        <button type="button" 
+                                onclick="confirmDelete({{ $node['id'] }})"
                                 class="action-btn text-red-400 hover:text-red-300"
                                 title="Xóa">
                             <i class="fas fa-trash"></i>
@@ -110,3 +112,26 @@
         @endif
     </div>
 @endforeach
+
+@if($level === 0)
+    <script>
+    function confirmDelete(nodeId) {
+        Swal.fire({
+            title: 'Xác nhận xóa?',
+            text: "Bạn có chắc chắn muốn xóa node này? Hành động này không thể hoàn tác!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Vâng, xóa nó!',
+            cancelButtonText: 'Hủy',
+            background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+            color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#1e293b',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById(`delete-form-${nodeId}`).submit();
+            }
+        });
+    }
+    </script>
+@endif

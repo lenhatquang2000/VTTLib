@@ -403,6 +403,22 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/z3950/search', [\App\Http\Controllers\Admin\Z3950Controller::class, 'search'])->name('admin.z3950.search');
     Route::post('/z3950/search', [\App\Http\Controllers\Admin\Z3950Controller::class, 'doSearch'])->name('admin.z3950.doSearch');
     Route::post('/z3950/import', [\App\Http\Controllers\Admin\Z3950Controller::class, 'import'])->name('admin.z3950.import');
+
+    // Digital Resources Management
+    Route::get('digital-dashboard', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'dashboard'])->name('admin.digital-resources.dashboard');
+    Route::resource('digital-folders', \App\Http\Controllers\Admin\DigitalFolderController::class)->names([
+        'index' => 'admin.digital-folders.index',
+        'store' => 'admin.digital-folders.store',
+        'update' => 'admin.digital-folders.update',
+        'destroy' => 'admin.digital-folders.destroy',
+    ]);
+    Route::get('digital-folders-export', [\App\Http\Controllers\Admin\DigitalFolderController::class, 'export'])->name('admin.digital-folders.export');
+    
+    Route::get('digital-resources', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'index'])->name('admin.digital-resources.index');
+    Route::get('digital-resources/create', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'create'])->name('admin.digital-resources.create');
+    Route::post('digital-resources', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'store'])->name('admin.digital-resources.store');
+    Route::get('digital-resources/{resource}', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'show'])->name('admin.digital-resources.show');
+    Route::get('digital-resources/{resource}/download', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'download'])->name('admin.digital-resources.download');
 });
 
 // Visitor Routes

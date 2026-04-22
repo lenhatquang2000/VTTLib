@@ -12,18 +12,33 @@ class SiteController extends Controller
      */
     public function home()
     {
+        // Lấy tài liệu mới nhất
+        $newResources = \App\Models\DigitalResource::with('folder')
+            ->where('status', 'published')
+            ->latest()
+            ->take(8)
+            ->get();
+
+        // Lấy tài liệu Y khoa (Giả định folder_id hoặc lọc theo folder name)
+        $medicalResources = \App\Models\DigitalResource::whereHas('folder', function($q) {
+                $q->where('folder_name', 'LIKE', '%Y khoa%');
+            })
+            ->where('status', 'published')
+            ->take(4)
+            ->get();
+
         $homeNode = SiteNode::getByCode('home');
         $menuItems = SiteNode::getMenuItems('menu');
         $footerItems = SiteNode::getMenuItems('footer');
-        
-        $nodeView = 'site.pages.home';
-        if (view()->exists($nodeView)) {
-            return view($nodeView, [
-                'node' => $homeNode,
+
+        if (view()->exists('site.pages.home')) {
+            return view('site.pages.home', [
                 'homeNode' => $homeNode,
                 'menuItems' => $menuItems,
                 'footerItems' => $footerItems,
-                'breadcrumb' => []
+                'breadcrumb' => [],
+                'newResources' => $newResources,
+                'medicalResources' => $medicalResources,
             ]);
         }
         
@@ -35,59 +50,92 @@ class SiteController extends Controller
      */
     public function page($code)
     {
-        $node = SiteNode::getByCode($code);
+        $siteNode = SiteNode::getByCode($code);
         
-        if (!$node) {
+        if (!$siteNode) {
             abort(404, 'Trang không tồn tại');
         }
         
         // Check access permissions
-        if (!$node->canAccess(auth()->user())) {
+        if (!$siteNode->canAccess(auth()->user())) {
             if (auth()->guest()) {
                 return redirect()->route('login')->with('error', 'Vui lòng đăng nhập để xem trang này');
             }
             abort(403, 'Bạn không có quyền truy cập trang này');
         }
-        
-        // If node has route_name, redirect to that route
-        if ($node->route_name) {
-            return redirect()->route($node->route_name);
-        }
-        
-        // If node has external URL, redirect
-        if ($node->url && $node->isExternal()) {
-            return redirect($node->url);
-        }
-        
         $menuItems = SiteNode::getMenuItems('menu');
         $footerItems = SiteNode::getMenuItems('footer');
-        $breadcrumb = $node->getBreadcrumb();
-        $previewTemplate = request()->query('preview_template');
-
-        // Priority 1: Check preview template (from query string)
-        if ($previewTemplate) {
-            $previewView = 'site.pages.' . $previewTemplate;
-            if (view()->exists($previewView)) {
-                return view($previewView, compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
-            }
-        }
-
-        // Priority 2: Check masterpage (template selection)
-        if ($node->masterpage) {
-            $templateView = 'site.pages.' . $node->masterpage;
-            if (view()->exists($templateView)) {
-                return view($templateView, compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
-            }
-        }
-
-        // Priority 2: Check node_code (auto template)
-        $nodeView = 'site.pages.' . $node->node_code;
-        if (view()->exists($nodeView)) {
-            return view($nodeView, compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
-        }
         
-        // Priority 3: Fallback default
-        return view('site.page', compact('node', 'menuItems', 'footerItems', 'breadcrumb'));
+        // Tạo breadcrumb
+        $breadcrumb = [];
+        $tempNode = $siteNode;
+        while ($tempNode) {
+            array_unshift($breadcrumb, [
+                'name' => $tempNode->display_name,
+                'url' => route('site.page', $tempNode->node_code)
+            ]);
+            $tempNode = $tempNode->parent;
+        }
+
+        // Nếu là trang chủ HOẶC node đang dùng template home, nạp thêm dữ liệu động cho tài liệu số
+        $extraData = [];
+        if ($code === 'home' || $siteNode->masterpage === 'home' || request()->query('preview_template') === 'home') {
+            $extraData['newResources'] = \App\Models\DigitalResource::with('folder')
+                ->where('status', 'published')
+                ->latest()
+                ->take(8)
+                ->get();
+
+            $extraData['medicalResources'] = \App\Models\DigitalResource::whereHas('folder', function($q) {
+                    $q->where('folder_name', 'LIKE', '%Y khoa%');
+                })
+                ->where('status', 'published')
+                ->take(4)
+                ->get();
+        }
+
+        // 1. Kiểm tra template preview qua query param
+        $previewTemplate = request()->query('preview_template');
+        if ($previewTemplate && view()->exists("site.pages.{$previewTemplate}")) {
+            return view("site.pages.{$previewTemplate}", array_merge([
+                'node' => $siteNode,
+                'siteNode' => $siteNode,
+                'menuItems' => $menuItems,
+                'footerItems' => $footerItems,
+                'breadcrumb' => $breadcrumb
+            ], $extraData));
+        }
+
+        // 2. Ưu tiên render theo masterpage nếu có (Đây là phần quan trọng nhất)
+        if ($siteNode->masterpage && view()->exists("site.pages.{$siteNode->masterpage}")) {
+            return view("site.pages.{$siteNode->masterpage}", array_merge([
+                'node' => $siteNode,
+                'siteNode' => $siteNode,
+                'menuItems' => $menuItems,
+                'footerItems' => $footerItems,
+                'breadcrumb' => $breadcrumb
+            ], $extraData));
+        }
+
+        // 3. Fallback theo node_code chỉ khi không có masterpage
+        if (!$siteNode->masterpage && view()->exists("site.pages.{$code}")) {
+            return view("site.pages.{$code}", array_merge([
+                'node' => $siteNode,
+                'siteNode' => $siteNode,
+                'menuItems' => $menuItems,
+                'footerItems' => $footerItems,
+                'breadcrumb' => $breadcrumb
+            ], $extraData));
+        }
+
+        // 4. Mặc định render template chung
+        return view('site.page', array_merge([
+            'node' => $siteNode,
+            'siteNode' => $siteNode,
+            'menuItems' => $menuItems,
+            'footerItems' => $footerItems,
+            'breadcrumb' => $breadcrumb
+        ], $extraData));
     }
 
     /**

@@ -3,8 +3,8 @@
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold"><?php echo e(__('Chỉnh sửa Node')); ?></h1>
-            <p class="text-sm text-gray-400 mt-1"><?php echo e(__('Cập nhật thông tin trang: ')); ?><?php echo e($siteNode->display_name); ?></p>
+            <h1 class="text-2xl font-bold"><?php echo e(__('Edit Node')); ?></h1>
+            <p class="text-sm text-gray-400 mt-1"><?php echo e(__('Update information for page: ')); ?><?php echo e($siteNode->display_name); ?></p>
         </div>
         <div class="flex gap-2">
             <a href="<?php echo e(route('admin.site-nodes.page-builder', $siteNode)); ?>" class="btn-primary">
@@ -13,7 +13,7 @@
                 <i class="fas fa-arrow-right ml-2"></i>
             </a>
             <a href="<?php echo e(route('admin.site-nodes.index', ['language' => $siteNode->language])); ?>" class="btn-secondary">
-                <i class="fas fa-arrow-left mr-2"></i><?php echo e(__('Quay lại')); ?>
+                <i class="fas fa-arrow-left mr-2"></i><?php echo e(__('Back')); ?>
 
             </a>
         </div>
@@ -29,46 +29,53 @@
                 <!-- Left Column -->
                 <div class="space-y-4">
                     <!-- Basic Information -->
-                    <div class="border-b border-gray-700 pb-4">w
-                        <h3 class="text-lg font-bold mb-4 text-blue-400">Thông tin cơ bản</h3>
+                    <div class="border-b border-gray-700 pb-4">
+                        <h3 class="text-lg font-bold mb-4 text-blue-400"><?php echo e(__('Basic Information')); ?></h3>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Mã Node *</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Node Code')); ?> *</label>
                                 <input type="text" name="node_code" required
                                        class="input-field w-full" 
-                                       placeholder="vi-du: about, contact"
+                                       placeholder="<?php echo e(__('vi-du: about, contact')); ?>"
                                        value="<?php echo e(old('node_code', $siteNode->node_code)); ?>">
-                                <p class="text-xs text-gray-400 mt-1">Mã duy nhất, không dấu, dùng cho URL</p>
+                                <p class="text-xs text-gray-400 mt-1"><?php echo e(__('Unique code, no accents, used for URL')); ?></p>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Tên Node *</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Internal Name')); ?> *</label>
                                 <input type="text" name="node_name" required
                                        class="input-field w-full" 
-                                       placeholder="Tên nội bộ"
+                                       placeholder="<?php echo e(__('Internal name')); ?>"
                                        value="<?php echo e(old('node_name', $siteNode->node_name)); ?>">
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Tên hiển thị *</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Display Name')); ?> *</label>
                                 <input type="text" name="display_name" required
                                        class="input-field w-full" 
-                                       placeholder="Tên hiển thị trên menu"
+                                       placeholder="<?php echo e(__('Name shown on menu')); ?>"
                                        value="<?php echo e(old('display_name', $siteNode->display_name)); ?>">
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Mô tả</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Description')); ?></label>
                                 <textarea name="description" rows="3"
                                           class="input-field w-full"
-                                          placeholder="Mô tả ngắn về node"><?php echo e(old('description', $siteNode->description)); ?></textarea>
+                                          placeholder="<?php echo e(__('Brief description')); ?>"><?php echo e(old('description', $siteNode->description)); ?></textarea>
                             </div>
-                            
+                        </div>
+                    </div>
+                    
+                    <!-- Hierarchy & Icon -->
+                    <div class="border-b border-gray-700 py-4">
+                        <h3 class="text-lg font-bold mb-4 text-green-400"><?php echo e(__('Hierarchy & Style')); ?></h3>
+                        
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Node cha</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Parent Node')); ?></label>
                                 <select name="parent_id" class="input-field w-full">
-                                    <option value="">-- Gốc (Root) --</option>
+                                    <option value="">-- <?php echo e(__('Root (Root)')); ?> --</option>
                                     <?php $__currentLoopData = $parents; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $id => $name): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($id); ?>" <?php echo e(old('parent_id', $siteNode->parent_id) == $id ? 'selected' : ''); ?>>
                                             <?php echo e($name); ?>
@@ -79,27 +86,27 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Biểu tượng</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Icon')); ?></label>
                                 <input type="text" name="icon" 
                                        class="input-field w-full" 
                                        placeholder="fas fa-home"
                                        value="<?php echo e(old('icon', $siteNode->icon)); ?>">
-                                <p class="text-xs text-gray-400 mt-1">Font Awesome class</p>
+                                <p class="text-xs text-gray-400 mt-1"><?php echo e(__('Font Awesome class')); ?></p>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Display Settings -->
-                    <div class="border-b border-gray-700 pb-4">
-                        <h3 class="text-lg font-bold mb-4 text-green-400">Hiển thị</h3>
+                    <div class="border-b border-gray-700 py-4">
+                        <h3 class="text-lg font-bold mb-4 text-emerald-400"><?php echo e(__('Display Settings')); ?></h3>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Kiểu hiển thị</label>
-                                <select name="display_type" class="input-field w-full">
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Display Type')); ?></label>
+                                <select name="display_type" id="display_type" class="input-field w-full">
                                     <?php $__currentLoopData = $displayTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($value); ?>" <?php echo e(old('display_type', $siteNode->display_type) == $value ? 'selected' : ''); ?>>
-                                            <?php echo e($label); ?>
+                                            <?php echo e(is_array($label) ? implode(' ', $label) : (string) $label); ?>
 
                                         </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -107,41 +114,32 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Mở link</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Open Link')); ?></label>
                                 <select name="target" class="input-field w-full">
-                                    <option value="_self" <?php echo e(old('target', $siteNode->target) == '_self' ? 'selected' : ''); ?>>
-                                        Cùng tab (_self)
-                                    </option>
-                                    <option value="_blank" <?php echo e(old('target', $siteNode->target) == '_blank' ? 'selected' : ''); ?>>
-                                        Tab mới (_blank)
-                                    </option>
+                                    <option value="_self" <?php echo e(old('target', $siteNode->target) == '_self' ? 'selected' : ''); ?>><?php echo e(__('Same tab (_self)')); ?></option>
+                                    <option value="_blank" <?php echo e(old('target', $siteNode->target) == '_blank' ? 'selected' : ''); ?>><?php echo e(__('New tab (_blank)')); ?></option>
                                 </select>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Thứ tự</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Sort Order')); ?></label>
                                 <input type="number" name="sort_order" 
                                        class="input-field w-full" 
-                                       min="0"
                                        value="<?php echo e(old('sort_order', $siteNode->sort_order)); ?>">
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">Ngôn ngữ</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Language')); ?></label>
                                 <select name="language" class="input-field w-full">
-                                    <option value="vi" <?php echo e(old('language', $siteNode->language) == 'vi' ? 'selected' : ''); ?>>
-                                        Tiếng Việt
-                                    </option>
-                                    <option value="en" <?php echo e(old('language', $siteNode->language) == 'en' ? 'selected' : ''); ?>>
-                                        English
-                                    </option>
+                                    <option value="vi" <?php echo e(old('language', $siteNode->language) == 'vi' ? 'selected' : ''); ?>><?php echo e(__('Vietnamese')); ?></option>
+                                    <option value="en" <?php echo e(old('language', $siteNode->language) == 'en' ? 'selected' : ''); ?>><?php echo e(__('English')); ?></option>
                                 </select>
                             </div>
                             
                             <div class="flex items-center">
                                 <input type="checkbox" name="is_active" id="is_active" 
                                        class="mr-2" <?php echo e(old('is_active', $siteNode->is_active) ? 'checked' : ''); ?>>
-                                <label for="is_active" class="text-sm">Kích hoạt</label>
+                                <label for="is_active" class="text-sm"><?php echo e(__('Active')); ?></label>
                             </div>
                         </div>
                     </div>
@@ -151,40 +149,35 @@
                 <div class="space-y-4">
                     <!-- Access Control -->
                     <div class="border-b border-gray-700 pb-4">
-                        <h3 class="text-lg font-bold mb-4 text-yellow-400">Quyền truy cập</h3>
+                        <h3 class="text-lg font-bold mb-4 text-orange-400"><?php echo e(__('Access Permissions')); ?></h3>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Loại truy cập</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Access Type')); ?></label>
                                 <select name="access_type" id="access_type" 
                                         class="input-field w-full"
                                         onchange="toggleAccessOptions()">
                                     <?php $__currentLoopData = $accessTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($value); ?>" <?php echo e(old('access_type', $siteNode->access_type) == $value ? 'selected' : ''); ?>>
-                                            <?php echo e($label); ?>
+                                            <?php echo e(is_array($label) ? implode(' ', $label) : (string) $label); ?>
 
                                         </option>
                                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             
-                            <div id="role_options" class="<?php echo e(old('access_type', $siteNode->access_type) !== 'roles' ? 'hidden' : ''); ?>">
-                                <label class="block text-sm font-medium mb-1">Vai trò được phép</label>
-                                <div class="space-y-2">
+                            <div id="role_options" class="<?php echo e(old('access_type', $siteNode->access_type) === 'roles' ? '' : 'hidden'); ?>">
+                                <label class="block text-sm font-medium mb-2"><?php echo e(__('Allowed Roles')); ?></label>
+                                <div class="space-y-2 bg-gray-900/50 p-4 rounded border border-gray-700">
                                     <div class="flex items-center">
                                         <input type="checkbox" name="allowed_roles[]" value="admin" 
                                                class="mr-2" <?php echo e(in_array('admin', old('allowed_roles', $siteNode->allowed_roles ?? [])) ? 'checked' : ''); ?>>
-                                        <label class="text-sm">Admin</label>
-                                    </div>
-                                    <div class="flex items-center">
-                                        <input type="checkbox" name="allowed_roles[]" value="manager" 
-                                               class="mr-2" <?php echo e(in_array('manager', old('allowed_roles', $siteNode->allowed_roles ?? [])) ? 'checked' : ''); ?>>
-                                        <label class="text-sm">Manager</label>
+                                        <label class="text-sm"><?php echo e(__('Admin')); ?></label>
                                     </div>
                                     <div class="flex items-center">
                                         <input type="checkbox" name="allowed_roles[]" value="librarian" 
                                                class="mr-2" <?php echo e(in_array('librarian', old('allowed_roles', $siteNode->allowed_roles ?? [])) ? 'checked' : ''); ?>>
-                                        <label class="text-sm">Librarian</label>
+                                        <label class="text-sm"><?php echo e(__('Librarian')); ?></label>
                                     </div>
                                 </div>
                             </div>
@@ -192,22 +185,22 @@
                             <div class="flex items-center">
                                 <input type="checkbox" name="allow_guest" id="allow_guest" 
                                        class="mr-2" <?php echo e(old('allow_guest', $siteNode->allow_guest) ? 'checked' : ''); ?>>
-                                <label for="allow_guest" class="text-sm">Cho phép khách</label>
+                                <label for="allow_guest" class="text-sm"><?php echo e(__('Allow Guests')); ?></label>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Link Settings -->
                     <div class="border-b border-gray-700 pb-4">
-                        <h3 class="text-lg font-bold mb-4 text-purple-400">Link & Nội dung</h3>
+                        <h3 class="text-lg font-bold mb-4 text-purple-400"><?php echo e(__('Link & Content')); ?></h3>
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium mb-1">Route hệ thống</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('System Route')); ?></label>
                                 <select name="route_name" id="route_name" 
                                         class="input-field w-full"
                                         onchange="toggleContentOptions()">
-                                    <option value="">-- Chọn route --</option>
+                                    <option value="">-- <?php echo e(__('Select route')); ?> --</option>
                                     <?php $__currentLoopData = $routes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $value => $label): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <option value="<?php echo e($value); ?>" <?php echo e(old('route_name', $siteNode->route_name) == $value ? 'selected' : ''); ?>>
                                             <?php echo e($label); ?>
@@ -218,7 +211,7 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium mb-1">URL tùy chỉnh</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Custom URL')); ?></label>
                                 <input type="text" name="url" id="url"
                                        class="input-field w-full" 
                                        placeholder="https://example.com"
@@ -238,7 +231,7 @@
                                 <label class="block text-sm font-medium mb-1">Meta Title</label>
                                 <input type="text" name="meta_title" 
                                        class="input-field w-full" 
-                                       placeholder="Tiêu đề SEO"
+                                       placeholder="<?php echo e(__('SEO Title')); ?>"
                                        value="<?php echo e(old('meta_title', $siteNode->meta_title)); ?>">
                             </div>
                             
@@ -246,14 +239,14 @@
                                 <label class="block text-sm font-medium mb-1">Meta Description</label>
                                 <textarea name="meta_description" rows="3"
                                           class="input-field w-full"
-                                          placeholder="Mô tả SEO"><?php echo e(old('meta_description', $siteNode->meta_description)); ?></textarea>
+                                          placeholder="<?php echo e(__('SEO Description')); ?>"><?php echo e(old('meta_description', $siteNode->meta_description)); ?></textarea>
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium mb-1">Meta Keywords</label>
                                 <input type="text" name="meta_keywords" 
                                        class="input-field w-full" 
-                                       placeholder="từ khóa 1, từ khóa 2, từ khóa 3"
+                                       placeholder="<?php echo e(__('keyword 1, keyword 2, keyword 3')); ?>"
                                        value="<?php echo e(old('meta_keywords', $siteNode->meta_keywords)); ?>">
                             </div>
                         </div>
@@ -265,11 +258,13 @@
     <div class="flex justify-end items-center gap-4 mt-8 pt-6 border-t border-gray-700">
         <a href="<?php echo e(route('admin.site-nodes.index', ['language' => $siteNode->language])); ?>" 
            class="px-6 py-2.5 rounded-xl border border-gray-600 text-gray-400 font-semibold hover:bg-gray-700 hover:text-white transition-all duration-200 flex items-center">
-            <i class="fas fa-times mr-2 text-sm opacity-70"></i>Hủy bỏ
+            <i class="fas fa-times mr-2 text-sm opacity-70"></i><?php echo e(__('Cancel')); ?>
+
         </a>
         <button type="submit" 
                 class="px-10 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-lg shadow-blue-900/40 hover:from-blue-500 hover:to-indigo-500 transform hover:-translate-y-0.5 active:scale-95 transition-all duration-200 flex items-center">
-            <i class="fas fa-save mr-2 text-sm"></i>Cập nhật Node
+            <i class="fas fa-save mr-2 text-sm"></i><?php echo e(__('Update Node')); ?>
+
         </button>
     </div>
 </form>

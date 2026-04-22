@@ -20,13 +20,46 @@
     
     <!-- CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    @stack('styles')
     <!-- Custom Styles -->
     <style>
         .prose {
             max-width: none;
         }
+        
+        /* Floating Animation */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        
+        /* Gradient Text Animation */
+        @keyframes gradient-text {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-text {
+            background: linear-gradient(-45deg, #3b82f6, #06b6d4, #8b5cf6, #ec4899);
+            background-size: 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-text 5s ease infinite;
+        }
+
+        /* 3D Card Hover */
+        .card-3d {
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            perspective: 1000px;
+        }
+        .card-3d:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(2deg);
+        }
+
         .prose h1, .prose h2, .prose h3 {
             color: #1f2937;
             font-weight: bold;
@@ -98,11 +131,37 @@
                     @if(isset($menuItems))
                         @foreach($menuItems as $item)
                             @if($item->can_access ?? true)
-                                <a href="{{ $item->getUrl() }}" 
-                                   class="text-gray-600 hover:text-blue-600 transition"
-                                   @if($item->target === '_blank') target="_blank" @endif>
-                                    {{ $item->display_name }}
-                                </a>
+                                @if($item->activeChildren->count() > 0)
+                                    {{-- 🌟 Dropdown cho các mục có node con --}}
+                                    <div class="relative group h-16 flex items-center">
+                                        <a href="{{ $item->getUrl() }}" 
+                                           class="flex items-center gap-1 text-gray-600 group-hover:text-blue-600 font-bold transition-all"
+                                           @if($item->target === '_blank') target="_blank" @endif>
+                                            {{ $item->display_name }}
+                                            <i class="fas fa-chevron-down text-[10px] transition-transform group-hover:rotate-180"></i>
+                                        </a>
+                                        
+                                        <!-- Dropdown Menu -->
+                                        <div class="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 z-[100]">
+                                            <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 overflow-hidden">
+                                                @foreach($item->activeChildren as $child)
+                                                    <a href="{{ $child->getUrl() }}" 
+                                                       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-bold transition-all text-sm mb-1 last:mb-0">
+                                                        <i class="{{ $child->icon ?: 'fas fa-chevron-right' }} text-xs opacity-50"></i>
+                                                        {{ $child->display_name }}
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    {{-- Nút menu bình thường --}}
+                                    <a href="{{ $item->getUrl() }}" 
+                                       class="text-gray-600 hover:text-blue-600 font-bold transition-all"
+                                       @if($item->target === '_blank') target="_blank" @endif>
+                                        {{ $item->display_name }}
+                                    </a>
+                                @endif
                             @endif
                         @endforeach
                     @endif
@@ -232,6 +291,14 @@
     </footer>
 
     <!-- JavaScript -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 500,
+            once: true,
+            easing: 'ease-out',
+        });
+    </script>
     <script>
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
