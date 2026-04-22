@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sidebar extends Model
 {
-    protected $fillable = ['parent_id', 'name', 'route_name', 'icon', 'order', 'is_active'];
+    protected $fillable = ['parent_id', 'name', 'name_vi', 'name_en', 'route_name', 'icon', 'order', 'is_active'];
 
     public function parent()
     {
@@ -24,33 +24,22 @@ class Sidebar extends Model
     }
 
     /**
-     * Get localized name
-     */
-    public function getLocalizedNameAttribute()
-    {
-        // If name contains a dot, treat as translation key
-        if (strpos($this->name, '.') !== false) {
-            return __($this->name);
-        }
-        
-        // Otherwise, check if there's a translation for this name
-        $translationKey = 'sidebar.' . str_replace([' ', '-'], '_', mb_strtolower($this->name, 'UTF-8'));
-        $translated = __($translationKey);
-        
-        // If translation exists and is different from key, return it
-        if ($translated !== $translationKey) {
-            return $translated;
-        }
-        
-        // Return original name as fallback
-        return $this->name;
-    }
-
-    /**
      * Get display name with localization
      */
     public function getDisplayNameAttribute()
     {
-        return $this->getLocalizedNameAttribute();
+        $locale = app()->getLocale();
+
+        // Try locale-specific column first
+        if ($locale === 'vi' && !empty($this->name_vi)) {
+            return $this->name_vi;
+        }
+
+        if ($locale === 'en' && !empty($this->name_en)) {
+            return $this->name_en;
+        }
+
+        // Fallback to original name
+        return $this->name;
     }
 }
