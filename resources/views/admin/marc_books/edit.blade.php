@@ -237,6 +237,26 @@
                 </div>
 
                 <div class="p-6" x-show="expanded" x-cloak x-collapse>
+                    @if(intval($tag->tag) < 10)
+                    {{-- Control fields (001-009): single value, no subfield selector --}}
+                    <div class="space-y-4">
+                        <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
+                            <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                                <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'" value="_">
+                                <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][id]'" x-model="row.id">
+                                <div class="w-full flex gap-3 items-center">
+                                    <span class="shrink-0 px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-lg text-xs font-mono font-bold">{{ $tag->label }}</span>
+                                    <input type="text"
+                                        :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'"
+                                        x-model="row.value"
+                                        placeholder="{{ __('Enter_Value') }}"
+                                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    @else
+                    {{-- Data fields (010+): subfield selector + value --}}
                     <div class="space-y-4">
                         <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
                             <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
@@ -281,6 +301,7 @@
                         </svg>
                         {{ __('Add_Subfield') }}
                     </button>
+                    @endif
                 </div>
             </div>
             @endforeach

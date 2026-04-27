@@ -217,6 +217,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/marc-import', [\App\Http\Controllers\Admin\MarcImportController::class, 'index'])->name('admin.marc.import.index');
     Route::get('/marc-import/template', [\App\Http\Controllers\Admin\MarcImportController::class, 'downloadTemplate'])->name('admin.marc.import.template');
     Route::post('/marc-import/upload', [\App\Http\Controllers\Admin\MarcImportController::class, 'upload'])->name('admin.marc.import.upload');
+    Route::post('/marc-import/upload-marc', [\App\Http\Controllers\Admin\MarcImportController::class, 'uploadMarcFile'])->name('admin.marc.import.upload-marc');
+    Route::post('/marc-import/save-framework-marc', [\App\Http\Controllers\Admin\MarcImportController::class, 'saveFrameworkFromMarc'])->name('admin.marc.import.save-framework-marc');
+    Route::post('/marc-import/process-marc', [\App\Http\Controllers\Admin\MarcImportController::class, 'processMarcFile'])->name('admin.marc.import.process-marc');
     
     // MARC Export
     Route::get('/marc-export', [\App\Http\Controllers\Admin\MarcBookController::class, 'exportIndex'])->name('admin.marc.export.index');
