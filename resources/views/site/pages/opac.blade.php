@@ -1,0 +1,216 @@
+@extends('layouts.site')
+
+@section('title', 'OPAC - Tra cứu mục lục trực tuyến - VTTLib')
+
+@section('content')
+<div class="bg-slate-50 min-h-screen pt-24 pb-12">
+    <div class=" mx-auto px-1">
+        
+        <!-- Header OPAC -->
+        <div class="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 mb-8" data-aos="fade-down">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h1 class="text-3xl font-black text-vttu-dark tracking-tight">TRA CỨU OPAC</h1>
+                    <p class="text-slate-500 font-medium mt-1">Hệ thống tra cứu mục lục công cộng trực tuyến</p>
+                </div>
+                <div class="flex items-center gap-4 bg-emerald-50 px-6 py-3 rounded-2xl border border-emerald-100">
+                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <div>
+                        <p class="text-[10px] font-black text-emerald-600 uppercase tracking-widest leading-none">Trạng thái hệ thống</p>
+                        <p class="text-sm font-bold text-vttu-dark mt-1">Kết nối thành công (4,720 biểu ghi)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Bar OPAC -->
+            <div class="mt-8">
+                <form action="{{ route('opac.search') }}" method="GET" class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-slate-400 group-focus-within:text-vttu-red transition-colors"></i>
+                    </div>
+                    <input type="text" name="q" value="{{ request('q') }}" 
+                        placeholder="Nhập tên sách, tác giả, từ khóa hoặc ISBN..." 
+                        class="w-full bg-slate-50 border-2 border-transparent focus:border-vttu-red/20 focus:bg-white pl-14 pr-40 py-5 rounded-[2rem] text-lg font-medium text-vttu-dark transition-all outline-none shadow-inner">
+                    <div class="absolute inset-y-2 right-2 flex gap-2">
+                        <select class="bg-white border border-slate-200 rounded-full px-4 text-xs font-black uppercase tracking-widest text-slate-500 outline-none focus:border-vttu-red transition-all">
+                            <option>Bất kỳ</option>
+                            <option>Nhan đề</option>
+                            <option>Tác giả</option>
+                            <option>Chủ đề</option>
+                        </select>
+                        <button type="submit" class="bg-vttu-red text-white px-8 rounded-full font-black uppercase text-xs tracking-[0.2em] hover:bg-vttu-dark transition-all shadow-lg shadow-vttu-red/20">
+                            Tìm kiếm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- CỘT TRÁI (75%) - Kết quả tra cứu -->
+            <div class="lg:col-span-9 space-y-6" data-aos="fade-right">
+                <div class="flex items-center justify-between px-2">
+                    <h2 class="text-xl font-black text-vttu-dark uppercase tracking-tight">KẾT QUẢ MỚI CẬP NHẬT</h2>
+                    <span class="text-xs font-bold text-slate-400">Hiển thị 12 kết quả</span>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @forelse($books as $book)
+                    @php
+                        // Helper để lấy nội dung từ MARC fields
+                        $getTitle = function($book) {
+                            $f245 = $book->fields->where('tag', '245')->first();
+                            return $f245 ? $f245->subfields->where('code', 'a')->first()?->value : 'Không có nhan đề';
+                        };
+                        $getAuthor = function($book) {
+                            $f100 = $book->fields->where('tag', '100')->first();
+                            if ($f100) return $f100->subfields->where('code', 'a')->first()?->value;
+                            $f700 = $book->fields->where('tag', '700')->first();
+                            return $f700 ? $f700->subfields->where('code', 'a')->first()?->value : 'Đang cập nhật tác giả';
+                        };
+                    @endphp
+                    <div class="bg-white p-4 rounded-2xl border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm hover:shadow-xl hover:-translate-y-1">
+                        <!-- Book Cover -->
+                        <div class="aspect-[3/4] bg-slate-100 rounded-xl mb-4 flex items-center justify-center border border-slate-50 group-hover:bg-vttu-red/5 transition-colors overflow-hidden relative">
+                            @if($book->cover_image)
+                                <img src="{{ asset('storage/' . $book->cover_image) }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            @else
+                                <i class="fas fa-book-open text-slate-300 group-hover:text-vttu-red text-4xl transition-colors"></i>
+                            @endif
+                            <div class="absolute top-2 right-2">
+                                <span class="px-2 py-0.5 bg-white/90 backdrop-blur text-vttu-dark rounded-lg text-[8px] font-black uppercase tracking-widest shadow-sm">{{ $book->record_type ?? 'Sách' }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Book Info -->
+                        <div class="flex-grow flex flex-col">
+                            <h3 class="text-sm font-black text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[2.5rem]">
+                                {{ $getTitle($book) }}
+                            </h3>
+                            <p class="text-[11px] font-bold text-slate-500 mt-2 flex items-center gap-1.5 truncate">
+                                <i class="fas fa-user-edit text-[9px] text-vttu-red"></i>
+                                {{ $getAuthor($book) }}
+                            </p>
+                            
+                            <div class="mt-auto pt-4 flex items-center justify-between border-t border-slate-50">
+                                @if($book->items->where('status', 'available')->count() > 0)
+                                    <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-tighter">Sẵn sàng</span>
+                                @else
+                                    <span class="text-[9px] font-black text-rose-500 bg-rose-50 px-2 py-1 rounded-lg uppercase tracking-tighter">Hết sách</span>
+                                @endif
+                                <a href="#" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
+                                    <i class="fas fa-arrow-right text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    @empty
+                        <div class="bg-white p-12 rounded-3xl text-center border border-slate-100">
+                            <i class="fas fa-search text-slate-200 text-5xl mb-4"></i>
+                            <p class="text-slate-500 font-bold">Không tìm thấy tài liệu nào trong hệ thống.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <!-- Pagination OPAC -->
+                <div class="flex justify-center pt-8">
+                    {{ $books->links() }}
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI (25%) - Filters & Sidebar -->
+            <div class="lg:col-span-3 space-y-8" data-aos="fade-left">
+                
+                <!-- Sách theo kho -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-black text-vttu-dark uppercase tracking-widest border-b border-slate-50 pb-4 mb-4">SÁCH THEO KHO</h3>
+                    <div class="space-y-3">
+                        <a href="#" class="flex justify-between items-center group">
+                            <span class="text-sm font-bold text-slate-600 group-hover:text-vttu-red transition-colors">Kho Giáo trình</span>
+                            <span class="bg-slate-50 text-slate-400 px-2 py-0.5 rounded-lg text-[10px] font-black group-hover:bg-vttu-red/10 group-hover:text-vttu-red transition-all">606</span>
+                        </a>
+                        <a href="#" class="flex justify-between items-center group">
+                            <span class="text-sm font-bold text-slate-600 group-hover:text-vttu-red transition-colors">Kho tài liệu tham khảo</span>
+                            <span class="bg-slate-50 text-slate-400 px-2 py-0.5 rounded-lg text-[10px] font-black group-hover:bg-vttu-red/10 group-hover:text-vttu-red transition-all">104</span>
+                        </a>
+                        <a href="#" class="flex justify-between items-center group">
+                            <span class="text-sm font-bold text-slate-600 group-hover:text-vttu-red transition-colors">Thư viện Đại học Võ Trường Toản</span>
+                            <span class="bg-slate-50 text-slate-400 px-2 py-0.5 rounded-lg text-[10px] font-black group-hover:bg-vttu-red/10 group-hover:text-vttu-red transition-all">3985</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sách theo phân loại (DDC) -->
+                <div class="bg-vttu-dark rounded-3xl p-6 shadow-xl shadow-vttu-red/20 text-white">
+                    <h3 class="text-sm font-black text-vttu-yellow uppercase tracking-widest border-b border-white/10 pb-4 mb-4">PHÂN LOẠI DDC</h3>
+                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                        @php
+                            $ddc = [
+                                '000' => ['name' => 'Tác phẩm tổng quát', 'count' => 180],
+                                '100' => ['name' => 'Tâm lý triết lý', 'count' => 64],
+                                '200' => ['name' => 'Tôn giáo', 'count' => 15],
+                                '300' => ['name' => 'Khoa học xã hội', 'count' => 2112],
+                                '400' => ['name' => 'Ngôn ngữ', 'count' => 143],
+                                '500' => ['name' => 'Khoa học tự nhiên', 'count' => 205],
+                                '600' => ['name' => 'Công nghệ', 'count' => 886],
+                                '700' => ['name' => 'Nghệ thuật - Thể thao', 'count' => 216],
+                                '800' => ['name' => 'Văn học', 'count' => 797],
+                                '900' => ['name' => 'Lịch sử - địa lý', 'count' => 100],
+                            ];
+                        @endphp
+                        @foreach($ddc as $code => $data)
+                        <a href="#" class="flex justify-between items-start group border-b border-white/5 pb-2 last:border-0">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-black text-vttu-yellow tracking-widest">{{ $code }}</span>
+                                <span class="text-xs font-bold text-white/70 group-hover:text-white transition-colors">{{ $data['name'] }}</span>
+                            </div>
+                            <span class="text-[10px] font-black bg-white/10 px-2 py-0.5 rounded group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-all">{{ $data['count'] }}</span>
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Mượn nhiều -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-black text-vttu-dark uppercase tracking-widest border-b border-slate-50 pb-4 mb-4">MƯỢN NHIỀU NHẤT</h3>
+                    <div class="space-y-6">
+                        <div class="group cursor-pointer">
+                            <h4 class="text-xs font-black text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2">Sinh lý học y khoa / B.s.: Mai Phương Thảo (ch.b.)...</h4>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Đại học Quốc gia Tp. HCM</p>
+                        </div>
+                        <div class="group cursor-pointer">
+                            <h4 class="text-xs font-black text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2">Giáo trình giảng dạy tiếp cận chẩn đoán bệnh nội khoa...</h4>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Đại học Quốc gia Tp. HCM</p>
+                        </div>
+                        <div class="group cursor-pointer border-0">
+                            <h4 class="text-xs font-black text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2">Bài giảng giải phẫu học, tập 1: Chi trên - Chi dưới...</h4>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Y học</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Từ khóa hot -->
+                <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+                    <h3 class="text-sm font-black text-vttu-dark uppercase tracking-widest border-b border-slate-50 pb-4 mb-4">TỪ KHÓA HOT</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach(['Hồ Chí Minh', 'Mỹ Thuật', 'Giáo dục', 'Môi trường', 'Kỹ năng sống'] as $tag)
+                        <a href="#" class="px-4 py-2 bg-slate-50 hover:bg-vttu-red hover:text-white text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all border border-slate-100">
+                            {{ $tag }}
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #FFD700; }
+</style>
+@endsection

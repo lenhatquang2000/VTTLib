@@ -8,55 +8,65 @@
         <div class="swiper heroSwiper h-full min-h-[70vh]">
             <div class="swiper-wrapper">
                 <!-- Slide 1 -->
-                <div class="swiper-slide relative flex items-center pt-32 md:pt-40">
-                    <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                            <div class="space-y-10">
-                                <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
-                                    <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
-                                    VTTU Digital Repository
+                <div class="swiper-slide flex flex-col">
+                    <!-- Body (75%) -->
+                    <div class="flex-grow flex items-center pt-32 md:pt-40 pb-12">
+                        <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                                <div class="space-y-8">
+                                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
+                                        <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
+                                        VTTU Digital Repository
+                                    </div>
+                                    <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
+                                        Khai phá <span class="text-vttu-red">Tri thức</span> <br>trong tầm tay.
+                                    </h1>
+                                    <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
+                                        Hệ thống thư viện số hiện đại cung cấp hàng ngàn tài liệu điện tử, giáo trình và bài giảng phục vụ học tập và nghiên cứu đỉnh cao.
+                                    </p>
+                                    <div class="flex flex-wrap gap-4">
+                                        <a href="#explore" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all hover:-translate-y-1 flex items-center group">
+                                            Bắt đầu khám phá
+                                            <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
-                                    Khai phá <span class="text-vttu-red">Tri thức</span> <br>trong tầm tay.
-                                </h1>
-                                <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
-                                    Hệ thống thư viện số hiện đại cung cấp hàng ngàn tài liệu điện tử, giáo trình và bài giảng phục vụ học tập và nghiên cứu đỉnh cao.
-                                </p>
-                                <div class="flex flex-wrap gap-4">
-                                    <a href="#explore" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all hover:-translate-y-1 flex items-center group">
-                                        Bắt đầu khám phá
-                                        <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
-                                    </a>
-                                </div>
-                                <!-- Quick Stats for Slide 1 -->
-                                <div class="grid grid-cols-3 gap-6 pt-8 border-t border-slate-100">
-                                    <div class="space-y-1">
-                                        <p class="text-2xl font-black text-vttu-dark">25k+</p>
-                                        <p class="text-[10px] font-bold text-vttu-red uppercase tracking-widest">Tài liệu số</p>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="text-2xl font-black text-vttu-dark">15k+</p>
-                                        <p class="text-[10px] font-bold text-vttu-red uppercase tracking-widest">Bạn đọc</p>
-                                    </div>
-                                    <div class="space-y-1">
-                                        <p class="text-2xl font-black text-vttu-dark">24/7</p>
-                                        <p class="text-[10px] font-bold text-vttu-red uppercase tracking-widest">Truy cập</p>
-                                    </div>
+                                <div class="relative hidden lg:block">
+                                    <div class="absolute inset-0 bg-vttu-dark blur-[100px] opacity-40"></div>
+                                    <img src="https://img.freepik.com/free-vector/digital-library-concept-illustration_114360-8451.jpg" alt="Library" class="relative z-10 rounded-[3rem] shadow-2xl border border-white/10 max-h-[400px] w-full object-cover">
                                 </div>
                             </div>
-                            <div class="relative hidden lg:block">
-                                <div class="absolute inset-0 bg-vttu-dark blur-[100px] opacity-40"></div>
-                                <img src="https://img.freepik.com/free-vector/digital-library-concept-illustration_114360-8451.jpg" alt="Library" class="relative z-10 rounded-[3rem] shadow-2xl border border-white/10 max-h-[500px] w-full object-cover">
-                                <!-- Glass Floating Card -->
-                                <div class="absolute -bottom-6 -right-6 bg-white/80 backdrop-blur-2xl p-6 rounded-3xl border border-slate-100 shadow-2xl animate-float">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-12 h-12 bg-vttu-red rounded-2xl flex items-center justify-center text-white text-xl">
-                                            <i class="fas fa-bolt"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs font-black text-vttu-dark uppercase">Tìm kiếm nhanh</p>
-                                            <p class="text-[10px] text-vttu-red font-bold">Smart Search OPAC</p>
-                                        </div>
+                        </div>
+                    </div>
+                    <!-- Footer Hero (25%) -->
+                    <div class="h-[25%] bg-vttu-red py-8">
+                        <div class=" mx-auto px-4 md:px-12 lg:px-24">
+                            <div class="flex flex-wrap items-center justify-start gap-16">
+                                <div class="flex items-center gap-4 group">
+                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
+                                        <i class="fas fa-book-reader"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="text-2xl font-black text-white">25k+</p>
+                                        <p class="text-[10px] font-bold text-vttu-yellow uppercase tracking-widest">Tài liệu số</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 group">
+                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="text-2xl font-black text-white">15k+</p>
+                                        <p class="text-[10px] font-bold text-vttu-yellow uppercase tracking-widest">Bạn đọc</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-4 group">
+                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <p class="text-2xl font-black text-white">24/7</p>
+                                        <p class="text-[10px] font-bold text-vttu-yellow uppercase tracking-widest">Truy cập</p>
                                     </div>
                                 </div>
                             </div>
@@ -65,48 +75,51 @@
                 </div>
 
                 <!-- Slide 2 -->
-                <div class="swiper-slide relative flex items-center pt-32 md:pt-40">
-                    <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                            <div class="space-y-10">
-                                <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
-                                    <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
-                                    VTTU Medical Collection
-                                </div>
-                                <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
-                                    Kệ sách <span class="text-vttu-red">Y khoa</span> <br>Chuyên sâu.
-                                </h1>
-                                <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
-                                    Truy cập kho giáo trình, Atlas giải phẫu và công trình nghiên cứu y học dành riêng cho khối ngành sức khỏe tại VTTU.
-                                </p>
-                                <div class="flex flex-wrap gap-4">
-                                    <a href="#explore" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all hover:-translate-y-1 flex items-center group">
-                                        Xem tài liệu y khoa
-                                        <i class="fas fa-stethoscope ml-3 group-hover:rotate-12 transition-transform"></i>
-                                    </a>
-                                </div>
-                                <!-- Highlights for Slide 2 -->
-                                <div class="flex gap-8 pt-8 border-t border-slate-100">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-xl bg-vttu-red/10 flex items-center justify-center text-vttu-red">
-                                            <i class="fas fa-microscope"></i>
-                                        </div>
-                                        <span class="text-xs font-bold text-slate-600">Nghiên cứu chuyên sâu</span>
+                <div class="swiper-slide flex flex-col">
+                    <!-- Body (75%) -->
+                    <div class="flex-grow flex items-center pt-32 md:pt-40 pb-12">
+                        <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                                <div class="space-y-8">
+                                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
+                                        <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
+                                        VTTU Medical Collection
                                     </div>
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-xl bg-vttu-red/10 flex items-center justify-center text-vttu-red">
-                                            <i class="fas fa-dna"></i>
-                                        </div>
-                                        <span class="text-xs font-bold text-slate-600">Atlas Giải phẫu số</span>
+                                    <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
+                                        Kệ sách <span class="text-vttu-red">Y khoa</span> <br>Chuyên sâu.
+                                    </h1>
+                                    <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
+                                        Truy cập kho giáo trình, Atlas giải phẫu và công trình nghiên cứu y học dành riêng cho khối ngành sức khỏe tại VTTU.
+                                    </p>
+                                    <div class="flex flex-wrap gap-4">
+                                        <a href="#explore" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all hover:-translate-y-1 flex items-center group">
+                                            Xem tài liệu y khoa
+                                            <i class="fas fa-stethoscope ml-3 group-hover:rotate-12 transition-transform"></i>
+                                        </a>
                                     </div>
+                                </div>
+                                <div class="relative hidden lg:block">
+                                    <div class="absolute inset-0 bg-vttu-red/10 blur-[100px] opacity-40"></div>
+                                    <img src="https://img.freepik.com/free-vector/medical-video-call-consultation-illustration_52683-61434.jpg" alt="Medical" class="relative z-10 rounded-[3rem] shadow-2xl border border-slate-100 max-h-[400px] w-full object-cover">
                                 </div>
                             </div>
-                            <div class="relative hidden lg:block">
-                                <div class="absolute inset-0 bg-vttu-red/10 blur-[100px] opacity-40"></div>
-                                <img src="https://img.freepik.com/free-vector/medical-video-call-consultation-illustration_52683-61434.jpg" alt="Medical" class="relative z-10 rounded-[3rem] shadow-2xl border border-slate-100 max-h-[500px] w-full object-cover">
-                                <!-- Floating Badge -->
-                                <div class="absolute top-10 -right-4 bg-vttu-red text-vttu-yellow px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] shadow-xl rotate-12">
-                                    Cập nhật hàng ngày
+                        </div>
+                    </div>
+                    <!-- Footer Hero (25%) -->
+                    <div class="h-[25%] bg-vttu-red py-8">
+                        <div class=" mx-auto px-4 md:px-12 lg:px-24">
+                            <div class="flex flex-wrap items-center justify-start gap-16">
+                                <div class="flex items-center gap-4 group">
+                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
+                                        <i class="fas fa-microscope"></i>
+                                    </div>
+                                    <span class="text-sm font-black text-white uppercase tracking-wider">Nghiên cứu chuyên sâu</span>
+                                </div>
+                                <div class="flex items-center gap-4 group">
+                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
+                                        <i class="fas fa-dna"></i>
+                                    </div>
+                                    <span class="text-sm font-black text-white uppercase tracking-wider">Atlas Giải phẫu số</span>
                                 </div>
                             </div>
                         </div>
@@ -114,49 +127,56 @@
                 </div>
 
                 <!-- Slide 3 -->
-                <div class="swiper-slide relative flex items-center pt-32 md:pt-40">
-                    <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                            <div class="space-y-10">
-                                <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
-                                    <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
-                                    Learning Resources
+                <div class="swiper-slide flex flex-col">
+                    <!-- Body (75%) -->
+                    <div class="flex-grow flex items-center pt-32 md:pt-40 pb-12">
+                        <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                                <div class="space-y-8">
+                                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
+                                        <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
+                                        Learning Resources
+                                    </div>
+                                    <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
+                                        Kết nối <span class="text-vttu-red">Không gian</span> <br>Học thuật mới.
+                                    </h1>
+                                    <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
+                                        Môi trường học tập hiện đại với trang thiết bị tối tân, phục vụ nhu cầu nghiên cứu và sáng tạo không ngừng của sinh viên VTTU.
+                                    </p>
+                                    <div class="flex flex-wrap gap-4">
+                                        <a href="/login" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all flex items-center group">
+                                            Đăng nhập ngay
+                                            <i class="fas fa-sign-in-alt ml-3 group-hover:translate-x-1 transition-transform"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
-                                    Kết nối <span class="text-vttu-red">Không gian</span> <br>Học thuật mới.
-                                </h1>
-                                <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
-                                    Môi trường học tập hiện đại với trang thiết bị tối tân, phục vụ nhu cầu nghiên cứu và sáng tạo không ngừng của sinh viên VTTU.
-                                </p>
-                                <div class="flex flex-wrap gap-4">
-                                    <a href="/login" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all flex items-center group">
-                                        Đăng nhập ngay
-                                        <i class="fas fa-sign-in-alt ml-3 group-hover:translate-x-1 transition-transform"></i>
-                                    </a>
+                                <div class="relative hidden lg:block">
+                                    <div class="absolute inset-0 bg-vttu-red/10 blur-[100px] opacity-40"></div>
+                                    <img src="https://img.freepik.com/free-vector/study-concept-illustration_114360-1111.jpg" alt="Study" class="relative z-10 rounded-[3rem] shadow-2xl border border-slate-100 max-h-[400px] w-full object-cover">
                                 </div>
-                                <!-- Features for Slide 3 -->
-                                <ul class="grid grid-cols-2 gap-4 pt-8 border-t border-slate-100">
-                                    <li class="flex items-center gap-2 text-vttu-red">
-                                        <i class="fas fa-check-circle text-[10px]"></i>
-                                        <span class="text-xs font-bold uppercase tracking-wider">Wifi miễn phí</span>
-                                    </li>
-                                    <li class="flex items-center gap-2 text-vttu-red">
-                                        <i class="fas fa-check-circle text-[10px]"></i>
-                                        <span class="text-xs font-bold uppercase tracking-wider">Phòng học nhóm</span>
-                                    </li>
-                                    <li class="flex items-center gap-2 text-vttu-red">
-                                        <i class="fas fa-check-circle text-[10px]"></i>
-                                        <span class="text-xs font-bold uppercase tracking-wider">Smart Tech</span>
-                                    </li>
-                                    <li class="flex items-center gap-2 text-vttu-red">
-                                        <i class="fas fa-check-circle text-[10px]"></i>
-                                        <span class="text-xs font-bold uppercase tracking-wider">Không gian yên tĩnh</span>
-                                    </li>
-                                </ul>
                             </div>
-                            <div class="relative hidden lg:block">
-                                <div class="absolute inset-0 bg-vttu-red/10 blur-[100px] opacity-40"></div>
-                                <img src="https://img.freepik.com/free-vector/study-concept-illustration_114360-1111.jpg" alt="Study" class="relative z-10 rounded-[3rem] shadow-2xl border border-slate-100 max-h-[500px] w-full object-cover">
+                        </div>
+                    </div>
+                    <!-- Footer Hero (25%) -->
+                    <div class="h-[25%] bg-vttu-red py-8">
+                        <div class=" mx-auto px-4 md:px-12 lg:px-24">
+                            <div class="flex flex-wrap items-center justify-start gap-16">
+                                <div class="flex items-center gap-3 text-vttu-yellow group">
+                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
+                                    <span class="text-xs font-black uppercase tracking-wider text-white">Wifi miễn phí</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-vttu-yellow group">
+                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
+                                    <span class="text-xs font-black uppercase tracking-wider text-white">Phòng học nhóm</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-vttu-yellow group">
+                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
+                                    <span class="text-xs font-black uppercase tracking-wider text-white">Smart Tech</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-vttu-yellow group">
+                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
+                                    <span class="text-xs font-black uppercase tracking-wider text-white">Không gian yên tĩnh</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -183,9 +203,9 @@
                     <!-- Section 1: 3 Tabs (Sách Mới | Tạp Chí Online | Thư mục) -->
                     <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
                         <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto">
-                            <button class="text-xl font-black text-vttu-red border-b-4 border-vttu-red pb-2 whitespace-nowrap">SÁCH MỚI</button>
-                            <button class="text-xl font-black text-slate-400 hover:text-vttu-red pb-2 whitespace-nowrap">TẠP CHÍ ONLINE</button>
-                            <button class="text-xl font-black text-slate-400 hover:text-vttu-red pb-2 whitespace-nowrap">THƯ MỤC</button>
+                                <button class="text-xl font-black text-white bg-vttu-red px-6 py-2 rounded-xl whitespace-nowrap shadow-lg shadow-vttu-red/20 transition-all">SÁCH MỚI</button>
+                                <button class="text-xl font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">TẠP CHÍ ONLINE</button>
+                                <button class="text-xl font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">THƯ MỤC</button>
                         </div>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <?php
@@ -243,8 +263,8 @@
                     <!-- Section 3: 2 Tabs (Tin mới | Video) -->
                     <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
                         <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6">
-                            <button class="text-xl font-black text-vttu-red border-b-4 border-vttu-red pb-2">TIN MỚI</button>
-                            <button class="text-xl font-black text-slate-400 hover:text-vttu-red pb-2">VIDEO</button>
+                            <button class="text-xl font-black text-white bg-vttu-red px-6 py-2 rounded-xl shadow-lg shadow-vttu-red/20 transition-all">TIN MỚI</button>
+                            <button class="text-xl font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl transition-all">VIDEO</button>
                         </div>
                         <div class="space-y-6">
                             <?php for($i=1; $i<=3; $i++): ?>
@@ -284,9 +304,9 @@
                     <!-- Section 5: 3 Tabs (Sản khoa | Nhi Khoa | Nội Khoa) -->
                     <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
                         <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto">
-                            <button class="text-lg font-black text-vttu-red border-b-4 border-vttu-red pb-2 whitespace-nowrap">CHUYÊN ĐỀ SẢN KHOA</button>
-                            <button class="text-lg font-black text-slate-400 hover:text-vttu-red pb-2 whitespace-nowrap">CHUYÊN ĐỀ NHI KHOA</button>
-                            <button class="text-lg font-black text-slate-400 hover:text-vttu-red pb-2 whitespace-nowrap">CHUYÊN ĐỀ NỘI KHOA</button>
+                            <button class="text-lg font-black text-white bg-vttu-red px-6 py-2 rounded-xl shadow-lg shadow-vttu-red/20 whitespace-nowrap transition-all">CHUYÊN ĐỀ SẢN KHOA</button>
+                            <button class="text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">CHUYÊN ĐỀ NHI KHOA</button>
+                            <button class="text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">CHUYÊN ĐỀ NỘI KHOA</button>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <?php
@@ -313,30 +333,31 @@
                 <div class="lg:col-span-3 space-y-0 divide-y divide-vttu-red/10">
                     
                     <!-- Thời gian phục vụ -->
-                    <div class="bg-white/95 backdrop-blur-sm p-6" data-aos="fade-left">
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="w-12 h-12 bg-vttu-yellow/10 rounded-2xl flex items-center justify-center text-vttu-yellow">
-                                <i class="fas fa-clock"></i>
+                    <div class="bg-vttu-red p-8 relative overflow-hidden group shadow-2xl shadow-vttu-red/20" data-aos="fade-left">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-2xl rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
+                        <div class="flex items-center gap-4 mb-8 relative z-10">
+                            <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-vttu-yellow border border-white/20">
+                                <i class="fas fa-clock text-xl"></i>
                             </div>
-                            <h3 class="text-xl font-black text-vttu-dark tracking-tight">THỜI GIAN PHỤC VỤ</h3>
+                            <h3 class="text-2xl font-black text-white tracking-tight leading-tight">THỜI GIAN<br>PHỤC VỤ</h3>
                         </div>
-                        <div class="space-y-4">
-                            <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
-                                <span class="font-bold text-slate-600 text-sm">Thứ 2 - Thứ 6</span>
-                                <span class="font-black text-vttu-dark text-sm">7:30 - 20:00</span>
+                        <div class="space-y-4 relative z-10">
+                            <div class="flex justify-between items-center p-5 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/20 transition-all">
+                                <span class="font-bold text-white/90 text-sm uppercase tracking-widest">Thứ 2 - Thứ 6</span>
+                                <span class="font-black text-vttu-yellow text-base tracking-tighter">7:30 - 20:00</span>
                             </div>
-                            <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
-                                <span class="font-bold text-slate-600 text-sm">Thứ 7 - CN</span>
-                                <span class="font-black text-vttu-dark text-sm">8:00 - 17:00</span>
+                            <div class="flex justify-between items-center p-5 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/20 transition-all">
+                                <span class="font-bold text-white/90 text-sm uppercase tracking-widest">Thứ 7 - CN</span>
+                                <span class="font-black text-vttu-yellow text-base tracking-tighter">8:00 - 17:00</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- 2 Tabs: Tài liệu số mới | Nổi bật -->
-                    <div class="bg-white/95 backdrop-blur-sm p-6" data-aos="fade-left">
-                        <div class="flex border-b border-slate-100 mb-6">
-                            <button class="flex-1 py-3 text-xs font-black text-vttu-red border-b-2 border-vttu-red uppercase tracking-widest">Mới</button>
-                            <button class="flex-1 py-3 text-xs font-black text-slate-400 hover:text-vttu-red uppercase tracking-widest">Nổi bật</button>
+                    <div class="bg-white p-6 shadow-xl" data-aos="fade-left">
+                        <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
+                            <button class="flex-1 py-3 text-xs font-black text-white bg-vttu-red rounded-xl shadow-lg shadow-vttu-red/20 uppercase tracking-widest transition-all">Mới</button>
+                            <button class="flex-1 py-3 text-xs font-black text-slate-400 hover:text-vttu-red uppercase tracking-widest transition-all">Nổi bật</button>
                         </div>
                         <div class="space-y-4">
                             <?php

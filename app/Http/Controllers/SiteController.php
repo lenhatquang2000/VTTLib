@@ -46,6 +46,34 @@ class SiteController extends Controller
     }
 
     /**
+     * Display OPAC search page
+     */
+    public function opac(Request $request)
+    {
+        $menuItems = SiteNode::getMenuItems('menu');
+        $footerItems = SiteNode::getMenuItems('footer');
+        
+        $query = \App\Models\BibliographicRecord::with(['fields.subfields', 'items']);
+
+        // Xử lý tìm kiếm nếu có từ khóa
+        if ($request->has('q') && !empty($request->q)) {
+            $keyword = $request->q;
+            $query->whereHas('fields', function($q) use ($keyword) {
+                $q->where(function($subQ) use ($keyword) {
+                    $subQ->whereIn('tag', ['245', '100', '700'])
+                         ->whereHas('subfields', function($ssQ) use ($keyword) {
+                             $ssQ->where('value', 'LIKE', "%{$keyword}%");
+                         });
+                });
+            });
+        }
+        
+        $books = $query->latest()->paginate(12)->withQueryString();
+
+        return view('site.pages.opac', compact('menuItems', 'footerItems', 'books'));
+    }
+
+    /**
      * Display a static page by node code
      */
     public function page($code)
@@ -77,7 +105,7 @@ class SiteController extends Controller
             $tempNode = $tempNode->parent;
         }
 
-        // Nếu là trang chủ HOẶC node đang dùng template home, nạp thêm dữ liệu động cho tài liệu số
+        // Nếu là trang chủ HOẶC dùng template opac, nạp thêm dữ liệu động
         $extraData = [];
         if ($code === 'home' || $siteNode->masterpage === 'home' || request()->query('preview_template') === 'home') {
             $extraData['newResources'] = \App\Models\DigitalResource::with('folder')
@@ -92,6 +120,13 @@ class SiteController extends Controller
                 ->where('status', 'published')
                 ->take(4)
                 ->get();
+        }
+
+        // Nạp dữ liệu sách nếu dùng template opac
+        if ($siteNode->masterpage === 'opac' || request()->query('preview_template') === 'opac') {
+            $extraData['books'] = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
+                ->latest()
+                ->paginate(12);
         }
 
         // 1. Kiểm tra template preview qua query param

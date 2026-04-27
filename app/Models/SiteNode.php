@@ -130,7 +130,7 @@ class SiteNode extends Model
             return $this->url;
         }
         
-        return '/page/' . $this->node_code;
+        return '/' . $this->node_code;
     }
 
     /**

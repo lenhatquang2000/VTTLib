@@ -350,6 +350,19 @@
     <!-- JavaScript -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        // Global Image Fallback Handler
+        document.addEventListener('error', function (e) {
+            if (e.target.tagName.toLowerCase() === 'img') {
+                // Sử dụng ảnh placeholder của VTTU hoặc dịch vụ placeholder uy tín
+                const fallbackUrl = "https://placehold.co/800x600/7B0000/FFFFFF?text=VTTU+Library";
+                
+                // Tránh lặp vô tận nếu chính ảnh fallback cũng lỗi
+                if (e.target.src !== fallbackUrl) {
+                    e.target.src = fallbackUrl;
+                }
+            }
+        }, true);
+
         // Header transparency handling (Disabled as per user request for solid bg)
         window.addEventListener('scroll', function() {
             const header = document.getElementById('siteHeader');

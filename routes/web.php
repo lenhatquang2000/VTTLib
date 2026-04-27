@@ -39,7 +39,9 @@ Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::cl
 
 // Public Website Routes
 Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
-Route::get('/page/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
+Route::get('/opac', [\App\Http\Controllers\SiteController::class, 'opac'])->name('site.opac');
+Route::get('/opac/search', [\App\Http\Controllers\SiteController::class, 'opac'])->name('opac.search');
+Route::get('/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
 Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])->name('site.sitemap');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');
 
