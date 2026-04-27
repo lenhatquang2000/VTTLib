@@ -64,7 +64,26 @@ use App\Http\Controllers\Admin\ActivityLogController;
 
 // Admin Panel Routes (Consolidated for all staff levels)
 Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function () {
-    Route::get('/', function () {
+    // Temporary fix for storage link
+Route::get('/storage-link', function () {
+    try {
+        if (file_exists(public_path('storage'))) {
+            // Nếu là link cũ bị hỏng hoặc thư mục, thử xoá
+            if (is_link(public_path('storage'))) {
+                app('files')->delete(public_path('storage'));
+            } else {
+                return "Thư mục public/storage đã tồn tại. Vui lòng xoá thủ công thư mục này trước khi chạy lại.";
+            }
+        }
+        
+        app('files')->link(storage_path('app/public'), public_path('storage'));
+        return "Đã tạo link storage thành công!.";
+    } catch (\Exception $e) {
+        return "Lỗi khi tạo link: " . $e->getMessage();
+    }
+});
+
+Route::get('/', function () {
         return redirect()->route('admin.dashboard');
     });
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');

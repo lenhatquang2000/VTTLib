@@ -8,9 +8,6 @@ use App\Models\MarcFramework;
 use App\Models\MarcTagDefinition;
 use App\Models\MarcSubfieldDefinition;
 use App\Models\DocumentType;
-use App\Models\MarcSubfield;
-use App\Models\BookItem;
-use App\Models\Branch;
 use App\Models\StorageLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -781,15 +778,11 @@ class MarcImportController extends Controller
                     // Create MARC fields from parsed data
                     $this->createMarcFieldsFromParsed($record, $parsed['fields']);
 
-                    // Create BookItems (Distribution) from MARC fields
-                    $this->createItemsFromMarcFields($record, $parsed['fields']);
-
                     $results[] = [
                         'row_index' => $parsed['row_index'] ?? 0,
                         'success' => true,
                         'record_id' => $record->id,
-                        'title' => $parsed['title'] ?? 'Untitled',
-                        'items_count' => $record->items()->count()
+                        'title' => $parsed['title'] ?? 'Untitled'
                     ];
                 } catch (\Exception $e) {
                     $results[] = [
@@ -1114,102 +1107,6 @@ class MarcImportController extends Controller
                         ]);
                     }
                 }
-            }
-        }
-    }
-
-    /**
-     * Create BookItems (Distribution) from MARC fields (Local tags like 930, 941, 952)
-     */
-    protected function createItemsFromMarcFields(BibliographicRecord $record, array $fields): void
-    {
-        $itemsData = [];
-
-        // Pattern 1: Koha style (952 tag)
-        if (isset($fields['952'])) {
-            foreach ($fields['952'] as $instance) {
-                $item = [
-                    'barcode' => null,
-                    'accession_number' => null,
-                    'branch_code' => null,
-                    'location_code' => null,
-                ];
-                foreach ($instance['subfields'] as $sf) {
-                    if ($sf['code'] === 'p') $item['barcode'] = $sf['value'];
-                    if ($sf['code'] === 'i') $item['accession_number'] = $sf['value'];
-                    if ($sf['code'] === 'a' || $sf['code'] === 'b') $item['branch_code'] = $sf['value'];
-                    if ($sf['code'] === 'c') $item['location_code'] = $sf['value'];
-                }
-                if ($item['barcode'] || $item['accession_number']) {
-                    $itemsData[] = $item;
-                }
-            }
-        }
-
-        // Pattern 2: User specific (930 for accession/barcode, 941 for branch/location)
-        // If 930 is present but 952 isn't
-        if (empty($itemsData) && isset($fields['930'])) {
-            foreach ($fields['930'] as $index => $instance930) {
-                $item = [
-                    'barcode' => null,
-                    'accession_number' => null,
-                    'branch_code' => null,
-                    'location_code' => null,
-                ];
-
-                // Get barcode/accession from 930
-                foreach ($instance930['subfields'] as $sf) {
-                    if ($sf['code'] === 'a') {
-                        $item['barcode'] = $sf['value'];
-                        $item['accession_number'] = $sf['value'];
-                    }
-                }
-
-                // Try to find corresponding 941 (by index)
-                if (isset($fields['941'][$index])) {
-                    foreach ($fields['941'][$index]['subfields'] as $sf) {
-                        if ($sf['code'] === 'a') $item['branch_code'] = $sf['value'];
-                        if ($sf['code'] === 'b') $item['location_code'] = $sf['value'];
-                    }
-                }
-
-                if ($item['barcode'] || $item['accession_number']) {
-                    $itemsData[] = $item;
-                }
-            }
-        }
-
-        // Process collected items
-        foreach ($itemsData as $data) {
-            $branch = null;
-            if ($data['branch_code']) {
-                $branch = Branch::where('code', $data['branch_code'])
-                    ->orWhere('name', 'like', '%' . $data['branch_code'] . '%')
-                    ->first();
-            }
-
-            $location = null;
-            if ($branch && $data['location_code']) {
-                $location = StorageLocation::where('branch_id', $branch->id)
-                    ->where(function($q) use ($data) {
-                        $q->where('code', $data['location_code'])
-                          ->orWhere('name', 'like', '%' . $data['location_code'] . '%');
-                    })->first();
-            }
-
-            // Fallback to first branch/location if not found
-            if (!$branch) $branch = Branch::first();
-            if ($branch && !$location) $location = StorageLocation::where('branch_id', $branch->id)->first();
-
-            if ($branch && $location) {
-                $record->items()->create([
-                    'branch_id' => $branch->id,
-                    'storage_location_id' => $location->id,
-                    'barcode' => $data['barcode'],
-                    'accession_number' => $data['accession_number'],
-                    'status' => 'available',
-                    'storage_type' => 'Book'
-                ]);
             }
         }
     }

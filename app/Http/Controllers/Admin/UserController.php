@@ -95,8 +95,25 @@ class UserController extends Controller
             $validated = $request->validated();
             $user = User::findOrFail($validated['user_id']);
             $this->userService->assignRole($user, $validated['role_id']);
+            
+            // Return JSON for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Role assigned successfully'
+                ]);
+            }
+            
             return redirect()->back()->with('success', 'Role assigned successfully');
         } catch (\Exception $e) {
+            // Return JSON for AJAX requests
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to assign role: ' . $e->getMessage()
+                ], 400);
+            }
+            
             return redirect()->back()->with('error', 'Failed to assign role: ' . $e->getMessage());
         }
     }

@@ -179,10 +179,14 @@ class UserService
 
     /**
      * Get raw users with search and pagination for identity management
+     * Optimized to prevent timeout on large datasets
      */
     public function getUsersForRoot(?string $search = null, ?int $roleId = null, int $perPage = 10)
     {
-        $query = User::with('roles');
+        $query = User::select(['id', 'name', 'username', 'email', 'status', 'created_at', 'updated_at'])
+            ->with(['roles' => function($query) {
+                $query->select('roles.id', 'roles.name', 'roles.display_name');
+            }]);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -193,12 +197,15 @@ class UserService
         }
 
         if ($roleId) {
-            $query->whereHas('roles', function ($q) use ($roleId) {
-                $q->where('roles.id', $roleId);
-            });
+            // Use join instead of whereHas for better performance
+            $query->join('role_user', 'users.id', '=', 'role_user.user_id')
+                  ->where('role_user.role_id', $roleId)
+                  ->distinct();
         }
 
-        return $query->latest()->paginate($perPage)->withQueryString();
+        return $query->orderBy('users.created_at', 'desc')
+                     ->paginate($perPage)
+                     ->withQueryString();
     }
 
     /**
@@ -285,6 +292,7 @@ class UserService
      * Incrementally sync sidebars for ALL users belonging to a specific role.
      * This ONLY ADDS missing sidebars that are defined in the role template,
      * without deleting existing custom sidebars assigned to the user.
+     * Uses chunking to prevent timeout on large datasets.
      */
     public function syncAllUsersToRoleSidebars(int $roleId): void
     {
@@ -293,21 +301,30 @@ class UserService
 
         if (empty($roleSidebarIds)) return;
 
-        // Get all pivot records for this role
-        $roleUsers = \App\Models\RoleUser::where('role_id', $roleId)->get();
+        // Process in chunks to avoid memory/timeout issues
+        \App\Models\RoleUser::where('role_id', $roleId)
+            ->with(['sidebars' => function($query) {
+                $query->select('sidebar_id', 'role_user_id');
+            }])
+            ->chunk(100, function ($roleUsers) use ($roleSidebarIds) {
+                foreach ($roleUsers as $roleUser) {
+                    $existingSidebarIds = $roleUser->sidebars->pluck('sidebar_id')->toArray();
+                    $missingIds = array_diff($roleSidebarIds, $existingSidebarIds);
 
-        foreach ($roleUsers as $roleUser) {
-            // Get existing sidebar assignments for this specific pivot record
-            $existingSidebarIds = $roleUser->sidebars()->pluck('sidebar_id')->toArray();
+                    if (!empty($missingIds)) {
+                        // Batch insert instead of individual creates
+                        $inserts = collect($missingIds)->map(function ($sidebarId) use ($roleUser) {
+                            return [
+                                'role_user_id' => $roleUser->id,
+                                'sidebar_id' => $sidebarId,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+                        })->toArray();
 
-            // Find IDs that are in the role template but NOT in the user's current list
-            $missingIds = array_diff($roleSidebarIds, $existingSidebarIds);
-
-            if (!empty($missingIds)) {
-                foreach ($missingIds as $sidebarId) {
-                    $roleUser->sidebars()->create(['sidebar_id' => $sidebarId]);
+                        \App\Models\RoleUserSidebar::insert($inserts);
+                    }
                 }
-            }
-        }
+            });
     }
 }

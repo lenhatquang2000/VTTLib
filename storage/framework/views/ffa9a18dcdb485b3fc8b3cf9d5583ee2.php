@@ -1007,7 +1007,7 @@
             // Option: create new from file
             const createOpt = document.createElement('option');
             createOpt.value = '__create_new__';
-            createOpt.textContent = '✨ <?php echo e(__("Tạo khung mới từ file MARC")); ?>';
+            createOpt.innerHTML = '<i class="fas fa-plus-circle"></i> <?php echo e(__("Tạo khung mới từ file MARC")); ?>';
             createOpt.style.fontWeight = 'bold';
             marcProcessFramework.appendChild(createOpt);
 
@@ -1026,12 +1026,12 @@
                 opt.value = fw.id;
                 let label = `${fw.name} (${fw.code})`;
                 if (fw.is_compatible) {
-                    label += ` ✅ Phù hợp ${fw.match_ratio}% (${fw.matched_tags}/${fw.total_file_tags} tags)`;
+                    label += ` <i class="fas fa-check-circle text-green-500"></i> Phù hợp ${fw.match_ratio}% (${fw.matched_tags}/${fw.total_file_tags} tags)`;
                     if (!bestMatchId) bestMatchId = fw.id;
                 } else {
                     label += ` — ${fw.match_ratio}% (${fw.matched_tags}/${fw.total_file_tags} tags)`;
                 }
-                opt.textContent = label;
+                opt.innerHTML = label;
                 marcProcessFramework.appendChild(opt);
             });
 
@@ -1328,33 +1328,22 @@
                             <tr>
                                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400">#</th>
                                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400"><?php echo e(__('Nhan đề')); ?></th>
-                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400"><?php echo e(__('Số cuốn')); ?></th>
                                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400"><?php echo e(__('Trạng thái')); ?></th>
                                 <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-slate-400"><?php echo e(__('Chi tiết')); ?></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-slate-800">
-                            ${data.map(row => `
-                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                                    <td class="px-4 py-2">${row.row_index}</td>
-                                    <td class="px-4 py-2 font-medium text-gray-700 dark:text-slate-200">${row.title}</td>
+                        <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+                            ${data.map(r => `
+                                <tr>
+                                    <td class="px-4 py-2 text-xs">${r.row_index}</td>
+                                    <td class="px-4 py-2 text-sm">${r.title || '-'}</td>
                                     <td class="px-4 py-2">
-                                        <span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded text-xs font-bold">
-                                            ${row.items_count || 0} <?php echo e(__('cuốn')); ?>
-
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${r.success ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}">
+                                            ${r.success ? '<?php echo e(__("OK")); ?>' : '<?php echo e(__("Lỗi")); ?>'}
                                         </span>
                                     </td>
-                                    <td class="px-4 py-2">
-                                        ${row.success ? 
-                                            '<span class="text-green-600 dark:text-green-400 flex items-center"><svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Thành công</span>' : 
-                                            '<span class="text-red-600 dark:text-red-400 flex items-center"><svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>Thất bại</span>'
-                                        }
-                                    </td>
-                                    <td class="px-4 py-2 text-xs text-gray-500 dark:text-slate-400">
-                                        ${row.success ? 
-                                            `<a href="/topsecret/marc-books/form/${row.record_id}" target="_blank" class="text-indigo-600 hover:underline">ID: #${row.record_id}</a>` : 
-                                            row.error
-                                        }
+                                    <td class="px-4 py-2 text-xs ${r.success ? 'text-gray-500' : 'text-red-500'}">
+                                        ${r.success ? 'ID: ' + r.record_id : r.error}
                                     </td>
                                 </tr>
                             `).join('')}

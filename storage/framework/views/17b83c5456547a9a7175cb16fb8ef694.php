@@ -411,26 +411,16 @@
                             </div>
                         </div>
 
-                        <div class="p-4 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30 space-y-4">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest"><?php echo e(__('Technical Specs')); ?></span>
-                                <div class="flex items-center">
-                                    <input type="checkbox" x-model="newItem.waits_for_print" id="edit_waits_for_print" class="rounded text-indigo-600 focus:ring-0 w-3 h-3">
-                                    <label for="edit_waits_for_print" class="ml-1.5 text-[8px] font-bold text-gray-500 uppercase"><?php echo e(__('Wait for print')); ?></label>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2">
-                                <input type="number" x-model="newItem.day" placeholder="DD" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 text-center px-1">
-                                <input type="text" x-model="newItem.month_season" placeholder="MM/S" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 text-center px-1">
-                                <input type="number" x-model="newItem.year" placeholder="YYYY" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 text-center px-1">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <input type="text" x-model="newItem.shelf" placeholder="<?php echo e(__('Shelf')); ?>" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 px-3">
-                                <input type="text" x-model="newItem.shelf_position" placeholder="<?php echo e(__('Position')); ?>" class="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-xs rounded py-1.5 px-3">
-                            </div>
-                        </div>
-
+                        
                         <textarea x-model="newItem.notes" rows="2" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm" placeholder="<?php echo e(__('Notes')); ?>..."></textarea>
+
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest"><?php echo e(__('Distribution Quantity')); ?></label>
+                            <input type="number" x-model="batchQuantity" min="1" max="100"
+                                class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                                placeholder="1">
+                            <p class="text-[9px] text-gray-400 mt-1 italic"><?php echo e(__('Auto-generate items based on this quantity')); ?></p>
+                        </div>
 
                         <div class="flex gap-2 pt-2">
                             <button type="button" @click="addItem()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-sm flex items-center justify-center">
@@ -472,8 +462,14 @@
                                     <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
                                         <td class="px-6 py-4">
                                             <div class="flex flex-col">
-                                                <span class="text-sm font-bold text-gray-800 dark:text-slate-200 font-mono" x-text="item.barcode || 'AUTO'"></span>
-                                                <span class="text-[10px] text-gray-400 dark:text-slate-500 font-mono" x-text="'#' + item.accession_number"></span>
+                                                <div class="flex items-center space-x-2">
+                                                    <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">Barcode:</span>
+                                                    <span class="text-sm font-bold text-gray-800 dark:text-slate-200 font-mono" x-text="item.barcode || 'AUTO'"></span>
+                                                </div>
+                                                <div class="flex items-center space-x-2 mt-1">
+                                                    <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">ACC:</span>
+                                                    <span class="text-xs font-bold text-gray-600 dark:text-slate-400 font-mono" x-text="item.accession_number || '---'"></span>
+                                                </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4">
@@ -546,7 +542,8 @@
                     </div>
                 </div>
             </div>
-        </div>
+
+                    </div>
 
         <!-- Step 4: MARC Preview -->
         <div x-show="currentStep === 3" x-cloak class="space-y-6">
@@ -745,6 +742,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
     function catalogWizard() {
         return {
             currentStep: parseInt(new URLSearchParams(window.location.search).get('tab')) || 0,
+            isDirty: false,
             steps: [{
                     title: '<?php echo e(__("Leader_Info")); ?>'
                 },
@@ -841,6 +839,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             items: <?php echo json_encode($initialItemsData, 15, 512) ?>,
             branches: <?php echo json_encode($branches, 15, 512) ?>,
             editingIndex: null,
+            batchQuantity: 1,
             newItem: {
                 id: null,
                 branch_id: '',
@@ -877,6 +876,66 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 const loc = branch.storage_locations.find(l => l.id == locationId);
                 return loc ? loc.name : '-';
             },
+            generateBatchItems() {
+                if (!this.batchQuantity || this.batchQuantity < 1) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '<?php echo e(__('Invalid Quantity')); ?>',
+                        text: '<?php echo e(__('Please_enter_valid_quantity')); ?>',
+                        confirmButtonColor: '#3b82f6',
+                        confirmButtonText: '<?php echo e(__('Understood')); ?>'
+                    });
+                    return;
+                }
+                
+                if (!this.newItem.branch_id || !this.newItem.storage_location_id) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '<?php echo e(__('Setup Required')); ?>',
+                        text: '<?php echo e(__('Please_setup_first_item_before_batch_generation')); ?>',
+                        confirmButtonColor: '#3b82f6',
+                        confirmButtonText: '<?php echo e(__('Understood')); ?>'
+                    });
+                    return;
+                }
+
+                // Generate items based on first item data
+                const baseItem = JSON.parse(JSON.stringify(this.newItem));
+                const startCount = this.items.length;
+                
+                for (let i = 0; i < this.batchQuantity; i++) {
+                    const newItem = JSON.parse(JSON.stringify(baseItem));
+                    newItem.id = null; // Remove ID for new items
+                    
+                    // Auto-generate unique barcode and accession number
+                    if (!newItem.barcode || newItem.barcode === 'AUTO') {
+                        newItem.barcode = 'AUTO-' + (startCount + i + 1).toString().padStart(6, '0');
+                    }
+                    if (!newItem.accession_number) {
+                        newItem.accession_number = 'ACC-' + (startCount + i + 1).toString().padStart(6, '0');
+                    }
+                    
+                    // Clear technical specs fields
+                    newItem.day = '';
+                    newItem.month_season = '';
+                    newItem.year = '';
+                    newItem.shelf = '';
+                    newItem.shelf_position = '';
+                    
+                    this.items.push(newItem);
+                }
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: '<?php echo e(__('Batch Generated')); ?>',
+                    text: `<?php echo e(__('Successfully generated')); ?> ${this.batchQuantity} <?php echo e(__('items')); ?>`,
+                    confirmButtonColor: '#10b981',
+                    confirmButtonText: '<?php echo e(__('Great')); ?>'
+                });
+                
+                // Reset batch quantity
+                this.batchQuantity = 1;
+            },
             addItem() {
                 if (!this.newItem.storage_location_id) {
                     Swal.fire({
@@ -888,13 +947,54 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     });
                     return;
                 }
+
                 if (this.editingIndex !== null) {
                     this.items[this.editingIndex] = JSON.parse(JSON.stringify(this.newItem));
                     this.editingIndex = null;
                 } else {
-                    this.items.push(JSON.parse(JSON.stringify(this.newItem)));
+                    // Batch add based on batchQuantity
+                    const quantity = parseInt(this.batchQuantity) || 1;
+                    const baseItem = JSON.parse(JSON.stringify(this.newItem));
+                    const startCount = this.items.length;
+
+                    for (let i = 0; i < quantity; i++) {
+                        const itemToAdd = JSON.parse(JSON.stringify(baseItem));
+                        
+                        // Smart Auto-generate / Increment logic
+                        const incrementValue = (val, defaultPrefix, index) => {
+                            if (!val || val === 'AUTO') {
+                                return defaultPrefix + '-' + (startCount + index + 1).toString().padStart(6, '0');
+                            }
+                            // If value ends with a number, increment it
+                            const match = val.match(/(.*?)(\d+)$/);
+                            if (match) {
+                                const prefix = match[1];
+                                const numStr = match[2];
+                                const nextNum = parseInt(numStr) + index;
+                                return prefix + nextNum.toString().padStart(numStr.length, '0');
+                            }
+                            // Otherwise just append index if i > 0
+                            return index > 0 ? val + (index + 1) : val;
+                        };
+
+                        itemToAdd.barcode = incrementValue(baseItem.barcode, 'AUTO', i);
+                        itemToAdd.accession_number = incrementValue(baseItem.accession_number, 'ACC', i);
+
+                        this.items.push(itemToAdd);
+                    }
+                    
+                    if (quantity > 1) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '<?php echo e(__('Batch Added')); ?>',
+                            text: `Successfully added ${quantity} items`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
                 }
                 this.resetNewItem();
+                this.batchQuantity = 1; // Reset quantity
             },
             editItem(index) {
                 this.editingIndex = index;
