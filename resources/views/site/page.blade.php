@@ -20,7 +20,7 @@
                         <li class="text-gray-600 font-medium">{{ $item['name'] }}</li>
                     @else
                         <li>
-                            <a href="{{ $item['url'] }}" class="text-blue-600 hover:text-blue-800">
+                            <a href="{{ $item['url'] }}" class="text-vttu-red hover:text-vttu-dark">
                                 {{ $item['name'] }}
                             </a>
                         </li>
@@ -33,12 +33,12 @@
 
     <!-- Page Header -->
     @if(!$node->activeItems()->count())
-    <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12">
+    <section class="bg-white border-b border-slate-100 py-12">
         <div class="container mx-auto px-4">
             <div class="text-center">
-                <h1 class="text-4xl font-bold mb-4">{{ $node->display_name }}</h1>
+                <h1 class="text-4xl font-black mb-4 text-vttu-dark">{{ $node->display_name }}</h1>
                 @if($node->description)
-                    <p class="text-xl">{{ $node->description }}</p>
+                    <p class="text-xl text-vttu-red/80">{{ $node->description }}</p>
                 @endif
             </div>
         </div>
@@ -76,22 +76,22 @@
 
     <!-- Related Pages -->
     @if($node->getSiblings()->count() > 0)
-    <section class="py-16 bg-gray-50">
+    <section class="py-16 bg-white border-t border-slate-100">
         <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-bold text-center mb-8">Trang liên quan</h2>
+            <h2 class="text-2xl font-black text-center mb-8 text-vttu-dark">Trang liên quan</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach($node->getSiblings()->take(6) as $sibling)
-                <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
+                <div class="bg-white p-6 rounded-3xl shadow-xl shadow-black/5 border border-slate-100 hover:border-vttu-red/20 transition group">
                     <div class="flex items-center mb-3">
                         @if($sibling->icon)
-                            <i class="{{ $sibling->icon }} text-blue-600 mr-3"></i>
+                            <i class="{{ $sibling->icon }} text-vttu-red mr-3"></i>
                         @endif
-                        <h3 class="font-semibold">{{ $sibling->display_name }}</h3>
+                        <h3 class="font-black text-vttu-dark group-hover:text-vttu-red transition-colors">{{ $sibling->display_name }}</h3>
                     </div>
                     @if($sibling->description)
-                        <p class="text-gray-600 text-sm mb-4">{{ $sibling->description }}</p>
+                        <p class="text-vttu-dark/70 text-sm mb-4 line-clamp-2">{{ $sibling->description }}</p>
                     @endif
-                    <a href="{{ $sibling->getUrl() }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <a href="{{ $sibling->getUrl() }}" class="text-vttu-red hover:text-vttu-dark font-black text-sm uppercase tracking-wider">
                         Xem thêm →
                     </a>
                 </div>

@@ -7,18 +7,6 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('MARC21_Cataloging_Form') }}</h2>
             <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Cataloging_Instruction') }}</p>
-            <div class="mt-4 flex flex-col gap-2 md:flex-row md:items-center">
-                <label class="text-sm font-bold text-gray-700 dark:text-slate-300 mb-0">{{ __('Cataloging_Framework') }}</label>
-                <select x-model="formData.framework" name="framework"
-                    onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
-                    class="w-full md:w-[360px] px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                    @foreach($frameworks as $fw)
-                    <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
-                        {{ $fw->name }} ({{ $fw->code }})
-                    </option>
-                    @endforeach
-                </select>
-            </div>
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('admin.marc.book') }}"
@@ -60,86 +48,130 @@
                     <p class="text-sm text-gray-500 dark:text-slate-400">{{ __('Leader_Instruction') }}</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                    <!-- Cover Image -->
-                    <div class="md:col-span-2 pb-4 border-b border-gray-100 dark:border-slate-800">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cover_Image') }}</label>
-                        <input type="file" name="cover_image" accept="image/*"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
+                    <!-- LEFT COLUMN: All Selections -->
+                    <div class="lg:col-span-8 space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                            <!-- Framework Selection (Full Width in Left Column) -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">
+                                    {{ __('Cataloging_Framework') }} <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <select x-model="formData.framework" name="framework"
+                                        onchange="const url = new URL(window.location); url.searchParams.set('framework_id', this.options[this.selectedIndex].getAttribute('data-id')); window.location.href = url.toString();"
+                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
+                                        @foreach($frameworks as $fw)
+                                        <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
+                                            {{ $fw->name }} ({{ $fw->code }})
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <p class="mt-2 text-[9px] text-gray-400 uppercase tracking-widest font-bold">
+                                    {{ __('Page will reload on change') }}
+                                </p>
+                            </div>
+
+                            <!-- Serial Frequency -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Frequency') }}</label>
+                                <select x-model="formData.serial_frequency" name="serial_frequency"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="unknown">{{ __('Unknown_Frequency') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Publication Date Type -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Publication_Date_Type') }}</label>
+                                <select x-model="formData.date_type" name="date_type"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="bc">{{ __('BC_Date_Involved') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Serial Acquisition Method -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Acquisition_Method') }}</label>
+                                <select x-model="formData.acquisition_method" name="acquisition_method"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="untraced">{{ __('Untraced_Serials_Text') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Document Format -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Document_Format') }}</label>
+                                <select x-model="formData.document_format" name="document_format"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="none">{{ __('None_Format') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Cataloging Standard -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Standard') }}</label>
+                                <select x-model="formData.cataloging_standard" name="cataloging_standard"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="AACR2">AACR-2</option>
+                                </select>
+                            </div>
+
+                            <!-- Status -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
+                                <select x-model="formData.status" name="status"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
+                                    <option value="pending">{{ __('New_Status_Text') }}</option>
+                                    <option value="approved">{{ __('Approved') }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Subject Category -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Subject_Category') }}</label>
+                                <select x-model="formData.subject_category" name="subject_category"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
+                                    <option value="Article">{{ __('Selected_Article') }}</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Status -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
-                        <select x-model="formData.status" name="status"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="pending">{{ __('New_Status_Text') }}</option>
-                            <option value="approved">{{ __('Approved') }}</option>
-                        </select>
-                    </div>
+                    <!-- RIGHT COLUMN: Cover Image -->
+                    <div class="lg:col-span-4">
+                        <div class="h-full flex flex-col">
+                            <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cover_Image') }}</label>
+                            <div class="flex-1 min-h-[200px] border-2 border-dashed border-gray-300 dark:border-slate-700 rounded-xl flex flex-col items-center justify-center p-6 bg-gray-50/50 dark:bg-slate-800/50 group hover:border-indigo-500 transition-colors relative overflow-hidden">
+                                <input type="file" name="cover_image" accept="image/*"
+                                    @change="const file = $event.target.files[0]; if(file) { coverPreview = URL.createObjectURL(file); }"
+                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                                
+                                <template x-if="coverPreview">
+                                    <img :src="coverPreview" class="absolute inset-0 w-full h-full object-cover z-0">
+                                </template>
 
-                    <!-- Subject Category -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Subject_Category') }}</label>
-                        <select x-model="formData.subject_category" name="subject_category"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="Article">{{ __('Selected_Article') }}</option>
-                        </select>
-                    </div>
+                                <div class="text-center relative z-0" x-show="!coverPreview">
+                                    <svg class="w-10 h-10 text-gray-400 mx-auto mb-3 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Add_Cover_Image') }}</p>
+                                </div>
 
-                    <!-- Record Type -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Record_Type') }}</label>
-                        <select x-model="formData.record_type" name="record_type"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="book">{{ __('Language_Material_Text') }}</option>
-                        </select>
+                                <div class="absolute bottom-2 right-2 z-20" x-show="coverPreview">
+                                    <button type="button" @click.prevent="coverPreview = null; $el.closest('.relative').querySelector('input').value = ''" 
+                                        class="bg-rose-500 text-white p-1.5 rounded-lg shadow-lg hover:bg-rose-600 transition-colors">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Serial Frequency -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Frequency') }}</label>
-                        <select x-model="formData.serial_frequency" name="serial_frequency"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="unknown">{{ __('Unknown_Frequency') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Publication Date Type -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Publication_Date_Type') }}</label>
-                        <select x-model="formData.date_type" name="date_type"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="bc">{{ __('BC_Date_Involved') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Serial Acquisition Method -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Serial_Acquisition_Method') }}</label>
-                        <select x-model="formData.acquisition_method" name="acquisition_method"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="untraced">{{ __('Untraced_Serials_Text') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Document Format -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Document_Format') }}</label>
-                        <select x-model="formData.document_format" name="document_format"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="none">{{ __('None_Format') }}</option>
-                        </select>
-                    </div>
-
-                    <!-- Cataloging Standard -->
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Cataloging_Standard') }}</label>
-                        <select x-model="formData.cataloging_standard" name="cataloging_standard"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                            <option value="AACR2">AACR-2</option>
-                        </select>
-                    </div>
+                <!-- Secondary Selections -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8 pt-8 border-t border-gray-100 dark:border-slate-800">
                 </div>
             </div>
         </div>
@@ -390,7 +422,7 @@
                                                              :src="'/storage/items/barcodes/' + item.barcode + '.svg'" 
                                                              :alt="item.barcode"
                                                              class="h-full w-auto object-contain"
-                                                             @error="$event.target.style.display='none'">
+                                                             x-on:error="$event.target.style.display='none'">
                                                     </div>
                                                     <div class="flex flex-col">
                                                         <span class="text-sm font-bold text-gray-800 dark:text-slate-200 font-mono" x-text="item.barcode || 'AUTO'"></span>
@@ -569,6 +601,7 @@ $initialItemsData = [];
                     title: '{{ __("Preview") }}'
                 }
             ],
+            coverPreview: null,
             formData: {
                 framework: "{{ $frameworks->where('id', $frameworkId)->first()->code ?? 'AVMARC21' }}",
                 status: 'pending',
@@ -711,10 +744,12 @@ $initialItemsData = [];
         }
     }
 </script>
+@endsection
 
+@push('styles')
 <style>
     [x-cloak] {
         display: none !important;
     }
 </style>
-@endsection
+@endpush

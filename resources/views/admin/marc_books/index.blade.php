@@ -37,14 +37,14 @@
                         <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Sort By') }}</label>
                         <div class="flex space-x-2">
                             <select name="sort_by"
-                                class="flex-1 px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                class="flex-[2] min-w-[160px] px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
                                 <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>{{ __('Created Date') }}</option>
                                 <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
                                 <option value="author" {{ request('sort_by') == 'author' ? 'selected' : '' }}>{{ __('Author') }}</option>
                                 <option value="updated_at" {{ request('sort_by') == 'updated_at' ? 'selected' : '' }}>{{ __('Updated Date') }}</option>
                             </select>
                             <select name="sort_order"
-                                class="px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                                class="flex-1 min-w-[120px] px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
                                 <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>{{ __('Desc') }}</option>
                                 <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>{{ __('Asc') }}</option>
                             </select>

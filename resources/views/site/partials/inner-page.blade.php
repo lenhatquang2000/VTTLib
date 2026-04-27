@@ -28,129 +28,88 @@
 
     // Icon → gradient mapping cho sidebar
     $sidebarIcons = [
-        'fas fa-circle-info'    => ['from-blue-500 to-cyan-400',    'shadow-blue-500/25'],
-        'fas fa-bullseye'       => ['from-indigo-500 to-purple-400','shadow-indigo-500/25'],
-        'fas fa-scale-balanced' => ['from-amber-500 to-orange-400', 'shadow-amber-500/25'],
-        'fas fa-clock'          => ['from-emerald-500 to-teal-400', 'shadow-emerald-500/25'],
-        'fas fa-sitemap'        => ['from-violet-500 to-fuchsia-400','shadow-violet-500/25'],
+        'fas fa-circle-info'    => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-bullseye'       => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-scale-balanced' => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-clock'          => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-sitemap'        => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
     ];
 
     // ── Accent color mapping (Tailwind-safe) ──
-    $accentGradient = match($accent) {
-        'indigo'  => 'from-indigo-500 to-purple-400', 'amber'   => 'from-amber-500 to-orange-400',
-        'emerald' => 'from-emerald-500 to-teal-400',  'violet'  => 'from-violet-500 to-fuchsia-400',
-        default   => 'from-blue-500 to-cyan-400',
-    };
-    $accentShadow = match($accent) {
-        'indigo'  => 'shadow-indigo-500/20', 'amber'   => 'shadow-amber-500/20',
-        'emerald' => 'shadow-emerald-500/20','violet'  => 'shadow-violet-500/20',
-        default   => 'shadow-blue-500/20',
-    };
-    $accentDivider = match($accent) {
-        'indigo'  => 'from-indigo-500/30', 'amber'   => 'from-amber-500/30',
-        'emerald' => 'from-emerald-500/30','violet'  => 'from-violet-500/30',
-        default   => 'from-blue-500/30',
-    };
-    $activeNav = match($accent) {
-        'indigo'  => 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/25',
-        'amber'   => 'bg-amber-600 text-white shadow-lg shadow-amber-600/25',
-        'emerald' => 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/25',
-        'violet'  => 'bg-violet-600 text-white shadow-lg shadow-violet-600/25',
-        default   => 'bg-blue-600 text-white shadow-lg shadow-blue-600/25',
-    };
-    $badgeColor = match($accent) {
-        'indigo'  => 'text-indigo-300', 'amber'   => 'text-amber-300',
-        'emerald' => 'text-emerald-300','violet'  => 'text-violet-300',
-        default   => 'text-blue-300',
-    };
-    $pingColor = match($accent) {
-        'indigo'  => 'bg-indigo-400', 'amber'   => 'bg-amber-400',
-        'emerald' => 'bg-emerald-400','violet'  => 'bg-violet-400',
-        default   => 'bg-blue-400',
-    };
+    $accentGradient = 'from-vttu-red to-vttu-dark';
+    $accentShadow = 'shadow-vttu-red/20';
+    $accentDivider = 'from-vttu-red/30';
+    $activeNav = 'bg-vttu-red text-white shadow-lg shadow-vttu-red/25';
+    $badgeColor = 'text-vttu-red';
+    $pingColor = 'bg-vttu-red';
 @endphp
 
-<div class="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+<div class="min-h-screen bg-slate-50">
 
     {{-- ══════════════════════════════════════════════
          HERO HEADER
     ══════════════════════════════════════════════ --}}
-    <section class="relative overflow-hidden bg-slate-950 text-white">
-        <div class="absolute inset-0">
-            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-600/20 via-transparent to-transparent"></div>
-            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-600/15 via-transparent to-transparent"></div>
-            <div class="absolute top-0 right-0 w-[700px] h-[700px] bg-blue-500/10 blur-[180px] rounded-full animate-float"></div>
-            <div class="absolute -bottom-32 -left-32 w-[600px] h-[600px] bg-indigo-500/10 blur-[160px] rounded-full animate-float" style="animation-delay:1.2s"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-cyan-500/5 blur-[120px] rounded-full animate-float" style="animation-delay:2.4s"></div>
-        </div>
-        <div class="absolute inset-0 opacity-[0.03]" style="background-image:url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;1&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
-
-        <div class="w-full px-4 md:px-12 lg:px-24 relative z-10 pt-16 pb-24">
+    <section class="relative overflow-hidden bg-white border-b border-slate-100">
+        <div class="w-full px-4 md:px-12 lg:px-24 relative z-10 pt-12 pb-16">
             {{-- Breadcrumb --}}
-            <nav class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-slate-500 mb-10" data-aos="fade-down" data-aos-delay="100">
-                <a href="/" class="hover:text-white transition-colors"><i class="fas fa-home"></i></a>
+            <nav class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-vttu-red/60 mb-8" data-aos="fade-down" data-aos-delay="100">
+                <a href="/" class="hover:text-vttu-red transition-colors"><i class="fas fa-home"></i></a>
                 <i class="fas fa-chevron-right text-[7px]"></i>
-                <a href="/page/gioi-thieu" class="hover:text-white transition-colors">Giới thiệu</a>
+                <a href="/page/gioi-thieu" class="hover:text-vttu-red transition-colors">Giới thiệu</a>
                 <i class="fas fa-chevron-right text-[7px]"></i>
-                <span class="{{ $badgeColor }}">{{ $node->display_name }}</span>
+                <span class="text-vttu-red font-black">{{ $node->display_name }}</span>
             </nav>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div data-aos="fade-right" data-aos-delay="200">
-                    <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-xl text-[10px] font-black uppercase tracking-[0.35em] {{ $badgeColor }} mb-8">
+                    <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-vttu-red/5 border border-vttu-red/10 backdrop-blur-xl text-[10px] font-black uppercase tracking-[0.35em] text-vttu-red mb-6">
                         <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $pingColor }} opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 {{ $pingColor }}"></span>
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-vttu-red opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-vttu-red"></span>
                         </span>
                         {{ $badgeText }}
                     </div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-8">
-                        <span class="animate-gradient-text">Thư viện</span><br>
-                        <span class="text-white">Đại học Võ Trường Toản</span>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-6 text-vttu-dark">
+                        <span class="text-vttu-red">Thư viện</span><br>
+                        <span>Đại học Võ Trường Toản</span>
                     </h1>
-                    <p class="text-lg text-slate-400 leading-relaxed max-w-xl">
+                    <p class="text-lg text-vttu-dark/70 leading-relaxed max-w-xl">
                         {{ $node->description }}
                     </p>
                 </div>
 
                 {{-- Stats cards --}}
                 <div class="grid grid-cols-2 gap-5" data-aos="fade-left" data-aos-delay="400">
-                    <div class="group p-7 rounded-3xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.08] transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center mb-5 shadow-lg shadow-blue-500/20 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-calendar-alt text-white"></i>
+                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                            <i class="fas fa-calendar-alt text-vttu-red group-hover:text-white"></i>
                         </div>
-                        <div class="text-3xl font-black text-white mb-1">15+</div>
-                        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">Năm hoạt động</div>
+                        <div class="text-3xl font-black text-vttu-dark mb-1">15+</div>
+                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Năm hoạt động</div>
                     </div>
-                    <div class="group p-7 rounded-3xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.08] transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 flex items-center justify-center mb-5 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-book-open text-white"></i>
+                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                            <i class="fas fa-book-open text-vttu-red group-hover:text-white"></i>
                         </div>
-                        <div class="text-3xl font-black text-white mb-1">50K+</div>
-                        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tài liệu</div>
+                        <div class="text-3xl font-black text-vttu-dark mb-1">50K+</div>
+                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Tài liệu</div>
                     </div>
-                    <div class="group p-7 rounded-3xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.08] transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-fuchsia-400 flex items-center justify-center mb-5 shadow-lg shadow-violet-500/20 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-users text-white"></i>
+                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                            <i class="fas fa-users text-vttu-red group-hover:text-white"></i>
                         </div>
-                        <div class="text-3xl font-black text-white mb-1">10K+</div>
-                        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">Bạn đọc / Năm</div>
+                        <div class="text-3xl font-black text-vttu-dark mb-1">10K+</div>
+                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Bạn đọc / Năm</div>
                     </div>
-                    <div class="group p-7 rounded-3xl bg-white/[0.04] border border-white/[0.08] backdrop-blur-xl hover:bg-white/[0.08] transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-400 flex items-center justify-center mb-5 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-laptop text-white"></i>
+                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
+                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                            <i class="fas fa-laptop text-vttu-red group-hover:text-white"></i>
                         </div>
-                        <div class="text-3xl font-black text-white mb-1">24/7</div>
-                        <div class="text-xs font-bold text-slate-500 uppercase tracking-widest">Tra cứu Online</div>
+                        <div class="text-3xl font-black text-vttu-dark mb-1">24/7</div>
+                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Tra cứu Online</div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="absolute bottom-0 left-0 right-0">
-            <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-                <path d="M0,40 C360,80 720,0 1440,40 L1440,80 L0,80 Z" fill="#f8fafc"/>
-            </svg>
         </div>
     </section>
 
@@ -164,11 +123,11 @@
                 {{-- ── Sidebar ── --}}
                 <aside class="lg:col-span-3 order-2 lg:order-1" data-aos="fade-right" data-aos-delay="100">
                     <div class="sticky top-24 space-y-6">
-                        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
-                            <div class="p-7 bg-gradient-to-br from-slate-900 to-slate-800 text-white relative overflow-hidden">
-                                <div class="absolute top-0 right-0 w-24 h-24 bg-blue-500/20 blur-2xl rounded-full"></div>
+                        <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
+                            <div class="p-7 bg-vttu-dark text-white relative overflow-hidden">
+                                <div class="absolute top-0 right-0 w-24 h-24 bg-vttu-red/20 blur-2xl rounded-full"></div>
                                 <div class="relative z-10">
-                                    <div class="text-[9px] font-black uppercase tracking-[0.4em] text-blue-300 mb-2">Chuyên mục</div>
+                                    <div class="text-[9px] font-black uppercase tracking-[0.4em] text-vttu-yellow/70 mb-2">Chuyên mục</div>
                                     <div class="text-xl font-black">{{ $sectionLabel }}</div>
                                 </div>
                             </div>
@@ -180,11 +139,11 @@
                                     @endphp
                                     <a href="{{ $item->getUrl() }}"
                                        class="group flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 mb-1
-                                              {{ $active ? $activeNav : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900' }}">
+                                              {{ $active ? $activeNav : 'text-vttu-dark/70 hover:bg-slate-50 hover:text-vttu-red' }}">
                                         <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xs flex-shrink-0 transition-all
                                                     {{ $active
                                                         ? 'bg-white/20 text-white'
-                                                        : 'bg-gradient-to-br ' . $iconColors[0] . ' text-white shadow-md ' . $iconColors[1] . ' group-hover:scale-110' }}">
+                                                        : 'bg-vttu-red/10 text-vttu-red group-hover:scale-110' }}">
                                             <i class="{{ $item->icon }}"></i>
                                         </div>
                                         <span class="font-bold text-sm leading-tight">{{ $item->display_name }}</span>
@@ -198,17 +157,17 @@
 
                         {{-- CTA card --}}
                         <div class="relative group">
-                            <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-[2.5rem] blur-lg opacity-25 group-hover:opacity-40 transition-opacity"></div>
-                            <div class="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-[2rem] p-8 text-white overflow-hidden">
-                                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/15 blur-3xl rounded-full"></div>
+                            <div class="absolute -inset-1 bg-vttu-red/20 rounded-3xl blur-lg opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                            <div class="relative bg-vttu-dark rounded-3xl p-8 text-white overflow-hidden">
+                                <div class="absolute top-0 right-0 w-32 h-32 bg-vttu-red/15 blur-3xl rounded-full"></div>
                                 <div class="relative z-10 text-center">
                                     <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-5 backdrop-blur-sm">
-                                        <i class="fas fa-search text-xl text-blue-400"></i>
+                                        <i class="fas fa-search text-xl text-vttu-yellow"></i>
                                     </div>
                                     <h4 class="font-black text-base mb-2">Tra cứu OPAC</h4>
-                                    <p class="text-slate-400 text-xs leading-relaxed mb-5">Tìm kiếm tài liệu trực tuyến trong hệ thống Thư viện.</p>
+                                    <p class="text-white/60 text-xs leading-relaxed mb-5">Tìm kiếm tài liệu trực tuyến trong hệ thống Thư viện.</p>
                                     <a href="http://opac.vttu.edu.vn" target="_blank"
-                                       class="block w-full py-3.5 bg-white text-slate-900 rounded-xl font-black text-sm hover:bg-blue-500 hover:text-white transition-all shadow-lg">
+                                       class="block w-full py-3.5 bg-vttu-yellow text-vttu-dark rounded-xl font-black text-sm hover:bg-yellow-400 transition-all shadow-lg">
                                         Tra cứu ngay <i class="fas fa-arrow-right ml-1 text-xs"></i>
                                     </a>
                                 </div>
@@ -219,32 +178,31 @@
 
                 {{-- ── Main Content ── --}}
                 <div class="lg:col-span-9 order-1 lg:order-2 space-y-8" data-aos="fade-up" data-aos-delay="200">
-                    <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/50 overflow-hidden">
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
                         {{-- Article header --}}
                         <div class="px-10 pt-10 pb-0">
                             <div class="flex items-center gap-4 mb-8">
-                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br {{ $accentGradient }} flex items-center justify-center shadow-lg {{ $accentShadow }}">
-                                    <i class="{{ $badgeIcon }} text-white text-lg"></i>
+                                <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center shadow-lg">
+                                    <i class="{{ $badgeIcon }} text-vttu-red text-lg"></i>
                                 </div>
                                 <div>
-                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">{{ $sectionLabel }}</div>
-                                    <h2 class="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">{{ $node->display_name }}</h2>
+                                    <div class="text-[10px] font-black text-vttu-red/60 uppercase tracking-[0.3em]">{{ $sectionLabel }}</div>
+                                    <h2 class="text-2xl md:text-3xl font-black text-vttu-dark tracking-tight">{{ $node->display_name }}</h2>
                                 </div>
                             </div>
-                            <div class="h-px bg-gradient-to-r {{ $accentDivider }} via-slate-200 to-transparent"></div>
+                            <div class="h-px bg-gradient-to-r from-vttu-red/20 via-slate-200 to-transparent"></div>
                         </div>
 
                         {{-- Article body --}}
                         <div class="p-10 relative">
-                            <div class="absolute -top-20 -right-20 w-80 h-80 bg-blue-500/[0.03] blur-[100px] rounded-full pointer-events-none"></div>
-                            <div class="absolute -bottom-20 -left-20 w-96 h-96 bg-indigo-500/[0.03] blur-[120px] rounded-full pointer-events-none"></div>
+                            <div class="absolute -top-20 -right-20 w-80 h-80 bg-vttu-red/[0.03] blur-[100px] rounded-full pointer-events-none"></div>
 
                             <div class="relative z-10 prose prose-slate prose-lg max-w-none
-                                prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900
-                                prose-p:text-slate-600 prose-p:leading-[1.85]
-                                prose-strong:text-slate-800
-                                prose-li:text-slate-600
-                                prose-a:text-blue-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline
+                                prose-headings:font-black prose-headings:tracking-tight prose-headings:text-vttu-dark
+                                prose-p:text-vttu-dark/80 prose-p:leading-[1.85]
+                                prose-strong:text-vttu-dark
+                                prose-li:text-vttu-dark/80
+                                prose-a:text-vttu-red prose-a:font-bold prose-a:no-underline hover:prose-a:underline
                                 prose-img:rounded-2xl prose-img:shadow-xl">
                                 {!! $node->content !!}
                             </div>
@@ -271,25 +229,25 @@
                         @endphp
                         <div class="w-full md:w-1/2">
                             @if($prev)
-                                <a href="{{ $prev->getUrl() }}" class="group flex items-center gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300">
-                                    <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all flex-shrink-0">
+                                <a href="{{ $prev->getUrl() }}" class="group flex items-center gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-vttu-red/20 transition-all duration-300">
+                                    <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-vttu-red group-hover:text-white transition-all flex-shrink-0">
                                         <i class="fas fa-arrow-left text-sm"></i>
                                     </div>
                                     <div>
-                                        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Trang trước</div>
-                                        <div class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ $prev->display_name }}</div>
+                                        <div class="text-[9px] font-black text-vttu-red/40 uppercase tracking-widest">Trang trước</div>
+                                        <div class="text-sm font-bold text-vttu-dark group-hover:text-vttu-red transition-colors">{{ $prev->display_name }}</div>
                                     </div>
                                 </a>
                             @endif
                         </div>
                         <div class="w-full md:w-1/2">
                             @if($next)
-                                <a href="{{ $next->getUrl() }}" class="group flex items-center justify-end gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 text-right">
+                                <a href="{{ $next->getUrl() }}" class="group flex items-center justify-end gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-vttu-red/20 transition-all duration-300 text-right">
                                     <div>
-                                        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Tiếp theo</div>
-                                        <div class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">{{ $next->display_name }}</div>
+                                        <div class="text-[9px] font-black text-vttu-red/40 uppercase tracking-widest">Tiếp theo</div>
+                                        <div class="text-sm font-bold text-vttu-dark group-hover:text-vttu-red transition-colors">{{ $next->display_name }}</div>
                                     </div>
-                                    <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-all flex-shrink-0">
+                                    <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-vttu-red group-hover:text-white transition-all flex-shrink-0">
                                         <i class="fas fa-arrow-right text-sm"></i>
                                     </div>
                                 </a>

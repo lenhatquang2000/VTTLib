@@ -714,6 +714,14 @@ class CirculationController extends Controller
                 return response()->json(['success' => false, 'message' => __('Book not found')]);
             }
 
+            // Check if the MARC record is approved
+            if ($bookItem->bibliographicRecord && $bookItem->bibliographicRecord->status !== BibliographicRecord::STATUS_APPROVED) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => __('This book is currently pending cataloging approval and cannot be borrowed.')
+                ]);
+            }
+
             // Debug bibliographic record data
             \Log::info('Book item found', [
                 'book_item_id' => $bookItem->id,
@@ -744,7 +752,7 @@ class CirculationController extends Controller
                     'title' => $bookItem->bibliographicRecord?->title ?? 'N/A',
                     'author' => $bookItem->bibliographicRecord?->author ?? 'N/A',
                     'call_number' => $bookItem->bibliographicRecord?->call_number ?? 'N/A',
-                    'cover_image' => $bookItem->bibliographicRecord?->cover_image,
+                    'cover_image' => $bookItem->bibliographicRecord?->cover_image ? asset('storage/' . $bookItem->bibliographicRecord->cover_image) : null,
                     'status' => $bookItem->status,
                     'current_loan' => $currentLoan
                 ]

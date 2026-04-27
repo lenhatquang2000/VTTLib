@@ -129,7 +129,7 @@ class MarcBookController extends Controller
                     $q->selectRaw('COALESCE(
                         (SELECT value FROM marc_subfields 
                          JOIN marc_fields ON marc_subfields.marc_field_id = marc_fields.id 
-                         WHERE marc_fields.bibliographic_record_id = bibliographic_records.id 
+                         WHERE marc_fields.record_id = bibliographic_records.id 
                          AND marc_fields.tag = "245" AND marc_subfields.code = "a" 
                          LIMIT 1), "") as title');
                 }, $sortOrder);
@@ -139,7 +139,7 @@ class MarcBookController extends Controller
                     $q->selectRaw('COALESCE(
                         (SELECT value FROM marc_subfields 
                          JOIN marc_fields ON marc_subfields.marc_field_id = marc_fields.id 
-                         WHERE marc_fields.bibliographic_record_id = bibliographic_records.id 
+                         WHERE marc_fields.record_id = bibliographic_records.id 
                          AND marc_fields.tag = "100" AND marc_subfields.code = "a" 
                          LIMIT 1), "") as author');
                 }, $sortOrder);
@@ -172,9 +172,10 @@ class MarcBookController extends Controller
         }
 
         $frameworks = MarcFramework::where('is_active', true)->get();
-        $frameworkId = $record
-            ? optional($frameworks->firstWhere('code', $record->framework))->id
-            : $request->query('framework_id');
+        $requestedFrameworkId = $request->query('framework_id');
+
+        $frameworkId = $requestedFrameworkId
+            ?: ($record ? optional($frameworks->firstWhere('code', $record->framework))->id : null);
 
         if (!$frameworkId && !$record && $frameworks->isNotEmpty()) {
             // Default to STANDARD if available, else first
@@ -389,6 +390,15 @@ class MarcBookController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Handle cover image upload
+            if ($request->hasFile('cover_image')) {
+                // Delete old image if exists
+                if ($record->cover_image && \Storage::disk('public')->exists($record->cover_image)) {
+                    \Storage::disk('public')->delete($record->cover_image);
+                }
+                $record->cover_image = $request->file('cover_image')->store('covers', 'public');
+            }
+
             $leader = $record->leader;
             if (isset($leader[5]) && $leader[5] === 'n') {
                 $leader[5] = 'c';
@@ -396,7 +406,7 @@ class MarcBookController extends Controller
             $record->update(['leader' => $leader]);
 
             // Update record metadata if provided
-            $metadataFields = ['status', 'subject_category', 'record_type', 'serial_frequency', 
+            $metadataFields = ['status', 'framework', 'subject_category', 'record_type', 'serial_frequency', 
                               'date_type', 'acquisition_method', 'document_format', 'cataloging_standard'];
             
             foreach ($metadataFields as $field) {

@@ -10,7 +10,6 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Modify_MARC_Record') }}</h2>
             <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Update_Instruction', ['id' => $record->id]) }}</p>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Update_Instruction', ['id' => $record->id]) }}</p>
         </div>
         <div class="flex space-x-3">
             <a href="{{ route('admin.marc.book') }}"
@@ -18,7 +17,7 @@
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
-                Quay lại
+                {{ __('Back') }}
             </a>
         </div>
     </div>
@@ -64,7 +63,7 @@
                                 </label>
                                 <div class="relative">
                                     <select x-model="formData.framework" name="framework"
-                                        onchange="window.location.href = '?framework_id=' + (this.options[this.selectedIndex].getAttribute('data-id'))"
+                                        onchange="const url = new URL(window.location); url.searchParams.set('framework_id', this.options[this.selectedIndex].getAttribute('data-id')); window.location.href = url.toString();"
                                         class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
                                         @foreach($frameworks as $fw)
                                         <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
@@ -481,10 +480,10 @@
                                                     class="h-10 w-auto border border-gray-200 dark:border-slate-700 rounded bg-white p-1"
                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
                                                 >
-                                                <span class="hidden text-xs text-red-500">Không tải được barcode</span>
+                                                <span class="hidden text-xs text-red-500">{{ __('Failed_to_load_barcode') }}</span>
                                             </div>
                                             <div x-show="!item.barcode || item.barcode === 'AUTO'" class="text-xs text-gray-400 italic">
-                                                Chưa có barcode
+                                                {{ __('No_barcode_yet') }}
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-right">
@@ -527,7 +526,7 @@
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
                 <div class="bg-slate-900 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="flex items-center space-x-3">
-                        <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC PREVIEW</span>
+                        <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">{{ __('MARC_Preview') }}</span>
                         <h3 class="text-white font-bold text-sm leading-none">{{ __('MARC21_Cataloging_Form') }}</h3>
                     </div>
                     <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80" x-text="leader"></span>
@@ -548,7 +547,7 @@
                                 <td class="pl-8 py-4 whitespace-nowrap align-top">
                                     <div class="flex items-baseline space-x-3">
                                         <span class="text-indigo-600 font-bold tracking-tight">000</span>
-                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">LEADER</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">{{ __('Leader') }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
@@ -564,7 +563,7 @@
                                 <td class="pl-8 py-4 whitespace-nowrap align-top">
                                     <div class="flex items-baseline space-x-3">
                                         <span class="text-indigo-600 font-bold tracking-tight">001</span>
-                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">CONTROL NUMBER</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">{{ __('Control_Number') }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
@@ -578,7 +577,7 @@
                                 <td class="pl-8 py-4 whitespace-nowrap align-top">
                                     <div class="flex items-baseline space-x-3">
                                         <span class="text-indigo-600 font-bold tracking-tight">005</span>
-                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">LATEST TRANSACTION</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">{{ __('Latest_Transaction') }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
@@ -592,7 +591,7 @@
                                 <td class="pl-8 py-4 whitespace-nowrap align-top">
                                     <div class="flex items-baseline space-x-3">
                                         <span class="text-indigo-600 font-bold tracking-tight">008</span>
-                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">FIXED DATA</span>
+                                        <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">{{ __('Fixed_Data') }}</span>
                                     </div>
                                 </td>
                                 <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">
@@ -748,7 +747,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 }
             },
             formData: {
-                framework: "{{ $record->framework ?? ($frameworks->where('id', $frameworkId ?? null)->first()->code ?? 'AVMARC21') }}",
+                framework: "{{ $currentFramework->code ?? ($record->framework ?? 'AVMARC21') }}",
                 status: "{{ $record->status ?? 'pending' }}",
                 subject_category: "{{ $record->subject_category ?? 'Article' }}",
                 record_type: "{{ $record->record_type ?? 'book' }}",
@@ -855,10 +854,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 if (!this.newItem.storage_location_id) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Vui lòng chọn vị trí lưu trữ',
-                        text: 'Bạn cần chọn vị trí lưu trữ trước khi thêm bản sách mới.',
+                        title: '{{ __('Please_select_storage_location') }}',
+                        text: '{{ __('Storage_location_required_before_add') }}',
                         confirmButtonColor: '#3b82f6',
-                        confirmButtonText: 'Đã hiểu'
+                        confirmButtonText: '{{ __('Understood') }}'
                     });
                     return;
                 }
@@ -875,7 +874,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 this.newItem = JSON.parse(JSON.stringify(this.items[index]));
             },
             removeItem(index) {
-                if (confirm('Bạn có chắc chắn muốn xóa bản sách này?')) {
+                if (confirm('{{ __('Confirm_delete_book_item') }}')) {
                     this.items.splice(index, 1);
                 }
             },

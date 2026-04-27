@@ -161,8 +161,12 @@
                             </div>
                         </td>
                         <td class="px-6 py-7 whitespace-nowrap">
-                            <div class="text-sm font-black text-slate-700 dark:text-slate-300">{{ $user->created_at->format('M d, Y') }}</div>
-                            <div class="text-[9px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-widest mt-1">{{ $user->created_at->diffForHumans() }}</div>
+                            <div class="text-sm font-black text-slate-700 dark:text-slate-300">
+                                {{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}
+                            </div>
+                            @if($user->created_at)
+                                <div class="text-[9px] text-slate-400 dark:text-slate-500 font-extrabold uppercase tracking-widest mt-1">{{ $user->created_at->diffForHumans() }}</div>
+                            @endif
                         </td>
                         <td class="px-10 py-7 whitespace-nowrap text-right">
                             <div class="flex justify-end items-center gap-2.5">

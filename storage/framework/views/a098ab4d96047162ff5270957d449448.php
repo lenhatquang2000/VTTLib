@@ -20,8 +20,25 @@
     
     <!-- CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        vttu: {
+                            dark: '#450000',
+                            red: '#7B0000',
+                            yellow: '#FFD700',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <?php echo $__env->yieldPushContent('styles'); ?>
     <!-- Custom Styles -->
     <style>
@@ -115,87 +132,115 @@
 </head>
 <body class="bg-gray-50">
     <!-- Header -->
-    <header class="bg-white shadow-sm sticky top-0 z-50">
-        <nav class="container mx-auto px-4">
-            <div class="flex justify-between items-center h-16">
+    <header id="siteHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-500 bg-vttu-dark shadow-xl">
+        <nav class="container mx-auto px-4 md:px-12 lg:px-24 py-3 transition-all duration-500" id="headerNav">
+            <div class="flex justify-between items-center px-8 py-2 transition-all duration-500" id="headerContainer">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="/" class="flex items-center space-x-2">
                         <?php $siteLogo = \App\Models\SystemSetting::get('site_logo'); ?>
                         <?php if($siteLogo): ?>
-                            <img src="<?php echo e(asset('storage/' . $siteLogo)); ?>" alt="Logo" class="h-8 w-8 object-contain">
+                            <img src="<?php echo e(asset('storage/' . $siteLogo)); ?>" alt="Logo" class="h-10 w-10 object-contain transition-all duration-500" id="headerLogo">
                         <?php else: ?>
-                            <i class="fas fa-book-open text-blue-600 text-2xl"></i>
+                            <i class="fas fa-book-open text-vttu-yellow text-2xl transition-all duration-500" id="headerLogoIcon"></i>
                         <?php endif; ?>
-                        <span class="font-bold text-xl text-gray-800"><?php echo e(\App\Models\SystemSetting::get('site_name', 'Thư viện số')); ?></span>
+                        <span class="font-black text-xl text-white tracking-tighter transition-all duration-500" id="headerTitle"><?php echo e(\App\Models\SystemSetting::get('site_name', 'VTTLib')); ?></span>
                     </a>
                 </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden md:flex items-center space-x-8">
+                <div class="hidden lg:flex items-center space-x-8">
                     <?php if(isset($menuItems)): ?>
                         <?php $__currentLoopData = $menuItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <?php if($item->can_access ?? true): ?>
-                                <?php if($item->activeChildren->count() > 0): ?>
-                                    
-                                    <div class="relative group h-16 flex items-center">
-                                        <a href="<?php echo e($item->getUrl()); ?>" 
-                                           class="flex items-center gap-1 text-gray-600 group-hover:text-blue-600 font-bold transition-all"
-                                           <?php if($item->target === '_blank'): ?> target="_blank" <?php endif; ?>>
-                                            <?php echo e($item->display_name); ?>
+                            <div class="relative group">
+                                <a href="<?php echo e($item->getUrl()); ?>" 
+                                   class="text-white/80 hover:text-white font-black text-xs uppercase tracking-[0.2em] transition-all py-2 block">
+                                    <?php echo e($item->display_name); ?>
 
-                                            <i class="fas fa-chevron-down text-[10px] transition-transform group-hover:rotate-180"></i>
-                                        </a>
-                                        
-                                        <!-- Dropdown Menu -->
-                                        <div class="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform scale-95 group-hover:scale-100 z-[100]">
-                                            <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 p-3 overflow-hidden">
-                                                <?php $__currentLoopData = $item->activeChildren; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $child): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                    <a href="<?php echo e($child->getUrl()); ?>" 
-                                                       class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-50 text-slate-600 hover:text-blue-600 font-bold transition-all text-sm mb-1 last:mb-0">
-                                                        <i class="<?php echo e($child->icon ?: 'fas fa-chevron-right'); ?> text-xs opacity-50"></i>
-                                                        <?php echo e($child->display_name); ?>
+                                </a>
+                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-vttu-yellow transition-all group-hover:w-full"></div>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    <?php endif; ?>
+                    
+                    <?php if(auth()->guard()->check()): ?>
+                        <div class="relative group">
+                            <button class="flex items-center space-x-3 px-6 py-2.5 bg-white/10 hover:bg-white text-white hover:text-vttu-red rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md group-hover:shadow-vttu-red/20">
+                                <div class="w-7 h-7 bg-vttu-yellow text-vttu-dark rounded-full flex items-center justify-center text-[10px] font-black">
+                                    <?php echo e(strtoupper(substr(Auth::user()->full_name ?? Auth::user()->username, 0, 1))); ?>
 
-                                                    </a>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php else: ?>
-                                    
-                                    <a href="<?php echo e($item->getUrl()); ?>" 
-                                       class="text-gray-600 hover:text-blue-600 font-bold transition-all"
-                                       <?php if($item->target === '_blank'): ?> target="_blank" <?php endif; ?>>
-                                        <?php echo e($item->display_name); ?>
-
+                                </div>
+                                <span class="font-black text-xs uppercase tracking-widest whitespace-nowrap"><?php echo e(Auth::user()->full_name ?? Auth::user()->username); ?></span>
+                                <i class="fas fa-chevron-down text-[10px] opacity-50 group-hover:rotate-180 transition-transform"></i>
+                            </button>
+                            
+                            <!-- Dropdown Menu -->
+                            <div class="absolute right-0 top-full mt-2 w-56 bg-white rounded-3xl shadow-2xl border border-slate-100 py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-[60]">
+                                <div class="px-6 py-2 border-b border-slate-50 mb-2">
+                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tài khoản</p>
+                                    <p class="text-sm font-black text-vttu-dark truncate"><?php echo e(Auth::user()->username); ?></p>
+                                </div>
+                                <?php if(!Auth::user()->hasRole('visitor')): ?>
+                                    <a href="/topsecret/dashboard" class="flex items-center space-x-3 px-6 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
+                                        <i class="fas fa-tachometer-alt w-5"></i>
+                                        <span class="text-xs font-black uppercase tracking-widest">Quản trị</span>
                                     </a>
                                 <?php endif; ?>
-                            <?php endif; ?>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <a href="#" class="flex items-center space-x-3 px-6 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
+                                    <i class="fas fa-user-circle w-5"></i>
+                                    <span class="text-xs font-black uppercase tracking-widest">Hồ sơ</span>
+                                </a>
+                                <form action="<?php echo e(route('logout')); ?>" method="POST" class="mt-2 border-t border-slate-50 pt-2">
+                                    <?php echo csrf_field(); ?>
+                                    <button type="submit" class="w-full flex items-center space-x-3 px-6 py-3 text-red-500 hover:bg-red-50 transition-all text-left">
+                                        <i class="fas fa-sign-out-alt w-5"></i>
+                                        <span class="text-xs font-black uppercase tracking-widest">Đăng xuất</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <a href="<?php echo e(route('login')); ?>" class="px-8 py-3 bg-white/10 hover:bg-white text-white hover:text-vttu-red font-black text-xs uppercase tracking-widest rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md">
+                            Đăng nhập
+                        </a>
                     <?php endif; ?>
                 </div>
 
                 <!-- Mobile Menu Button -->
-                <div class="md:hidden">
-                    <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-blue-600">
-                        <i class="fas fa-bars text-xl"></i>
+                <div class="lg:hidden">
+                    <button onclick="toggleMobileMenu()" class="p-2 bg-white/10 rounded-xl text-white">
+                        <i class="fas fa-bars-staggered text-xl"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Mobile Menu -->
-            <div id="mobileMenu" class="hidden md:hidden pb-4">
+            <div id="mobileMenu" class="hidden lg:hidden mt-4 bg-slate-900/95 backdrop-blur-2xl rounded-[2rem] border border-white/10 p-6 shadow-2xl">
                 <?php if(isset($menuItems)): ?>
                     <?php $__currentLoopData = $menuItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php if($item->can_access ?? true): ?>
-                            <a href="<?php echo e($item->getUrl()); ?>" 
-                               class="block py-2 text-gray-600 hover:text-blue-600 transition"
-                               <?php if($item->target === '_blank'): ?> target="_blank" <?php endif; ?>>
-                                <?php echo e($item->display_name); ?>
+                        <a href="<?php echo e($item->getUrl()); ?>" 
+                           class="block py-4 text-white/80 hover:text-white font-black text-sm uppercase tracking-widest border-b border-white/5 last:border-0">
+                            <?php echo e($item->display_name); ?>
 
-                            </a>
-                        <?php endif; ?>
+                        </a>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
+                
+                <?php if(auth()->guard()->check()): ?>
+                    <div class="py-4 border-b border-white/5">
+                        <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Đã đăng nhập</p>
+                        <p class="text-white font-black"><?php echo e(Auth::user()->full_name ?? Auth::user()->username); ?></p>
+                    </div>
+                    <form action="<?php echo e(route('logout')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <button type="submit" class="w-full mt-6 py-4 bg-vttu-red text-white text-center font-black rounded-2xl uppercase tracking-widest text-xs">
+                            ĐĂNG XUẤT
+                        </button>
+                    </form>
+                <?php else: ?>
+                    <a href="<?php echo e(route('login')); ?>" class="block mt-6 py-4 bg-vttu-red text-white text-center font-black rounded-2xl">
+                        ĐĂNG NHẬP
+                    </a>
                 <?php endif; ?>
             </div>
         </nav>
@@ -207,30 +252,30 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
+    <footer class="bg-vttu-dark text-white py-12 border-t border-vttu-red/20">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- About -->
                 <div>
                     <div class="flex items-center space-x-2 mb-4">
-                        <i class="fas fa-book-open text-blue-400 text-xl"></i>
+                        <i class="fas fa-book-open text-vttu-yellow text-xl"></i>
                         <span class="font-bold text-lg">Thư viện số</span>
                     </div>
-                    <p class="text-gray-400">
+                    <p class="text-white/60">
                         Nền tảng quản lý thư viện hiện đại, hiệu quả và toàn diện.
                     </p>
                 </div>
 
                 <!-- Quick Links -->
                 <div>
-                    <h3 class="font-semibold mb-4">Liên kết nhanh</h3>
+                    <h3 class="font-semibold mb-4 text-vttu-yellow">Liên kết nhanh</h3>
                     <?php if(isset($menuItems)): ?>
                         <ul class="space-y-2">
                             <?php $__currentLoopData = $menuItems->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <?php if($item->can_access ?? true): ?>
                                     <li>
                                         <a href="<?php echo e($item->getUrl()); ?>" 
-                                           class="text-gray-400 hover:text-white transition"
+                                           class="text-white/60 hover:text-vttu-yellow transition"
                                            <?php if($item->target === '_blank'): ?> target="_blank" <?php endif; ?>>
                                             <?php echo e($item->display_name); ?>
 
@@ -244,14 +289,14 @@
 
                 <!-- Services -->
                 <div>
-                    <h3 class="font-semibold mb-4">Dịch vụ</h3>
+                    <h3 class="font-semibold mb-4 text-vttu-yellow">Dịch vụ</h3>
                     <?php if(isset($footerItems)): ?>
                         <ul class="space-y-2">
                             <?php $__currentLoopData = $footerItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <?php if($item->can_access ?? true): ?>
                                     <li>
                                         <a href="<?php echo e($item->getUrl()); ?>" 
-                                           class="text-gray-400 hover:text-white transition"
+                                           class="text-white/60 hover:text-vttu-yellow transition"
                                            <?php if($item->target === '_blank'): ?> target="_blank" <?php endif; ?>>
                                             <?php echo e($item->display_name); ?>
 
@@ -265,28 +310,28 @@
 
                 <!-- Contact -->
                 <div>
-                    <h3 class="font-semibold mb-4">Liên hệ</h3>
+                    <h3 class="font-semibold mb-4 text-vttu-yellow">Liên hệ</h3>
                     <?php if(isset($footerItems)): ?>
                         <?php
                             $contactNode = $footerItems->firstWhere('node_code', 'lien-he');
                         ?>
                         <?php if($contactNode && $contactNode->content): ?>
-                            <div class="prose prose-sm text-gray-400">
+                            <div class="prose prose-sm text-white/60">
                                 <?php echo $contactNode->content; ?>
 
                             </div>
                         <?php else: ?>
-                            <ul class="space-y-2 text-gray-400">
+                            <ul class="space-y-2 text-white/60">
                                 <li class="flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-2"></i>
+                                    <i class="fas fa-map-marker-alt mr-2 text-vttu-yellow"></i>
                                     123 Đường ABC, Quận 1, TP.HCM
                                 </li>
                                 <li class="flex items-center">
-                                    <i class="fas fa-phone mr-2"></i>
+                                    <i class="fas fa-phone mr-2 text-vttu-yellow"></i>
                                     (028) 1234 5678
                                 </li>
                                 <li class="flex items-center">
-                                    <i class="fas fa-envelope mr-2"></i>
+                                    <i class="fas fa-envelope mr-2 text-vttu-yellow"></i>
                                     info@thuvienso.vn
                                 </li>
                             </ul>
@@ -296,7 +341,7 @@
             </div>
 
             <!-- Bottom Footer -->
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <div class="border-t border-white/10 mt-8 pt-8 text-center text-white/40">
                 <p>&copy; <?php echo e(date('Y')); ?> Thư viện số. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
@@ -305,6 +350,23 @@
     <!-- JavaScript -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
+        // Header transparency handling (Disabled as per user request for solid bg)
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('siteHeader');
+            const navLinks = document.querySelectorAll('#siteHeader a:not(.bg-white):not(.rounded-full), #siteHeader button:not(.lg\\:hidden)');
+            
+            if (window.scrollY > 50) {
+                header.classList.add('shadow-2xl');
+            } else {
+                header.classList.remove('shadow-2xl');
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            window.dispatchEvent(new Event('scroll'));
+        });
+
         AOS.init({
             duration: 500,
             once: true,
@@ -328,6 +390,9 @@
         });
     </script>
 
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     <?php echo $__env->yieldContent('scripts'); ?>
 </body>
 </html>

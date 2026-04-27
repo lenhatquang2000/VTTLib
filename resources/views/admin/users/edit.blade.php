@@ -79,7 +79,7 @@
             </div>
             <div>
                 <p class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Enrolled') }}</p>
-                <p class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $user->created_at->format('M d, Y') }}</p>
+                <p class="text-sm font-bold text-slate-700 dark:text-slate-300">{{ $user->created_at ? $user->created_at->format('M d, Y') : 'N/A' }}</p>
             </div>
         </div>
         <div class="p-6 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center">

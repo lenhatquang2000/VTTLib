@@ -17,11 +17,22 @@ Route::get('/', [ClientController::class, 'index'])->name('client.home');
 // Authentication Links
 Route::get('/login', [ClientLoginController::class, 'create'])->name('login');
 Route::post('/login', [ClientLoginController::class, 'store'])->name('client.login.store');
+Route::get('/verify', [ClientLoginController::class, 'verifyLoginByUsernameAndToken'])->name('client.verify');
 
 Route::get('/topsecret/login', [SecretLoginController::class, 'create'])->name('agent.login');
 Route::post('/topsecret/store', [SecretLoginController::class, 'store'])->name('agent.login.store');
 
 Route::post('/logout', [SecretLoginController::class, 'destroy'])->name('logout');
+
+// Emergency Cache Clear
+Route::get('/emergency-clear-cache', function() {
+    try {
+        Artisan::call('optimize:clear');
+        return "All caches cleared successfully!";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
+});
 
 // Barcode Generation (Public access for image display)
 Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::class, 'show'])->name('admin.barcode.show');

@@ -10,7 +10,7 @@ class SecretLoginController extends Controller
 {
     public function create()
     {
-        return view('auth.secret_login');
+        return view('auth/secret_login');
     }
 
     public function store(Request $request)

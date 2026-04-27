@@ -22,6 +22,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Tuyệt đối không dùng env() ở đây, chỉ dùng config()
+        if (config('app.env') !== 'local' || config('app.force_https')) {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
+        // Đảm bảo database luôn đúng (Sửa lỗi kẹt cấu hình trên server)
+        if (config('database.connections.mysql.database') === 'educationalmaterialssystem') {
+            config(['database.connections.mysql.database' => 'vttu_lib']);
+        }
+
         // Register observers
         User::observe(UserObserver::class);
         

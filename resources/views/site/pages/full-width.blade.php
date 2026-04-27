@@ -7,9 +7,9 @@
     <!-- Clean Minimalist Header -->
     <div class="py-12 border-b border-slate-100">
         <div class="container mx-auto px-6">
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">{{ $node->display_name }}</h1>
+            <h1 class="text-3xl font-black text-vttu-dark tracking-tight">{{ $node->display_name }}</h1>
             @if($node->description)
-                <p class="text-slate-500 mt-2 font-medium">{{ $node->description }}</p>
+                <p class="text-vttu-red/70 mt-2 font-medium">{{ $node->description }}</p>
             @endif
         </div>
     </div>
