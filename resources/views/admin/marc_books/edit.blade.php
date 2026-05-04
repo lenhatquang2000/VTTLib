@@ -253,7 +253,27 @@
                         
                         <!-- Nút Xóa trường dành cho Snapshot -->
                         <button type="button" 
-                            @click.stop="if(confirm('{{ __('Are you sure you want to remove this tag from this record?') }}')) { delete marcFields['{{ $tag->tag }}']; $el.closest('.bg-white').remove(); }"
+                            @click.stop="
+                                Swal.fire({
+                                    title: '{{ __('Xác nhận xóa Tag?') }}',
+                                    text: '{{ __('Bạn có chắc chắn muốn xóa Tag này khỏi bản ghi? Hành động này không thể hoàn tác.') }}',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#680102',
+                                    cancelButtonColor: '#94a3b8',
+                                    confirmButtonText: '{{ __('Xóa ngay') }}',
+                                    cancelButtonText: '{{ __('Hủy bỏ') }}',
+                                    customClass: {
+                                        popup: 'rounded-[2rem]'
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        delete marcFields['{{ $tag->tag }}']; 
+                                        $el.closest('.bg-white').remove();
+                                        isDirty = true;
+                                    }
+                                })
+                            "
                             class="p-2 text-gray-400 hover:text-rose-500 transition-colors"
                             title="{{ __('Remove_Tag') }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,16 +314,41 @@
                             <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
                                 <!-- Subfield Selector -->
                                 <div class="w-full md:w-1/3">
-                                    <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
-                                        x-model="row.code"
-                                        x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
-                                        x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
-                                        <option value="">{{ __('Select_Subfield') }}</option>
-                                        <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
-                                            <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
-                                        </template>
-                                    </select>
+                                    <div class="relative group/sub">
+                                        <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
+                                            x-model="row.code"
+                                            x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
+                                            x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
+                                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
+                                            <option value="">{{ __('Select_Subfield') }}</option>
+                                            <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
+                                                <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
+                                            </template>
+                                            <!-- Option for custom subfield -->
+                                            <template x-if="row.code && !marcFields['{{ $tag->tag }}'].subfieldDefinitions.find(d => d.code === row.code)">
+                                                <option :value="row.code" selected x-text="'$' + row.code + ' (Tùy chỉnh)'"></option>
+                                            </template>
+                                        </select>
+                                        
+                                        <!-- Nút thêm subfield mã tự do -->
+                                        <button type="button" 
+                                            @click="
+                                                Swal.fire({
+                                                    title: 'Mã Subfield mới',
+                                                    input: 'text',
+                                                    inputLabel: 'Nhập mã subfield (ví dụ: x, y, z)',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#680102'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed && result.value) {
+                                                        row.code = result.value.toLowerCase().replace(/^\$/, '');
+                                                    }
+                                                })
+                                            "
+                                            class="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-black opacity-0 group-hover/sub:opacity-100 transition-opacity">
+                                            Mã mới
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Value Input -->
@@ -315,7 +360,26 @@
                                         placeholder="{{ __('Enter_Value') }}"
                                         class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
 
-                                    <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.splice(index, 1)"
+                                    <button type="button" @click="
+                                        Swal.fire({
+                                            title: '{{ __('Xác nhận xóa?') }}',
+                                            text: '{{ __('Xóa trường con này?') }}',
+                                            icon: 'question',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#680102',
+                                            cancelButtonColor: '#94a3b8',
+                                            confirmButtonText: '{{ __('Xóa') }}',
+                                            cancelButtonText: '{{ __('Hủy') }}',
+                                            customClass: {
+                                                popup: 'rounded-[1.5rem]'
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                marcFields['{{ $tag->tag }}'].subfields.splice(index, 1);
+                                                isDirty = true;
+                                            }
+                                        })
+                                    "
                                         class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -1040,9 +1104,24 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 this.newItem = JSON.parse(JSON.stringify(this.items[index]));
             },
             removeItem(index) {
-                if (confirm('{{ __('Confirm_delete_book_item') }}')) {
-                    this.items.splice(index, 1);
-                }
+                Swal.fire({
+                    title: '{{ __('Xác nhận xóa ấn phẩm?') }}',
+                    text: '{{ __('Bạn có chắc chắn muốn xóa bản sao này?') }}',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#680102',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: '{{ __('Xóa ngay') }}',
+                    cancelButtonText: '{{ __('Hủy bỏ') }}',
+                    customClass: {
+                        popup: 'rounded-[2rem]'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.items.splice(index, 1);
+                        this.isDirty = true;
+                    }
+                });
             },
             resetNewItem() {
                 this.newItem = {
@@ -1103,6 +1182,30 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 window.location.href = url.toString();
             },
             goToStep(index) {
+                if (this.isDirty) {
+                    Swal.fire({
+                        title: '{{ __('Thay đổi chưa lưu!') }}',
+                        text: '{{ __('Bạn đã thực hiện thay đổi trong tab này. Bạn có muốn tiếp tục mà không lưu không?') }}',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#680102',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: '{{ __('Tiếp tục') }}',
+                        cancelButtonText: '{{ __('Ở lại') }}',
+                        customClass: {
+                            popup: 'rounded-[2rem]'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.isDirty = false;
+                            this.performGoToStep(index);
+                        }
+                    });
+                } else {
+                    this.performGoToStep(index);
+                }
+            },
+            performGoToStep(index) {
                 this.currentStep = index;
                 // Update URL without refresh
                 const url = new URL(window.location);

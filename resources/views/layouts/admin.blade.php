@@ -337,16 +337,22 @@
                             class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ $tab->display_name }}</span>
                     </div>
                     <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
-                        :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path>
+                        :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-                <div x-show="open && sidebarOpen" x-cloak x-collapse class="pl-12 space-y-1">
+
+                <div x-show="open && sidebarOpen" x-cloak x-collapse class="px-2 pb-2 space-y-1 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl mt-1">
                     @foreach($assignedChildren as $child)
-                    <a href="{{ (!blank($child->route_name) && $child->route_name !== '#' && Route::has($child->route_name)) ? route($child->route_name) : '#' }}"
-                        class="block py-2.5 px-4 text-[10px] font-black uppercase tracking-widest border-l-2 {{ ($child->route_name != '#' && request()->routeIs($child->route_name . '*')) ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 transition' }} whitespace-nowrap">
-                        {{ $child->display_name }}
-                    </a>
+                        <a href="{{ $child->route_name && $child->route_name !== '#' && Route::has($child->route_name) ? route($child->route_name) : '#' }}"
+                            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs($child->route_name . '*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200' }}">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="{{ $child->icon ?? 'fas fa-circle' }} w-5 h-5 flex items-center justify-center text-[8px] opacity-40 group-hover:opacity-100 transition-all"></i>
+                                </div>
+                                <span class="ml-3 truncate font-bold text-[10px] uppercase tracking-widest">{{ $child->display_name }}</span>
+                            </div>
+                        </a>
                     @endforeach
                 </div>
             </div>

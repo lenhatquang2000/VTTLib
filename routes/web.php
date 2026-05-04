@@ -42,7 +42,22 @@ Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('ho
 Route::get('/opac', [\App\Http\Controllers\SiteController::class, 'opac'])->name('site.opac');
 Route::get('/opac/search', [\App\Http\Controllers\SiteController::class, 'opac'])->name('opac.search');
 Route::get('/opac/book/{record}', [\App\Http\Controllers\SiteController::class, 'bookDetail'])->name('opac.book.show');
+Route::post('/opac/book/{record}/reserve', [\App\Http\Controllers\SiteController::class, 'reserveBook'])->name('opac.book.reserve')->middleware('auth');
+
+// Profile & My Loans
+Route::middleware(['auth'])->group(function () {
+    Route::get('/my-profile', [\App\Http\Controllers\SiteController::class, 'profile'])->name('profile');
+});
+
 Route::get('/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
+
+// Admin Panel Routes (Consolidated for all staff levels)
+Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function () {
+    // ...
+    Route::get('/circulation/requests', [\App\Http\Controllers\Admin\CirculationController::class, 'loanRequests'])->name('admin.circulation.requests');
+    Route::post('/circulation/requests/{reservation}/approve', [\App\Http\Controllers\Admin\CirculationController::class, 'approveRequest'])->name('admin.circulation.requests.approve');
+    Route::post('/circulation/requests/{reservation}/reject', [\App\Http\Controllers\Admin\CirculationController::class, 'rejectRequest'])->name('admin.circulation.requests.reject');
+});
 Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])->name('site.sitemap');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');
 

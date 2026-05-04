@@ -178,6 +178,27 @@
 
         <!-- Step 2: Biên mục (MARC Fields) -->
         <div x-show="currentStep === 1" x-cloak class="space-y-6">
+            <!-- Nút Thêm trường MARC nhanh -->
+            <div class="flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                <div class="text-sm font-bold text-indigo-700 dark:text-indigo-400">
+                    <i class="fas fa-plus-circle mr-2"></i>{{ __('Thêm trường tùy chỉnh cho Snapshot này') }}
+                </div>
+                <div class="flex gap-2">
+                    <select id="quick_add_tag" class="text-xs border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 dark:text-slate-200">
+                        <option value="">-- {{ __('Chọn Tag để thêm') }} --</option>
+                        @php
+                            $allTags = \App\Models\MarcTagDefinition::orderBy('tag')->get();
+                        @endphp
+                        @foreach($allTags as $t)
+                            <option value="{{ $t->tag }}">{{ $t->tag }} - {{ $t->label }}</option>
+                        @endforeach
+                    </select>
+                    <button type="button" @click="addTagToSnapshot()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+                        {{ __('Thêm Tag') }}
+                    </button>
+                </div>
+            </div>
+
             @foreach($definitions as $tag)
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden"
                 x-data="{ expanded: {{ $tag->tag == '245' ? 'true' : 'false' }} }">
@@ -201,6 +222,37 @@
                                     @click.stop>
                             </div>
                         </div>
+
+                        <!-- Nút Xóa trường dành cho Snapshot -->
+                        <button type="button" 
+                            @click.stop="
+                                Swal.fire({
+                                    title: '{{ __('Xác nhận xóa Tag?') }}',
+                                    text: '{{ __('Bạn có chắc chắn muốn xóa Tag này khỏi bản ghi? Hành động này không thể hoàn tác.') }}',
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#680102',
+                                    cancelButtonColor: '#94a3b8',
+                                    confirmButtonText: '{{ __('Xóa ngay') }}',
+                                    cancelButtonText: '{{ __('Hủy bỏ') }}',
+                                    customClass: {
+                                        popup: 'rounded-[2rem]'
+                                    }
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        delete marcFields['{{ $tag->tag }}']; 
+                                        $el.closest('.bg-white').remove();
+                                        isDirty = true;
+                                    }
+                                })
+                            "
+                            class="p-2 text-gray-400 hover:text-rose-500 transition-colors"
+                            title="{{ __('Remove_Tag') }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+
                         <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
                             :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -209,19 +261,65 @@
                 </div>
 
                 <div class="p-6" x-show="expanded" x-cloak x-collapse>
+                    @if(intval($tag->tag) < 10)
+                    {{-- Control fields (001-009): single value, no subfield selector --}}
+                    <div class="space-y-4">
+                        <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
+                            <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                                <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'" value="_">
+                                <div class="w-full flex gap-3 items-center">
+                                    <span class="shrink-0 px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-lg text-xs font-mono font-bold">{{ $tag->label }}</span>
+                                    <input type="text"
+                                        :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'"
+                                        x-model="row.value"
+                                        placeholder="{{ __('Enter_Value') }}"
+                                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors">
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    @else
+                    {{-- Data fields (010+): subfield selector + value --}}
                     <div class="space-y-4">
                         <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
                             <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
                                 <!-- Subfield Selector -->
                                 <div class="w-full md:w-1/3">
-                                    <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
-                                        x-model="row.code"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
-                                        <option value="">{{ __('Select_Subfield') }}</option>
-                                        <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
-                                            <option :value="def.code" x-text="'$' + def.code + ' ' + def.label"></option>
-                                        </template>
-                                    </select>
+                                    <div class="relative group/sub">
+                                        <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
+                                            x-model="row.code"
+                                            x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
+                                            x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
+                                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
+                                            <option value="">{{ __('Select_Subfield') }}</option>
+                                            <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
+                                                <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
+                                            </template>
+                                            <!-- Option for custom subfield -->
+                                            <template x-if="row.code && !marcFields['{{ $tag->tag }}'].subfieldDefinitions.find(d => d.code === row.code)">
+                                                <option :value="row.code" selected x-text="'$' + row.code + ' (Tùy chỉnh)'"></option>
+                                            </template>
+                                        </select>
+                                        
+                                        <!-- Nút thêm subfield mã tự do -->
+                                        <button type="button" 
+                                            @click="
+                                                Swal.fire({
+                                                    title: 'Mã Subfield mới',
+                                                    input: 'text',
+                                                    inputLabel: 'Nhập mã subfield (ví dụ: x, y, z)',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#680102'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed && result.value) {
+                                                        row.code = result.value.toLowerCase().replace(/^\$/, '');
+                                                    }
+                                                })
+                                            "
+                                            class="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-black opacity-0 group-hover/sub:opacity-100 transition-opacity">
+                                            Mã mới
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Value Input -->
@@ -232,7 +330,26 @@
                                         placeholder="{{ __('Enter_Value') }}"
                                         class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
 
-                                    <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.splice(index, 1)"
+                                    <button type="button" @click="
+                                        Swal.fire({
+                                            title: '{{ __('Xác nhận xóa?') }}',
+                                            text: '{{ __('Xóa trường con này?') }}',
+                                            icon: 'question',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#680102',
+                                            cancelButtonColor: '#94a3b8',
+                                            confirmButtonText: '{{ __('Xóa') }}',
+                                            cancelButtonText: '{{ __('Hủy') }}',
+                                            customClass: {
+                                                popup: 'rounded-[1.5rem]'
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                marcFields['{{ $tag->tag }}'].subfields.splice(index, 1);
+                                                isDirty = true;
+                                            }
+                                        })
+                                    "
                                         class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -250,6 +367,7 @@
                         </svg>
                         {{ __('Add_Subfield') }}
                     </button>
+                    @endif
                 </div>
             </div>
             @endforeach
@@ -588,6 +706,7 @@ $initialItemsData = [];
     function catalogWizard() {
         return {
             currentStep: parseInt(new URLSearchParams(window.location.search).get('tab')) || 0,
+            isDirty: false,
             steps: [{
                     title: '{{ __("Leader_Info") }}'
                 },
@@ -601,6 +720,34 @@ $initialItemsData = [];
                     title: '{{ __("Preview") }}'
                 }
             ],
+            init() {
+                // Warning for unsaved changes
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.isDirty) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
+
+                // Set isDirty khi có thay đổi
+                this.$watch('formData', () => this.isDirty = true);
+                this.$watch('marcFields', () => this.isDirty = true);
+                this.$watch('items', () => this.isDirty = true);
+
+                // Auto-scroll to tabs section when page loads with tab parameter
+                const tabParam = new URLSearchParams(window.location.search).get('tab');
+                if (tabParam !== null) {
+                    this.$nextTick(() => {
+                        const tabsElement = document.querySelector('.bg-white.dark\\:bg-slate-900.rounded-xl.shadow-sm.border');
+                        if (tabsElement) {
+                            tabsElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                }
+            },
             coverPreview: null,
             formData: {
                 framework: "{{ $frameworks->where('id', $frameworkId)->first()->code ?? 'AVMARC21' }}",
@@ -685,9 +832,24 @@ $initialItemsData = [];
                 this.newItem = JSON.parse(JSON.stringify(this.items[index]));
             },
             removeItem(index) {
-                if (confirm('{{ __("Are you sure you want to delete this book item?") }}')) {
-                    this.items.splice(index, 1);
-                }
+                Swal.fire({
+                    title: '{{ __('Xác nhận xóa ấn phẩm?') }}',
+                    text: '{{ __('Bạn có chắc chắn muốn xóa bản sao này?') }}',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#680102',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: '{{ __('Xóa ngay') }}',
+                    cancelButtonText: '{{ __('Hủy bỏ') }}',
+                    customClass: {
+                        popup: 'rounded-[2rem]'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.items.splice(index, 1);
+                        this.isDirty = true;
+                    }
+                });
             },
             resetNewItem() {
                 this.newItem = {
@@ -725,12 +887,59 @@ $initialItemsData = [];
                     return f.subfields.some(s => (s.code && s.code.trim() !== '') || (s.value && s.value.trim() !== ''));
                 });
             },
+            addTagToSnapshot() {
+                const tag = document.getElementById('quick_add_tag').value;
+                if (!tag) return;
+                
+                // Nếu tag đã tồn tại trên giao diện, chỉ cần cuộn tới đó và báo cho người dùng
+                if (this.marcFields[tag]) {
+                    Swal.fire({
+                        title: '{{ __("Thông báo") }}',
+                        text: '{{ __("Tag này đã tồn tại trong biểu mẫu.") }}',
+                        icon: 'info'
+                    });
+                    return;
+                }
+
+                // Tải lại trang với tag mới trong query để Controller xử lý load definition
+                const url = new URL(window.location);
+                url.searchParams.set('add_tag', tag);
+                window.location.href = url.toString();
+            },
             goToStep(index) {
+                if (this.isDirty) {
+                    Swal.fire({
+                        title: '{{ __('Thay đổi chưa lưu!') }}',
+                        text: '{{ __('Bạn đã thực hiện thay đổi trong tab này. Bạn có muốn tiếp tục mà không lưu không?') }}',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#680102',
+                        cancelButtonColor: '#94a3b8',
+                        confirmButtonText: '{{ __('Tiếp tục') }}',
+                        cancelButtonText: '{{ __('Ở lại') }}',
+                        customClass: {
+                            popup: 'rounded-[2rem]'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.isDirty = false;
+                            this.performGoToStep(index);
+                        }
+                    });
+                } else {
+                    this.performGoToStep(index);
+                }
+            },
+            performGoToStep(index) {
                 this.currentStep = index;
                 // Update URL without refresh
                 const url = new URL(window.location);
                 url.searchParams.set('tab', index);
                 window.history.pushState({}, '', url);
+
+                if (index === 1) {
+                    this.$nextTick(() => this.debugSubfieldBindings());
+                }
             },
             nextStep() {
                 this.goToStep(this.currentStep + 1);

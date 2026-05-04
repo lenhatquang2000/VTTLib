@@ -239,6 +239,65 @@ class SiteController extends Controller
     }
 
     /**
+     * Reserve a book (Register for loan)
+     */
+    public function reserveBook(Request $request, \App\Models\BibliographicRecord $record)
+    {
+        $user = auth()->user();
+        $patron = $user->patronDetail;
+
+        if (!$patron) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => __('Bạn cần cập nhật thông tin độc giả trước khi mượn sách.')]);
+            }
+            return back()->with('error', __('Bạn cần cập nhật thông tin độc giả trước khi mượn sách.'));
+        }
+
+        // Kiểm tra xem đã đăng ký cuốn này chưa
+        $existing = \App\Models\Reservation::where('patron_detail_id', $patron->id)
+            ->where('bibliographic_record_id', $record->id)
+            ->whereIn('status', ['pending', 'ready'])
+            ->first();
+
+        if ($existing) {
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => __('Bạn đã có một yêu cầu đang chờ cho tài liệu này.')]);
+            }
+            return back()->with('error', __('Bạn đã có một yêu cầu đang chờ cho tài liệu này.'));
+        }
+
+        // Tạo yêu cầu mới
+        \App\Models\Reservation::create([
+            'patron_detail_id' => $patron->id,
+            'bibliographic_record_id' => $record->id,
+            'reservation_date' => now(),
+            'status' => 'pending',
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json(['success' => true, 'message' => __('Đăng ký mượn sách thành công! Yêu cầu của bạn đang chờ quản trị viên phê duyệt.')]);
+        }
+
+        return redirect()->route('profile')->with('success', __('Đăng ký mượn sách thành công!'));
+    }
+
+    /**
+     * Display user profile with loans and reservations
+     */
+    public function profile()
+    {
+        $user = auth()->user();
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+        
+        $patron = $user->patronDetail;
+        $reservations = $patron ? $patron->reservations()->with('bibliographicRecord.fields.subfields')->latest()->get() : collect();
+        $activeLoans = $patron ? $patron->activeLoans()->with('bookItem.bibliographicRecord.fields.subfields')->latest()->get() : collect();
+
+        return view('site.pages.profile', compact('user', 'patron', 'reservations', 'activeLoans', 'menuItems', 'footerItems'));
+    }
+
+    /**
      * Display a static page by node code
      */
     public function page($code)

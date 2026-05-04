@@ -35,7 +35,7 @@
 
                     <div class="w-full space-y-3">
                         <?php if($record->items->where('status', 'available')->count() > 0): ?>
-                            <button class="w-full py-4 bg-vttu-red text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-vttu-dark transition-all shadow-xl shadow-vttu-red/20 flex items-center justify-center gap-3">
+                            <button type="button" onclick="confirmReservation(<?php echo e($record->id); ?>, '<?php echo e(addslashes($fullTitle)); ?>')" class="w-full py-4 bg-vttu-red text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-vttu-dark transition-all shadow-xl shadow-vttu-red/20 flex items-center justify-center gap-3">
                                 <i class="fas fa-shopping-basket"></i>
                                 Đăng ký mượn ngay
                             </button>
@@ -195,6 +195,114 @@
         </div>
     </div>
 </div>
+<?php $__env->startSection('scripts'); ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+    @keyframes swal-book-float {
+        0% { transform: translateY(100vh) translateX(0) rotate(0deg); opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { transform: translateY(-20vh) translateX(100px) rotate(360deg); opacity: 0; }
+    }
+    .swal2-container .floating-book {
+        position: fixed;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 2rem;
+        pointer-events: none;
+        z-index: -1;
+        animation: swal-book-float linear infinite;
+    }
+</style>
+<script>
+    function createFloatingBooks() {
+        const container = document.querySelector('.swal2-container');
+        const icons = ['fa-book', 'fa-book-open', 'fa-journal-whills', 'fa-book-bookmark', 'fa-library'];
+        for (let i = 0; i < 15; i++) {
+            const book = document.createElement('i');
+            const icon = icons[Math.floor(Math.random() * icons.length)];
+            book.className = `fas ${icon} floating-book`;
+            book.style.left = `${Math.random() * 100}vw`;
+            book.style.animationDuration = `${3 + Math.random() * 4}s`;
+            book.style.animationDelay = `${Math.random() * 2}s`;
+            book.style.fontSize = `${1 + Math.random() * 2}rem`;
+            container.appendChild(book);
+        }
+    }
+
+    function confirmReservation(id, title) {
+        Swal.fire({
+            title: 'Xác nhận mượn sách?',
+            html: `Bạn muốn đăng ký mượn cuốn:<br><b class="text-vttu-red">${title}</b>`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#680102',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Đăng ký ngay',
+            cancelButtonText: 'Hủy bỏ',
+            borderRadius: '2rem',
+            didOpen: () => {
+                createFloatingBooks();
+            },
+            customClass: {
+                popup: 'rounded-[2.5rem] border-4 border-vttu-red/10 shadow-2xl',
+                confirmButton: 'rounded-2xl px-8 py-4 font-black uppercase text-xs tracking-[0.2em] shadow-lg shadow-vttu-red/20',
+                cancelButton: 'rounded-2xl px-8 py-4 font-black uppercase text-xs tracking-[0.2em]'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Hiển thị loading
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Gửi AJAX
+                fetch(`/opac/book/${id}/reserve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Thành công!',
+                            text: data.message,
+                            icon: 'success',
+                            confirmButtonColor: '#680102',
+                            timer: 3000,
+                            timerProgressBar: true
+                        }).then(() => {
+                            window.location.href = '<?php echo e(route("profile")); ?>';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Thất bại',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonColor: '#680102'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.fire({
+                        title: 'Lỗi hệ thống!',
+                        html: `Có lỗi xảy ra trong quá trình đăng ký:<br><code class="text-xs text-rose-500">${error.message}</code>`,
+                        icon: 'error',
+                        confirmButtonColor: '#680102'
+                    });
+                });
+            }
+        });
+    }
+</script>
+<?php $__env->stopSection(); ?>
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.site', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/site/pages/book-detail.blade.php ENDPATH**/ ?>

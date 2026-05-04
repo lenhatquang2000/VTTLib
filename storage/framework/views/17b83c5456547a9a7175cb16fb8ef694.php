@@ -300,16 +300,41 @@
                             <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
                                 <!-- Subfield Selector -->
                                 <div class="w-full md:w-1/3">
-                                    <select :name="'fields[' + '<?php echo e($tag->tag); ?>' + '][subfields][' + index + '][code]'"
-                                        x-model="row.code"
-                                        x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
-                                        x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
-                                        <option value=""><?php echo e(__('Select_Subfield')); ?></option>
-                                        <template x-for="def in marcFields['<?php echo e($tag->tag); ?>'].subfieldDefinitions" :key="def.code">
-                                            <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
-                                        </template>
-                                    </select>
+                                    <div class="relative group/sub">
+                                        <select :name="'fields[' + '<?php echo e($tag->tag); ?>' + '][subfields][' + index + '][code]'"
+                                            x-model="row.code"
+                                            x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
+                                            x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
+                                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
+                                            <option value=""><?php echo e(__('Select_Subfield')); ?></option>
+                                            <template x-for="def in marcFields['<?php echo e($tag->tag); ?>'].subfieldDefinitions" :key="def.code">
+                                                <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
+                                            </template>
+                                            <!-- Option for custom subfield -->
+                                            <template x-if="row.code && !marcFields['<?php echo e($tag->tag); ?>'].subfieldDefinitions.find(d => d.code === row.code)">
+                                                <option :value="row.code" selected x-text="'$' + row.code + ' (Tùy chỉnh)'"></option>
+                                            </template>
+                                        </select>
+                                        
+                                        <!-- Nút thêm subfield mã tự do -->
+                                        <button type="button" 
+                                            @click="
+                                                Swal.fire({
+                                                    title: 'Mã Subfield mới',
+                                                    input: 'text',
+                                                    inputLabel: 'Nhập mã subfield (ví dụ: x, y, z)',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#680102'
+                                                }).then((result) => {
+                                                    if (result.isConfirmed && result.value) {
+                                                        row.code = result.value.toLowerCase().replace(/^\$/, '');
+                                                    }
+                                                })
+                                            "
+                                            class="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded font-black opacity-0 group-hover/sub:opacity-100 transition-opacity">
+                                            Mã mới
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <!-- Value Input -->

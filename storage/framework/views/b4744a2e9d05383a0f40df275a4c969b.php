@@ -59,6 +59,21 @@
                     <i class="fas fa-bookmark mr-2"></i><?php echo e(__('Giữ lại')); ?>
 
                 </button>
+                <a href="<?php echo e(route('admin.circulation.requests')); ?>" id="requestsTab"
+                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2">
+                    <i class="fas fa-clipboard-list"></i>
+                    <?php echo e(__('Yêu cầu mượn')); ?>
+
+                    <?php
+                        $pendingCount = \App\Models\Reservation::where('status', 'pending')->count();
+                    ?>
+                    <?php if($pendingCount > 0): ?>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white shadow-sm">
+                            <?php echo e($pendingCount); ?>
+
+                        </span>
+                    <?php endif; ?>
+                </a>
             </div>
         </div>
 

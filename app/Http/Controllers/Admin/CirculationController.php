@@ -583,8 +583,8 @@ class CirculationController extends Controller
         }
 
         try {
-            $patron = PatronDetail::with(['user', 'patronGroup.activePolicy'])
-                ->where('patron_code', 'like', $code . '%')
+            $patron = PatronDetail::with(['user', 'patronGroup.circulationPolicies', 'activeLoans.bookItem.bibliographicRecord'])
+                ->where('patron_code', $code)
                 ->first();
 
             if (!$patron) {
@@ -635,6 +635,18 @@ class CirculationController extends Controller
                         'name' => $patron->patronGroup?->name
                     ],
                     'current_loans' => $currentLoans,
+                    'active_loans' => $patron->activeLoans->map(function($loan) {
+                        return [
+                            'id' => $loan->id,
+                            'due_date' => $loan->due_date->toISOString(),
+                            'book_item' => [
+                                'barcode' => $loan->bookItem->barcode,
+                                'bibliographic_record' => [
+                                    'title' => $loan->bookItem->bibliographicRecord->title
+                                ]
+                            ]
+                        ];
+                    }),
                     'max_loans' => $maxLoans,
                     'outstanding_fine' => $outstandingFine,
                     'can_borrow' => $canBorrow,
@@ -781,6 +793,73 @@ class CirculationController extends Controller
             
             return response()->json(['success' => false, 'message' => __('Search error: ') . $e->getMessage()]);
         }
+    }
+
+    /**
+     * Display loan requests (reservations)
+     */
+    public function loanRequests(Request $request)
+    {
+        $query = Reservation::with(['patron.user', 'bibliographicRecord.fields.subfields', 'bookItem']);
+
+        // Lọc theo trạng thái
+        $status = $request->get('status', 'pending');
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+
+        $requests = $query->latest()->paginate(20);
+
+        return view('admin.circulation.requests', compact('requests', 'status'));
+    }
+
+    /**
+     * Approve a loan request
+     */
+    public function approveRequest(Request $request, Reservation $reservation)
+    {
+        try {
+            DB::beginTransaction();
+
+            // Tìm một ấn phẩm còn trống cho bản ghi này
+            $bookItem = BookItem::where('bibliographic_record_id', $reservation->bibliographic_record_id)
+                ->where('status', 'available')
+                ->first();
+
+            if (!$bookItem) {
+                throw new \Exception(__('Không có ấn phẩm nào sẵn sàng cho tài liệu này.'));
+            }
+
+            // Cập nhật trạng thái yêu cầu
+            $reservation->update([
+                'status' => 'ready',
+                'book_item_id' => $bookItem->id,
+                'pickup_date' => now()->addDays(3), // Mặc định 3 ngày để đến lấy
+            ]);
+
+            // Cập nhật trạng thái ấn phẩm thành 'reserved' (đang chờ lấy)
+            $bookItem->update(['status' => 'reserved']);
+
+            DB::commit();
+            return back()->with('success', __('Yêu cầu đã được phê duyệt. Ấn phẩm đã được giữ cho độc giả.'));
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject a loan request
+     */
+    public function rejectRequest(Request $request, Reservation $reservation)
+    {
+        $reservation->update([
+            'status' => 'cancelled',
+            'notes' => $request->get('reason', 'Yêu cầu bị từ chối bởi thủ thư.')
+        ]);
+
+        return back()->with('success', __('Đã từ chối yêu cầu mượn sách.'));
     }
 
     /**
