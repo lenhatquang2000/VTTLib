@@ -43,17 +43,20 @@ class BibliographicRecord extends Model
      */
     public function getTitleAttribute()
     {
-        // Many views expect ->title, so we check for tag 245
-        $field = $this->fields->where('tag', '245')->first();
-        if (!$field) return __('Untitled');
+        return $this->getMarcValue('245', 'a') ?: __('Untitled');
+    }
 
-        // Concatenate subfields a, b, c from tag 245
-        $titleParts = $field->subfields
-            ->whereIn('code', ['a', 'b', 'c'])
-            ->sortBy('sequence')
-            ->pluck('value')
-            ->toArray();
+    /**
+     * Helper to get a MARC field value by tag and subfield code
+     */
+    public function getMarcValue($tag, $subfieldCode = 'a')
+    {
+        $field = $this->fields->where('tag', $tag)->first();
+        if (!$field) {
+            return null;
+        }
 
-        return implode(' ', $titleParts) ?: __('Untitled');
+        $subfield = $field->subfields->where('code', $subfieldCode)->first();
+        return $subfield ? $subfield->value : null;
     }
 }

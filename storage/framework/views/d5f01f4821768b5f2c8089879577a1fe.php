@@ -3,48 +3,57 @@
 <?php $__env->startSection('content'); ?>
 <div class="space-y-6">
     <!-- Page Header -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-slate-100"><?php echo e(__('MARC Export & Reports')); ?></h1>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1"><?php echo e(__('Export MARC records and generate comprehensive reports')); ?></p>
+            <h1 class="text-3xl font-extrabold text-gray-800 dark:text-slate-100 tracking-tight"><?php echo e(__('Xuất bản ghi & Báo cáo MARC')); ?></h1>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 flex items-center">
+                <i class="fas fa-info-circle mr-2 text-indigo-500"></i>
+                <?php echo e(__('Tùy chỉnh bộ lọc và chọn loại báo cáo phù hợp để trích xuất dữ liệu')); ?>
+
+            </p>
         </div>
-        <div>
-            <a href="<?php echo e(route('admin.marc.book')); ?>" class="flex items-center px-4 py-2.5 text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                <?php echo e(__('Back to Cataloging')); ?>
+        <div class="flex items-center space-x-3">
+            <a href="<?php echo e(route('admin.marc.book')); ?>" class="inline-flex items-center px-4 py-2 text-sm font-bold bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm">
+                <i class="fas fa-arrow-left mr-2 text-xs"></i>
+                <?php echo e(__('Quay lại')); ?>
 
             </a>
+            <button type="button" onclick="resetForm()" class="inline-flex items-center px-4 py-2 text-sm font-bold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl transition-all">
+                <i class="fas fa-sync-alt mr-2 text-xs"></i>
+                <?php echo e(__('Làm mới')); ?>
+
+            </button>
         </div>
     </div>
 
-    <!-- Export Form -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-        <form action="<?php echo e(route('admin.marc.export.download')); ?>" method="GET" target="_blank">
+    <!-- Smart Filter Form -->
+    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-slate-800 p-8">
+        <form action="<?php echo e(route('admin.marc.export.download')); ?>" id="mainExportForm" method="GET" target="_blank">
             <?php echo csrf_field(); ?>
             
             <!-- Filters Section -->
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4"><?php echo e(__('Export Filters')); ?></h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Framework Filter -->
-                    <div class="space-y-2">
-                        <label for="framework_id" class="block text-sm font-medium text-gray-700 dark:text-slate-300"><?php echo e(__('Cataloging Framework')); ?></label>
-                        <select name="framework_id" id="framework_id" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value=""><?php echo e(__('All Frameworks')); ?></option>
-                            <?php $__currentLoopData = $frameworks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $framework): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($framework->id); ?>"><?php echo e($framework->name); ?></option>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </select>
+            <div class="mb-10">
+                <div class="flex items-center justify-between mb-8 border-b border-gray-100 dark:border-slate-800 pb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                            <i class="fas fa-filter text-lg"></i>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-800 dark:text-slate-100 tracking-tight"><?php echo e(__('BỘ LỌC THÔNG MINH')); ?></h2>
                     </div>
-                    
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Document Type Filter -->
-                    <div class="space-y-2">
-                        <label for="document_type_id" class="block text-sm font-medium text-gray-700 dark:text-slate-300"><?php echo e(__('Document Type')); ?></label>
-                        <select name="document_type_id" id="document_type_id" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value=""><?php echo e(__('All Types')); ?></option>
+                    <div class="space-y-3">
+                        <label for="document_type_id" class="flex items-center text-sm font-bold text-gray-700 dark:text-slate-300">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 mr-2">
+                                <i class="fas fa-file-alt text-xs"></i>
+                            </span>
+                            <?php echo e(__('Loại tài liệu')); ?>
+
+                        </label>
+                        <select name="document_type_id" id="document_type_id" class="select2-smart w-full">
+                            <option value=""><?php echo e(__('Tất cả loại tài liệu')); ?></option>
                             <?php $__currentLoopData = $documentTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($type->id); ?>"><?php echo e($type->name); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -52,624 +61,372 @@
                     </div>
                     
                     <!-- Status Filter -->
-                    <div class="space-y-2">
-                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-slate-300"><?php echo e(__('Status')); ?></label>
-                        <select name="status" id="status" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value=""><?php echo e(__('All Statuses')); ?></option>
-                            <option value="pending"><?php echo e(__('Pending')); ?></option>
-                            <option value="approved"><?php echo e(__('Approved')); ?></option>
+                    <div class="space-y-3">
+                        <label for="status" class="flex items-center text-sm font-bold text-gray-700 dark:text-slate-300">
+                            <span class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 mr-2">
+                                <i class="fas fa-check-circle text-xs"></i>
+                            </span>
+                            <?php echo e(__('Trạng thái bản ghi')); ?>
+
+                        </label>
+                        <select name="status" id="status" class="select2-smart w-full">
+                            <option value=""><?php echo e(__('Tất cả trạng thái')); ?></option>
+                            <option value="pending" data-icon="fa-clock"><?php echo e(__('Đang chờ duyệt')); ?></option>
+                            <option value="approved" data-icon="fa-check-double"><?php echo e(__('Đã được phê duyệt')); ?></option>
                         </select>
                     </div>
                     
                     <!-- Date Range -->
-                    <div class="space-y-2">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300"><?php echo e(__('Date Range')); ?></label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="date" name="date_from" id="date_from" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                   placeholder="<?php echo e(__('From Date')); ?>">
-                            <input type="date" name="date_to" id="date_to" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" 
-                                   placeholder="<?php echo e(__('To Date')); ?>">
+                    <div class="space-y-3">
+                        <label class="flex items-center text-sm font-bold text-gray-700 dark:text-slate-300">
+                            <span class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 mr-2">
+                                <i class="fas fa-calendar-alt text-xs"></i>
+                            </span>
+                            <?php echo e(__('Khoảng thời gian tạo')); ?>
+
+                        </label>
+                        <div class="flex items-center space-x-3">
+                            <div class="relative flex-1">
+                                <input type="date" name="date_from" id="date_from" class="w-full pl-4 pr-10 py-3 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 dark:text-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none">
+                            </div>
+                            <div class="text-gray-300 dark:text-slate-600">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                            <div class="relative flex-1">
+                                <input type="date" name="date_to" id="date_to" class="w-full pl-4 pr-10 py-3 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 dark:text-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Export Options -->
-            <div class="mb-6">
-                <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4"><?php echo e(__('Export Options')); ?></h2>
-                
-                <!-- Include Items -->
-                <div class="flex items-center space-x-2 mb-4">
-                    <input type="checkbox" name="include_items" id="include_items" value="1" class="rounded border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500">
-                    <label for="include_items" class="text-sm text-gray-700 dark:text-slate-300">
-                        <?php echo e(__('Include item information (barcodes, locations, statuses)')); ?>
-
-                    </label>
-                </div>
-
-                <!-- Export Format -->
-                <div class="space-y-3">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300"><?php echo e(__('Export Format')); ?></label>
-                    <div class="space-y-2">
-                        <div class="flex items-center">
-                            <input type="radio" id="format_excel" name="format" value="excel" checked class="border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500">
-                            <label for="format_excel" class="ml-2 text-sm text-gray-700 dark:text-slate-300">
-                                <?php echo e(__('Excel (.xlsx)')); ?>
-
-                            </label>
+            <!-- Configuration Section -->
+            <div class="bg-gray-50 dark:bg-slate-800/50 rounded-3xl p-6 border border-gray-100 dark:border-slate-800">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                    <!-- Format Toggle -->
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+                        <div class="space-y-2">
+                            <span class="text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block"><?php echo e(__('ĐỊNH DẠNG FILE')); ?></span>
+                            <div class="inline-flex p-1.5 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                                <label class="relative group cursor-pointer">
+                                    <input type="radio" name="format" value="excel" checked class="sr-only peer">
+                                    <div class="px-5 py-2 text-sm font-bold rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white text-gray-500 group-hover:text-indigo-600 peer-checked:group-hover:text-white">
+                                        <i class="fas fa-file-excel mr-2 text-xs"></i>Excel
+                                    </div>
+                                </label>
+                                <label class="relative group cursor-pointer ml-1">
+                                    <input type="radio" name="format" value="csv" class="sr-only peer">
+                                    <div class="px-5 py-2 text-sm font-bold rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white text-gray-500 group-hover:text-indigo-600 peer-checked:group-hover:text-white">
+                                        <i class="fas fa-file-csv mr-2 text-xs"></i>CSV
+                                    </div>
+                                </label>
+                                <label class="relative group cursor-pointer ml-1">
+                                    <input type="radio" name="format" value="marc" class="sr-only peer">
+                                    <div class="px-5 py-2 text-sm font-bold rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white text-gray-500 group-hover:text-indigo-600 peer-checked:group-hover:text-white">
+                                        <i class="fas fa-database mr-2 text-xs"></i>MARC
+                                    </div>
+                                </label>
+                            </div>
                         </div>
-                        <div class="flex items-center">
-                            <input type="radio" id="format_csv" name="format" value="csv" class="border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500">
-                            <label for="format_csv" class="ml-2 text-sm text-gray-700 dark:text-slate-300">
-                                <?php echo e(__('CSV (.csv)')); ?>
 
-                            </label>
-                        </div>
-                        <div class="flex items-center">
-                            <input type="radio" id="format_marc" name="format" value="marc" class="border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500">
-                            <label for="format_marc" class="ml-2 text-sm text-gray-700 dark:text-slate-300">
-                                <?php echo e(__('MARC (.mrc)')); ?>
+                        <!-- Item Switch -->
+                        <div class="space-y-2">
+                            <span class="text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block"><?php echo e(__('THÔNG TIN CHI TIẾT')); ?></span>
+                            <label class="relative inline-flex items-center cursor-pointer h-[52px]">
+                                <input type="checkbox" name="include_items" id="include_items" value="1" class="sr-only peer">
+                                <div class="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[15px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                <span class="ml-3 text-sm font-bold text-gray-700 dark:text-slate-300">
+                                    <?php echo e(__('Kèm thông tin ấn phẩm')); ?>
 
+                                </span>
                             </label>
                         </div>
                     </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-3">
+                        <a href="<?php echo e(route('admin.marc.import.index')); ?>" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 text-emerald-600 border border-emerald-200 dark:border-emerald-900/30 font-bold rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
+                            <i class="fas fa-file-import mr-2"></i>
+                            <?php echo e(__('Nhập liệu')); ?>
+
+                        </a>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Export Actions -->
-            <div class="flex flex-wrap gap-3">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <?php echo e(__('Export Records')); ?>
-
-                </button>
-                <a href="<?php echo e(route('admin.marc.import.index')); ?>" class="bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-400 px-4 py-2.5 rounded-lg text-sm font-semibold transition flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    <?php echo e(__('Import Records')); ?>
-
-                </a>
-                <button type="button" class="bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-600 dark:text-slate-400 px-4 py-2.5 rounded-lg text-sm font-semibold transition flex items-center" onclick="resetForm()">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                    </svg>
-                    <?php echo e(__('Reset')); ?>
-
-                </button>
             </div>
         </form>
     </div>
 
-    <!-- Báo cáo Phân Hệ Biên Mục -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100"><?php echo e(__('Báo cáo Phân Hệ Biên Mục')); ?></h2>
-            <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-slate-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                </svg>
-                <span><?php echo e(__('Subsystem Reports')); ?></span>
+    <!-- Additional Scripts for Smart Filter -->
+    <?php $__env->startPush('css'); ?>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        .select2-container--default .select2-selection--single {
+            height: 52px !important;
+            padding: 10px 16px !important;
+            border-radius: 16px !important;
+            border: 1px solid #e2e8f0 !important;
+            background-color: #f8fafc !important;
+            font-size: 0.875rem !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            outline: none !important;
+            transition: all 0.2s !important;
+        }
+        .dark .select2-container--default .select2-selection--single {
+            background-color: rgba(30, 41, 59, 0.5) !important;
+            border-color: #334155 !important;
+            color: #f1f5f9 !important;
+        }
+        .select2-container--default .select2-selection--single:focus, 
+        .select2-container--default.select2-container--open .select2-selection--single {
+            border-color: #4f46e5 !important;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 50px !important;
+            right: 12px !important;
+        }
+        .select2-dropdown {
+            border-radius: 16px !important;
+            border: 1px solid #e2e8f0 !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+            overflow: hidden !important;
+            margin-top: 4px !important;
+        }
+        .dark .select2-dropdown {
+            background-color: #0f172a !important;
+            border-color: #334155 !important;
+        }
+        .select2-results__option {
+            padding: 12px 16px !important;
+            font-size: 0.875rem !important;
+            font-weight: 600 !important;
+        }
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #4f46e5 !important;
+        }
+    </style>
+    <?php $__env->stopPush(); ?>
+
+    <?php $__env->startPush('scripts'); ?>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2-smart').select2({
+                minimumResultsForSearch: 10,
+                width: '100%'
+            });
+        });
+    </script>
+    <?php $__env->stopPush(); ?>
+
+    <!-- Subsystem Reports Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Báo cáo phân hệ biên mục -->
+        <div class="group bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1">
+            <div class="p-6 border-b border-gray-50 dark:border-slate-800 bg-gradient-to-br from-indigo-50/50 to-transparent dark:from-indigo-900/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+                        <i class="fas fa-book-reader text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100"><?php echo e(__('Phân hệ biên mục')); ?></h2>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium"><?php echo e(__('Quản lý danh sách & bài trích')); ?></p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 space-y-2">
+                <button type="button" onclick="generateReport('cataloging_subsystem')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-list-ul text-xs"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors"><?php echo e(__('Danh sách bản ghi biên mục')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="generateReport('article_index')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-quote-left text-xs"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors"><?php echo e(__('Thư mục bài trích')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="generateReport('book_stats')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-chart-pie text-xs"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors"><?php echo e(__('Thống kê số lượng đầu sách')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="generateReport('book_id_list')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-id-card text-xs"></i>
+                    </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors"><?php echo e(__('Danh sách tài liệu theo mã sách')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Báo cáo theo Framework -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
+        <!-- Báo cáo tài liệu -->
+        <div class="group bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
+            <div class="p-6 border-b border-gray-50 dark:border-slate-800 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-900/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200 dark:shadow-none">
+                        <i class="fas fa-archive text-xl"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Báo cáo theo Framework')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Thống kê theo từng framework biên mục')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateSubsystemReport('framework', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateSubsystemReport('framework', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100"><?php echo e(__('Báo cáo tài liệu')); ?></h2>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium"><?php echo e(__('Tình hình kho & đăng ký')); ?></p>
                     </div>
                 </div>
             </div>
-
-            <!-- Báo cáo theo Document Type -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                        </svg>
+            <div class="p-4 space-y-2">
+                <button type="button" onclick="generateReport('inventory_status')" class="w-full flex items-center p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-warehouse text-xs"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Báo cáo theo Loại Tài liệu')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Phân tích theo loại tài liệu')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateSubsystemReport('document_type', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateSubsystemReport('document_type', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-emerald-600 transition-colors"><?php echo e(__('Tình hình kho tài liệu')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="generateReport('accession_book')" class="w-full flex items-center p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-address-book text-xs"></i>
                     </div>
-                </div>
-            </div>
-
-            <!-- Báo cáo Năng suất Biên mục -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                        </svg>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-emerald-600 transition-colors"><?php echo e(__('Số đăng ký cá biệt')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="notImplemented()" class="w-full flex items-center p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group/item text-left">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-tags text-xs"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Năng suất Biên mục')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Hiệu suất làm việc theo người dùng')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateSubsystemReport('productivity', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateSubsystemReport('productivity', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Báo cáo Chất lượng Biên mục -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Chất lượng Biên mục')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Đánh giá chất lượng bản ghi')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateSubsystemReport('quality', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateSubsystemReport('quality', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Báo cáo Theo Phòng Ban -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Báo cáo Theo Phòng Ban')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Thống kê theo từng phòng ban')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateSubsystemReport('department', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateSubsystemReport('department', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Báo cáo Tổng Hợp -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v6m0 0V8a2 2 0 012-2h8a2 2 0 012 2v8"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Báo cáo Tổng Hợp')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Tất cả báo cáo trong một file')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateSubsystemReport('comprehensive', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateSubsystemReport('comprehensive', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Báo cáo Tài liệu -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100"><?php echo e(__('Báo cáo Tài liệu')); ?></h2>
-            <div class="flex items-center space-x-2 text-sm text-gray-500 dark:text-slate-400">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                </svg>
-                <span><?php echo e(__('Document Reports')); ?></span>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-emerald-600 transition-colors"><?php echo e(__('Danh sách nhan đề và số lượng')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Thống kê Tài liệu -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
+        <!-- In Nhãn & Mã vạch -->
+        <div class="group bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-rose-500/5 hover:-translate-y-1">
+            <div class="p-6 border-b border-gray-50 dark:border-slate-800 bg-gradient-to-br from-rose-50/50 to-transparent dark:from-rose-900/10">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-rose-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-200 dark:shadow-none">
+                        <i class="fas fa-print text-xl"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Thống kê Tài liệu')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Số liệu thống kê tài liệu tổng quan')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateDocumentReport('statistics', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateDocumentReport('statistics', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100"><?php echo e(__('In Nhãn & Mã vạch')); ?></h2>
+                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium"><?php echo e(__('Công cụ in ấn & dán nhãn')); ?></p>
                     </div>
                 </div>
             </div>
-
-            <!-- Danh mục Tài liệu -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                        </svg>
+            <div class="p-4 space-y-2">
+                <button type="button" onclick="generateReport('spine_label')" class="w-full flex items-center p-3 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-rose-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-barcode text-xs"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Danh mục Tài liệu')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Danh sách đầy đủ tài liệu')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateDocumentReport('catalog', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateDocumentReport('catalog', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-rose-600 transition-colors"><?php echo e(__('Dữ liệu in Nhãn gáy')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="generateReport('barcode_list')" class="w-full flex items-center p-3 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-rose-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-stream text-xs"></i>
                     </div>
-                </div>
-            </div>
-
-            <!-- Tài liệu Theo Thể loại -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-rose-600 transition-colors"><?php echo e(__('Dữ liệu in mã vạch')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
+                <button type="button" onclick="generateReport('generated_barcodes')" class="w-full flex items-center p-3 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition group/item">
+                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-rose-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
+                        <i class="fas fa-plus-circle text-xs"></i>
                     </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Tài liệu Theo Thể loại')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Phân loại theo chủ đề, thể loại')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateDocumentReport('category', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateDocumentReport('category', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tài liệu Mới -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Tài liệu Mới')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Tài liệu thêm mới trong khoảng thời gian')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateDocumentReport('new', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateDocumentReport('new', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tài liệu Đã Xuất bản -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-cyan-600 dark:text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Tài liệu Đã Xuất bản')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Các tài liệu đã xuất bản chính thức')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateDocumentReport('published', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateDocumentReport('published', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tài liệu Theo Năm Xuất bản -->
-            <div class="border border-gray-200 dark:border-slate-700 rounded-lg p-4 hover:shadow-md transition">
-                <div class="flex items-start space-x-3">
-                    <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="font-medium text-gray-900 dark:text-slate-100 mb-1"><?php echo e(__('Theo Năm Xuất bản')); ?></h3>
-                        <p class="text-sm text-gray-600 dark:text-slate-400 mb-3"><?php echo e(__('Phân tích theo năm xuất bản')); ?></p>
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="generateDocumentReport('year', 'excel')" class="text-xs bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                Excel
-                            </button>
-                            <button onclick="generateDocumentReport('year', 'pdf')" class="text-xs bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded">
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-rose-600 transition-colors"><?php echo e(__('In mã vạch phát sinh')); ?></span>
+                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Export Statistics -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100"><?php echo e(App\Models\BibliographicRecord::count()); ?></div>
-                    <div class="text-sm font-medium text-gray-600 dark:text-slate-400"><?php echo e(__('Total Records')); ?></div>
-                </div>
-                <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600 dark:text-blue-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
+    <script>
+    function generateReport(type) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?php echo e(route('admin.marc.reports.generate')); ?>';
+        form.target = '_blank';
         
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100"><?php echo e(App\Models\BibliographicRecord::where('status', 'approved')->count()); ?></div>
-                    <div class="text-sm font-medium text-gray-600 dark:text-slate-400"><?php echo e(__('Approved Records')); ?></div>
-                </div>
-                <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600 dark:text-green-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
         
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100"><?php echo e(App\Models\BibliographicRecord::where('status', 'pending')->count()); ?></div>
-                    <div class="text-sm font-medium text-gray-600 dark:text-slate-400"><?php echo e(__('Pending Records')); ?></div>
-                </div>
-                <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-        
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
-            <div class="flex items-center justify-between">
-                <div class="flex-1">
-                    <div class="text-2xl font-bold text-gray-900 dark:text-slate-100"><?php echo e(App\Models\BookItem::count()); ?></div>
-                    <div class="text-sm font-medium text-gray-600 dark:text-slate-400"><?php echo e(__('Total Items')); ?></div>
-                </div>
-                <div class="w-12 h-12 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+        // Add report type
+        const typeInput = document.createElement('input');
+        typeInput.type = 'hidden';
+        typeInput.name = 'report_type';
+        typeInput.value = type;
+        form.appendChild(typeInput);
 
-<script>
-function resetForm() {
-    document.getElementById('framework_id').value = '';
-    document.getElementById('document_type_id').value = '';
-    document.getElementById('status').value = '';
-    document.getElementById('date_from').value = '';
-    document.getElementById('date_to').value = '';
-    document.getElementById('include_items').checked = false;
-    document.getElementById('format_excel').checked = true;
-}
+        // Add filter values from the main form
+        const filters = [
+            'framework_id', 'document_type_id', 'status', 
+            'date_from', 'date_to'
+        ];
 
-function generateSubsystemReport(type, format) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '<?php echo e(route('admin.marc.reports.generate')); ?>';
-    form.target = '_blank';
-    
-    // Add CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = csrfToken.getAttribute('content');
-        form.appendChild(csrfInput);
-    }
-    
-    // Add report type
-    const typeInput = document.createElement('input');
-    typeInput.type = 'hidden';
-    typeInput.name = 'report_type';
-    typeInput.value = type;
-    form.appendChild(typeInput);
-    
-    // Add format
-    const formatInput = document.createElement('input');
-    formatInput.type = 'hidden';
-    formatInput.name = 'format';
-    formatInput.value = format;
-    form.appendChild(formatInput);
-    
-    // Add date filters
-    const dateFrom = document.getElementById('date_from').value;
-    const dateTo = document.getElementById('date_to').value;
-    const frameworkId = document.getElementById('framework_id').value;
-    
-    if (dateFrom) {
-        const dateFromInput = document.createElement('input');
-        dateFromInput.type = 'hidden';
-        dateFromInput.name = 'date_from';
-        dateFromInput.value = dateFrom;
-        form.appendChild(dateFromInput);
-    }
-    
-    if (dateTo) {
-        const dateToInput = document.createElement('input');
-        dateToInput.type = 'hidden';
-        dateToInput.name = 'date_to';
-        dateToInput.value = dateTo;
-        form.appendChild(dateToInput);
-    }
-    
-    if (frameworkId) {
-        const frameworkInput = document.createElement('input');
-        frameworkInput.type = 'hidden';
-        frameworkInput.name = 'framework_id';
-        frameworkInput.value = frameworkId;
-        form.appendChild(frameworkInput);
-    }
-    
-    if (format === 'excel') {
+        filters.forEach(id => {
+            const element = document.getElementById(id);
+            if (element && element.value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = id;
+                input.value = element.value;
+                form.appendChild(input);
+            }
+        });
+
+        // Add include_items if checked
+        const includeItems = document.getElementById('include_items');
+        if (includeItems && includeItems.checked) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'include_items';
+            input.value = '1';
+            form.appendChild(input);
+        }
+
+        // Add format from radio buttons
+        const formatInput = document.createElement('input');
+        formatInput.type = 'hidden';
+        formatInput.name = 'format';
+        const selectedFormat = document.querySelector('input[name="format"]:checked');
+        formatInput.value = selectedFormat ? selectedFormat.value : 'excel';
+        form.appendChild(formatInput);
+
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
-    } else {
-        Swal.fire({
-            title: 'Đang tạo báo cáo...',
-            html: 'Vui lòng đợi trong giây lát',
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        }).then(() => {
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
-        });
     }
-}
 
-function generateDocumentReport(type, format) {
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/topsecret/document-reports/generate';
-    form.target = '_blank';
-    
-    // Add CSRF token
-    const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    if (csrfToken) {
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = csrfToken.getAttribute('content');
-        form.appendChild(csrfInput);
-    }
-    
-    // Add report type
-    const typeInput = document.createElement('input');
-    typeInput.type = 'hidden';
-    typeInput.name = 'report_type';
-    typeInput.value = type;
-    form.appendChild(typeInput);
-    
-    // Add format
-    const formatInput = document.createElement('input');
-    formatInput.type = 'hidden';
-    formatInput.name = 'format';
-    formatInput.value = format;
-    form.appendChild(formatInput);
-    
-    // Add date filters
-    const dateFrom = document.getElementById('date_from').value;
-    const dateTo = document.getElementById('date_to').value;
-    
-    if (dateFrom) {
-        const dateFromInput = document.createElement('input');
-        dateFromInput.type = 'hidden';
-        dateFromInput.name = 'date_from';
-        dateFromInput.value = dateFrom;
-        form.appendChild(dateFromInput);
-    }
-    
-    if (dateTo) {
-        const dateToInput = document.createElement('input');
-        dateToInput.type = 'hidden';
-        dateToInput.name = 'date_to';
-        dateToInput.value = dateTo;
-        form.appendChild(dateToInput);
-    }
-    
-    if (format === 'excel') {
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-    } else {
+    function notImplemented() {
         Swal.fire({
-            title: 'Đang tạo báo cáo...',
-            html: 'Vui lòng đợi trong giây lát',
-            timer: 2000,
-            timerProgressBar: true,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        }).then(() => {
-            document.body.appendChild(form);
-            form.submit();
-            document.body.removeChild(form);
+            title: '<?php echo e(__("Thông báo")); ?>',
+            text: '<?php echo e(__("Chức năng này hiện đang trong quá trình phát triển.")); ?>',
+            icon: 'info',
+            confirmButtonText: '<?php echo e(__("Đóng")); ?>',
+            confirmButtonColor: '#4f46e5'
         });
     }
-}
+
+    function resetForm() {
+        document.getElementById('document_type_id').value = '';
+        document.getElementById('status').value = '';
+        document.getElementById('date_from').value = '';
+        document.getElementById('date_to').value = '';
+        document.getElementById('include_items').checked = false;
+        // Reset radio buttons to excel
+        document.querySelector('input[name="format"][value="excel"]').checked = true;
+    }
 </script>
 <?php $__env->stopSection(); ?>
 

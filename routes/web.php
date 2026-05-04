@@ -41,6 +41,7 @@ Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::cl
 Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
 Route::get('/opac', [\App\Http\Controllers\SiteController::class, 'opac'])->name('site.opac');
 Route::get('/opac/search', [\App\Http\Controllers\SiteController::class, 'opac'])->name('opac.search');
+Route::get('/opac/book/{record}', [\App\Http\Controllers\SiteController::class, 'bookDetail'])->name('opac.book.show');
 Route::get('/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
 Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])->name('site.sitemap');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');
@@ -242,8 +243,9 @@ Route::get('/', function () {
     Route::post('/marc-import/save-framework-marc', [\App\Http\Controllers\Admin\MarcImportController::class, 'saveFrameworkFromMarc'])->name('admin.marc.import.save-framework-marc');
     Route::post('/marc-import/process-marc', [\App\Http\Controllers\Admin\MarcImportController::class, 'processMarcFile'])->name('admin.marc.import.process-marc');
     
-    // MARC Export
-    Route::get('/marc-export', [\App\Http\Controllers\Admin\MarcBookController::class, 'exportIndex'])->name('admin.marc.export.index');
+    // MARC Export & Reports
+    Route::get('/marc-export', [\App\Http\Controllers\Admin\MarcReportController::class, 'index'])->name('admin.marc.export.index');
+    Route::post('/marc-reports/generate', [\App\Http\Controllers\Admin\MarcReportController::class, 'generate'])->name('admin.marc.reports.generate');
     Route::get('/marc-export/download', [\App\Http\Controllers\Admin\MarcBookController::class, 'export'])->name('admin.marc.export.download');
     Route::post('/marc-import/process', [\App\Http\Controllers\Admin\MarcImportController::class, 'process'])->name('admin.marc.import.process');
     Route::post('/marc-import/create-framework', [\App\Http\Controllers\Admin\MarcImportController::class, 'createFrameworkFromFile'])->name('admin.marc.import.create-framework');

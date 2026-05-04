@@ -168,7 +168,7 @@ class MarcBookController extends Controller
     public function form(Request $request, ?BibliographicRecord $record = null)
     {
         if ($record) {
-            $record->load('fields.subfields', 'items');
+            $record->load(['fields.subfields', 'items']);
         }
 
         $frameworks = MarcFramework::where('is_active', true)->get();
@@ -178,7 +178,6 @@ class MarcBookController extends Controller
             ?: ($record ? optional($frameworks->firstWhere('code', $record->framework))->id : null);
 
         if (!$frameworkId && !$record && $frameworks->isNotEmpty()) {
-            // Default to STANDARD if available, else first
             $standard = $frameworks->where('code', 'STANDARD')->first();
             $frameworkId = $standard ? $standard->id : $frameworks->first()->id;
         }
@@ -186,39 +185,78 @@ class MarcBookController extends Controller
         $currentFramework = MarcFramework::find($frameworkId);
 
         if ($record) {
-            // In edit mode: keep framework-visible tags, but always include exact tag/subfield
-            // definitions already used by the record so labels resolve correctly from DB.
-            $frameworkDefinitions = $currentFramework ? $currentFramework->tags()
+            // SNAPSHOT LOGIC: Ưu tiên lấy cấu trúc từ chính bản ghi
+            // 1. Lấy tất cả các Tags hiện có trong bản ghi này
+            $recordFields = $record->fields()->with('subfields')->orderBy('tag')->get();
+            $recordTags = $recordFields->pluck('tag')->unique();
+
+            // 2. Lấy định nghĩa chuẩn cho các Tags này để lấy nhãn (label) và mô tả
+            $definitions = MarcTagDefinition::whereIn('tag', $recordTags)
                 ->with(['subfields' => function ($q) {
                     $q->orderBy('code');
                 }])
-                ->wherePivot('is_visible', true)
-                ->get() : collect();
+                ->get()
+                ->map(function($def) use ($recordFields) {
+                    // Đối với mỗi tag hiện có, chúng ta cũng cần đảm bảo các subfield thực tế đang có dữ liệu được hiển thị
+                    $actualField = $recordFields->firstWhere('tag', $def->tag);
+                    if ($actualField) {
+                        $actualCodes = $actualField->subfields->pluck('code')->unique();
+                        
+                        // Hợp nhất: lấy định nghĩa chuẩn cộng với bất kỳ subfield nào thực tế đang có
+                        // Điều này cho phép hỗ trợ cả các trường tùy chỉnh (custom subfields)
+                        $mergedSubfields = $def->subfields->filter(function($s) use ($actualCodes) {
+                            return $actualCodes->contains($s->code) || $s->is_visible;
+                        });
+                        
+                        // Nếu có subfield thực tế mà trong định nghĩa chuẩn không có (trường hợp hiếm)
+                        $standardCodes = $def->subfields->pluck('code');
+                        foreach ($actualCodes as $code) {
+                            if (!$standardCodes->contains($code)) {
+                                $mergedSubfields->push((object)[
+                                    'code' => $code,
+                                    'label' => "Subfield $code",
+                                    'is_visible' => true
+                                ]);
+                            }
+                        }
+                        $def->setRelation('subfields', $mergedSubfields->sortBy('code')->values());
+                    }
+                    return $def;
+                });
 
-            $recordTags = $record->fields->pluck('tag')->unique()->values();
-            $recordDefinitions = MarcTagDefinition::whereIn('tag', $recordTags)
-                ->with(['subfields' => function ($q) {
-                    $q->orderBy('code');
-                }])
-                ->get();
+            // Nếu muốn vẫn hiển thị các trường "trống" từ Framework nhưng chưa có dữ liệu trong Record
+            // (Tùy chọn: Nếu bạn muốn Snapshot sạch hoàn toàn thì bỏ qua bước này)
+            if ($currentFramework) {
+                $frameworkTags = $currentFramework->tags()
+                    ->with(['subfields' => function ($q) {
+                        $q->where('is_visible', true)->orderBy('code');
+                    }])
+                    ->wherePivot('is_visible', true)
+                    ->get();
 
-            $definitionsByTag = $frameworkDefinitions->keyBy('tag');
-            foreach ($recordDefinitions as $recordDefinition) {
-                if ($definitionsByTag->has($recordDefinition->tag)) {
-                    $existing = $definitionsByTag->get($recordDefinition->tag);
-                    $mergedSubfields = $existing->subfields
-                        ->keyBy(fn($s) => strtolower(trim((string) $s->code)))
-                        ->union($recordDefinition->subfields->keyBy(fn($s) => strtolower(trim((string) $s->code))))
-                        ->values();
-                    $existing->setRelation('subfields', $mergedSubfields);
-                    $definitionsByTag->put($recordDefinition->tag, $existing);
-                } else {
-                    $definitionsByTag->put($recordDefinition->tag, $recordDefinition);
+                $definitionsByTag = $definitions->keyBy('tag');
+                foreach ($frameworkTags as $fTag) {
+                    if (!$definitionsByTag->has($fTag->tag)) {
+                        $definitions->push($fTag);
+                    }
                 }
+                // Nếu người dùng yêu cầu thêm Tag mới vào Snapshot (thông qua nút Thêm Tag nhanh)
+                $addTag = $request->query('add_tag');
+                if ($addTag && !$definitions->contains('tag', $addTag)) {
+                    $newTagDef = MarcTagDefinition::where('tag', $addTag)
+                        ->with(['subfields' => function ($q) {
+                            $q->where('is_visible', true)->orderBy('code');
+                        }])
+                        ->first();
+                    if ($newTagDef) {
+                        $definitions->push($newTagDef);
+                    }
+                }
+
+                $definitions = $definitions->sortBy('tag')->values();
             }
-            $definitions = $definitionsByTag->values();
         } else {
-            // Create mode: only show visible tags/subfields configured for the selected framework.
+            // CREATE MODE: Chỉ hiển thị các tag/subfield theo Framework mẫu
             $definitions = $currentFramework ? $currentFramework->tags()
                 ->with(['subfields' => function ($q) {
                     $q->where('is_visible', true)->orderBy('code');
@@ -419,14 +457,13 @@ class MarcBookController extends Controller
             $fields = $request->input('fields', []);
             $sequence = 0;
             
-            // Track IDs to delete later
-            $submittedFieldTags = [];
-            $submittedSubfieldIds = [];
+            // Track IDs of fields and subfields that should be KEPT
+            $keptFieldIds = [];
 
             foreach ($fields as $tag => $data) {
                 $subfieldEntries = $data['subfields'] ?? [];
 
-                // Check if the tag has any valid content
+                // Kiểm tra xem tag này có dữ liệu hợp lệ không
                 $hasValidSubfields = false;
                 foreach ($subfieldEntries as $entry) {
                     if (!empty($entry['code']) && (!empty($entry['value']) || $entry['value'] === '0')) {
@@ -435,36 +472,23 @@ class MarcBookController extends Controller
                     }
                 }
 
+                // Nếu không có dữ liệu, chúng ta không xóa ở đây mà sẽ để logic Snapshot xử lý (xóa những gì không gửi lên)
                 if (!$hasValidSubfields) continue;
 
-                $submittedFieldTags[] = $tag;
-
-                // 1. Update or Create MarcField
-                // First try to find existing field by tag (get the first one)
-                $existingField = $record->fields()
-                    ->where('tag', $tag)
-                    ->first();
-                    
-                if ($existingField) {
-                    // Update existing field indicators
-                    $existingField->update([
+                // 1. Cập nhật hoặc Tạo mới MarcField cho Record này
+                $marcField = $record->fields()->updateOrCreate(
+                    ['tag' => $tag],
+                    [
                         'indicator1' => $data['ind1'] ?? ' ',
                         'indicator2' => $data['ind2'] ?? ' ',
-                        'sequence' => $sequence
-                    ]);
-                    $marcField = $existingField;
-                } else {
-                    // Create new field only if not exists
-                    $marcField = $record->fields()->create([
-                        'tag' => $tag,
-                        'indicator1' => $data['ind1'] ?? ' ',
-                        'indicator2' => $data['ind2'] ?? ' ',
-                        'sequence' => $sequence
-                    ]);
-                }
+                        'sequence' => $sequence++
+                    ]
+                );
+                
+                $keptFieldIds[] = $marcField->id;
 
-                $fieldSubfieldIds = [];
-                // 2. Handle Subfields of this field
+                $keptSubfieldIds = [];
+                // 2. Xử lý các Subfields
                 foreach ($subfieldEntries as $entry) {
                     if (!empty($entry['code']) && (!empty($entry['value']) || $entry['value'] === '0')) {
                         $subfield = $marcField->subfields()->updateOrCreate(
@@ -474,17 +498,17 @@ class MarcBookController extends Controller
                                 'value' => $entry['value']
                             ]
                         );
-                        $fieldSubfieldIds[] = $subfield->id;
+                        $keptSubfieldIds[] = $subfield->id;
                     }
                 }
 
-                // Delete subfields of this field that were NOT submitted
-                $marcField->subfields()->whereNotIn('id', $fieldSubfieldIds)->delete();
+                // Xóa các subfields của field này mà KHÔNG được gửi lên (bị xóa trên UI)
+                $marcField->subfields()->whereNotIn('id', $keptSubfieldIds)->delete();
             }
 
-            // Debug: Log field operations
-            \Log::info('Submitted field tags:', $submittedFieldTags);
-            \Log::info('Fields after update:', $record->fields()->with('subfields')->get()->toArray());
+            // SNAPSHOT SYNC: Xóa tất cả các trường cũ của Record mà KHÔNG có trong danh sách vừa cập nhật
+            // Điều này đảm bảo Snapshot luôn khớp với những gì người dùng thấy trên Form
+            $record->fields()->whereNotIn('id', $keptFieldIds)->delete();
 
             // Process distribution items (Add, Update, Delete)
             $items = $request->input('items', []);

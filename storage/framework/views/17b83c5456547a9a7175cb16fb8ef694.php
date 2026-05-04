@@ -210,6 +210,29 @@
 
         <!-- Step 2: Biên mục (MARC Fields) -->
         <div x-show="currentStep === 1" x-cloak class="space-y-6">
+            <!-- Nút Thêm trường MARC nhanh -->
+            <div class="flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
+                <div class="text-sm font-bold text-indigo-700 dark:text-indigo-400">
+                    <i class="fas fa-plus-circle mr-2"></i><?php echo e(__('Thêm trường tùy chỉnh cho Snapshot này')); ?>
+
+                </div>
+                <div class="flex gap-2">
+                    <select id="quick_add_tag" class="text-xs border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 dark:text-slate-200">
+                        <option value="">-- <?php echo e(__('Chọn Tag để thêm')); ?> --</option>
+                        <?php
+                            $allTags = \App\Models\MarcTagDefinition::orderBy('tag')->get();
+                        ?>
+                        <?php $__currentLoopData = $allTags; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $t): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <option value="<?php echo e($t->tag); ?>"><?php echo e($t->tag); ?> - <?php echo e($t->label); ?></option>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </select>
+                    <button type="button" @click="addTagToSnapshot()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+                        <?php echo e(__('Thêm Tag')); ?>
+
+                    </button>
+                </div>
+            </div>
+
             <?php $__currentLoopData = $definitions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $tag): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
             <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden"
                 x-data="{ expanded: <?php echo e($tag->tag == '245' ? 'true' : 'false'); ?> }">
@@ -233,6 +256,17 @@
                                     @click.stop>
                             </div>
                         </div>
+                        
+                        <!-- Nút Xóa trường dành cho Snapshot -->
+                        <button type="button" 
+                            @click.stop="if(confirm('<?php echo e(__('Are you sure you want to remove this tag from this record?')); ?>')) { delete marcFields['<?php echo e($tag->tag); ?>']; $el.closest('.bg-white').remove(); }"
+                            class="p-2 text-gray-400 hover:text-rose-500 transition-colors"
+                            title="<?php echo e(__('Remove_Tag')); ?>">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                        </button>
+
                         <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
                             :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -757,6 +791,19 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 }
             ],
             init() {
+                // Warning for unsaved changes
+                window.addEventListener('beforeunload', (e) => {
+                    if (this.isDirty) {
+                        e.preventDefault();
+                        e.returnValue = '';
+                    }
+                });
+
+                // Set isDirty when any input changes
+                this.$watch('formData', () => this.isDirty = true);
+                this.$watch('marcFields', () => this.isDirty = true);
+                this.$watch('items', () => this.isDirty = true);
+
                 // Auto-scroll to tabs section when page loads with tab parameter
                 const tabParam = new URLSearchParams(window.location.search).get('tab');
                 if (tabParam !== null) {
@@ -1044,6 +1091,25 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             debugSubfieldBindings() {
                 // Debug function removed for cleaner console
             },
+            addTagToSnapshot() {
+                const tag = document.getElementById('quick_add_tag').value;
+                if (!tag) return;
+                
+                // Nếu tag đã tồn tại trên giao diện, chỉ cần cuộn tới đó và báo cho người dùng
+                if (this.marcFields[tag]) {
+                    Swal.fire({
+                        title: '<?php echo e(__("Notice")); ?>',
+                        text: '<?php echo e(__("Tag already exists in this snapshot.")); ?>',
+                        icon: 'info'
+                    });
+                    return;
+                }
+
+                // Tải lại trang với tag mới trong query để Controller xử lý load definition
+                const url = new URL(window.location);
+                url.searchParams.set('add_tag', tag);
+                window.location.href = url.toString();
+            },
             goToStep(index) {
                 this.currentStep = index;
                 // Update URL without refresh
@@ -1061,13 +1127,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             prevStep() {
                 this.goToStep(this.currentStep - 1);
             },
-            submitForm() {
-                // Ensure currentStep is updated before form submission
-                const url = new URL(window.location);
-                url.searchParams.set('tab', this.currentStep);
-                window.history.replaceState({}, '', url.toString());
-
-                document.getElementById('catalogForm').submit();
+            async submitForm() {
+                this.isDirty = false; // Allow leaving after submit
+                const form = document.getElementById('catalogForm');
+                form.submit();
             }
         }
     }

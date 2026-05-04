@@ -4,693 +4,328 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BibliographicRecord;
-use App\Models\MarcFramework;
-use App\Models\ActivityLog;
-use App\Models\User;
 use App\Models\DocumentType;
-use App\Models\StorageLocation;
+use App\Models\MarcFramework;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\MarcReportsExport;
+use App\Exports\DynamicMarcReportExport;
+use Carbon\Carbon;
 
 class MarcReportController extends Controller
 {
     /**
-     * Display reports dashboard
+     * Hiển thị trang xuất báo cáo
      */
-    public function index(Request $request)
+    public function index()
     {
-        $dateRange = $this->getDateRange($request);
-        $frameworkId = $request->get('framework_id');
-        
-        // Get frameworks for filter
         $frameworks = MarcFramework::where('is_active', true)->get();
+        $documentTypes = DocumentType::active()->ordered()->get();
         
-        // Get statistics
-        $stats = $this->getCatalogingStatistics($dateRange, $frameworkId);
-        
-        // Get recent activity
-        $recentActivity = $this->getRecentCatalogingActivity($dateRange, $frameworkId);
-        
-        // Get productivity metrics
-        $productivity = $this->getProductivityMetrics($dateRange, $frameworkId);
-        
-        // Get quality metrics
-        $quality = $this->getQualityMetrics($dateRange, $frameworkId);
-        
-        return view('admin.marc_reports.index', compact(
-            'frameworks',
-            'stats',
-            'recentActivity',
-            'productivity',
-            'quality',
-            'dateRange'
-        ));
+        return view('admin.marc_books.export', compact('frameworks', 'documentTypes'));
     }
 
     /**
-     * Generate detailed reports
+     * Xử lý tạo báo cáo với bộ lọc linh hoạt
      */
     public function generate(Request $request)
     {
-        $request->validate([
-            'report_type' => 'required|in:summary,productivity,quality,detailed,framework,document_type,department,comprehensive,statistics,catalog,category,new,published,year',
-            'date_from' => 'nullable|date',
-            'date_to' => 'nullable|date|after_or_equal:date_from',
-            'framework_id' => 'nullable|exists:marc_frameworks,id',
-            'format' => 'required|in:web,excel,pdf'
-        ]);
+        $reportType = $request->input('report_type');
+        $format = $request->input('format', 'excel');
+        $rows = []; // Initialize empty array
 
-        // Handle empty dates
-        $dateFrom = $request->filled('date_from') ? Carbon::parse($request->date_from) : Carbon::now()->subDays(30);
-        $dateTo = $request->filled('date_to') ? Carbon::parse($request->date_to)->endOfDay() : Carbon::now()->endOfDay();
+        // 1. Build Query dựa trên loại báo cáo
+        // Các báo cáo về kho/mã vạch/nhãn gáy nên bắt đầu từ BookItem để chính xác theo từng cuốn sách
+        $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes'];
         
-        $dateRange = [
-            'from' => $dateFrom,
-            'to' => $dateTo
-        ];
-
-        $frameworkId = $request->framework_id;
-
-        // Route to appropriate report generator
-        switch ($request->report_type) {
-            case 'summary':
-            case 'productivity':
-            case 'quality':
-            case 'detailed':
-                $data = $this->generateMarcReport($request->report_type, $dateRange, $frameworkId);
-                break;
-                
-            case 'framework':
-            case 'document_type':
-            case 'department':
-            case 'comprehensive':
-                $data = $this->generateSubsystemReport($request->report_type, $dateRange, $frameworkId);
-                break;
-                
-            case 'statistics':
-            case 'catalog':
-            case 'category':
-            case 'new':
-            case 'published':
-            case 'year':
-                $data = $this->generateDocumentReport($request->report_type, $dateRange);
-                break;
-        }
-
-        if ($request->format === 'excel') {
-            return Excel::download(new MarcReportsExport($data, $request->report_type), 
-                'marc_report_' . $request->report_type . '_' . $dateFrom->format('Y-m-d') . '_to_' . $dateTo->format('Y-m-d') . '.xlsx');
-        }
-
-        if ($request->format === 'pdf') {
-            // For now, return Excel for PDF too - you can implement PDF generation later
-            return Excel::download(new MarcReportsExport($data, $request->report_type), 
-                'marc_report_' . $request->report_type . '_' . $dateFrom->format('Y-m-d') . '_to_' . $dateTo->format('Y-m-d') . '.xlsx');
-        }
-
-        return view('admin.marc_reports.' . $request->report_type, [
-            'data' => $data,
-            'dateRange' => $dateRange,
-            'framework' => $frameworkId ? MarcFramework::find($frameworkId) : null
-        ]);
-    }
-
-    /**
-     * Generate MARC reports (existing functionality)
-     */
-    protected function generateMarcReport($reportType, array $dateRange, ?int $frameworkId): array
-    {
-        switch ($reportType) {
-            case 'summary':
-                return $this->generateSummaryReport($dateRange, $frameworkId);
-            case 'productivity':
-                return $this->generateProductivityReport($dateRange, $frameworkId);
-            case 'quality':
-                return $this->generateQualityReport($dateRange, $frameworkId);
-            case 'detailed':
-                return $this->generateDetailedReport($dateRange, $frameworkId);
-        }
-    }
-
-    /**
-     * Generate subsystem reports
-     */
-    protected function generateSubsystemReport($reportType, array $dateRange, ?int $frameworkId): array
-    {
-        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
-        
-        if ($frameworkId) {
-            $framework = MarcFramework::find($frameworkId);
-            $query->where('framework', $framework->code);
-        }
-
-        switch ($reportType) {
-            case 'framework':
-                return $this->generateFrameworkReport($query, $dateRange);
-            case 'document_type':
-                return $this->generateDocumentTypeReport($query, $dateRange);
-            case 'department':
-                return $this->generateDepartmentReport($query, $dateRange);
-            case 'comprehensive':
-                return $this->generateComprehensiveReport($query, $dateRange);
-        }
-    }
-
-    /**
-     * Generate document reports
-     */
-    protected function generateDocumentReport($reportType, array $dateRange): array
-    {
-        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
-
-        switch ($reportType) {
-            case 'statistics':
-                return $this->generateDocumentStatistics($query, $dateRange);
-            case 'catalog':
-                return $this->generateDocumentCatalog($query, $dateRange);
-            case 'category':
-                return $this->generateDocumentCategory($query, $dateRange);
-            case 'new':
-                return $this->generateNewDocuments($query, $dateRange);
-            case 'published':
-                return $this->generatePublishedDocuments($query, $dateRange);
-            case 'year':
-                return $this->generateDocumentYearReport($query, $dateRange);
-        }
-    }
-
-    /**
-     * Generate framework report
-     */
-    protected function generateFrameworkReport($query, array $dateRange): array
-    {
-        $byFramework = $query->selectRaw('framework, COUNT(*) as count')
-            ->groupBy('framework')
-            ->get();
-
-        return [
-            'title' => 'Báo cáo theo Framework',
-            'data' => $byFramework,
-            'date_range' => $dateRange,
-            'total' => $byFramework->sum('count')
-        ];
-    }
-
-    /**
-     * Generate document type report
-     */
-    protected function generateDocumentTypeReport($query, array $dateRange): array
-    {
-        $byType = $query->selectRaw('document_type_id, COUNT(*) as count')
-            ->with('documentType')
-            ->groupBy('document_type_id')
-            ->get();
-
-        return [
-            'title' => 'Báo cáo theo Loại Tài liệu',
-            'data' => $byType,
-            'date_range' => $dateRange,
-            'total' => $byType->sum('count')
-        ];
-    }
-
-    /**
-     * Generate department report
-     */
-    protected function generateDepartmentReport($query, array $dateRange): array
-    {
-        $byUser = $query->selectRaw('user_id, COUNT(*) as count')
-            ->with('user')
-            ->groupBy('user_id')
-            ->get();
-
-        return [
-            'title' => 'Báo cáo Theo Phòng Ban',
-            'data' => $byUser,
-            'date_range' => $dateRange,
-            'total' => $byUser->sum('count')
-        ];
-    }
-
-    /**
-     * Generate comprehensive report
-     */
-    protected function generateComprehensiveReport($query, array $dateRange): array
-    {
-        return [
-            'title' => 'Báo cáo Tổng Hợp',
-            'framework_stats' => $this->generateFrameworkReport($query, $dateRange),
-            'type_stats' => $this->generateDocumentTypeReport($query, $dateRange),
-            'department_stats' => $this->generateDepartmentReport($query, $dateRange),
-            'date_range' => $dateRange
-        ];
-    }
-
-    /**
-     * Generate document statistics
-     */
-    protected function generateDocumentStatistics($query, array $dateRange): array
-    {
-        $total = $query->count();
-        $byStatus = $query->selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->get();
-
-        return [
-            'title' => 'Thống kê Tài liệu',
-            'total_records' => $total,
-            'by_status' => $byStatus,
-            'date_range' => $dateRange
-        ];
-    }
-
-    /**
-     * Generate document catalog
-     */
-    protected function generateDocumentCatalog($query, array $dateRange): array
-    {
-        $records = $query->with(['documentType', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return [
-            'title' => 'Danh mục Tài liệu',
-            'records' => $records,
-            'total' => $records->count(),
-            'date_range' => $dateRange
-        ];
-    }
-
-    /**
-     * Generate document category report
-     */
-    protected function generateDocumentCategory($query, array $dateRange): array
-    {
-        $byCategory = $query->selectRaw('document_type_id, COUNT(*) as count')
-            ->with('documentType')
-            ->groupBy('document_type_id')
-            ->get();
-
-        return [
-            'title' => 'Tài liệu Theo Thể loại',
-            'data' => $byCategory,
-            'date_range' => $dateRange,
-            'total' => $byCategory->sum('count')
-        ];
-    }
-
-    /**
-     * Generate new documents report
-     */
-    protected function generateNewDocuments($query, array $dateRange): array
-    {
-        $records = $query->with(['documentType', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return [
-            'title' => 'Tài liệu Mới',
-            'records' => $records,
-            'total' => $records->count(),
-            'date_range' => $dateRange
-        ];
-    }
-
-    /**
-     * Generate published documents report
-     */
-    protected function generatePublishedDocuments($query, array $dateRange): array
-    {
-        $records = $query->where('status', 'approved')
-            ->with(['documentType', 'user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        return [
-            'title' => 'Tài liệu Đã Xuất bản',
-            'records' => $records,
-            'total' => $records->count(),
-            'date_range' => $dateRange
-        ];
-    }
-
-    /**
-     * Generate document year report
-     */
-    protected function generateDocumentYearReport($query, array $dateRange): array
-    {
-        $byYear = $query->selectRaw('YEAR(created_at) as year, COUNT(*) as count')
-            ->groupBy('year')
-            ->orderBy('year', 'desc')
-            ->get();
-
-        return [
-            'title' => 'Theo Năm Xuất bản',
-            'data' => $byYear,
-            'date_range' => $dateRange,
-            'total' => $byYear->sum('count')
-        ];
-    }
-
-    /**
-     * Get cataloging statistics
-     */
-    protected function getCatalogingStatistics(array $dateRange, ?int $frameworkId): array
-    {
-        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
-        
-        if ($frameworkId) {
-            $query->where('framework', MarcFramework::find($frameworkId)->code);
-        }
-
-        $totalRecords = $query->count();
-        
-        // Records by status
-        $byStatus = $query->selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->pluck('count', 'status')
-            ->toArray();
-
-        // Records by type
-        $byType = $query->selectRaw('record_type, COUNT(*) as count')
-            ->groupBy('record_type')
-            ->pluck('count', 'record_type')
-            ->toArray();
-
-        // Records by framework
-        $byFramework = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']])
-            ->selectRaw('framework, COUNT(*) as count')
-            ->groupBy('framework')
-            ->pluck('count', 'framework')
-            ->toArray();
-
-        // Daily cataloging trend
-        $dailyTrend = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']])
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-
-        return [
-            'total_records' => $totalRecords,
-            'by_status' => $byStatus,
-            'by_type' => $byType,
-            'by_framework' => $byFramework,
-            'daily_trend' => $dailyTrend,
-            'approved_rate' => $totalRecords > 0 ? (($byStatus['approved'] ?? 0) / $totalRecords) * 100 : 0
-        ];
-    }
-
-    /**
-     * Get recent cataloging activity
-     */
-    protected function getRecentCatalogingActivity(array $dateRange, ?int $frameworkId): array
-    {
-        $query = ActivityLog::whereBetween('created_at', [$dateRange['from'], $dateRange['to']])
-            ->where('action', 'like', '%marc%')
-            ->with('user');
-
-        if ($frameworkId) {
-            $framework = MarcFramework::find($frameworkId);
-            $query->where('action', 'like', '%' . $framework->code . '%');
-        }
-
-        return $query->latest()->limit(10)->get()->map(function ($log) {
-            return [
-                'user' => $log->user->name,
-                'action' => $log->action,
-                'created_at' => $log->created_at->format('Y-m-d H:i:s'),
-                'ip_address' => $log->ip_address
-            ];
-        })->toArray();
-    }
-
-    /**
-     * Get productivity metrics
-     */
-    protected function getProductivityMetrics(array $dateRange, ?int $frameworkId): array
-    {
-        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
-        
-        if ($frameworkId) {
-            $query->where('framework', MarcFramework::find($frameworkId)->code);
-        }
-
-        // Records per user
-        $recordsPerUser = DB::table('activity_logs')
-            ->whereBetween('activity_logs.created_at', [$dateRange['from'], $dateRange['to']])
-            ->where('activity_logs.action', 'like', '%created%')
-            ->where('activity_logs.action', 'like', '%marc%')
-            ->join('users', 'activity_logs.user_id', '=', 'users.id')
-            ->selectRaw('users.name, COUNT(*) as count')
-            ->groupBy('users.id', 'users.name')
-            ->orderByDesc('count')
-            ->limit(10)
-            ->get();
-
-        // Average records per day
-        $days = $dateRange['from']->diffInDays($dateRange['to']) + 1;
-        $totalRecords = $query->count();
-        $avgPerDay = $days > 0 ? $totalRecords / $days : 0;
-
-        // Peak cataloging day
-        $peakDay = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']])
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->groupBy('date')
-            ->orderByDesc('count')
-            ->first();
-
-        return [
-            'records_per_user' => $recordsPerUser,
-            'avg_per_day' => round($avgPerDay, 2),
-            'peak_day' => $peakDay ? [
-                'date' => $peakDay->date,
-                'count' => $peakDay->count
-            ] : null
-        ];
-    }
-
-    /**
-     * Get quality metrics
-     */
-    protected function getQualityMetrics(array $dateRange, ?int $frameworkId): array
-    {
-        $query = BibliographicRecord::whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
-        
-        if ($frameworkId) {
-            $query->where('framework', MarcFramework::find($frameworkId)->code);
-        }
-
-        // Records with complete fields (has title, author, publisher)
-        $completeRecords = $query->whereHas('fields', function ($q) {
-            $q->where('tag', '245')->whereHas('subfields', function ($sq) {
-                $sq->where('code', 'a')->whereNotNull('value')->where('value', '!=', '');
-            });
-        })->whereHas('fields', function ($q) {
-            $q->where('tag', '100')->whereHas('subfields', function ($sq) {
-                $sq->where('code', 'a')->whereNotNull('value')->where('value', '!=', '');
-            });
-        })->whereHas('fields', function ($q) {
-            $q->where('tag', '260')->whereHas('subfields', function ($sq) {
-                $sq->where('code', 'b')->whereNotNull('value')->where('value', '!=', '');
-            });
-        })->count();
-
-        $totalRecords = $query->count();
-        $completenessRate = $totalRecords > 0 ? ($completeRecords / $totalRecords) * 100 : 0;
-
-        // Average fields per record
-        $avgFields = DB::table('bibliographic_records as br')
-            ->whereBetween('br.created_at', [$dateRange['from'], $dateRange['to']])
-            ->join('marc_fields as mf', 'br.id', '=', 'mf.record_id')
-            ->selectRaw('COUNT(mf.id) / COUNT(DISTINCT br.id) as avg_fields')
-            ->value('avg_fields');
-
-        // Records with ISBN
-        $recordsWithISBN = $query->whereHas('fields', function ($q) {
-            $q->where('tag', '020')->whereHas('subfields', function ($sq) {
-                $sq->where('code', 'a')->whereNotNull('value')->where('value', '!=', '');
-            });
-        })->count();
-
-        $isbnRate = $totalRecords > 0 ? ($recordsWithISBN / $totalRecords) * 100 : 0;
-
-        return [
-            'completeness_rate' => round($completenessRate, 2),
-            'avg_fields_per_record' => round($avgFields, 2),
-            'isbn_rate' => round($isbnRate, 2),
-            'total_records' => $totalRecords,
-            'complete_records' => $completeRecords,
-            'records_with_isbn' => $recordsWithISBN
-        ];
-    }
-
-    /**
-     * Generate summary report
-     */
-    protected function generateSummaryReport(array $dateRange, ?int $frameworkId): array
-    {
-        return [
-            'statistics' => $this->getCatalogingStatistics($dateRange, $frameworkId),
-            'productivity' => $this->getProductivityMetrics($dateRange, $frameworkId),
-            'quality' => $this->getQualityMetrics($dateRange, $frameworkId),
-            'date_range' => $dateRange,
-            'framework' => $frameworkId ? MarcFramework::find($frameworkId) : null
-        ];
-    }
-
-    /**
-     * Generate productivity report
-     */
-    protected function generateProductivityReport(array $dateRange, ?int $frameworkId): array
-    {
-        $productivity = $this->getProductivityMetrics($dateRange, $frameworkId);
-        
-        // Detailed user productivity
-        $userProductivity = DB::table('activity_logs')
-            ->whereBetween('activity_logs.created_at', [$dateRange['from'], $dateRange['to']])
-            ->where('activity_logs.action', 'like', '%created%')
-            ->where('activity_logs.action', 'like', '%marc%')
-            ->join('users', 'activity_logs.user_id', '=', 'users.id')
-            ->selectRaw('
-                users.name,
-                users.email,
-                COUNT(*) as total_records,
-                COUNT(DISTINCT DATE(activity_logs.created_at)) as active_days
-            ')
-            ->groupBy('users.id', 'users.name', 'users.email')
-            ->orderByDesc('total_records')
-            ->get();
-
-        return [
-            'productivity' => $productivity,
-            'user_productivity' => $userProductivity,
-            'date_range' => $dateRange,
-            'framework' => $frameworkId ? MarcFramework::find($frameworkId) : null
-        ];
-    }
-
-    /**
-     * Generate quality report
-     */
-    protected function generateQualityReport(array $dateRange, ?int $frameworkId): array
-    {
-        $quality = $this->getQualityMetrics($dateRange, $frameworkId);
-        
-        // Field completion analysis
-        $fieldCompletion = DB::table('bibliographic_records as br')
-            ->whereBetween('br.created_at', [$dateRange['from'], $dateRange['to']])
-            ->when($frameworkId, function ($q) use ($frameworkId) {
-                $framework = MarcFramework::find($frameworkId);
-                $q->where('br.framework', $framework->code);
-            })
-            ->leftJoin('marc_fields as mf', 'br.id', '=', 'mf.bibliographic_record_id')
-            ->leftJoin('marc_subfields as msf', 'mf.id', '=', 'msf.marc_field_id')
-            ->selectRaw('
-                mf.tag,
-                COUNT(DISTINCT br.id) as total_records,
-                COUNT(DISTINCT CASE WHEN msf.value IS NOT NULL AND msf.value != "" THEN br.id END) as records_with_field,
-                ROUND(COUNT(DISTINCT CASE WHEN msf.value IS NOT NULL AND msf.value != "" THEN br.id END) * 100.0 / COUNT(DISTINCT br.id), 2) as completion_rate
-            ')
-            ->groupBy('mf.tag')
-            ->orderByDesc('completion_rate')
-            ->get();
-
-        return [
-            'quality' => $quality,
-            'field_completion' => $fieldCompletion,
-            'date_range' => $dateRange,
-            'framework' => $frameworkId ? MarcFramework::find($frameworkId) : null
-        ];
-    }
-
-    /**
-     * Generate detailed report
-     */
-    protected function generateDetailedReport(array $dateRange, ?int $frameworkId): array
-    {
-        $query = BibliographicRecord::with(['fields.subfields'])
-            ->whereBetween('created_at', [$dateRange['from'], $dateRange['to']]);
+        if (in_array($reportType, $itemBasedReports)) {
+            // Lưu ý: BookItem belongsTo bibliographicRecord (không phải record)
+            $query = \App\Models\BookItem::with(['bibliographicRecord.fields.subfields', 'branch', 'storageLocation']);
             
-        if ($frameworkId) {
-            $framework = MarcFramework::find($frameworkId);
-            $query->where('framework', $framework->code);
-        }
-
-        $records = $query->get()->map(function ($record) {
-            $title = '';
-            $author = '';
-            $isbn = '';
-            $publisher = '';
-            
-            foreach ($record->fields as $field) {
-                if ($field->tag === '245') {
-                    foreach ($field->subfields as $subfield) {
-                        if ($subfield->code === 'a') {
-                            $title = $subfield->value;
-                        }
-                    }
-                }
-                if ($field->tag === '100') {
-                    foreach ($field->subfields as $subfield) {
-                        if ($subfield->code === 'a') {
-                            $author = $subfield->value;
-                        }
-                    }
-                }
-                if ($field->tag === '020') {
-                    foreach ($field->subfields as $subfield) {
-                        if ($subfield->code === 'a') {
-                            $isbn = $subfield->value;
-                        }
-                    }
-                }
-                if ($field->tag === '260') {
-                    foreach ($field->subfields as $subfield) {
-                        if ($subfield->code === 'b') {
-                            $publisher = $subfield->value;
-                        }
-                    }
-                }
+            // Áp dụng bộ lọc cho BookItem (thông qua relationship)
+            if ($request->filled('framework_id')) {
+                $query->whereHas('bibliographicRecord', function($q) use ($request) {
+                    $q->where('framework', $request->framework_id); // BibliographicRecord dùng cột 'framework' thay vì 'framework_id'
+                });
             }
-            
-            return [
-                'id' => $record->id,
-                'title' => $title,
-                'author' => $author,
-                'isbn' => $isbn,
-                'publisher' => $publisher,
-                'framework' => $record->framework,
-                'record_type' => $record->record_type,
-                'status' => $record->status,
-                'fields_count' => $record->fields->count(),
-                'created_at' => $record->created_at->format('Y-m-d H:i:s'),
-                'updated_at' => $record->updated_at->format('Y-m-d H:i:s')
-            ];
-        });
+            if ($request->filled('document_type_id')) {
+                $query->whereHas('bibliographicRecord', function($q) use ($request) {
+                    $q->where('document_format', $request->document_type_id); // BibliographicRecord dùng 'document_format'
+                });
+            }
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
 
-        return [
-            'records' => $records,
-            'total_records' => $records->count(),
-            'date_range' => $dateRange,
-            'framework' => $frameworkId ? MarcFramework::find($frameworkId) : null
-        ];
+            $records = $query->latest()->get();
+        } else {
+            // BibliographicRecord không có relation framework (nó là một cột chuỗi/ID trực tiếp)
+            $query = BibliographicRecord::with(['fields.subfields', 'items']);
+
+            // Áp dụng bộ lọc cho BibliographicRecord
+            if ($request->filled('framework_id')) {
+                $query->where('framework', $request->framework_id);
+            }
+            if ($request->filled('document_type_id')) {
+                $query->where('document_format', $request->document_type_id);
+            }
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            $records = $query->latest()->get();
+        }
+
+        if ($records->isEmpty()) {
+            return back()->with('error', 'Không tìm thấy dữ liệu phù hợp với bộ lọc đã chọn.');
+        }
+
+        // 3. Chuẩn bị dữ liệu theo loại báo cáo đã chọn
+        $reportData = $this->prepareDataByReportType($reportType, $records);
+
+        // 4. Định dạng tên file và xuất bản
+        $fileName = $reportData['file_prefix'] . '_' . now()->format('Ymd_His');
+        
+        if ($format === 'excel') {
+            // Đặc biệt cho in mã vạch, dùng class Export riêng để vẽ lưới nhãn
+            if (in_array($reportType, ['barcode_list', 'generated_barcodes'])) {
+                return Excel::download(
+                    new \App\Exports\BarcodeExport($records, $reportData['title']), 
+                    $fileName . '.xlsx'
+                );
+            }
+
+            return Excel::download(
+                new DynamicMarcReportExport($reportData['headers'], $reportData['rows'], $reportData['title']), 
+                $fileName . '.xlsx'
+            );
+        }
+
+        return back()->with('error', 'Định dạng xuất này hiện chưa được hỗ trợ.');
     }
 
     /**
-     * Get date range from request
+     * Logic bóc tách dữ liệu MARC cho từng loại báo cáo cụ thể
      */
-    protected function getDateRange(Request $request): array
+    private function prepareDataByReportType($type, $records)
     {
-        $defaultFrom = Carbon::now()->subDays(30);
-        $defaultTo = Carbon::now();
+        $headers = [];
+        $rows = [];
+        $title = '';
+        $prefix = 'report';
+
+        switch ($type) {
+            case 'cataloging_subsystem': // Báo cáo phân hệ biên mục
+                $title = 'BÁO CÁO PHÂN HỆ BIÊN MỤC';
+                $prefix = 'bien_muc';
+                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Tác giả', 'Ngày biên mục', 'Trạng thái'];
+                foreach ($records as $index => $record) {
+                    $rows[] = [
+                        $index + 1,
+                        $record->id,
+                        $record->getMarcValue('245', 'a'),
+                        $record->getMarcValue('100', 'a') ?: $record->getMarcValue('700', 'a'),
+                        $record->created_at->format('d/m/Y'),
+                        $record->status
+                    ];
+                }
+                break;
+
+            case 'book_stats': // Thống kê số lượng đầu sách
+                $title = 'THỐNG KÊ SỐ LƯỢNG ĐẦU SÁCH';
+                $prefix = 'thong_ke_dau_sach';
+                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Số lượng bản ấn (Items)', 'Ngày tạo'];
+                foreach ($records as $index => $record) {
+                    $rows[] = [
+                        $index + 1,
+                        $record->id,
+                        $record->getMarcValue('245', 'a'),
+                        $record->items->count(),
+                        $record->created_at->format('d/m/Y')
+                    ];
+                }
+                break;
+
+            case 'accession_book': // Số đăng ký cá biệt
+                $title = 'SỔ ĐĂNG KÝ CÁ BIỆT';
+                $prefix = 'so_dkcb';
+                $headers = ['STT', 'Mã ĐKCB (Barcode)', 'Nhan đề', 'Tác giả', 'Năm XB', 'Nơi XB', 'Giá tiền', 'Vị trí'];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $year = $record->getMarcValue('260', 'c') ?: $record->getMarcValue('264', 'c');
+                    $place = $record->getMarcValue('260', 'a') ?: $record->getMarcValue('264', 'a');
+                    $price = $record->getMarcValue('952', 'g') ?: '...';
+                    $rows[] = [
+                        $count++,
+                        $item->barcode,
+                        $record->getMarcValue('245', 'a'),
+                        $record->getMarcValue('100', 'a') ?: $record->getMarcValue('700', 'a'),
+                        $year,
+                        $place,
+                        $price,
+                        $item->location
+                    ];
+                }
+                break;
+
+            case 'spine_label': // In nhãn gáy
+                $title = 'DANH SÁCH DỮ LIỆU IN NHÃN GÁY';
+                $prefix = 'nhan_gay';
+                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Số phân loại (DDC)', 'Mã tác giả', 'Ký hiệu xếp giá'];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $ddc = $record->getMarcValue('082', 'a');
+                    $authorCode = $record->getMarcValue('090', 'b') ?: substr($record->getMarcValue('100', 'a'), 0, 3);
+                    $rows[] = [
+                        $count++,
+                        $item->barcode,
+                        $record->getMarcValue('245', 'a'),
+                        $ddc,
+                        $authorCode,
+                        $ddc . ' ' . $authorCode
+                    ];
+                }
+                break;
+
+            case 'inventory_report': // Tình hình kho tài liệu
+                $title = 'BÁO CÁO TÌNH HÌNH KHO TÀI LIỆU';
+                $prefix = 'kho_tai_lieu';
+                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Vị trí kho', 'Trạng thái', 'Ngày nhập kho'];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $rows[] = [
+                        $count++,
+                        $item->barcode,
+                        $record->getMarcValue('245', 'a'),
+                        $item->location,
+                        $item->status,
+                        $item->created_at->format('d/m/Y')
+                    ];
+                }
+                break;
+
+            case 'article_index': // Thư mục bài trích
+                $title = 'THƯ MỤC BÀI TRÍCH TẠP CHÍ';
+                $prefix = 'bai_trich';
+                $headers = ['STT', 'Tên bài trích', 'Tác giả bài trích', 'Tên tạp chí/nguồn', 'Tập/Số', 'Trang trích dẫn'];
+                foreach ($records as $index => $record) {
+                    $rows[] = [
+                        $index + 1,
+                        $record->getMarcValue('245', 'a'),
+                        $record->getMarcValue('100', 'a'),
+                        $record->getMarcValue('773', 't'),
+                        $record->getMarcValue('773', 'g'),
+                        $record->getMarcValue('773', 'q')
+                    ];
+                }
+                break;
+
+            case 'barcode_list': // Dữ liệu in mã vạch
+                $title = 'DANH SÁCH DỮ LIỆU IN MÃ VẠCH';
+                $prefix = 'ma_vach';
+                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Ký hiệu xếp giá (Call Number)', 'Vị trí'];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $callNumber = $record->getMarcValue('082', 'a') . ' ' . ($record->getMarcValue('090', 'b') ?: substr($record->getMarcValue('100', 'a'), 0, 3));
+                    $rows[] = [
+                        $count++,
+                        $item->barcode,
+                        $record->getMarcValue('245', 'a'),
+                        $callNumber,
+                        $item->location
+                    ];
+                }
+                break;
+
+            case 'book_id_list': // Danh sách tài liệu theo mã sách
+                $title = 'DANH SÁCH TÀI LIỆU THEO MÃ SÁCH';
+                $prefix = 'theo_ma_sach';
+                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Tác giả', 'Số lượng bản ấn', 'Năm XB', 'DDC'];
+                foreach ($records as $index => $record) {
+                    $rows[] = [
+                        $index + 1,
+                        $record->id,
+                        $record->getMarcValue('245', 'a'),
+                        $record->getMarcValue('100', 'a') ?: $record->getMarcValue('700', 'a'),
+                        $record->items->count(),
+                        $record->getMarcValue('260', 'c') ?: $record->getMarcValue('264', 'c'),
+                        $record->getMarcValue('082', 'a')
+                    ];
+                }
+                break;
+
+            case 'inventory_status': // Tình hình kho tài liệu (chi tiết)
+                $title = 'BÁO CÁO CHI TIẾT TÌNH HÌNH KHO';
+                $prefix = 'tinh_hinh_kho';
+                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Kho/Phòng', 'Loại lưu kho', 'Trạng thái', 'Ngày nhập'];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $rows[] = [
+                        $count++,
+                        $item->barcode,
+                        $record->getMarcValue('245', 'a'),
+                        $item->branch?->name ?: $item->location,
+                        $item->storageLocation?->name ?: '...',
+                        $item->status,
+                        $item->created_at->format('d/m/Y')
+                    ];
+                }
+                break;
+
+            case 'generated_barcodes': // In mã vạch phát sinh
+                $title = 'DANH SÁCH MÃ VẠCH PHÁT SINH';
+                $prefix = 'ma_vach_phat_sinh';
+                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Ngày tạo'];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $rows[] = [
+                        $count++,
+                        $item->barcode,
+                        $record->getMarcValue('245', 'a'),
+                        $item->created_at->format('d/m/Y H:i')
+                    ];
+                }
+                break;
+
+            default:
+                $title = 'BÁO CÁO CHI TIẾT TÀI LIỆU';
+                $prefix = 'tai_lieu';
+                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Tác giả', 'Năm XB', 'Số lượng bản ấn'];
+                foreach ($records as $index => $record) {
+                    $rows[] = [
+                        $index + 1,
+                        $record->id,
+                        $record->getMarcValue('245', 'a'),
+                        $record->getMarcValue('100', 'a'),
+                        $record->getMarcValue('260', 'c'),
+                        $record->items->count()
+                    ];
+                }
+                break;
+        }
 
         return [
-            'from' => $request->get('date_from') ? Carbon::parse($request->date_from) : $defaultFrom,
-            'to' => $request->get('date_to') ? Carbon::parse($request->date_to) : $defaultTo
+            'headers' => $headers,
+            'rows' => $rows,
+            'title' => $title,
+            'file_prefix' => $prefix
         ];
     }
 }

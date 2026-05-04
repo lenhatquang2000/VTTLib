@@ -192,7 +192,7 @@
     </section>
 
     <!-- Main Content Grid -->
-    <section class="py-8 relative overflow-hidden bg-slate-50">
+    <section class="py-8 relative overflow-hidden bg-slate-50" x-data="catalogWizard()">
         <!-- Content overlay for readability -->
         <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at center top, rgba(255,255,255,0.15) 0%, transparent 60%);"></div>
 
@@ -204,29 +204,22 @@
                     
                     <!-- Section 1: 3 Tabs (Sách Mới | Tạp Chí Online | Thư mục) -->
                     <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
-                        <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto">
-                                <button class="text-xl font-black text-white bg-vttu-red px-6 py-2 rounded-xl whitespace-nowrap shadow-lg shadow-vttu-red/20 transition-all">SÁCH MỚI</button>
-                                <button class="text-xl font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">TẠP CHÍ ONLINE</button>
-                                <button class="text-xl font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">THƯ MỤC</button>
+                        <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto" id="book-tabs">
+                            <button @click="loadTab('book', 'book-tabs', 'books-content')"
+                                class="tab-btn text-xl font-black px-6 py-2 rounded-xl whitespace-nowrap transition-all {{ ($activeType ?? 'book') === 'book' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                SÁCH MỚI
+                            </button>
+                            <button @click="loadTab('journal', 'book-tabs', 'books-content')"
+                                class="tab-btn text-xl font-black px-6 py-2 rounded-xl whitespace-nowrap transition-all {{ ($activeType ?? '') === 'journal' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                TẠP CHÍ ONLINE
+                            </button>
+                            <button @click="loadTab('folder', 'book-tabs', 'books-content')"
+                                class="tab-btn text-xl font-black px-6 py-2 rounded-xl whitespace-nowrap transition-all {{ ($activeType ?? '') === 'folder' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                THƯ MỤC
+                            </button>
                         </div>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            @php
-                                $mockBooks = [
-                                    ['title' => 'Cơ sở Y học hiện đại', 'img' => 'https://images.unsplash.com/photo-1576091160550-2173dbc999ef?auto=format&fit=crop&w=400&q=80'],
-                                    ['title' => 'Quản trị Kinh doanh 4.0', 'img' => 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80'],
-                                    ['title' => 'Lập trình Python cơ bản', 'img' => 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=400&q=80'],
-                                    ['title' => 'Pháp luật đại cương', 'img' => 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=400&q=80'],
-                                ];
-                            @endphp
-                            @foreach($mockBooks as $book)
-                            <div class="group cursor-pointer">
-                                <div class="aspect-[3/4] bg-slate-100 rounded-2xl overflow-hidden mb-4 relative shadow-sm group-hover:shadow-xl transition-all">
-                                    <img src="{{ $book['img'] }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                                    <div class="absolute inset-0 bg-vttu-red/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                </div>
-                                <h4 class="font-black text-vttu-dark text-sm line-clamp-2 group-hover:text-vttu-red transition-colors">{{ $book['title'] }}</h4>
-                            </div>
-                            @endforeach
+                        <div id="books-content">
+                            @include('site.pages.partials.home-books', ['newBooks' => $newBooks])
                         </div>
                     </div>
 
@@ -264,22 +257,18 @@
 
                     <!-- Section 3: 2 Tabs (Tin mới | Video) -->
                     <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
-                        <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6">
-                            <button class="text-xl font-black text-white bg-vttu-red px-6 py-2 rounded-xl shadow-lg shadow-vttu-red/20 transition-all">TIN MỚI</button>
-                            <button class="text-xl font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl transition-all">VIDEO</button>
+                        <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6" id="news-tabs">
+                            <button @click="loadNewsTab('news', 'news-tabs', 'news-content')"
+                                class="tab-btn text-xl font-black px-6 py-2 rounded-xl transition-all {{ ($activeNewsType ?? 'news') === 'news' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                TIN MỚI
+                            </button>
+                            <button @click="loadNewsTab('video', 'news-tabs', 'news-content')"
+                                class="tab-btn text-xl font-black px-6 py-2 rounded-xl transition-all {{ ($activeNewsType ?? '') === 'video' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                VIDEO
+                            </button>
                         </div>
-                        <div class="space-y-6">
-                            @for($i=1; $i<=3; $i++)
-                            <div class="flex gap-6 items-center group">
-                                <div class="w-24 h-24 bg-slate-100 rounded-2xl flex-shrink-0 overflow-hidden">
-                                    <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
-                                </div>
-                                <div>
-                                    <h4 class="font-black text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-1">Tin tức học thuật và nghiên cứu số {{ $i }}</h4>
-                                    <p class="text-xs text-slate-500 font-bold mt-1">20/04/2026</p>
-                                </div>
-                            </div>
-                            @endfor
+                        <div id="news-content">
+                            @include('site.pages.partials.home-news', ['newsType' => $activeNewsType ?? 'news'])
                         </div>
                     </div>
 
@@ -305,27 +294,16 @@
 
                     <!-- Section 5: 3 Tabs (Sản khoa | Nhi Khoa | Nội Khoa) -->
                     <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
-                        <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto">
-                            <button class="text-lg font-black text-white bg-vttu-red px-6 py-2 rounded-xl shadow-lg shadow-vttu-red/20 whitespace-nowrap transition-all">CHUYÊN ĐỀ SẢN KHOA</button>
-                            <button class="text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">CHUYÊN ĐỀ NHI KHOA</button>
-                            <button class="text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">CHUYÊN ĐỀ NỘI KHOA</button>
+                        <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto" id="medical-tabs">
+                            <button @click="loadMedicalTab('Sản khoa', 'medical-tabs', 'medical-content')"
+                                class="tab-btn text-lg font-black text-white bg-vttu-red px-6 py-2 rounded-xl shadow-lg shadow-vttu-red/20 whitespace-nowrap transition-all">CHUYÊN ĐỀ SẢN KHOA</button>
+                            <button @click="loadMedicalTab('Nhi khoa', 'medical-tabs', 'medical-content')"
+                                class="tab-btn text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">CHUYÊN ĐỀ NHI KHOA</button>
+                            <button @click="loadMedicalTab('Nội khoa', 'medical-tabs', 'medical-content')"
+                                class="tab-btn text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">CHUYÊN ĐỀ NỘI KHOA</button>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            @php
-                                $mockMedical = [
-                                    ['title' => 'Kỹ thuật mổ lấy thai hiện đại', 'icon' => 'fa-baby'],
-                                    ['title' => 'Chăm sóc trẻ sơ sinh non tháng', 'icon' => 'fa-stethoscope'],
-                                    ['title' => 'Chẩn đoán hình ảnh trong Sản khoa', 'icon' => 'fa-x-ray'],
-                                ];
-                            @endphp
-                            @foreach($mockMedical as $res)
-                            <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-vttu-red/20 hover:bg-vttu-red/5 transition-all group cursor-pointer">
-                                <div class="w-12 h-12 bg-vttu-red/10 rounded-2xl flex items-center justify-center text-vttu-red mb-4 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                                    <i class="fas {{ $res['icon'] }}"></i>
-                                </div>
-                                <h4 class="font-black text-vttu-dark line-clamp-2 group-hover:text-vttu-red">{{ $res['title'] }}</h4>
-                            </div>
-                            @endforeach
+                        <div id="medical-content">
+                            @include('site.pages.partials.home-medical', ['medicalResources' => $medicalResources])
                         </div>
                     </div>
 
@@ -357,28 +335,18 @@
 
                     <!-- 2 Tabs: Tài liệu số mới | Nổi bật -->
                     <div class="bg-white p-6 shadow-xl" data-aos="fade-left">
-                        <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6">
-                            <button class="flex-1 py-3 text-xs font-black text-white bg-vttu-red rounded-xl shadow-lg shadow-vttu-red/20 uppercase tracking-widest transition-all">Mới</button>
-                            <button class="flex-1 py-3 text-xs font-black text-slate-400 hover:text-vttu-red uppercase tracking-widest transition-all">Nổi bật</button>
+                        <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6" id="resource-tabs">
+                            <button @click="loadResourceTab('new', 'resource-tabs', 'resources-content')"
+                                class="tab-btn flex-1 py-3 text-xs font-black text-center rounded-xl transition-all {{ ($activeResourceType ?? 'new') === 'new' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20 uppercase tracking-widest' : 'text-slate-400 hover:text-vttu-red uppercase tracking-widest' }}">
+                                Mới
+                            </button>
+                            <button @click="loadResourceTab('featured', 'resource-tabs', 'resources-content')"
+                                class="tab-btn flex-1 py-3 text-xs font-black text-center rounded-xl transition-all {{ ($activeResourceType ?? '') === 'featured' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20 uppercase tracking-widest' : 'text-slate-400 hover:text-vttu-red uppercase tracking-widest' }}">
+                                Nổi bật
+                            </button>
                         </div>
-                        <div class="space-y-4">
-                            @php
-                                $mockRightDocs = [
-                                    'Luận văn tốt nghiệp khóa 14',
-                                    'Giáo trình Giải phẫu bệnh',
-                                    'Kỷ yếu hội nghị khoa học 2024',
-                                    'Tạp chí Y học Việt Nam số 12',
-                                    'Hướng dẫn sử dụng thư viện số'
-                                ];
-                            @endphp
-                            @foreach($mockRightDocs as $doc)
-                            <a href="#" class="flex gap-4 items-center group">
-                                <div class="w-10 h-12 bg-slate-100 rounded-lg flex-shrink-0 flex items-center justify-center text-slate-400 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                                    <i class="fas fa-file-pdf"></i>
-                                </div>
-                                <span class="text-xs font-bold text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2 leading-tight">{{ $doc }}</span>
-                            </a>
-                            @endforeach
+                        <div id="resources-content">
+                            @include('site.pages.partials.home-resources', ['newResources' => $newResources])
                         </div>
                     </div>
 
@@ -455,9 +423,118 @@
     @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
     .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    
+    /* Loading animation for AJAX */
+    .tab-loading { opacity: 0.5; pointer-events: none; }
 </style>
 @section('scripts')
 <script>
+    // Define the data function first for Alpine.js
+    function catalogWizard() {
+        return {
+            loadTab(type, tabsId, contentId) {
+                const target = event.currentTarget;
+                const contentDiv = document.getElementById(contentId);
+                const tabsDiv = document.getElementById(tabsId);
+                
+                if (!contentDiv || !tabsDiv) return;
+
+                contentDiv.classList.add('tab-loading');
+                
+                fetch(`{{ route('home') }}?type=${type}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    contentDiv.classList.remove('tab-loading');
+                    
+                    tabsDiv.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                        btn.classList.add('text-slate-400', 'hover:text-vttu-red');
+                    });
+                    target.classList.remove('text-slate-400', 'hover:text-vttu-red');
+                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                });
+            },
+            loadResourceTab(type, tabsId, contentId) {
+                const target = event.currentTarget;
+                const contentDiv = document.getElementById(contentId);
+                const tabsDiv = document.getElementById(tabsId);
+                
+                if (!contentDiv || !tabsDiv) return;
+
+                contentDiv.classList.add('tab-loading');
+                
+                fetch(`{{ route('home') }}?resource_type=${type}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    contentDiv.classList.remove('tab-loading');
+                    
+                    tabsDiv.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                        btn.classList.add('text-slate-400', 'hover:text-vttu-red');
+                    });
+                    target.classList.remove('text-slate-400', 'hover:text-vttu-red');
+                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                });
+            },
+            loadMedicalTab(type, tabsId, contentId) {
+                const target = event.currentTarget;
+                const contentDiv = document.getElementById(contentId);
+                const tabsDiv = document.getElementById(tabsId);
+                
+                if (!contentDiv || !tabsDiv) return;
+
+                contentDiv.classList.add('tab-loading');
+                
+                fetch(`{{ route('home') }}?medical_type=${type}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    contentDiv.classList.remove('tab-loading');
+                    
+                    tabsDiv.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                        btn.classList.add('text-slate-400', 'hover:text-vttu-red');
+                    });
+                    target.classList.remove('text-slate-400', 'hover:text-vttu-red');
+                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                });
+            },
+            loadNewsTab(type, tabsId, contentId) {
+                const target = event.currentTarget;
+                const contentDiv = document.getElementById(contentId);
+                const tabsDiv = document.getElementById(tabsId);
+                
+                if (!contentDiv || !tabsDiv) return;
+
+                contentDiv.classList.add('tab-loading');
+                
+                fetch(`{{ route('home') }}?news_type=${type}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    contentDiv.innerHTML = html;
+                    contentDiv.classList.remove('tab-loading');
+                    
+                    tabsDiv.querySelectorAll('.tab-btn').forEach(btn => {
+                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                        btn.classList.add('text-slate-400', 'hover:text-vttu-red');
+                    });
+                    target.classList.remove('text-slate-400', 'hover:text-vttu-red');
+                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                });
+            }
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const heroSwiper = new Swiper('.heroSwiper', {
             loop: true,

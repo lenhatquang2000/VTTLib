@@ -10,16 +10,16 @@ class SiteController extends Controller
     /**
      * Display the homepage
      */
-    public function home()
+    public function home(Request $request)
     {
-        // Lấy tài liệu mới nhất
+        // Lấy tài liệu số mới nhất
         $newResources = \App\Models\DigitalResource::with('folder')
             ->where('status', 'published')
             ->latest()
             ->take(8)
             ->get();
 
-        // Lấy tài liệu Y khoa (Giả định folder_id hoặc lọc theo folder name)
+        // Lấy tài liệu Y khoa
         $medicalResources = \App\Models\DigitalResource::whereHas('folder', function($q) {
                 $q->where('folder_name', 'LIKE', '%Y khoa%');
             })
@@ -27,9 +27,72 @@ class SiteController extends Controller
             ->take(4)
             ->get();
 
+        // Xử lý lọc theo loại cho Section 1
+        $type = $request->query('type', 'book');
+        $query = \App\Models\BibliographicRecord::with(['fields.subfields', 'items']);
+        
+        if ($type === 'journal') {
+            $query->where('record_type', 'journal');
+        } elseif ($type === 'folder') {
+            $query->where('record_type', 'folder');
+        } else {
+            $query->where('record_type', 'book');
+        }
+
+        $newBooks = $query->latest()->take(8)->get();
+
+        // Xử lý lọc cho Section 3 (Tin mới | Video)
+        $newsType = $request->query('news_type', 'news');
+        // (Giả định logic lấy tin tức/video từ News model ở đây nếu có)
+
+        // Xử lý lọc cho Sidebar (Tài liệu số Mới | Nổi bật)
+        $resourceType = $request->query('resource_type', 'new');
+        if ($resourceType === 'featured') {
+            $newResources = \App\Models\DigitalResource::with('folder')
+                ->where('status', 'published')
+                // Tạm thời lấy các tài liệu mới nhất thay cho 'nổi bật' vì chưa có cột is_featured
+                ->latest()
+                ->take(5)
+                ->get();
+        }
+
         $homeNode = SiteNode::getByCode('home');
         $menuItems = SiteNode::getMenuItems('menu');
         $footerItems = SiteNode::getMenuItems('footer');
+
+        // Handle AJAX requests for tabs
+        if ($request->ajax()) {
+            if ($request->has('type')) {
+                return view('site.pages.partials.home-books', [
+                    'newBooks' => $newBooks,
+                    'activeType' => $type
+                ])->render();
+            }
+            if ($request->has('resource_type')) {
+                return view('site.pages.partials.home-resources', [
+                    'newResources' => $newResources,
+                    'activeResourceType' => $resourceType
+                ])->render();
+            }
+            if ($request->has('news_type')) {
+                // Giả định logic lấy tin tức/video
+                return view('site.pages.partials.home-news', [
+                    'newsType' => $newsType
+                ])->render();
+            }
+            if ($request->has('medical_type')) {
+                $medicalType = $request->query('medical_type');
+                $medicalResources = \App\Models\DigitalResource::whereHas('folder', function($q) use ($medicalType) {
+                        $q->where('folder_name', 'LIKE', "%{$medicalType}%");
+                    })
+                    ->where('status', 'published')
+                    ->take(3)
+                    ->get();
+                return view('site.pages.partials.home-medical', [
+                    'medicalResources' => $medicalResources
+                ])->render();
+            }
+        }
 
         if (view()->exists('site.pages.home')) {
             return view('site.pages.home', [
@@ -39,10 +102,14 @@ class SiteController extends Controller
                 'breadcrumb' => [],
                 'newResources' => $newResources,
                 'medicalResources' => $medicalResources,
+                'newBooks' => $newBooks,
+                'activeType' => $type,
+                'activeNewsType' => $newsType,
+                'activeResourceType' => $resourceType
             ]);
         }
         
-        return view('site.home', compact('homeNode', 'menuItems', 'footerItems'));
+        return view('site.home', compact('homeNode', 'menuItems', 'footerItems', 'newBooks'));
     }
 
     /**
@@ -70,7 +137,105 @@ class SiteController extends Controller
         
         $books = $query->latest()->paginate(12)->withQueryString();
 
-        return view('site.pages.opac', compact('menuItems', 'footerItems', 'books'));
+        // --- LẤY DỮ LIỆU THỐNG KÊ CHO SIDEBAR ---
+        
+        // 1. Sách theo kho (Storage Locations)
+        $sidebarData = [];
+        $sidebarData['locations'] = \App\Models\StorageLocation::withCount(['bookItems' => function($q) {
+            $q->where('status', 'available');
+        }])->where('is_active', true)->get();
+
+        // 2. Phân loại DDC (Lấy từ trường MARC 082$a)
+        // Group by đầu số (ví dụ: 300, 600...)
+        $ddcData = \DB::table('marc_subfields')
+            ->join('marc_fields', 'marc_subfields.marc_field_id', '=', 'marc_fields.id')
+            ->where('marc_fields.tag', '082')
+            ->where('marc_subfields.code', 'a')
+            ->selectRaw('LEFT(value, 1) as ddc_prefix, count(*) as count')
+            ->groupBy('ddc_prefix')
+            ->get();
+        
+        $ddcNames = [
+            '0' => 'Tác phẩm tổng quát', '1' => 'Tâm lý triết lý', '2' => 'Tôn giáo',
+            '3' => 'Khoa học xã hội', '4' => 'Ngôn ngữ', '5' => 'Khoa học tự nhiên',
+            '6' => 'Công nghệ', '7' => 'Nghệ thuật - Thể thao', '8' => 'Văn học', '9' => 'Lịch sử - địa lý'
+        ];
+
+        $sidebarData['ddc'] = $ddcData->map(function($item) use ($ddcNames) {
+            $prefix = $item->ddc_prefix . '00';
+            return [
+                'code' => $prefix,
+                'name' => $ddcNames[$item->ddc_prefix] ?? 'Khác',
+                'count' => $item->count
+            ];
+        })->sortBy('code');
+
+        // 3. Mượn nhiều nhất (Tạm thời lấy theo số lượng bản thu nhập có sẵn)
+        $sidebarData['mostBorrowed'] = \App\Models\BibliographicRecord::with(['fields.subfields'])
+            ->withCount('items')
+            ->orderBy('items_count', 'desc')
+            ->take(3)
+            ->get();
+
+        // 4. Từ khóa hot (Lấy từ trường MARC 650$a)
+        $sidebarData['hotKeywords'] = \DB::table('marc_subfields')
+            ->join('marc_fields', 'marc_subfields.marc_field_id', '=', 'marc_fields.id')
+            ->where('marc_fields.tag', '650')
+            ->where('marc_subfields.code', 'a')
+            ->select('value', \DB::raw('count(*) as count'))
+            ->groupBy('value')
+            ->orderBy('count', 'desc')
+            ->take(10)
+            ->pluck('value');
+
+        // Tổng số bản ghi thực tế
+        $totalRecords = \App\Models\BibliographicRecord::count();
+
+        return view('site.pages.opac', array_merge(
+            compact('menuItems', 'footerItems', 'books', 'totalRecords'),
+            ['sidebar' => $sidebarData]
+        ));
+    }
+
+    /**
+     * Display OPAC book detail page
+     */
+    public function bookDetail(\App\Models\BibliographicRecord $record)
+    {
+        $record->load(['fields.subfields', 'items.storageLocation', 'items.branch']);
+        
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+        
+        // Lấy thông tin cơ bản từ MARC fields
+        $marcData = [];
+        foreach ($record->fields as $field) {
+            $subfields = [];
+            foreach ($field->subfields as $sub) {
+                $subfields[$sub->code] = $sub->value;
+            }
+            $marcData[$field->tag] = $subfields;
+        }
+
+        // Tóm tắt (Summary - Trường 520)
+        $summary = $marcData['520']['a'] ?? 'Không có tóm tắt cho tài liệu này.';
+        
+        // Nhan đề (245)
+        $title = $marcData['245']['a'] ?? 'Không có nhan đề';
+        $remTitle = $marcData['245']['b'] ?? '';
+        $fullTitle = $title . ($remTitle ? ' : ' . $remTitle : '');
+        
+        // Tác giả (100 hoặc 700)
+        $author = $marcData['100']['a'] ?? ($marcData['700']['a'] ?? 'Đang cập nhật tác giả');
+        
+        // Thông tin xuất bản (260)
+        $publisher = $marcData['260']['b'] ?? 'Đang cập nhật';
+        $pubPlace = $marcData['260']['a'] ?? '';
+        $pubYear = $marcData['260']['c'] ?? '';
+
+        return view('site.pages.book-detail', compact(
+            'record', 'menuItems', 'footerItems', 'summary', 'fullTitle', 'author', 'publisher', 'pubPlace', 'pubYear', 'marcData'
+        ));
     }
 
     /**
@@ -105,7 +270,7 @@ class SiteController extends Controller
             $tempNode = $tempNode->parent;
         }
 
-        // Nếu là trang chủ HOẶC dùng template opac, nạp thêm dữ liệu động
+        // Nếu là trang chủ HOẶC dùng template opac/home, nạp thêm dữ liệu động
         $extraData = [];
         if ($code === 'home' || $siteNode->masterpage === 'home' || request()->query('preview_template') === 'home') {
             $extraData['newResources'] = \App\Models\DigitalResource::with('folder')
@@ -120,10 +285,21 @@ class SiteController extends Controller
                 ->where('status', 'published')
                 ->take(4)
                 ->get();
+
+            // Đảm bảo luôn có newBooks cho template home
+            $extraData['newBooks'] = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
+                ->latest()
+                ->take(8)
+                ->get();
         }
 
         // Nạp dữ liệu sách nếu dùng template opac
         if ($siteNode->masterpage === 'opac' || request()->query('preview_template') === 'opac') {
+            $extraData['newBooks'] = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
+                ->latest()
+                ->take(8)
+                ->get();
+                
             $extraData['books'] = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
                 ->latest()
                 ->paginate(12);

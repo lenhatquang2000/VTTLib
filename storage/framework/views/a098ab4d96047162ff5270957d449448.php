@@ -26,7 +26,7 @@
                 extend: {
                     colors: {
                         vttu: {
-                            dark: '#450000',
+                            dark: '#680102',
                             red: '#7B0000',
                             yellow: '#FFD700',
                         }
@@ -37,6 +37,8 @@
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Swiper CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <?php echo $__env->yieldPushContent('styles'); ?>
