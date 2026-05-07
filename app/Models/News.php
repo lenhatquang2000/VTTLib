@@ -23,6 +23,7 @@ class News extends Model
         'published_at',
         'expired_at',
         'is_featured',
+        'sort_order',
         'allow_comments',
         'view_count',
         'like_count',
@@ -64,7 +65,7 @@ class News extends Model
 
     public function tags()
     {
-        return $this->belongsToMany(NewsTag::class, 'news_tag');
+        return $this->belongsToMany(NewsTag::class, 'news_tag', 'news_id', 'tag_id');
     }
 
     /**
@@ -139,7 +140,7 @@ class News extends Model
      */
     public function getUrlAttribute()
     {
-        return '/tin-tuc/' . $this->slug;
+        return '/tin-tuc-chi-tiet/' . $this->slug;
     }
 
     public function getFormattedPublishedAtAttribute()

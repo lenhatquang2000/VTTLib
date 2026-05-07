@@ -36,7 +36,7 @@
     <section class="bg-white border-b border-slate-100 py-12">
         <div class="container mx-auto px-4">
             <div class="text-center">
-                <h1 class="text-4xl font-black mb-4 text-vttu-dark">{{ $node->display_name }}</h1>
+                <h1 class="text-4xl font-black mb-4 text-vttu-dark">{{ $node->display_name }} 2</h1>
                 @if($node->description)
                     <p class="text-xl text-vttu-red/80">{{ $node->description }}</p>
                 @endif

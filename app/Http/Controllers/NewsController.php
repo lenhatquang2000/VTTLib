@@ -14,8 +14,9 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = News::published()
+        $query = News::where('status', 'published')
             ->with(['category', 'author', 'tags'])
+            ->orderBy('sort_order', 'asc')
             ->orderBy('published_at', 'desc');
 
         // Filters
@@ -47,8 +48,8 @@ class NewsController extends Controller
         $news = $query->paginate(12);
         
         // Get featured news
-        $featuredNews = News::featured()
-            ->published()
+        $featuredNews = News::where('status', 'published')
+            ->orderBy('sort_order', 'asc')
             ->orderBy('published_at', 'desc')
             ->limit(5)
             ->get();
@@ -63,7 +64,7 @@ class NewsController extends Controller
         // Get popular tags
         $popularTags = NewsTag::getPopularTags(15);
 
-        return view('news.index', compact('news', 'featuredNews', 'categories', 'popularTags'));
+        return view('site.pages.news-index', compact('news', 'featuredNews', 'categories', 'popularTags', 'menuItems', 'footerItems'));
     }
 
     /**
@@ -73,7 +74,7 @@ class NewsController extends Controller
     {
         $news = News::with(['category', 'author', 'tags'])
             ->where('slug', $slug)
-            ->published()
+            ->where('status', 'published')
             ->firstOrFail();
 
         // Increment view count
@@ -93,11 +94,16 @@ class NewsController extends Controller
             ->orderBy('published_at', 'asc')
             ->first();
 
-        return view('news.show', compact(
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+
+        return view('site.pages.news-show', compact(
             'news', 
             'relatedNews', 
             'previousNews', 
-            'nextNews'
+            'nextNews',
+            'menuItems',
+            'footerItems'
         ));
     }
 
@@ -110,7 +116,7 @@ class NewsController extends Controller
             ->active()
             ->firstOrFail();
 
-        $news = News::published()
+        $news = News::where('status', 'published')
             ->where('category_id', $category->id)
             ->with(['author', 'tags'])
             ->orderBy('published_at', 'desc')
@@ -119,11 +125,16 @@ class NewsController extends Controller
         // Get breadcrumb
         $breadcrumb = $category->getBreadcrumb();
 
-        return view('news.category', compact(
-            'category', 
-            'news', 
-            'breadcrumb'
-        ));
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+
+        return view('site.pages.news-index', [
+            'news' => $news,
+            'category' => $category,
+            'breadcrumb' => $breadcrumb,
+            'menuItems' => $menuItems,
+            'footerItems' => $footerItems
+        ]);
     }
 
     /**
@@ -135,7 +146,7 @@ class NewsController extends Controller
             ->active()
             ->firstOrFail();
 
-        $news = News::published()
+        $news = News::where('status', 'published')
             ->whereHas('tags', function ($q) use ($tag) {
                 $q->where('tags.id', $tag->id);
             })
@@ -143,7 +154,15 @@ class NewsController extends Controller
             ->orderBy('published_at', 'desc')
             ->paginate(12);
 
-        return view('news.tag', compact('tag', 'news'));
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+
+        return view('site.pages.news-index', [
+            'news' => $news,
+            'tag' => $tag,
+            'menuItems' => $menuItems,
+            'footerItems' => $footerItems
+        ]);
     }
 
     /**
@@ -157,7 +176,15 @@ class NewsController extends Controller
             ->orderBy('published_at', 'desc')
             ->paginate(12);
 
-        return view('news.featured', compact('news'));
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+
+        return view('site.pages.news-index', [
+            'news' => $news,
+            'isFeatured' => true,
+            'menuItems' => $menuItems,
+            'footerItems' => $footerItems
+        ]);
     }
 
     /**
@@ -188,11 +215,16 @@ class NewsController extends Controller
             ->limit(5)
             ->pluck('title');
 
-        return view('news.search', compact(
-            'news', 
-            'query', 
-            'suggestions'
-        ));
+        $menuItems = \App\Models\SiteNode::getMenuItems('menu');
+        $footerItems = \App\Models\SiteNode::getMenuItems('footer');
+
+        return view('site.pages.news-index', [
+            'news' => $news,
+            'searchQuery' => $query,
+            'suggestions' => $suggestions,
+            'menuItems' => $menuItems,
+            'footerItems' => $footerItems
+        ]);
     }
 
     /**

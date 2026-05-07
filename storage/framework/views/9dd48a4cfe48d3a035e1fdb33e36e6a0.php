@@ -44,16 +44,36 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8" x-data="{ viewMode: 'grid' }">
             
             <!-- CỘT TRÁI (75%) - Kết quả tra cứu -->
             <div class="lg:col-span-9 space-y-6" data-aos="fade-right">
-                <div class="flex items-center justify-between px-2">
-                    <h2 class="text-xl font-black text-vttu-dark uppercase tracking-tight">KẾT QUẢ TRA CỨU</h2>
-                    <span class="text-xs font-bold text-slate-400">Trang <?php echo e($books->currentPage()); ?> / <?php echo e($books->lastPage()); ?></span>
+                
+                <div class="flex items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-4 ml-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hiển thị:</span>
+                        <div class="flex bg-slate-50 p-1 rounded-xl border border-slate-100">
+                            <button @click="viewMode = 'grid'" 
+                                    :class="viewMode === 'grid' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'"
+                                    class="w-9 h-9 rounded-lg flex items-center justify-center transition-all">
+                                <i class="fas fa-th-large text-xs"></i>
+                            </button>
+                            <button @click="viewMode = 'list'" 
+                                    :class="viewMode === 'list' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'"
+                                    class="w-9 h-9 rounded-lg flex items-center justify-center transition-all">
+                                <i class="fas fa-list text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 mr-2">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                            Kết quả: <span class="text-vttu-red"><?php echo e(number_format($books->total())); ?></span> tài liệu
+                        </span>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                
+                <div x-show="viewMode === 'grid'" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                     <?php $__empty_1 = true; $__currentLoopData = $books; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                     <?php
                         // Helper để lấy nội dung từ MARC fields
@@ -113,6 +133,76 @@
                             <p class="text-slate-500 font-bold">Không tìm thấy tài liệu nào trong hệ thống.</p>
                         </div>
                     <?php endif; ?>
+                </div>
+
+                
+                <div x-show="viewMode === 'list'" class="space-y-4">
+                    <?php $__currentLoopData = $books; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php
+                        $title = $getTitle($book);
+                        $author = $getAuthor($book);
+                        $summary = $book->fields->where('tag', '520')->first()?->subfields->where('code', 'a')->first()?->value;
+                        $publisher = $book->fields->where('tag', '260')->first()?->subfields->where('code', 'b')->first()?->value;
+                        $year = $book->fields->where('tag', '260')->first()?->subfields->where('code', 'c')->first()?->value;
+                    ?>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-100 hover:border-vttu-red/20 transition-all group shadow-sm hover:shadow-lg">
+                        <div class="flex gap-6">
+                            <!-- Cover Small -->
+                            <div class="w-24 aspect-[3/4] bg-slate-50 rounded-xl overflow-hidden flex-shrink-0 border border-slate-100">
+                                <?php if($book->cover_image): ?>
+                                    <img src="<?php echo e(asset('storage/' . $book->cover_image)); ?>" class="w-full h-full object-cover">
+                                <?php else: ?>
+                                    <div class="w-full h-full flex items-center justify-center">
+                                        <i class="fas fa-book-open text-slate-200 text-xl"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <!-- Content -->
+                            <div class="flex-1 flex flex-col">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <a href="<?php echo e(route('opac.book.show', $book->id)); ?>">
+                                            <h3 class="text-lg font-black text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight mb-2">
+                                                <?php echo e($title); ?>
+
+                                            </h3>
+                                        </a>
+                                        <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-4">
+                                            <div class="flex items-center text-xs font-bold text-slate-500">
+                                                <i class="fas fa-user-edit text-vttu-red mr-2"></i>
+                                                <?php echo e($author); ?>
+
+                                            </div>
+                                            <?php if($publisher): ?>
+                                            <div class="flex items-center text-xs font-bold text-slate-400">
+                                                <i class="fas fa-print mr-2 opacity-50"></i>
+                                                <?php echo e($publisher); ?> <?php echo e($year ? "($year)" : ''); ?>
+
+                                            </div>
+                                            <?php endif; ?>
+                                            <div class="flex items-center">
+                                                <?php if($book->items->where('status', 'available')->count() > 0): ?>
+                                                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[9px] font-black uppercase tracking-widest">Sẵn sàng</span>
+                                                <?php else: ?>
+                                                    <span class="px-2 py-0.5 bg-rose-50 text-rose-500 rounded text-[9px] font-black uppercase tracking-widest">Hết sách</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                        <?php if($summary): ?>
+                                            <p class="text-sm text-slate-500 line-clamp-2 leading-relaxed mb-4 italic">"<?php echo e(Str::limit($summary, 180)); ?>"</p>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="ml-4">
+                                        <a href="<?php echo e(route('opac.book.show', $book->id)); ?>" class="inline-flex items-center px-6 py-3 bg-vttu-red hover:bg-vttu-dark text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-vttu-red/20">
+                                            Chi tiết
+                                            <i class="fas fa-arrow-right ml-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
 
                 <!-- Pagination OPAC -->

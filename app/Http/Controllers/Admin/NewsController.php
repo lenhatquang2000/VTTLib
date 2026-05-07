@@ -19,6 +19,7 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $query = News::with(['category', 'author', 'tags'])
+            ->orderBy('sort_order', 'asc')
             ->orderBy('created_at', 'desc');
 
         // Filters
@@ -89,18 +90,24 @@ class NewsController extends Controller
      */
     public function store(Request $request)
     {
+        // Debugging data before validation
+        if ($request->has('debug')) {
+            dd($request->all());
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:news,slug',
+            'slug' => 'nullable|string|max:255',
             'summary' => 'nullable|string',
             'content' => 'required|string',
             'featured_image' => 'nullable|string|max:255',
+            'featured_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'category_id' => 'nullable|exists:news_categories,id',
             'status' => 'required|in:draft,pending,published,archived',
             'published_at' => 'nullable|date',
             'expired_at' => 'nullable|date|after:published_at',
-            'is_featured' => 'boolean',
-            'allow_comments' => 'boolean',
+            'is_featured' => 'nullable',
+            'allow_comments' => 'nullable',
             'language' => 'required|string|max:5',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -109,15 +116,30 @@ class NewsController extends Controller
             'tags.*' => 'string'
         ]);
 
+        // Handle image upload or URL
+        if ($request->hasFile('featured_image_file')) {
+            $path = $request->file('featured_image_file')->store('news', 'public');
+            $validated['featured_image'] = asset('storage/' . $path);
+        } elseif ($request->input('image_removed') == '1') {
+            $validated['featured_image'] = null;
+        }
+
         // Generate slug if not provided
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['title']);
         }
 
+        // Check if slug already exists and make it unique if it does
+        $originalSlug = $validated['slug'];
+        $count = 1;
+        while (News::where('slug', $validated['slug'])->exists()) {
+            $validated['slug'] = $originalSlug . '-' . $count++;
+        }
+
         // Set default values
         $validated['author_id'] = auth()->id();
-        $validated['is_featured'] = $validated['is_featured'] ?? false;
-        $validated['allow_comments'] = $validated['allow_comments'] ?? true;
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['allow_comments'] = $request->has('allow_comments');
 
         // Handle dates
         if ($validated['status'] === 'published' && empty($validated['published_at'])) {
@@ -188,12 +210,13 @@ class NewsController extends Controller
             'summary' => 'nullable|string',
             'content' => 'required|string',
             'featured_image' => 'nullable|string|max:255',
+            'featured_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'category_id' => 'nullable|exists:news_categories,id',
             'status' => 'required|in:draft,pending,published,archived',
             'published_at' => 'nullable|date',
             'expired_at' => 'nullable|date|after:published_at',
-            'is_featured' => 'boolean',
-            'allow_comments' => 'boolean',
+            'is_featured' => 'nullable',
+            'allow_comments' => 'nullable',
             'language' => 'required|string|max:5',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -202,14 +225,22 @@ class NewsController extends Controller
             'tags.*' => 'string'
         ]);
 
+        // Handle image upload or URL
+        if ($request->hasFile('featured_image_file')) {
+            $path = $request->file('featured_image_file')->store('news', 'public');
+            $validated['featured_image'] = asset('storage/' . $path);
+        } elseif ($request->input('image_removed') == '1') {
+            $validated['featured_image'] = null;
+        }
+
         // Generate slug if not provided
         if (empty($validated['slug'])) {
             $validated['slug'] = Str::slug($validated['title']);
         }
 
         // Set default values
-        $validated['is_featured'] = $validated['is_featured'] ?? false;
-        $validated['allow_comments'] = $validated['allow_comments'] ?? true;
+        $validated['is_featured'] = $request->has('is_featured');
+        $validated['allow_comments'] = $request->has('allow_comments');
 
         // Handle dates
         if ($validated['status'] === 'published' && empty($validated['published_at'])) {
@@ -440,5 +471,100 @@ class NewsController extends Controller
             'categoryStats' => $categoryStats,
             'popularNews' => $popularNews
         ]);
+    }
+
+    /**
+     * Auto generate news content.
+     */
+    public function autoGenerate(Request $request)
+    {
+        try {
+            $categories = NewsCategory::active()->get();
+            $categoryId = $categories->isNotEmpty() ? $categories->random()->id : null;
+            
+            // Get the current max sort_order
+            $maxOrder = News::max('sort_order') ?? -1;
+
+            $topics = [
+                'Thông báo về việc mượn trả sách trong kỳ nghỉ lễ',
+                'Giới thiệu bộ sưu tập giáo trình y khoa mới nhất 2026',
+                'Hướng dẫn sử dụng hệ thống thư viện số VTTLib',
+                'Danh sách các ebook mới được cập nhật trong tháng',
+                'Tin tức về hoạt động nghiên cứu khoa học của sinh viên',
+                'Hội thảo trực tuyến: Khai thác tài nguyên số hiệu quả',
+                'Cập nhật quy định về bảo quản tài liệu điện tử',
+                'Top 10 cuốn sách được mượn nhiều nhất tháng qua',
+                'Phỏng vấn bạn đọc tiêu biểu của thư viện số',
+                'VTTU mở rộng hợp tác quốc tế trong chia sẻ học liệu'
+            ];
+
+            $topic = $topics[array_rand($topics)];
+            $content = "Đây là nội dung tự động được tạo cho bài viết: {$topic}.\n\n" .
+                      "Thư viện số VTTLib không ngừng cải tiến và cập nhật những tài liệu quý giá nhất phục vụ cộng đồng giảng viên và sinh viên. " .
+                      "Bài viết này cung cấp cái nhìn chi tiết về các hoạt động và tài nguyên mới nhất mà chúng tôi vừa triển khai.\n\n" .
+                      "Các điểm chính bao gồm:\n" .
+                      "1. Giới thiệu tổng quan về sự kiện/tài liệu.\n" .
+                      "2. Lợi ích mang lại cho người dùng.\n" .
+                      "3. Hướng dẫn cách thức tiếp cận và sử dụng.\n\n" .
+                      "Mọi ý kiến đóng góp xin vui lòng liên hệ bộ phận hỗ trợ kỹ thuật của thư viện.";
+
+            $news = News::create([
+                'title' => $topic . ' - ' . now()->format('H:i:s'),
+                'slug' => Str::slug($topic) . '-' . time(),
+                'summary' => 'Tóm tắt tự động cho bài viết: ' . $topic,
+                'content' => $content,
+                'status' => 'published',
+                'category_id' => $categoryId,
+                'author_id' => auth()->id(),
+                'published_at' => now(),
+                'language' => 'vi',
+                'is_featured' => rand(0, 1),
+                'sort_order' => $maxOrder + 1,
+                'allow_comments' => true,
+                'featured_image' => 'https://img.freepik.com/free-vector/digital-library-concept-illustration_114360-8451.jpg'
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tự động tạo tin tức thành công!',
+                'news' => $news,
+                'redirect' => route('admin.news.index')
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi tự động tạo tin tức: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reorder news.
+     */
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:news,id'
+        ]);
+
+        try {
+            DB::beginTransaction();
+            foreach ($request->ids as $index => $id) {
+                News::where('id', $id)->update(['sort_order' => $index]);
+            }
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật thứ tự thành công!'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi cập nhật thứ tự: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

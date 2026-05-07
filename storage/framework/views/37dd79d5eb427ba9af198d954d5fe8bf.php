@@ -1,25 +1,25 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="space-y-8 pb-10">
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 gap-4">
         <div>
-            <h2 class="text-2xl font-black text-gray-800 dark:text-slate-100 tracking-tight">{{ __('News_Management') }}</h2>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Manage_News_Instruction') }}</p>
+            <h2 class="text-2xl font-black text-gray-800 dark:text-slate-100 tracking-tight"><?php echo e(__('News_Management')); ?></h2>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1"><?php echo e(__('Manage_News_Instruction')); ?></p>
         </div>
         <div class="flex items-center gap-3">
             <button type="button" onclick="autoGenerateNews()" 
                class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center shadow-lg shadow-amber-200 dark:shadow-none">
                 <i class="fas fa-magic mr-2"></i>
-                {{ __('Auto_Generate') }}
+                <?php echo e(__('Auto_Generate')); ?>
+
             </button>
-            <a href="{{ route('admin.news.create') }}" 
+            <a href="<?php echo e(route('admin.news.create')); ?>" 
                class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center shadow-lg shadow-indigo-200 dark:shadow-none">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
                 </svg>
-                {{ __('Create_News') }}
+                <?php echo e(__('Create_News')); ?>
+
             </a>
         </div>
     </div>
@@ -33,8 +33,8 @@
                     <i class="fas fa-newspaper text-xl"></i>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Total') }}</p>
-                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100">{{ $stats['total'] }}</p>
+                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest"><?php echo e(__('Total')); ?></p>
+                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100"><?php echo e($stats['total']); ?></p>
                 </div>
             </div>
         </div>
@@ -46,8 +46,8 @@
                     <i class="fas fa-check-circle text-xl"></i>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Published') }}</p>
-                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100">{{ $stats['published'] }}</p>
+                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest"><?php echo e(__('Published')); ?></p>
+                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100"><?php echo e($stats['published']); ?></p>
                 </div>
             </div>
         </div>
@@ -59,8 +59,8 @@
                     <i class="fas fa-edit text-xl"></i>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Draft') }}</p>
-                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100">{{ $stats['draft'] }}</p>
+                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest"><?php echo e(__('Draft')); ?></p>
+                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100"><?php echo e($stats['draft']); ?></p>
                 </div>
             </div>
         </div>
@@ -72,8 +72,8 @@
                     <i class="fas fa-clock text-xl"></i>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Pending') }}</p>
-                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100">{{ $stats['pending'] }}</p>
+                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest"><?php echo e(__('Pending')); ?></p>
+                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100"><?php echo e($stats['pending']); ?></p>
                 </div>
             </div>
         </div>
@@ -85,8 +85,8 @@
                     <i class="fas fa-star text-xl"></i>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{{ __('Featured') }}</p>
-                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100">{{ $stats['featured'] }}</p>
+                    <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest"><?php echo e(__('Featured')); ?></p>
+                    <p class="text-2xl font-black text-gray-800 dark:text-slate-100"><?php echo e($stats['featured']); ?></p>
                 </div>
             </div>
         </div>
@@ -103,44 +103,47 @@
                         <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
                             <i class="fas fa-search"></i>
                         </span>
-                        <input type="text" name="search" value="{{ request('search') }}" 
+                        <input type="text" name="search" value="<?php echo e(request('search')); ?>" 
                                class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all" 
-                               placeholder="{{ __('Search_Placeholder') }}">
+                               placeholder="<?php echo e(__('Search_Placeholder')); ?>">
                     </div>
 
                     <!-- Status Filter -->
                     <div class="min-w-[160px]">
                         <select name="status" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer">
-                            <option value="">{{ __('All_Status') }}</option>
-                            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>{{ __('Draft') }}</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>{{ __('Published') }}</option>
-                            <option value="archived" {{ request('status') == 'archived' ? 'selected' : '' }}>{{ __('Archived') }}</option>
+                            <option value=""><?php echo e(__('All_Status')); ?></option>
+                            <option value="draft" <?php echo e(request('status') == 'draft' ? 'selected' : ''); ?>><?php echo e(__('Draft')); ?></option>
+                            <option value="pending" <?php echo e(request('status') == 'pending' ? 'selected' : ''); ?>><?php echo e(__('Pending')); ?></option>
+                            <option value="published" <?php echo e(request('status') == 'published' ? 'selected' : ''); ?>><?php echo e(__('Published')); ?></option>
+                            <option value="archived" <?php echo e(request('status') == 'archived' ? 'selected' : ''); ?>><?php echo e(__('Archived')); ?></option>
                         </select>
                     </div>
 
                     <!-- Category Filter -->
                     <div class="min-w-[180px]">
                         <select name="category_id" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer">
-                            <option value="">{{ __('All_Categories') }}</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
+                            <option value=""><?php echo e(__('All_Categories')); ?></option>
+                            <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($category->id); ?>" <?php echo e(request('category_id') == $category->id ? 'selected' : ''); ?>>
+                                    <?php echo e($category->name); ?>
+
                                 </option>
-                            @endforeach
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3 w-full lg:w-auto">
                     <button type="submit" class="flex-1 lg:flex-none px-6 py-2.5 bg-gray-800 dark:bg-slate-700 text-white rounded-xl text-sm font-bold hover:bg-gray-900 transition-all">
-                        {{ __('Filter') }}
+                        <?php echo e(__('Filter')); ?>
+
                     </button>
-                    @if(request()->anyFilled(['search', 'status', 'category_id']))
-                        <a href="{{ route('admin.news.index') }}" class="flex-1 lg:flex-none px-6 py-2.5 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all text-center">
-                            {{ __('Clear') }}
+                    <?php if(request()->anyFilled(['search', 'status', 'category_id'])): ?>
+                        <a href="<?php echo e(route('admin.news.index')); ?>" class="flex-1 lg:flex-none px-6 py-2.5 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all text-center">
+                            <?php echo e(__('Clear')); ?>
+
                         </a>
-                    @endif
+                    <?php endif; ?>
                 </div>
             </form>
         </div>
@@ -150,28 +153,29 @@
             <div class="flex items-center space-x-4">
                 <div class="flex items-center px-3 py-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-sm">
                     <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" class="rounded text-indigo-600 focus:ring-0 w-4 h-4 cursor-pointer">
-                    <label for="selectAll" class="ml-2.5 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest cursor-pointer">{{ __('Select_All') }}</label>
+                    <label for="selectAll" class="ml-2.5 text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest cursor-pointer"><?php echo e(__('Select_All')); ?></label>
                 </div>
 
                 <div class="h-8 w-[1px] bg-gray-200 dark:bg-slate-700"></div>
 
                 <select id="bulkAction" onchange="performBulkAction()" class="bg-transparent border-none text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest focus:ring-0 cursor-pointer">
-                    <option value="">{{ __('Hành động') }}</option>
-                    <option value="publish">{{ __('Publish') }}</option>
-                    <option value="archive">{{ __('Archive') }}</option>
-                    <option value="delete">{{ __('Delete') }}</option>
-                    <option value="feature">{{ __('Feature') }}</option>
-                    <option value="unfeature">{{ __('Unfeature') }}</option>
+                    <option value=""><?php echo e(__('Hành động')); ?></option>
+                    <option value="publish"><?php echo e(__('Publish')); ?></option>
+                    <option value="archive"><?php echo e(__('Archive')); ?></option>
+                    <option value="delete"><?php echo e(__('Delete')); ?></option>
+                    <option value="feature"><?php echo e(__('Feature')); ?></option>
+                    <option value="unfeature"><?php echo e(__('Unfeature')); ?></option>
                 </select>
             </div>
             
             <div class="text-xs font-bold text-gray-400 dark:text-slate-500 tracking-widest uppercase">
-                {{ __('Found :count records', ['count' => $news->total()]) }}
+                <?php echo e(__('Found :count records', ['count' => $news->total()])); ?>
+
             </div>
         </div>
 
         <!-- Content Area -->
-        @if($news->count() > 0)
+        <?php if($news->count() > 0): ?>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
@@ -180,95 +184,99 @@
                                 <i class="fas fa-arrows-alt-v"></i>
                             </th>
                             <th class="px-6 py-4 w-10"></th>
-                            <th class="px-6 py-4">{{ __('News_Content') }}</th>
-                            <th class="px-6 py-4">{{ __('Category') }}</th>
-                            <th class="px-6 py-4">{{ __('Author') }}</th>
-                            <th class="px-6 py-4">{{ __('Status') }}</th>
-                            <th class="px-6 py-4 text-center">{{ __('Stats') }}</th>
-                            <th class="px-6 py-4 text-right">{{ __('Actions') }}</th>
+                            <th class="px-6 py-4"><?php echo e(__('News_Content')); ?></th>
+                            <th class="px-6 py-4"><?php echo e(__('Category')); ?></th>
+                            <th class="px-6 py-4"><?php echo e(__('Author')); ?></th>
+                            <th class="px-6 py-4"><?php echo e(__('Status')); ?></th>
+                            <th class="px-6 py-4 text-center"><?php echo e(__('Stats')); ?></th>
+                            <th class="px-6 py-4 text-right"><?php echo e(__('Actions')); ?></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-50 dark:divide-slate-800" id="news-table-body">
-                        @foreach($news as $item)
+                        <?php $__currentLoopData = $news; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                             <tr class="hover:bg-gray-50/80 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer" 
-                                data-id="{{ $item->id }}"
-                                onclick="window.location.href='{{ route('admin.news.edit', $item) }}'">
+                                data-id="<?php echo e($item->id); ?>"
+                                onclick="window.location.href='<?php echo e(route('admin.news.edit', $item)); ?>'">
                                 <td class="px-6 py-4 text-center cursor-move handle" onclick="event.stopPropagation()">
                                     <i class="fas fa-grip-vertical text-gray-300 group-hover:text-indigo-400 transition-colors"></i>
                                 </td>
                                 <td class="px-6 py-4" onclick="event.stopPropagation()">
-                                    <input type="checkbox" class="news-checkbox rounded text-indigo-600 focus:ring-0 w-4 h-4 cursor-pointer" value="{{ $item->id }}">
+                                    <input type="checkbox" class="news-checkbox rounded text-indigo-600 focus:ring-0 w-4 h-4 cursor-pointer" value="<?php echo e($item->id); ?>">
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-4">
                                         <div class="relative w-12 h-12 shrink-0 rounded-xl overflow-hidden bg-gray-100 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm">
-                                            @if($item->featured_image)
-                                                <img src="{{ $item->featured_image }}" alt="" class="w-full h-full object-cover">
-                                            @else
+                                            <?php if($item->featured_image): ?>
+                                                <img src="<?php echo e($item->featured_image); ?>" alt="" class="w-full h-full object-cover">
+                                            <?php else: ?>
                                                 <div class="w-full h-full flex items-center justify-center text-gray-300">
                                                     <i class="fas fa-image text-lg"></i>
                                                 </div>
-                                            @endif
-                                            @if($item->is_featured)
+                                            <?php endif; ?>
+                                            <?php if($item->is_featured): ?>
                                                 <div class="absolute top-0 right-0 w-5 h-5 bg-purple-500 text-white flex items-center justify-center text-[8px] rounded-bl-lg shadow-sm">
                                                     <i class="fas fa-star"></i>
                                                 </div>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                         <div class="max-w-[300px]">
-                                            <div class="font-bold text-gray-800 dark:text-slate-100 truncate group-hover:text-indigo-600 transition-colors">{{ $item->title }}</div>
+                                            <div class="font-bold text-gray-800 dark:text-slate-100 truncate group-hover:text-indigo-600 transition-colors"><?php echo e($item->title); ?></div>
                                             <div class="text-[10px] text-gray-400 dark:text-slate-500 mt-1 font-mono">
-                                                <i class="far fa-calendar-alt mr-1"></i> {{ $item->formatted_published_at ?: __('Chưa đăng') }}
+                                                <i class="far fa-calendar-alt mr-1"></i> <?php echo e($item->formatted_published_at ?: __('Chưa đăng')); ?>
+
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    @if($item->category)
+                                    <?php if($item->category): ?>
                                         <span class="inline-flex items-center px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-wider">
-                                            {{ $item->category->name }}
+                                            <?php echo e($item->category->name); ?>
+
                                         </span>
-                                    @else
+                                    <?php else: ?>
                                         <span class="text-gray-300 dark:text-slate-700">---</span>
-                                    @endif
+                                    <?php endif; ?>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
                                         <div class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold">
-                                            {{ substr($item->author->name ?? 'A', 0, 1) }}
+                                            <?php echo e(substr($item->author->name ?? 'A', 0, 1)); ?>
+
                                         </div>
-                                        <span class="text-xs font-semibold text-gray-600 dark:text-slate-400">{{ $item->author->name ?? '-' }}</span>
+                                        <span class="text-xs font-semibold text-gray-600 dark:text-slate-400"><?php echo e($item->author->name ?? '-'); ?></span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-{{ $item->status_color }}-50 dark:bg-{{ $item->status_color }}-900/30 text-{{ $item->status_color }}-600 dark:text-{{ $item->status_color }}-400 border border-{{ $item->status_color }}-100 dark:border-{{ $item->status_color }}-800/50">
-                                        {{ $item->status_label }}
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-<?php echo e($item->status_color); ?>-50 dark:bg-<?php echo e($item->status_color); ?>-900/30 text-<?php echo e($item->status_color); ?>-600 dark:text-<?php echo e($item->status_color); ?>-400 border border-<?php echo e($item->status_color); ?>-100 dark:border-<?php echo e($item->status_color); ?>-800/50">
+                                        <?php echo e($item->status_label); ?>
+
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     <div class="inline-flex items-center gap-3">
                                         <div class="flex flex-col items-center">
-                                            <span class="text-[10px] font-black text-gray-700 dark:text-slate-200">{{ $item->view_count }}</span>
-                                            <span class="text-[8px] text-gray-400 uppercase tracking-tighter">{{ __('Views') }}</span>
+                                            <span class="text-[10px] font-black text-gray-700 dark:text-slate-200"><?php echo e($item->view_count); ?></span>
+                                            <span class="text-[8px] text-gray-400 uppercase tracking-tighter"><?php echo e(__('Views')); ?></span>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-right" onclick="event.stopPropagation()">
                                     <div class="flex items-center justify-end space-x-1">
-                                        <a href="{{ route('admin.news.edit', $item) }}" 
+                                        <a href="<?php echo e(route('admin.news.edit', $item)); ?>" 
                                            class="p-2 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors" title="Sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button onclick="toggleFeatured({{ $item->id }})" 
-                                                class="p-2 {{ $item->is_featured ? 'text-purple-600' : 'text-gray-300' }} hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors" title="Nổi bật">
+                                        <button onclick="toggleFeatured(<?php echo e($item->id); ?>)" 
+                                                class="p-2 <?php echo e($item->is_featured ? 'text-purple-600' : 'text-gray-300'); ?> hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-lg transition-colors" title="Nổi bật">
                                             <i class="fas fa-star"></i>
                                         </button>
-                                        <form action="{{ route('admin.news.destroy', $item) }}" 
+                                        <form action="<?php echo e(route('admin.news.destroy', $item)); ?>" 
                                               method="POST" 
                                               onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?')"
                                               class="inline">
-                                            @csrf
-                                            @method('DELETE')
+                                            <?php echo csrf_field(); ?>
+                                            <?php echo method_field('DELETE'); ?>
                                             <button type="submit" class="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-lg transition-colors" title="Xóa">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
@@ -276,16 +284,17 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="p-6 border-t border-gray-50 dark:border-slate-800">
-                {{ $news->links() }}
+                <?php echo e($news->links()); ?>
+
             </div>
-        @else
+        <?php else: ?>
             <!-- Enhanced Empty State -->
             <div class="text-center py-24 bg-white dark:bg-slate-900 border-t border-gray-50 dark:border-slate-800">
                 <div class="relative inline-block mb-6">
@@ -296,18 +305,19 @@
                         <i class="fas fa-plus text-xs"></i>
                     </div>
                 </div>
-                <h3 class="text-xl font-black text-gray-800 dark:text-slate-100 mb-2 uppercase tracking-tight">{{ __('No_News_Found') }}</h3>
-                <p class="text-gray-500 dark:text-slate-400 mb-8 max-w-sm mx-auto text-sm leading-relaxed">{{ __('No_News_Instruction') }}</p>
-                <a href="{{ route('admin.news.create') }}" 
+                <h3 class="text-xl font-black text-gray-800 dark:text-slate-100 mb-2 uppercase tracking-tight"><?php echo e(__('No_News_Found')); ?></h3>
+                <p class="text-gray-500 dark:text-slate-400 mb-8 max-w-sm mx-auto text-sm leading-relaxed"><?php echo e(__('No_News_Instruction')); ?></p>
+                <a href="<?php echo e(route('admin.news.create')); ?>" 
                    class="inline-flex items-center px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-sm font-black transition-all shadow-xl shadow-indigo-200 dark:shadow-none hover:-translate-y-1">
-                    <i class="fas fa-plus mr-2"></i> {{ __('Create_First_News') }}
+                    <i class="fas fa-plus mr-2"></i> <?php echo e(__('Create_First_News')); ?>
+
                 </a>
             </div>
-        @endif
+        <?php endif; ?>
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 let selectedNews = new Set();
 
@@ -349,11 +359,11 @@ function performBulkAction() {
 
 function executeBulkAction(action) {
     const newsIds = Array.from(selectedNews);
-    fetch('{{ route("admin.news.bulk-action") }}', {
+    fetch('<?php echo e(route("admin.news.bulk-action")); ?>', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         },
         body: JSON.stringify({ action: action, news_ids: newsIds })
     })
@@ -370,7 +380,7 @@ function executeBulkAction(action) {
 function toggleFeatured(newsId) {
     fetch(`/topsecret/news/${newsId}/toggle-featured`, {
         method: 'POST',
-        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+        headers: { 'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>' }
     })
     .then(response => response.json())
     .then(data => {
@@ -391,11 +401,11 @@ function autoGenerateNews() {
         cancelButtonText: 'Hủy',
         showLoaderOnConfirm: true,
         preConfirm: () => {
-            return fetch('{{ route("admin.news.auto-generate") }}', {
+            return fetch('<?php echo e(route("admin.news.auto-generate")); ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
                 }
             })
             .then(response => {
@@ -433,11 +443,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateOrder(ids) {
-    fetch('{{ route("admin.news.reorder") }}', {
+    fetch('<?php echo e(route("admin.news.reorder")); ?>', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         },
         body: JSON.stringify({ ids: ids })
     })
@@ -452,5 +462,7 @@ function updateOrder(ids) {
     });
 }
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/news/index.blade.php ENDPATH**/ ?>

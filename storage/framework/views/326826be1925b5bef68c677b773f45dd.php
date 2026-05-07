@@ -1,8 +1,6 @@
-@extends('layouts.site')
+<?php $__env->startSection('title', 'Hồ sơ cá nhân - VTTLib'); ?>
 
-@section('title', 'Hồ sơ cá nhân - VTTLib')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="bg-slate-50 min-h-screen pt-24 pb-12" x-data="{ activeTab: 'info' }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
@@ -12,21 +10,21 @@
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 sticky top-28">
                     <div class="flex flex-col items-center text-center">
                         <div class="w-32 h-32 rounded-full bg-vttu-red/5 flex items-center justify-center border-4 border-white shadow-xl mb-6 overflow-hidden">
-                            @if($user->profile_photo_path)
-                                <img src="{{ asset('storage/' . $user->profile_photo_path) }}" class="w-full h-full object-cover">
-                            @else
+                            <?php if($user->profile_photo_path): ?>
+                                <img src="<?php echo e(asset('storage/' . $user->profile_photo_path)); ?>" class="w-full h-full object-cover">
+                            <?php else: ?>
                                 <div class="w-full h-full bg-vttu-red flex items-center justify-center">
-                                    <span class="text-4xl font-black text-white">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
+                                    <span class="text-4xl font-black text-white"><?php echo e(strtoupper(substr($user->name, 0, 1))); ?></span>
                                 </div>
-                            @endif
+                            <?php endif; ?>
                         </div>
-                        <h2 class="text-xl font-black text-vttu-dark uppercase tracking-tight">{{ $user->name }}</h2>
-                        <p class="text-slate-400 font-bold text-xs mt-1 uppercase tracking-widest">{{ $patron->patronGroup->name ?? 'Độc giả' }}</p>
+                        <h2 class="text-xl font-black text-vttu-dark uppercase tracking-tight"><?php echo e($user->name); ?></h2>
+                        <p class="text-slate-400 font-bold text-xs mt-1 uppercase tracking-widest"><?php echo e($patron->patronGroup->name ?? 'Độc giả'); ?></p>
                         
                         <div class="w-full grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-slate-50">
                             <div class="p-4 bg-slate-50 rounded-2xl">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Mã độc giả</p>
-                                <p class="text-sm font-bold text-vttu-dark">{{ $patron->patron_code ?? 'N/A' }}</p>
+                                <p class="text-sm font-bold text-vttu-dark"><?php echo e($patron->patron_code ?? 'N/A'); ?></p>
                             </div>
                             <div class="p-4 bg-slate-50 rounded-2xl">
                                 <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Trạng thái thẻ</p>
@@ -59,28 +57,28 @@
                                 <i class="fas fa-book"></i>
                             </div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Đã mượn</p>
-                            <h4 class="text-2xl font-black text-vttu-dark">{{ $stats['total_borrowed'] }}</h4>
+                            <h4 class="text-2xl font-black text-vttu-dark"><?php echo e($stats['total_borrowed']); ?></h4>
                         </div>
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                             <div class="w-10 h-10 bg-emerald-50 text-emerald-500 rounded-xl flex items-center justify-center mb-4 text-lg">
                                 <i class="fas fa-book-reader"></i>
                             </div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Đang mượn</p>
-                            <h4 class="text-2xl font-black text-vttu-dark">{{ $stats['active_loans'] }}</h4>
+                            <h4 class="text-2xl font-black text-vttu-dark"><?php echo e($stats['active_loans']); ?></h4>
                         </div>
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                             <div class="w-10 h-10 bg-amber-50 text-amber-500 rounded-xl flex items-center justify-center mb-4 text-lg">
                                 <i class="fas fa-exclamation-circle"></i>
                             </div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Quá hạn</p>
-                            <h4 class="text-2xl font-black text-vttu-dark">{{ $stats['overdue_loans'] }}</h4>
+                            <h4 class="text-2xl font-black text-vttu-dark"><?php echo e($stats['overdue_loans']); ?></h4>
                         </div>
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                             <div class="w-10 h-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center mb-4 text-lg">
                                 <i class="fas fa-wallet"></i>
                             </div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tiền nợ</p>
-                            <h4 class="text-2xl font-black text-vttu-dark">{{ number_format($stats['total_fines']) }}đ</h4>
+                            <h4 class="text-2xl font-black text-vttu-dark"><?php echo e(number_format($stats['total_fines'])); ?>đ</h4>
                         </div>
                     </div>
 
@@ -94,29 +92,29 @@
                             <div class="space-y-6">
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Họ và tên</label>
-                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">{{ $user->name }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100"><?php echo e($user->name); ?></p>
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Email</label>
-                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">{{ $user->email }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100"><?php echo e($user->email); ?></p>
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Số điện thoại</label>
-                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">{{ $patron->phone ?? 'Chưa cập nhật' }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100"><?php echo e($patron->phone ?? 'Chưa cập nhật'); ?></p>
                                 </div>
                             </div>
                             <div class="space-y-6">
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Địa chỉ</label>
-                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">{{ $patron->address ?? 'Chưa cập nhật' }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100"><?php echo e($patron->address ?? 'Chưa cập nhật'); ?></p>
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Ngày sinh</label>
-                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">{{ $patron->dob ? \Carbon\Carbon::parse($patron->dob)->format('d/m/Y') : 'Chưa cập nhật' }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100"><?php echo e($patron->dob ? \Carbon\Carbon::parse($patron->dob)->format('d/m/Y') : 'Chưa cập nhật'); ?></p>
                                 </div>
                                 <div>
                                     <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Đơn vị/Lớp</label>
-                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100">{{ $patron->department ?? 'N/A' }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark bg-slate-50 px-6 py-3 rounded-2xl border border-slate-100"><?php echo e($patron->department ?? 'N/A'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -133,50 +131,50 @@
                         </h3>
                         
                         <div class="space-y-4">
-                            @forelse($reservations as $res)
-                            @php
+                            <?php $__empty_1 = true; $__currentLoopData = $reservations; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $res): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
                                 $resTitle = $res->bibliographicRecord->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Không có nhan đề';
-                            @endphp
+                            ?>
                             <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div class="flex items-center gap-4">
                                         <div class="w-12 h-16 bg-white rounded-lg flex items-center justify-center text-slate-200 border border-slate-100 shadow-sm overflow-hidden flex-shrink-0">
-                                            @if($res->bibliographicRecord->cover_image)
-                                                <img src="{{ asset('storage/' . $res->bibliographicRecord->cover_image) }}" class="w-full h-full object-cover">
-                                            @else
+                                            <?php if($res->bibliographicRecord->cover_image): ?>
+                                                <img src="<?php echo e(asset('storage/' . $res->bibliographicRecord->cover_image)); ?>" class="w-full h-full object-cover">
+                                            <?php else: ?>
                                                 <i class="fas fa-book text-xl"></i>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                         <div>
-                                            <h4 class="text-sm font-black text-vttu-dark line-clamp-1">{{ $resTitle }}</h4>
-                                            <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest">Đăng ký: {{ $res->reservation_date->format('d/m/Y') }}</p>
+                                            <h4 class="text-sm font-black text-vttu-dark line-clamp-1"><?php echo e($resTitle); ?></h4>
+                                            <p class="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest">Đăng ký: <?php echo e($res->reservation_date->format('d/m/Y')); ?></p>
                                         </div>
                                     </div>
                                     <div class="flex flex-col items-end gap-2">
-                                        @if($res->status == 'pending')
+                                        <?php if($res->status == 'pending'): ?>
                                             <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black uppercase rounded-full border border-amber-100">Đang chờ duyệt</span>
-                                        @elseif($res->status == 'ready')
+                                        <?php elseif($res->status == 'ready'): ?>
                                             <div class="text-right">
                                                 <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-full border border-emerald-100">Đã duyệt - Sẵn sàng nhận sách</span>
-                                                @if($res->expiry_date)
+                                                <?php if($res->expiry_date): ?>
                                                 <p class="text-[9px] text-emerald-600 font-bold mt-1 uppercase tracking-widest">
-                                                    Còn {{ now()->diffInDays($res->expiry_date, false) }} ngày để lấy sách
+                                                    Còn <?php echo e(now()->diffInDays($res->expiry_date, false)); ?> ngày để lấy sách
                                                 </p>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
-                                        @elseif($res->status == 'cancelled' || $res->status == 'rejected')
+                                        <?php elseif($res->status == 'cancelled' || $res->status == 'rejected'): ?>
                                             <span class="px-3 py-1 bg-rose-50 text-rose-500 text-[10px] font-black uppercase rounded-full border border-rose-100">Đã hủy / Từ chối</span>
-                                        @elseif($res->status == 'completed')
+                                        <?php elseif($res->status == 'completed'): ?>
                                             <span class="px-3 py-1 bg-blue-50 text-blue-500 text-[10px] font-black uppercase rounded-full border border-blue-100">Đã hoàn tất mượn</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <div class="text-center py-12">
                                 <p class="text-slate-400 font-bold">Không có yêu cầu nào.</p>
                             </div>
-                            @endforelse
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -188,44 +186,45 @@
                         </h3>
                         
                         <div class="space-y-4">
-                            @forelse($activeLoans as $loan)
-                            @php
+                            <?php $__empty_1 = true; $__currentLoopData = $activeLoans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
                                 $loanTitle = $loan->bookItem->bibliographicRecord->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Không có nhan đề';
                                 $isOverdue = $loan->isOverdue();
-                            @endphp
-                            <div class="p-6 {{ $isOverdue ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-slate-100' }} rounded-3xl border">
+                            ?>
+                            <div class="p-6 <?php echo e($isOverdue ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-slate-100'); ?> rounded-3xl border">
                                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div class="flex items-center gap-4">
                                         <div class="w-12 h-16 bg-white rounded-lg flex items-center justify-center text-slate-200 border border-slate-100 shadow-sm overflow-hidden flex-shrink-0">
-                                            @if($loan->bookItem->bibliographicRecord->cover_image)
-                                                <img src="{{ asset('storage/' . $loan->bookItem->bibliographicRecord->cover_image) }}" class="w-full h-full object-cover">
-                                            @else
+                                            <?php if($loan->bookItem->bibliographicRecord->cover_image): ?>
+                                                <img src="<?php echo e(asset('storage/' . $loan->bookItem->bibliographicRecord->cover_image)); ?>" class="w-full h-full object-cover">
+                                            <?php else: ?>
                                                 <i class="fas fa-book text-xl"></i>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                         <div>
-                                            <h4 class="text-sm font-black text-vttu-dark line-clamp-1">{{ $loanTitle }}</h4>
+                                            <h4 class="text-sm font-black text-vttu-dark line-clamp-1"><?php echo e($loanTitle); ?></h4>
                                             <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Ngày mượn: {{ $loan->loan_date->format('d/m/Y') }}</p>
-                                                <p class="text-[10px] font-bold uppercase tracking-widest {{ $isOverdue ? 'text-rose-500' : 'text-slate-400' }}">
-                                                    Hạn trả: {{ $loan->due_date->format('d/m/Y') }} 
-                                                    @if($isOverdue) (Quá hạn {{ $loan->getOverdueDays() }} ngày) @endif
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Ngày mượn: <?php echo e($loan->loan_date->format('d/m/Y')); ?></p>
+                                                <p class="text-[10px] font-bold uppercase tracking-widest <?php echo e($isOverdue ? 'text-rose-500' : 'text-slate-400'); ?>">
+                                                    Hạn trả: <?php echo e($loan->due_date->format('d/m/Y')); ?> 
+                                                    <?php if($isOverdue): ?> (Quá hạn <?php echo e($loan->getOverdueDays()); ?> ngày) <?php endif; ?>
                                                 </p>
                                             </div>
                                         </div>
                                     </div>
                                     <div>
-                                        <span class="px-3 py-1 {{ $isOverdue ? 'bg-rose-100 text-rose-600 border-rose-200' : 'bg-blue-50 text-blue-600 border-blue-100' }} text-[10px] font-black uppercase rounded-full border">
-                                            {{ $isOverdue ? 'Quá hạn' : 'Đang mượn' }}
+                                        <span class="px-3 py-1 <?php echo e($isOverdue ? 'bg-rose-100 text-rose-600 border-rose-200' : 'bg-blue-50 text-blue-600 border-blue-100'); ?> text-[10px] font-black uppercase rounded-full border">
+                                            <?php echo e($isOverdue ? 'Quá hạn' : 'Đang mượn'); ?>
+
                                         </span>
                                     </div>
                                 </div>
                             </div>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <div class="text-center py-12">
                                 <p class="text-slate-400 font-bold">Hiện không mượn cuốn sách nào.</p>
                             </div>
-                            @endforelse
+                            <?php endif; ?>
                         </div>
                     </div>
 
@@ -237,25 +236,25 @@
                         </h3>
                         
                         <div class="space-y-4">
-                            @forelse($returnedLoans as $loan)
-                            @php
+                            <?php $__empty_1 = true; $__currentLoopData = $returnedLoans; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $loan): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php
                                 $loanTitle = $loan->bookItem->bibliographicRecord->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Không có nhan đề';
-                            @endphp
+                            ?>
                             <div class="p-6 bg-slate-50/50 rounded-3xl border border-slate-100 opacity-75 hover:opacity-100 transition-opacity">
                                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div class="flex items-center gap-4">
                                         <div class="w-12 h-16 bg-white rounded-lg flex items-center justify-center text-slate-200 border border-slate-100 shadow-sm overflow-hidden flex-shrink-0">
-                                            @if($loan->bookItem->bibliographicRecord->cover_image)
-                                                <img src="{{ asset('storage/' . $loan->bookItem->bibliographicRecord->cover_image) }}" class="w-full h-full object-cover">
-                                            @else
+                                            <?php if($loan->bookItem->bibliographicRecord->cover_image): ?>
+                                                <img src="<?php echo e(asset('storage/' . $loan->bookItem->bibliographicRecord->cover_image)); ?>" class="w-full h-full object-cover">
+                                            <?php else: ?>
                                                 <i class="fas fa-book text-xl"></i>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                         <div>
-                                            <h4 class="text-sm font-black text-vttu-dark line-clamp-1">{{ $loanTitle }}</h4>
+                                            <h4 class="text-sm font-black text-vttu-dark line-clamp-1"><?php echo e($loanTitle); ?></h4>
                                             <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Đã trả: {{ $loan->return_date ? $loan->return_date->format('d/m/Y') : 'N/A' }}</p>
-                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Mã vạch: {{ $loan->bookItem->barcode }}</p>
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Đã trả: <?php echo e($loan->return_date ? $loan->return_date->format('d/m/Y') : 'N/A'); ?></p>
+                                                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Mã vạch: <?php echo e($loan->bookItem->barcode); ?></p>
                                             </div>
                                         </div>
                                     </div>
@@ -264,11 +263,11 @@
                                     </div>
                                 </div>
                             </div>
-                            @empty
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                             <div class="text-center py-12">
                                 <p class="text-slate-400 font-bold">Chưa có lịch sử trả sách.</p>
                             </div>
-                            @endforelse
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -276,5 +275,7 @@
         </div>
     </div>
 </div>
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.site', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/site/pages/profile.blade.php ENDPATH**/ ?>

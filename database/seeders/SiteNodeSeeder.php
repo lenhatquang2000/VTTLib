@@ -329,7 +329,7 @@ class SiteNodeSeeder extends Seeder
                 'is_active' => true,
                 'access_type' => 'public',
                 'allow_guest' => true,
-                'content' => '<p class="text-lg text-slate-600 font-medium text-center">Thông báo và tin tức mới nhất từ Thư viện Đại học Võ Trường Toản.</p>',
+                'content' => '<p class="text-lg text-slate-600 font-medium text-center">Thông báo và tin tức mới nhất từ Thư viện Đại học Võ Trường Toản. 2</p>',
             ]
         );
 

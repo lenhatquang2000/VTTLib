@@ -1,32 +1,32 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h1 class="text-2xl font-bold">{{ __('Tạo Tin tức mới') }}</h1>
-            <p class="text-sm text-gray-400 mt-1">{{ __('Tạo bài viết tin tức mới') }}</p>
+            <h1 class="text-2xl font-bold"><?php echo e(__('Chỉnh sửa Tin tức')); ?></h1>
+            <p class="text-sm text-gray-400 mt-1"><?php echo e(__('Chỉnh sửa: ')); ?><?php echo e($news->title); ?></p>
         </div>
         <div class="flex items-center gap-3">
-            <button type="button" onclick="autoGenerateNews()" 
-                    class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 dark:bg-amber-900/20 dark:hover:bg-amber-900/40 text-amber-600 dark:text-amber-400 font-bold text-sm transition-all duration-300 border border-amber-200/50 dark:border-amber-800/50 active:scale-95 group">
-                <i class="fas fa-magic mr-2 group-hover:rotate-12 transition-transform"></i>
-                {{ __('Tự động tạo nội dung') }}
-            </button>
-            <a href="{{ route('admin.news.index') }}" 
+            <a href="<?php echo e($news->url); ?>" target="_blank"
+               class="inline-flex items-center px-5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 font-bold text-sm transition-all duration-300 border border-indigo-200/50 dark:border-indigo-800/50 active:scale-95 group">
+                <i class="fas fa-eye mr-2 group-hover:scale-110 transition-transform"></i>
+                <?php echo e(__('Xem')); ?>
+
+            </a>
+            <a href="<?php echo e(route('admin.news.index')); ?>" 
                class="inline-flex items-center px-5 py-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold text-sm transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:shadow-sm active:scale-95 group">
                 <i class="fas fa-chevron-left mr-2 group-hover:-translate-x-1 transition-transform"></i>
-                {{ __('Quay lại') }}
+                <?php echo e(__('Quay lại')); ?>
+
             </a>
         </div>
     </div>
 
     <!-- Form -->
     <div class="card-admin p-6">
-        <form action="{{ route('admin.news.store') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('POST')
+        <form action="<?php echo e(route('admin.news.update', $news)); ?>" method="POST" enctype="multipart/form-data">
+            <?php echo csrf_field(); ?>
+            <?php echo method_field('PUT'); ?>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Main Content -->
@@ -40,7 +40,7 @@
                                 <input type="text" name="title" required
                                        class="input-field w-full" 
                                        placeholder="Nhập tiêu đề bài viết"
-                                       value="{{ old('title') }}">
+                                       value="<?php echo e(old('title', $news->title)); ?>">
                             </div>
                             
                             <div>
@@ -48,7 +48,7 @@
                                 <input type="text" name="slug" 
                                        class="input-field w-full" 
                                        placeholder="Tự động tạo từ tiêu đề"
-                                       value="{{ old('slug') }}">
+                                       value="<?php echo e(old('slug', $news->slug)); ?>">
                                 <p class="text-xs text-gray-400 mt-1">Để trống để tự động tạo</p>
                             </div>
                             
@@ -56,14 +56,14 @@
                                 <label class="block text-sm font-medium mb-1">Tóm tắt</label>
                                 <textarea name="summary" rows="3"
                                           class="input-field w-full"
-                                          placeholder="Tóm tắt nội dung bài viết">{{ old('summary') }}</textarea>
+                                          placeholder="Tóm tắt nội dung bài viết"><?php echo e(old('summary', $news->summary)); ?></textarea>
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium mb-1">Nội dung *</label>
                                 <textarea name="content" id="content" rows="15"
                                           class="input-field w-full"
-                                          placeholder="Nội dung chi tiết bài viết" required>{{ old('content') }}</textarea>
+                                          placeholder="Nội dung chi tiết bài viết" required><?php echo e(old('content', $news->content)); ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -77,14 +77,14 @@
                                 <input type="text" name="meta_title" 
                                        class="input-field w-full" 
                                        placeholder="Tiêu đề SEO"
-                                       value="{{ old('meta_title') }}">
+                                       value="<?php echo e(old('meta_title', $news->meta_title)); ?>">
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium mb-1">Meta Description</label>
                                 <textarea name="meta_description" rows="3"
                                           class="input-field w-full"
-                                          placeholder="Mô tả SEO">{{ old('meta_description') }}</textarea>
+                                          placeholder="Mô tả SEO"><?php echo e(old('meta_description', $news->meta_description)); ?></textarea>
                             </div>
                             
                             <div>
@@ -92,7 +92,7 @@
                                 <input type="text" name="meta_keywords" 
                                        class="input-field w-full" 
                                        placeholder="từ khóa 1, từ khóa 2, từ khóa 3"
-                                       value="{{ old('meta_keywords') }}">
+                                       value="<?php echo e(old('meta_keywords', $news->meta_keywords)); ?>">
                             </div>
                         </div>
                     </div>
@@ -107,10 +107,10 @@
                             <div>
                                 <label class="block text-sm font-medium mb-1">Trạng thái *</label>
                                 <select name="status" class="input-field w-full">
-                                    <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Bản nháp</option>
-                                    <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
-                                    <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Đã đăng</option>
-                                    <option value="archived" {{ old('status') == 'archived' ? 'selected' : '' }}>Lưu trữ</option>
+                                    <option value="draft" <?php echo e(old('status', $news->status) == 'draft' ? 'selected' : ''); ?>>Bản nháp</option>
+                                    <option value="pending" <?php echo e(old('status', $news->status) == 'pending' ? 'selected' : ''); ?>>Chờ duyệt</option>
+                                    <option value="published" <?php echo e(old('status', $news->status) == 'published' ? 'selected' : ''); ?>>Đã đăng</option>
+                                    <option value="archived" <?php echo e(old('status', $news->status) == 'archived' ? 'selected' : ''); ?>>Lưu trữ</option>
                                 </select>
                             </div>
                             
@@ -118,7 +118,7 @@
                                 <label class="block text-sm font-medium mb-1">Ngày đăng</label>
                                 <input type="datetime-local" name="published_at" 
                                        class="input-field w-full"
-                                       value="{{ old('published_at') ?? now()->format('Y-m-d\TH:i') }}">
+                                       value="<?php echo e(old('published_at', $news->published_at ? $news->published_at->format('Y-m-d\TH:i') : '')); ?>">
                                 <p class="text-xs text-gray-400 mt-1">Để trống để sử dụng thời gian hiện tại</p>
                             </div>
                             
@@ -126,19 +126,19 @@
                                 <label class="block text-sm font-medium mb-1">Ngày hết hạn</label>
                                 <input type="datetime-local" name="expired_at" 
                                        class="input-field w-full"
-                                       value="{{ old('expired_at') }}">
+                                       value="<?php echo e(old('expired_at', $news->expired_at ? $news->expired_at->format('Y-m-d\TH:i') : '')); ?>">
                                 <p class="text-xs text-gray-400 mt-1">Để trống nếu không có hạn</p>
                             </div>
                             
                             <div class="flex items-center">
                                 <input type="checkbox" name="is_featured" id="is_featured" 
-                                       class="mr-2" {{ old('is_featured') ? 'checked' : '' }}>
+                                       class="mr-2" <?php echo e(old('is_featured', $news->is_featured) ? 'checked' : ''); ?>>
                                 <label for="is_featured" class="text-sm">Tin nổi bật</label>
                             </div>
                             
                             <div class="flex items-center">
                                 <input type="checkbox" name="allow_comments" id="allow_comments" 
-                                       class="mr-2" {{ old('allow_comments') ? 'checked' : '' }}>
+                                       class="mr-2" <?php echo e(old('allow_comments', $news->allow_comments) ? 'checked' : ''); ?>>
                                 <label for="allow_comments" class="text-sm">Cho phép bình luận</label>
                             </div>
                         </div>
@@ -165,12 +165,12 @@
                                     <input type="text" name="featured_image" 
                                            class="input-field w-full" 
                                            placeholder="Nhập URL hình ảnh (vd: https://...)"
-                                           value="{{ old('featured_image') }}"
+                                           value="<?php echo e($news->featured_image); ?>"
                                            oninput="handleUrlPreview(this.value)">
                                 </div>
                                 
                                 <div x-show="uploadType === 'upload'" x-cloak>
-                                    <label class="block text-sm font-medium mb-1">Tải ảnh đại diện</label>
+                                    <label class="block text-sm font-medium mb-1">Tải ảnh đại diện mới</label>
                                     <input type="hidden" name="image_removed" id="image_removed" value="0">
                                     <div class="relative group">
                                         <input type="file" name="featured_image_file" accept="image/*"
@@ -187,7 +187,7 @@
                                 </div>
                             </div>
                             
-                            <div id="image-preview-container" class="{{ old('featured_image') ? '' : 'hidden' }} mt-4">
+                            <div id="image-preview-container" class="<?php echo e($news->featured_image ? '' : 'hidden'); ?> mt-4">
                                 <div class="flex justify-between items-center mb-2">
                                     <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Xem trước:</p>
                                     <button type="button" onclick="removeImage()" 
@@ -196,7 +196,7 @@
                                     </button>
                                 </div>
                                 <div class="relative">
-                                    <img id="image-preview" src="{{ old('featured_image') }}" 
+                                    <img id="image-preview" src="<?php echo e($news->featured_image); ?>" 
                                          class="w-full h-48 object-cover rounded-2xl shadow-lg border border-slate-100">
                                     <div id="image-error-msg" class="hidden absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white text-xs font-bold p-4 text-center">
                                     </div>
@@ -213,11 +213,12 @@
                                 <label class="block text-sm font-medium mb-1">Chuyên mục</label>
                                 <select name="category_id" class="input-field w-full">
                                     <option value="">-- Chọn chuyên mục --</option>
-                                    @foreach($categories as $category)
-                                        <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
+                                    <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($category->id); ?>" <?php echo e(old('category_id', $news->category_id) == $category->id ? 'selected' : ''); ?>>
+                                            <?php echo e($category->name); ?>
+
                                         </option>
-                                    @endforeach
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                 </select>
                             </div>
                             
@@ -226,16 +227,43 @@
                                 <input type="text" name="tags" 
                                        class="input-field w-full" 
                                        placeholder="tag1, tag2, tag3"
-                                       value="{{ old('tags') ? implode(', ', old('tags')) : '' }}">
+                                       value="<?php echo e(old('tags', $news->tags->pluck('name')->implode(', '))); ?>">
                                 <p class="text-xs text-gray-400 mt-1">Ngăn cách bằng dấu phẩy</p>
                             </div>
                             
                             <div>
                                 <label class="block text-sm font-medium mb-1">Ngôn ngữ</label>
                                 <select name="language" class="input-field w-full">
-                                    <option value="vi" {{ old('language') == 'vi' ? 'selected' : '' }}>Tiếng Việt</option>
-                                    <option value="en" {{ old('language') == 'en' ? 'selected' : '' }}>English</option>
+                                    <option value="vi" <?php echo e(old('language', $news->language) == 'vi' ? 'selected' : ''); ?>>Tiếng Việt</option>
+                                    <option value="en" <?php echo e(old('language', $news->language) == 'en' ? 'selected' : ''); ?>>English</option>
                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Statistics -->
+                    <div>
+                        <h3 class="text-lg font-bold mb-4 text-orange-400">Thống kê</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-400">Lượt xem:</span>
+                                <span class="text-sm font-medium"><?php echo e($news->view_count); ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-400">Lượt thích:</span>
+                                <span class="text-sm font-medium"><?php echo e($news->like_count); ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-400">Bình luận:</span>
+                                <span class="text-sm font-medium"><?php echo e($news->comment_count); ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-400">Ngày tạo:</span>
+                                <span class="text-sm font-medium"><?php echo e($news->created_at->format('d/m/Y H:i')); ?></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-400">Cập nhật:</span>
+                                <span class="text-sm font-medium"><?php echo e($news->updated_at->format('d/m/Y H:i')); ?></span>
                             </div>
                         </div>
                     </div>
@@ -244,7 +272,7 @@
             
             <!-- Submit Buttons -->
             <div class="flex flex-wrap justify-end gap-3 mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
-                <a href="{{ route('admin.news.index') }}" 
+                <a href="<?php echo e(route('admin.news.index')); ?>" 
                    class="inline-flex items-center px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-sm transition-all duration-300 hover:shadow-md active:scale-95 group">
                     <i class="fas fa-times-circle mr-2 opacity-50 group-hover:opacity-100 transition-opacity"></i>
                     Hủy
@@ -255,16 +283,16 @@
                     Lưu nháp
                 </button>
                 <button type="submit" 
-                        class="inline-flex items-center px-8 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black text-sm transition-all duration-300 shadow-lg shadow-indigo-200 dark:shadow-none hover:shadow-indigo-300 active:scale-95 group">
-                    <i class="fas fa-paper-plane mr-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
-                    Đăng tin ngay
+                        class="inline-flex items-center px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-black text-sm transition-all duration-300 shadow-lg shadow-indigo-200 dark:shadow-none hover:shadow-indigo-300 active:scale-95 group">
+                    <i class="fas fa-check-circle mr-2 group-hover:scale-110 transition-transform"></i>
+                    Cập nhật ngay
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 function previewImage(input) {
     const preview = document.getElementById('image-preview');
@@ -286,7 +314,7 @@ function handleUrlPreview(url) {
     const preview = document.getElementById('image-preview');
     const container = document.getElementById('image-preview-container');
     const errorMsg = document.getElementById('image-error-msg');
-    const defaultImage = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1000&q=80"; // Một ảnh thư viện rất đẹp
+    const defaultImage = "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1000&q=80";
 
     if (url.trim() === '') {
         container.classList.add('hidden');
@@ -328,7 +356,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (titleInput && slugInput) {
         titleInput.addEventListener('input', function() {
-            if (!slugInput.value) {
+            if (!slugInput.value || slugInput.value === '<?php echo e($news->slug); ?>') {
                 // Simple slug generation
                 const slug = this.value.toLowerCase()
                     .replace(/[^\w\s-]/g, '')
@@ -352,43 +380,8 @@ document.querySelector('form').addEventListener('submit', function(e) {
         }
     }
 });
-
-function autoGenerateNews() {
-    // Show loading state or confirm
-    fetch('{{ route("admin.news.auto-generate") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Fill form with generated data
-            document.querySelector('input[name="title"]').value = data.news.title;
-            document.querySelector('input[name="slug"]').value = data.news.slug;
-            document.querySelector('textarea[name="summary"]').value = data.news.summary;
-            document.querySelector('textarea[name="content"]').value = data.news.content;
-            document.querySelector('select[name="status"]').value = data.news.status;
-            document.querySelector('input[name="featured_image"]').value = data.news.featured_image;
-            if (data.news.category_id) {
-                document.querySelector('select[name="category_id"]').value = data.news.category_id;
-            }
-            
-            // Show success message (using alert if Swal is not available, though layout usually has it)
-            if (typeof Swal !== 'undefined') {
-                Swal.fire('Thành công', 'Đã tự động tạo nội dung mẫu!', 'success');
-            } else {
-                alert('Đã tự động tạo nội dung mẫu!');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Lỗi khi tự động tạo nội dung');
-    });
-}
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/news/edit.blade.php ENDPATH**/ ?>

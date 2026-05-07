@@ -19,11 +19,18 @@
     @endif
     
     <!-- CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        sans: ['Be Vietnam Pro', 'sans-serif'],
+                        montserrat: ['Be Vietnam Pro', 'sans-serif'],
+                    },
                     colors: {
                         vttu: {
                             dark: '#680102',
@@ -186,7 +193,7 @@
                                         <span class="text-xs font-black uppercase tracking-widest">Quản trị</span>
                                     </a>
                                 @endif
-                                <a href="#" class="flex items-center space-x-3 px-6 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
+                                <a href="{{ route('profile') }}" class="flex items-center space-x-3 px-6 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
                                     <i class="fas fa-user-circle w-5"></i>
                                     <span class="text-xs font-black uppercase tracking-widest">Hồ sơ</span>
                                 </a>

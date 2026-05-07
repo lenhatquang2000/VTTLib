@@ -14,6 +14,9 @@
                         {{ $tpl->template_name }}
                     </option>
                 @endforeach
+                <option value="news" {{ old('masterpage', $siteNode->masterpage) == 'news' ? 'selected' : '' }}>
+                    Trang tin tức (News)
+                </option>
             </select>
             
             <a href="{{ $siteNode->getUrl() }}" id="preview_template_btn" target="_blank" 

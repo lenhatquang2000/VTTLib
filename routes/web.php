@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\MetadataController;
 use App\Http\Controllers\SecretLoginController;
 use App\Http\Controllers\ClientLoginController;
 use Illuminate\Support\Facades\Route;
-
 // Language Switcher
 Route::get('lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
 
@@ -62,6 +61,7 @@ Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');
 
 // Public News Routes
+Route::get('/tin-tuc-chi-tiet/{slug}', [\App\Http\Controllers\NewsController::class, 'show'])->name('news.show.custom');
 Route::prefix('tin-tuc')->name('news.')->group(function () {
     Route::get('/', [\App\Http\Controllers\NewsController::class, 'index'])->name('index');
     Route::get('/{slug}', [\App\Http\Controllers\NewsController::class, 'show'])->name('show');
@@ -161,6 +161,8 @@ Route::get('/', function () {
         Route::post('/{news}/toggle-featured', [\App\Http\Controllers\Admin\NewsController::class, 'toggleFeatured'])->name('toggle-featured');
         Route::post('/bulk-action', [\App\Http\Controllers\Admin\NewsController::class, 'bulkAction'])->name('bulk-action');
         Route::get('/statistics', [\App\Http\Controllers\Admin\NewsController::class, 'statistics'])->name('statistics');
+        Route::post('/auto-generate', [\App\Http\Controllers\Admin\NewsController::class, 'autoGenerate'])->name('auto-generate');
+        Route::post('/reorder', [\App\Http\Controllers\Admin\NewsController::class, 'reorder'])->name('reorder');
     });
 
     // News Categories Management

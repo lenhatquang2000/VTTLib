@@ -41,9 +41,15 @@ class SiteController extends Controller
 
         $newBooks = $query->latest()->take(8)->get();
 
+        // Lấy tin tức thực tế cho trang chủ
+        $homeNews = \App\Models\News::published()->latest()->take(5)->get();
+
         // Xử lý lọc cho Section 3 (Tin mới | Video)
         $newsType = $request->query('news_type', 'news');
-        // (Giả định logic lấy tin tức/video từ News model ở đây nếu có)
+        $tabNews = [];
+        if ($newsType === 'news') {
+            $tabNews = $homeNews;
+        }
 
         // Xử lý lọc cho Sidebar (Tài liệu số Mới | Nổi bật)
         $resourceType = $request->query('resource_type', 'new');
@@ -69,15 +75,33 @@ class SiteController extends Controller
                 ])->render();
             }
             if ($request->has('resource_type')) {
+                $resourceType = $request->query('resource_type', 'new');
+                if ($resourceType === 'new') {
+                    $sidebarBooks = \App\Models\BibliographicRecord::with(['fields.subfields'])
+                        ->latest()
+                        ->take(10)
+                        ->get();
+                    
+                    return view('site.pages.partials.sidebar-books', [
+                        'sidebarBooks' => $sidebarBooks,
+                        'activeResourceType' => 'new'
+                    ])->render();
+                }
+
                 return view('site.pages.partials.home-resources', [
                     'newResources' => $newResources,
                     'activeResourceType' => $resourceType
                 ])->render();
             }
             if ($request->has('news_type')) {
-                // Giả định logic lấy tin tức/video
+                $newsType = $request->query('news_type', 'news');
+                $tabNews = [];
+                if ($newsType === 'news') {
+                    $tabNews = \App\Models\News::published()->latest()->take(5)->get();
+                }
                 return view('site.pages.partials.home-news', [
-                    'newsType' => $newsType
+                    'newsType' => $newsType,
+                    'tabNews' => $tabNews
                 ])->render();
             }
             if ($request->has('medical_type')) {
@@ -94,6 +118,12 @@ class SiteController extends Controller
             }
         }
 
+        // Lấy 10 cuốn sách mới nhất cho Sidebar Home
+        $sidebarBooks = \App\Models\BibliographicRecord::with(['fields.subfields'])
+            ->latest()
+            ->take(10)
+            ->get();
+
         if (view()->exists('site.pages.home')) {
             return view('site.pages.home', [
                 'homeNode' => $homeNode,
@@ -103,6 +133,9 @@ class SiteController extends Controller
                 'newResources' => $newResources,
                 'medicalResources' => $medicalResources,
                 'newBooks' => $newBooks,
+                'sidebarBooks' => $sidebarBooks,
+                'homeNews' => $homeNews,
+                'tabNews' => $tabNews,
                 'activeType' => $type,
                 'activeNewsType' => $newsType,
                 'activeResourceType' => $resourceType
@@ -291,10 +324,45 @@ class SiteController extends Controller
         $footerItems = \App\Models\SiteNode::getMenuItems('footer');
         
         $patron = $user->patronDetail;
-        $reservations = $patron ? $patron->reservations()->with('bibliographicRecord.fields.subfields')->latest()->get() : collect();
-        $activeLoans = $patron ? $patron->activeLoans()->with('bookItem.bibliographicRecord.fields.subfields')->latest()->get() : collect();
+        
+        if (!$patron) {
+            return view('site.pages.profile', compact('user', 'menuItems', 'footerItems'))->with('patron', null);
+        }
 
-        return view('site.pages.profile', compact('user', 'patron', 'reservations', 'activeLoans', 'menuItems', 'footerItems'));
+        // Lấy danh sách đăng ký (đang chờ, sẵn sàng, hủy, từ chối)
+        $reservations = $patron->reservations()
+            ->with(['bibliographicRecord.fields.subfields', 'pickupBranch'])
+            ->latest()
+            ->get();
+
+        // Lấy các giao dịch mượn (đang mượn, đã trả)
+        $loanTransactions = $patron->loanTransactions()
+            ->with(['bookItem.bibliographicRecord.fields.subfields', 'loanBranch', 'returnBranch'])
+            ->latest()
+            ->get();
+
+        $activeLoans = $loanTransactions->where('status', 'borrowed');
+        $returnedLoans = $loanTransactions->where('status', 'returned');
+        
+        // Thống kê
+        $stats = [
+            'total_borrowed' => $loanTransactions->count(),
+            'active_loans' => $activeLoans->count(),
+            'overdue_loans' => $loanTransactions->filter(fn($l) => $l->isOverdue())->count(),
+            'total_fines' => $patron->total_outstanding_fine,
+        ];
+
+        return view('site.pages.profile', compact(
+            'user', 
+            'patron', 
+            'reservations', 
+            'activeLoans', 
+            'returnedLoans',
+            'loanTransactions',
+            'stats',
+            'menuItems', 
+            'footerItems'
+        ));
     }
 
     /**
@@ -332,6 +400,8 @@ class SiteController extends Controller
         // Nếu là trang chủ HOẶC dùng template opac/home, nạp thêm dữ liệu động
         $extraData = [];
         if ($code === 'home' || $siteNode->masterpage === 'home' || request()->query('preview_template') === 'home') {
+            $extraData['homeNews'] = \App\Models\News::published()->latest()->take(5)->get();
+            $extraData['tabNews'] = $extraData['homeNews'];
             $extraData['newResources'] = \App\Models\DigitalResource::with('folder')
                 ->where('status', 'published')
                 ->latest()
@@ -350,6 +420,12 @@ class SiteController extends Controller
                 ->latest()
                 ->take(8)
                 ->get();
+
+            // Lấy 10 cuốn sách mới nhất cho Sidebar Home
+            $extraData['sidebarBooks'] = \App\Models\BibliographicRecord::with(['fields.subfields'])
+                ->latest()
+                ->take(10)
+                ->get();
         }
 
         // Nạp dữ liệu sách nếu dùng template opac
@@ -362,6 +438,24 @@ class SiteController extends Controller
             $extraData['books'] = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
                 ->latest()
                 ->paginate(12);
+        }
+
+        // Nạp dữ liệu tin tức nếu dùng template news
+        if ($siteNode->masterpage === 'news' || request()->query('preview_template') === 'news' || $code === 'tin-tuc') {
+            $extraData['news'] = \App\Models\News::where('status', 'published')
+                ->with(['category', 'author', 'tags'])
+                ->orderBy('sort_order', 'asc')
+                ->orderBy('published_at', 'desc')
+                ->paginate(12);
+            
+            // Lấy tổng số bạn đọc (User) cho template news
+            $extraData['totalUsers'] = \App\Models\User::count();
+            
+            // Lấy 3 avatar người dùng mới nhất (từ PatronDetail nếu có profile_image)
+            $extraData['latestPatrons'] = \App\Models\PatronDetail::whereNotNull('profile_image')
+                ->latest()
+                ->take(3)
+                ->get();
         }
 
         // 1. Kiểm tra template preview qua query param
