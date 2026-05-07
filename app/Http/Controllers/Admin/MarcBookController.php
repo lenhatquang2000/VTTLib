@@ -240,20 +240,9 @@ class MarcBookController extends Controller
                         $definitions->push($fTag);
                     }
                 }
-                // Nếu người dùng yêu cầu thêm Tag mới vào Snapshot (thông qua nút Thêm Tag nhanh)
-                $addTag = $request->query('add_tag');
-                if ($addTag && !$definitions->contains('tag', $addTag)) {
-                    $newTagDef = MarcTagDefinition::where('tag', $addTag)
-                        ->with(['subfields' => function ($q) {
-                            $q->where('is_visible', true)->orderBy('code');
-                        }])
-                        ->first();
-                    if ($newTagDef) {
-                        $definitions->push($newTagDef);
-                    }
-                }
-
-                $definitions = $definitions->sortBy('tag')->values();
+                
+                // Đảm bảo không có tag nào bị lặp lại và sắp xếp theo số tag
+                $definitions = $definitions->unique('tag')->sortBy('tag')->values();
             }
         } else {
             // CREATE MODE: Chỉ hiển thị các tag/subfield theo Framework mẫu
@@ -272,10 +261,10 @@ class MarcBookController extends Controller
 
         if ($record) {
             $record->load('items.branch', 'items.storageLocation');
-            return view('admin.marc_books.edit', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
+            return view('admin.marc_books.form', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
         }
 
-        return view('admin.marc_books.create', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
+        return view('admin.marc_books.form', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
     }
 
     public function store(Request $request)
@@ -319,17 +308,20 @@ class MarcBookController extends Controller
 
                 if (!$hasData) continue;
 
-                $marcField = $record->fields()->create([
-                    'tag' => $tag,
-                    'indicator1' => $data['ind1'] ?? ' ',
-                    'indicator2' => $data['ind2'] ?? ' ',
-                    'sequence' => $sequence++
-                ]);
+                // Sử dụng updateOrCreate thay vì create để đảm bảo tính duy nhất của Tag
+                $marcField = $record->fields()->updateOrCreate(
+                    ['tag' => $tag],
+                    [
+                        'indicator1' => $data['ind1'] ?? ' ',
+                        'indicator2' => $data['ind2'] ?? ' ',
+                        'sequence' => $sequence++
+                    ]
+                );
 
                 foreach ($subfieldEntries as $entry) {
                     if (!empty($entry['code']) && !empty($entry['value'])) {
                         $marcField->subfields()->create([
-                            'code' => $entry['code'],
+                            'code' => substr($entry['code'], 0, 1),
                             'value' => $entry['value']
                         ]);
                     }
@@ -494,7 +486,7 @@ class MarcBookController extends Controller
                         $subfield = $marcField->subfields()->updateOrCreate(
                             ['id' => $entry['id'] ?? null],
                             [
-                                'code' => $entry['code'],
+                                'code' => substr($entry['code'], 0, 1),
                                 'value' => $entry['value']
                             ]
                         );

@@ -2,7 +2,7 @@
 
 <?php $__env->startSection('content'); ?>
 <div class="bg-slate-50 min-h-screen pt-24 pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Breadcrumb -->
         <nav class="flex mb-8 text-sm font-medium" aria-label="Breadcrumb">
@@ -265,37 +265,42 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 })
-                .then(response => response.json())
+                .then(async response => {
+                    const isJson = response.headers.get('content-type')?.includes('application/json');
+                    const data = isJson ? await response.json() : null;
+
+                    if (!response.ok) {
+                        throw new Error(data?.message || 'Có lỗi xảy ra từ máy chủ.');
+                    }
+                    return data;
+                })
                 .then(data => {
-                    if (data.success) {
+                    if (data && data.success) {
                         Swal.fire({
                             title: 'Thành công!',
                             text: data.message,
                             icon: 'success',
                             confirmButtonColor: '#680102',
-                            timer: 3000,
-                            timerProgressBar: true
+                            borderRadius: '2rem'
                         }).then(() => {
-                            window.location.href = '<?php echo e(route("profile")); ?>';
+                            window.location.reload();
                         });
                     } else {
-                        Swal.fire({
-                            title: 'Thất bại',
-                            text: data.message,
-                            icon: 'error',
-                            confirmButtonColor: '#680102'
-                        });
+                        throw new Error(data?.message || 'Đăng ký không thành công.');
                     }
                 })
                 .catch(error => {
+                    console.error('Reservation error:', error);
                     Swal.fire({
-                        title: 'Lỗi hệ thống!',
-                        html: `Có lỗi xảy ra trong quá trình đăng ký:<br><code class="text-xs text-rose-500">${error.message}</code>`,
+                        title: 'Thất bại!',
+                        text: error.message || 'Không thể kết nối tới hệ thống.',
                         icon: 'error',
-                        confirmButtonColor: '#680102'
+                        confirmButtonColor: '#680102',
+                        borderRadius: '2rem'
                     });
                 });
             }

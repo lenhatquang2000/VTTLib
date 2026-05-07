@@ -132,17 +132,16 @@
             <!-- Checkin Tab -->
             <div id="checkinContent" class="space-y-6 hidden">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Left Column: Checkin Form -->
+                    <!-- Left Column: Patron Form -->
                     <div>
                         <h3 class="text-lg font-bold mb-4 text-blue-400"><?php echo e(__('Checkin')); ?> (<?php echo e(__('Return')); ?>)</h3>
-                        <form action="<?php echo e(route('admin.circulation.checkin')); ?>" method="POST" class="space-y-4">
-                            <?php echo csrf_field(); ?>
+                        <div class="space-y-4">
                             <div class="relative">
-                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Book_Barcode')); ?> *</label>
+                                <label class="block text-sm font-medium mb-1"><?php echo e(__('Patron_Code')); ?> *</label>
                                 <div class="relative">
-                                    <input type="text" id="checkin_book_barcode" name="barcode" required class="input-field w-full pr-10" 
-                                        placeholder="<?php echo e(__('Scan_or_enter_barcode')); ?>" onchange="searchCheckinBook()">
-                                    <button type="button" onclick="searchCheckinBook()" 
+                                    <input type="text" id="checkin_patron_code" name="patron_code" required class="input-field w-full pr-10" 
+                                        placeholder="<?php echo e(__('Scan_or_enter_patron_code')); ?>" onchange="loadPatronActiveLoans()">
+                                    <button type="button" onclick="searchPatronByCode(document.getElementById('checkin_patron_code').value)" 
                                         class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-400 transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -150,22 +149,20 @@
                                     </button>
                                 </div>
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-bold">
-                                <?php echo e(__('Nhận trả sách')); ?>
-
-                            </button>
-                        </form>
+                        </div>
                     </div>
                     
-                    <!-- Right Column: Book Information Display -->
+                    <!-- Right Column: Patron Info & Active Loans List -->
                     <div>
-                        <h3 class="text-lg font-bold mb-4 text-blue-400"><?php echo e(__('Book_Information')); ?></h3>
-                        <div id="checkinBookInfo" class="card-admin p-4 min-h-[200px]">
+                        <?php echo $__env->make('admin.circulation.components.patron-info', ['id' => 'checkinPatronInfo'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                        
+                        <h3 class="text-lg font-bold mb-4 text-blue-400"><?php echo e(__('Sách đang mượn')); ?></h3>
+                        <div id="patronActiveLoans" class="card-admin p-4 min-h-[200px]">
                             <div class="text-center text-gray-500 py-8">
                                 <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                 </svg>
-                                <p class="text-sm"><?php echo e(__('Nhập mã vạch sách để hiển thị thông tin')); ?></p>
+                                <p class="text-sm"><?php echo e(__('Nhập mã bạn đọc để hiển thị danh sách sách đang mượn')); ?></p>
                             </div>
                         </div>
                     </div>
@@ -502,23 +499,148 @@ function switchTab(tabName) {
     // Hide all tab contents
     document.getElementById('checkoutContent').classList.add('hidden');
     document.getElementById('checkinContent').classList.add('hidden');
+    document.getElementById('readingRoomContent').classList.add('hidden');
+    document.getElementById('holdContent').classList.add('hidden');
     
     // Remove active state from all tabs
-    document.getElementById('checkoutTab').classList.remove('bg-blue-600', 'text-white');
-    document.getElementById('checkoutTab').classList.add('bg-gray-700', 'text-gray-300');
-    document.getElementById('checkinTab').classList.remove('bg-blue-600', 'text-white');
-    document.getElementById('checkinTab').classList.add('bg-gray-700', 'text-gray-300');
+    const tabs = ['checkout', 'checkin', 'readingRoom', 'hold'];
+    tabs.forEach(t => {
+        const tabBtn = document.getElementById(t + 'Tab');
+        if (tabBtn) {
+            tabBtn.classList.remove('bg-green-50', 'dark:bg-green-900/20', 'text-green-600', 'dark:text-green-400', 'border-green-500');
+            tabBtn.classList.remove('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-600', 'dark:text-blue-400', 'border-blue-500');
+            tabBtn.classList.add('text-gray-600', 'dark:text-gray-400', 'border-transparent');
+        }
+    });
     
     // Show selected tab and set active state
     if (tabName === 'checkout') {
         document.getElementById('checkoutContent').classList.remove('hidden');
-        document.getElementById('checkoutTab').classList.remove('bg-gray-700', 'text-gray-300');
-        document.getElementById('checkoutTab').classList.add('bg-blue-600', 'text-white');
+        document.getElementById('checkoutTab').classList.add('bg-green-50', 'dark:bg-green-900/20', 'text-green-600', 'dark:text-green-400', 'border-green-500');
     } else if (tabName === 'checkin') {
         document.getElementById('checkinContent').classList.remove('hidden');
-        document.getElementById('checkinTab').classList.remove('bg-gray-700', 'text-gray-300');
-        document.getElementById('checkinTab').classList.add('bg-blue-600', 'text-white');
+        document.getElementById('checkinTab').classList.add('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-600', 'dark:text-blue-400', 'border-blue-500');
+    } else if (tabName === 'reading-room') {
+        document.getElementById('readingRoomContent').classList.remove('hidden');
+    } else if (tabName === 'hold') {
+        document.getElementById('holdContent').classList.remove('hidden');
     }
+}
+
+// Logic for Checkin (Return) by Patron Code
+async function loadPatronActiveLoans() {
+    const patronCode = document.getElementById('checkin_patron_code').value.trim();
+    if (!patronCode) return;
+
+    const listDiv = document.getElementById('patronActiveLoans');
+    listDiv.innerHTML = '<div class="text-center py-8"><i class="fas fa-spinner fa-spin text-2xl text-blue-400 mb-2"></i><p>Đang tải danh sách...</p></div>';
+
+    try {
+        const response = await fetch(`<?php echo e(route('admin.circulation.search-patron')); ?>?code=${patronCode}`);
+        const data = await response.json();
+
+        if (data.success && data.data) {
+            const patronData = data.data;
+            // Hiển thị info bạn đọc ở cột phải (sử dụng component patron-info nếu có thể, hoặc render thủ công)
+            // Lưu ý: data.html ở version cũ có thể không còn, ta nên render thủ công dựa trên data.data
+            
+            // Render danh sách mượn
+            let loansHtml = '<div class="space-y-3">';
+            if (patronData.active_loans && patronData.active_loans.length > 0) {
+                patronData.active_loans.forEach(loan => {
+                    const dueDate = new Date(loan.due_date);
+                    const isOverdue = dueDate < new Date();
+                    const statusColor = isOverdue ? 'text-rose-500' : 'text-emerald-500';
+                    
+                    loansHtml += `
+                        <div class="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex justify-between items-center group hover:border-blue-400 transition-all shadow-sm">
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-700 dark:text-slate-200 line-clamp-1">${loan.book_item.bibliographic_record.title}</p>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-widest">${loan.book_item.barcode}</span>
+                                    <span class="text-[10px] ${statusColor} font-black uppercase">Hạn trả: ${dueDate.toLocaleDateString('vi-VN')}</span>
+                                    ${isOverdue ? '<span class="text-[9px] bg-rose-50 text-rose-500 px-1.5 py-0.5 rounded font-black uppercase">Quá hạn</span>' : ''}
+                                </div>
+                            </div>
+                            <button onclick="processReturn(${loan.id}, ${isOverdue})" class="ml-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-blue-500/20">
+                                Trả sách
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                loansHtml += `
+                    <div class="text-center py-12 text-slate-400 italic">
+                        <i class="fas fa-check-circle text-4xl mb-3 opacity-20"></i>
+                        <p>Độc giả này hiện không có sách nào đang mượn.</p>
+                    </div>`;
+            }
+            loansHtml += '</div>';
+            listDiv.innerHTML = loansHtml;
+        } else {
+            listDiv.innerHTML = `<div class="text-center py-8 text-rose-500 font-bold"><p>${data.message || 'Không tìm thấy độc giả.'}</p></div>`;
+        }
+    } catch (error) {
+        console.error(error);
+        listDiv.innerHTML = '<div class="text-center py-8 text-rose-500"><p>Lỗi khi kết nối đến máy chủ.</p></div>';
+    }
+}
+
+async function processReturn(loanId, isOverdue) {
+    if (isOverdue) {
+        const result = await Swal.fire({
+            title: 'Sách đã quá hạn!',
+            text: 'Bạn có muốn THA THỨ cho lần mượn quá hạn này không? Hệ thống sẽ lưu lại lịch sử tha thứ.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981', // Emerald
+            cancelButtonColor: '#ef4444', // Rose
+            confirmButtonText: 'Có, tha thứ',
+            cancelButtonText: 'Không, tính phạt',
+            customClass: {
+                popup: 'rounded-[2rem]',
+                confirmButton: 'rounded-xl px-6 py-3 font-bold uppercase text-xs',
+                cancelButton: 'rounded-xl px-6 py-3 font-bold uppercase text-xs'
+            }
+        });
+
+        if (result.isConfirmed) {
+            // Gửi yêu cầu trả sách kèm flag tha thứ
+            submitReturn(loanId, true);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            // Trả sách bình thường (tính phạt)
+            submitReturn(loanId, false);
+        }
+    } else {
+        submitReturn(loanId, false);
+    }
+}
+
+function submitReturn(loanId, forgive) {
+    Swal.fire({ title: 'Đang xử lý...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+    const formData = new FormData();
+    formData.append('_token', '<?php echo e(csrf_token()); ?>');
+    formData.append('loan_id', loanId);
+    formData.append('forgive', forgive ? 1 : 0);
+
+    fetch(`<?php echo e(route('admin.circulation.checkin')); ?>`, {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire('Thành công!', data.message, 'success');
+            loadPatronActiveLoans(); // Tải lại danh sách
+        } else {
+            Swal.fire('Lỗi!', data.message, 'error');
+        }
+    })
+    .catch(error => {
+        Swal.fire('Lỗi hệ thống!', 'Không thể thực hiện trả sách.', 'error');
+    });
 }
 
 // Search timeout variables

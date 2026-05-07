@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="bg-slate-50 min-h-screen pt-24 pb-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             <!-- Sidebar: User Info -->

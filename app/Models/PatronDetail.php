@@ -159,7 +159,7 @@ class PatronDetail extends Model
      */
     public function getDisplayNameAttribute()
     {
-        return $this->user->name ?? $this->patron_code;
+        return $this->user?->name ?? $this->patron_code;
     }
 
     // Methods for patron management

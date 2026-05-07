@@ -277,6 +277,7 @@ Route::get('/', function () {
     // Patron Management (Library Users)
     Route::get('/patrons', [\App\Http\Controllers\Admin\PatronController::class, 'index'])->name('admin.patrons.index');
     Route::get('/patrons/create', [\App\Http\Controllers\Admin\PatronController::class, 'create'])->name('admin.patrons.create');
+    Route::get('/patrons/search-users', [\App\Http\Controllers\Admin\PatronController::class, 'searchUsers'])->name('admin.patrons.search-users');
     Route::post('/patrons', [\App\Http\Controllers\Admin\PatronController::class, 'store'])->name('admin.patrons.store');
     Route::get('/patrons/{id}/edit', [\App\Http\Controllers\Admin\PatronController::class, 'edit'])->name('admin.patrons.edit');
     Route::patch('/patrons/{id}', [\App\Http\Controllers\Admin\PatronController::class, 'update'])->name('admin.patrons.update');

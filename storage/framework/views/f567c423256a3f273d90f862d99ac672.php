@@ -122,12 +122,9 @@
                             <td class="px-6 py-4 text-right">
                                 <?php if($req->status == 'pending'): ?>
                                 <div class="flex justify-end gap-2">
-                                    <form action="<?php echo e(route('admin.circulation.requests.approve', $req->id)); ?>" method="POST" onsubmit="return confirm('Phê duyệt yêu cầu này và giữ sách cho độc giả?')">
-                                        <?php echo csrf_field(); ?>
-                                        <button type="submit" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" title="Phê duyệt">
-                                            <i class="fas fa-check"></i>
-                                        </button>
-                                    </form>
+                                    <button onclick="approveRequest(<?php echo e($req->id); ?>)" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" title="Phê duyệt">
+                                        <i class="fas fa-check"></i>
+                                    </button>
                                     <button onclick="openRejectModal(<?php echo e($req->id); ?>)" class="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 hover:bg-rose-600 hover:text-white rounded-lg transition-all" title="Từ chối">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -190,6 +187,35 @@
 
     function closeRejectModal() {
         document.getElementById('rejectModal').classList.add('hidden');
+    }
+
+    async function approveRequest(id) {
+        if (typeof SwalHelper === 'undefined') {
+            console.error('SwalHelper is not loaded');
+            return;
+        }
+
+        const confirmed = await SwalHelper.showApproveConfirm();
+
+        if (confirmed) {
+            SwalHelper.showLoading('Đang phê duyệt...');
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/topsecret/circulation/requests/${id}/approve`;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
 </script>
 <?php $__env->stopSection(); ?>

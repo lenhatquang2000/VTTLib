@@ -1,5 +1,52 @@
 @extends('layouts.admin')
 
+@section('header_css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc;
+        border: 1px solid transparent;
+        border-radius: 1rem;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+    }
+    .dark .select2-container--default .select2-selection--single {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding-left: 1.25rem;
+    }
+    .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f1f5f9;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+        right: 10px;
+    }
+    .select2-dropdown {
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    .dark .select2-dropdown {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    .select2-results__option {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="space-y-6 pb-12">
     <!-- Header Area -->
@@ -12,6 +59,10 @@
             <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Register New Patron') }}</h1>
         </div>
         <div class="flex items-center space-x-4">
+            <button type="button" onclick="autoFillRandom()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span>{{ __('Auto Fill') }}</span>
+            </button>
             <span class="px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
                 {{ __('Tình trạng thẻ') }}: {{ __('Bình thường') }}
             </span>
@@ -86,6 +137,65 @@
                         <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </div>
                 </label>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4" x-data="userSearch()">
+                <div class="space-y-3">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-indigo-500 ml-1">{{ __('Liên kết tài khoản') }}</label>
+                    
+                    <!-- Search Input -->
+                    <div class="relative group">
+                        <input type="text" 
+                            x-model="query" 
+                            @input.debounce.1000ms="search"
+                            placeholder="Nhập tên, email hoặc username..."
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl pl-5 pr-12 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
+                            :class="status === 'found' ? 'border-emerald-500/30' : (status === 'not_found' ? 'border-rose-500/30' : '')">
+                        
+                        <button type="button" @click="search" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors">
+                            <template x-if="loading">
+                                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.062 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            </template>
+                            <template x-if="!loading">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </template>
+                        </button>
+                    </div>
+
+                    <!-- Hidden ID input for form submission -->
+                    <input type="hidden" name="user_id" :value="selectedUser?.id">
+
+                    <!-- Result Display -->
+                    <div x-show="status === 'found'" x-cloak class="p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 bg-emerald-500 rounded-xl text-white">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1">Tài khoản hợp lệ</p>
+                                <p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                    <span x-text="selectedUser.name"></span> 
+                                    (<span x-text="selectedUser.username" class="text-indigo-600 dark:text-indigo-400"></span>)
+                                </p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400" x-text="selectedUser.email"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="status === 'not_found'" x-cloak class="p-4 bg-rose-50 dark:bg-rose-500/10 rounded-2xl border border-rose-100 dark:border-rose-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 bg-rose-500 rounded-xl text-white">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest leading-none mb-1">Không tìm thấy</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Vui lòng kiểm tra lại tên hoặc email.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-[9px] text-slate-400 italic px-1" x-show="status === 'idle'">{{ __('Hệ thống tự động tìm sau 1s ngưng nhập hoặc nhấn icon tìm kiếm') }}</p>
+                </div>
             </div>
         </div>
 
@@ -211,18 +321,18 @@
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Email') }} <span class="text-rose-500">*</span></label>
-                            <input type="email" name="email" required value="{{ old('email') }}"
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Email') }}</label>
+                            <input type="email" name="email" value="{{ old('email') }}"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Mật khẩu OPAC') }} <span class="text-rose-500">*</span></label>
-                            <input type="password" name="password" required placeholder="••••••••"
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Mật khẩu OPAC') }}</label>
+                            <input type="password" name="password" placeholder="••••••••"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Xác nhận mật khẩu') }} <span class="text-rose-500">*</span></label>
-                            <input type="password" name="password_confirmation" required placeholder="••••••••"
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Xác nhận mật khẩu') }}</label>
+                            <input type="password" name="password_confirmation" placeholder="••••••••"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
                         </div>
                     </div>
@@ -341,7 +451,59 @@
     </form>
 </div>
 
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
+    function userSearch() {
+        return {
+            query: '',
+            loading: false,
+            status: 'idle', // idle, found, not_found
+            selectedUser: null,
+
+            async search() {
+                if (this.query.trim().length < 2) {
+                    this.status = 'idle';
+                    this.selectedUser = null;
+                    return;
+                }
+
+                this.loading = true;
+                try {
+                    const response = await fetch(`{{ route('admin.patrons.search-users') }}?q=${encodeURIComponent(this.query)}`);
+                    const data = await response.json();
+
+                    if (data && data.length > 0) {
+                        // Lấy kết quả đầu tiên (giả định khớp tốt nhất)
+                        this.selectedUser = data[0];
+                        this.status = 'found';
+                        this.autoFill(this.selectedUser);
+                    } else {
+                        this.selectedUser = null;
+                        this.status = 'not_found';
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    this.status = 'not_found';
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            autoFill(user) {
+                if (user) {
+                    document.getElementsByName('name')[0].value = user.name;
+                    document.getElementsByName('display_name')[0].value = user.name.split(' ').pop();
+                    document.getElementsByName('email')[0].value = user.email;
+                    
+                    // Hiện Toast thông báo
+                    if (window.Toast) {
+                        window.Toast.fire({ icon: 'success', title: 'Đã liên kết với: ' + user.name });
+                    }
+                }
+            }
+        }
+    }
+
     function previewAvatar(input) {
         if (input.files && input.files[0]) {
             var reader = new FileReader();
@@ -373,6 +535,44 @@
             </button>
         `;
         container.appendChild(div);
+    }
+
+    function autoFillRandom() {
+        const firstNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Phan', 'Vũ', 'Đặng', 'Bùi', 'Đỗ'];
+        const middleNames = ['Văn', 'Thị', 'Minh', 'Anh', 'Đức', 'Thanh', 'Hữu', 'Quốc', 'Ngọc', 'Kim'];
+        const lastNames = ['An', 'Bình', 'Chi', 'Dũng', 'Em', 'Giang', 'Hương', 'Khánh', 'Linh', 'Minh', 'Nam', 'Oanh', 'Phúc', 'Quang', 'Sơn', 'Tâm', 'Uyên', 'Việt', 'Xuân', 'Yên'];
+        
+        const randomName = `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${middleNames[Math.floor(Math.random() * middleNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+        const randomSuffix = Math.floor(Math.random() * 10000); // Tăng độ dài suffix để tránh trùng email
+        const email = randomName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '.') + randomSuffix + '@example.com';
+        
+        document.getElementsByName('name')[0].value = randomName;
+        document.getElementsByName('display_name')[0].value = randomName.split(' ').pop();
+        document.getElementsByName('email')[0].value = email;
+        
+        // Fix: Đảm bảo mật khẩu và xác nhận mật khẩu khớp nhau
+        const randomPass = 'Password123@' + Math.floor(Math.random() * 100);
+        const passFields = document.getElementsByName('password');
+        const confirmFields = document.getElementsByName('password_confirmation');
+        
+        if (passFields.length > 0) passFields[0].value = randomPass;
+        if (confirmFields.length > 0) confirmFields[0].value = randomPass;
+
+        document.getElementsByName('mssv')[0].value = '2026' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        document.getElementsByName('phone')[0].value = '09' + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+        document.getElementsByName('phone_contact')[0].value = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        
+        // Random school and department
+        const schools = ['Đại học Cần Thơ', 'Đại học Bách Khoa', 'Đại học Võ Trường Toản', 'Đại học Y Dược'];
+        const depts = ['Công nghệ thông tin', 'Quản trị kinh doanh', 'Y đa khoa', 'Dược học'];
+        
+        document.getElementsByName('school_name')[0].value = schools[Math.floor(Math.random() * schools.length)];
+        document.getElementsByName('department')[0].value = depts[Math.floor(Math.random() * depts.length)];
+        document.getElementsByName('batch')[0].value = 'K' + (Math.floor(Math.random() * 5) + 20);
+        
+        if (window.Toast) {
+            window.Toast.fire({ icon: 'info', title: 'Đã tự động điền dữ liệu mẫu' });
+        }
     }
 </script>
 @endsection

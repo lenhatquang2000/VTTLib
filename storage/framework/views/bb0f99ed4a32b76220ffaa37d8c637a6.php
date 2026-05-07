@@ -675,6 +675,7 @@
         </button>
     </div>
 
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/js/app.js']); ?>
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 

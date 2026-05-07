@@ -22,7 +22,7 @@
 
 <body class="font-sans antialiased bg-gray-50 text-gray-900 flex flex-col min-h-screen">
     <header class="bg-white shadow-sm sticky top-0 z-10">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <nav class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center">
                 <a href="{{ url('/') }}" class="text-2xl font-bold text-indigo-600 tracking-tight">VTTLib</a>
                 <div class="hidden md:flex ml-10 space-x-8">
@@ -65,7 +65,7 @@
     </header>
 
     <main class="flex-grow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <x-breadcrumb />
         </div>
         @yield('content')
