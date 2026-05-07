@@ -386,11 +386,11 @@ Route::get('/', function () {
     
     // Circulation main operations
     Route::get('/circulation', [\App\Http\Controllers\Admin\CirculationController::class, 'loanDesk'])->name('admin.circulation.loan-desk');
-    Route::post('/circulation/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'checkout'])->name('admin.circulation.checkout');
-    Route::post('/circulation/checkin', [\App\Http\Controllers\Admin\CirculationController::class, 'checkin'])->name('admin.circulation.checkin');
-    Route::post('/circulation/renew/{loan}', [\App\Http\Controllers\Admin\CirculationController::class, 'renew'])->name('admin.circulation.renew');
-    Route::post('/circulation/recall', [\App\Http\Controllers\Admin\CirculationController::class, 'recall'])->name('admin.circulation.recall');
-    Route::post('/circulation/declare-lost', [\App\Http\Controllers\Admin\CirculationController::class, 'declareLost'])->name('admin.circulation.declare-lost');
+    Route::get('/circulation/requests', function() {
+        return redirect()->route('admin.circulation.loan-desk', ['tab' => 'requests']);
+    })->name('admin.circulation.requests');
+    Route::post('/circulation/requests/{reservation}/approve', [\App\Http\Controllers\Admin\CirculationController::class, 'approveRequest'])->name('admin.circulation.requests.approve');
+    Route::post('/circulation/requests/{reservation}/reject', [\App\Http\Controllers\Admin\CirculationController::class, 'rejectRequest'])->name('admin.circulation.requests.reject');
 
     // Reading Room Operations
     Route::post('/circulation/reading-room/checkout', [\App\Http\Controllers\Admin\CirculationController::class, 'readingRoomCheckout'])->name('admin.circulation.reading-room.checkout');

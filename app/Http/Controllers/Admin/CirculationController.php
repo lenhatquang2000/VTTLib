@@ -95,7 +95,19 @@ class CirculationController extends Controller
         $allLoanTransactions = LoanTransaction::with(['patron', 'bookItem.bibliographicRecord'])
             ->get();
         
-        return view('admin.circulation.loan-desk', compact('recentLoans', 'overdueLoans', 'allLockHistory', 'allLoanTransactions'));
+        // Get all active loans for the "Currently Borrowed" tab
+        $activeLoans = LoanTransaction::with(['patron.user', 'bookItem.bibliographicRecord'])
+            ->active()
+            ->orderBy('loan_date', 'desc')
+            ->get();
+
+        // Get loan requests (reservations) for the "Loan Requests" tab
+        $loanRequests = Reservation::with(['patron.user', 'bibliographicRecord.fields.subfields', 'bookItem'])
+            ->whereIn('status', ['pending', 'ready'])
+            ->latest()
+            ->get();
+            
+        return view('admin.circulation.loan-desk', compact('recentLoans', 'overdueLoans', 'allLockHistory', 'allLoanTransactions', 'activeLoans', 'loanRequests'));
     }
 
     /**
@@ -167,24 +179,31 @@ class CirculationController extends Controller
     public function checkin(Request $request)
     {
         $validated = $request->validate([
-            'barcode' => 'required|string',
-            'return_branch_id' => 'nullable|exists:branches,id'
+            'barcode' => 'required_without:loan_id|string',
+            'loan_id' => 'required_without:barcode|exists:loan_transactions,id',
+            'return_branch_id' => 'nullable|exists:branches,id',
+            'forgive' => 'nullable|boolean'
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Find book item
-            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            if ($request->filled('loan_id')) {
+                $loan = LoanTransaction::with('bookItem')->findOrFail($validated['loan_id']);
+                $bookItem = $loan->bookItem;
+            } else {
+                // Find book item
+                $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
 
-            // Find active loan
-            $loan = LoanTransaction::where('book_item_id', $bookItem->id)
-                ->where('status', 'borrowed')
-                ->firstOrFail();
+                // Find active loan
+                $loan = LoanTransaction::where('book_item_id', $bookItem->id)
+                    ->where('status', 'borrowed')
+                    ->firstOrFail();
+            }
 
-            // Calculate fine if overdue
+            // Calculate fine if overdue and not forgiven
             $fine = null;
-            if ($loan->isOverdue() && $loan->policy) {
+            if ($loan->isOverdue() && $loan->policy && !$request->get('forgive')) {
                 $overdueDays = $loan->getOverdueDays();
                 $fineAmount = $loan->policy->calculateFine($overdueDays);
 
@@ -205,13 +224,21 @@ class CirculationController extends Controller
                 'return_date' => Carbon::now(),
                 'status' => 'returned',
                 'returned_to' => auth()->id(),
-                'return_branch_id' => $validated['return_branch_id'] ?? null
+                'return_branch_id' => $validated['return_branch_id'] ?? null,
+                'notes' => $request->get('forgive') ? ($loan->notes . ' [Overdue Forgiven]') : $loan->notes
             ]);
 
             // Update book item status
             $bookItem->update(['status' => 'available']);
 
             DB::commit();
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('Book returned successfully.') . ($fine ? ' ' . __('Fine applied: :amount VND', ['amount' => number_format($fine->amount)]) : '')
+                ]);
+            }
 
             $message = __('Book returned successfully.');
             if ($fine) {
@@ -222,6 +249,9 @@ class CirculationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            }
             return back()->with('error', $e->getMessage());
         }
     }
@@ -830,11 +860,19 @@ class CirculationController extends Controller
                 throw new \Exception(__('Không có ấn phẩm nào sẵn sàng cho tài liệu này.'));
             }
 
+            // Lấy chính sách lưu thông của độc giả
+            $policy = $reservation->patron->patronGroup?->circulationPolicies()
+                ->where('is_active', true)
+                ->first();
+            
+            $holdDays = $policy ? $policy->reservation_hold_days : 3;
+
             // Cập nhật trạng thái yêu cầu
             $reservation->update([
                 'status' => 'ready',
                 'book_item_id' => $bookItem->id,
-                'pickup_date' => now()->addDays(3), // Mặc định 3 ngày để đến lấy
+                'approved_at' => now(),
+                'expiry_date' => now()->addDays($holdDays), // Sử dụng expiry_date từ DB
             ]);
 
             // Cập nhật trạng thái ấn phẩm thành 'reserved' (đang chờ lấy)

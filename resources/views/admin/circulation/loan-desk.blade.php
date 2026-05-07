@@ -35,36 +35,40 @@
     <!-- Tabs Navigation -->
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div class="flex border-b border-gray-200 dark:border-slate-700">
-            <div class="flex space-x-1 mb-6">
+            <div class="flex mb-[-1px]">
                 <button type="button" onclick="switchTab('checkout')" id="checkoutTab" 
-                        class="px-6 py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-green-500 text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400">
+                        class="px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 border-green-500 text-green-600 bg-green-50 dark:bg-green-900/20 dark:text-green-400 border-r border-gray-200 dark:border-slate-700">
                     <i class="fas fa-arrow-right mr-2"></i>{{ __('Mượn sách') }} ({{ __('Loan') }})
                 </button>
                 <button type="button" onclick="switchTab('checkin')" id="checkinTab"
-                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        class="px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-r border-gray-200 dark:border-slate-700">
                     <i class="fas fa-arrow-left mr-2"></i>{{ __('Trả sách') }} ({{ __('Return') }})
                 </button>
                 <button type="button" onclick="switchTab('reading-room')" id="readingRoomTab"
-                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        class="px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-r border-gray-200 dark:border-slate-700">
                     <i class="fas fa-book-reader mr-2"></i>{{ __('Mượn đọc') }}
                 </button>
                 <button type="button" onclick="switchTab('hold')" id="holdTab"
-                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        class="px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-r border-gray-200 dark:border-slate-700">
                     <i class="fas fa-bookmark mr-2"></i>{{ __('Giữ lại') }}
                 </button>
-                <a href="{{ route('admin.circulation.requests') }}" id="requestsTab"
-                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2">
+                <button type="button" onclick="switchTab('borrowed')" id="borrowedTab"
+                        class="px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-r border-gray-200 dark:border-slate-700">
+                    <i class="fas fa-book mr-2"></i>{{ __('Sách đang mượn') }}
+                </button>
+                <button type="button" onclick="switchTab('requests')" id="requestsTab"
+                        class="px-6 py-3 text-sm font-medium transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 flex items-center gap-2 border-r border-gray-200 dark:border-slate-700">
                     <i class="fas fa-clipboard-list"></i>
                     {{ __('Yêu cầu mượn') }}
                     @php
-                        $pendingCount = \App\Models\Reservation::where('status', 'pending')->count();
+                        $pendingCount = $loanRequests->where('status', 'pending')->count();
                     @endphp
                     @if($pendingCount > 0)
-                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white shadow-sm">
+                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-bold bg-rose-500 text-white shadow-sm">
                             {{ $pendingCount }}
                         </span>
                     @endif
-                </a>
+                </button>
             </div>
         </div>
 
@@ -72,6 +76,11 @@
         <div class="p-6">
             <!-- Checkout Tab -->
             <div id="checkoutContent" class="space-y-6">
+                <div class="flex justify-end mb-2">
+                    <button type="button" onclick="window.location.reload()" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                        <i class="fas fa-sync-alt"></i> {{ __('Tải lại trang') }}
+                    </button>
+                </div>
                 <!-- Two Column Layout -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Checkout Form -->
@@ -121,6 +130,11 @@
 
             <!-- Checkin Tab -->
             <div id="checkinContent" class="space-y-6 hidden">
+                <div class="flex justify-end mb-2">
+                    <button type="button" onclick="loadPatronActiveLoans()" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                        <i class="fas fa-sync-alt"></i> {{ __('Tải lại danh sách') }}
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Patron Form -->
                     <div>
@@ -161,6 +175,11 @@
 
             <!-- Reading Room Tab -->
             <div id="readingRoomContent" class="space-y-6 hidden">
+                <div class="flex justify-end mb-2">
+                    <button type="button" onclick="loadAllReadingRoomTransactions(); loadReadingRoomTransactions();" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                        <i class="fas fa-sync-alt"></i> {{ __('Tải lại danh sách') }}
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Reading Room Form -->
                     <div>
@@ -244,6 +263,11 @@
 
             <!-- Hold/Reserve Tab -->
             <div id="holdContent" class="space-y-6 hidden">
+                <div class="flex justify-end mb-2">
+                    <button type="button" onclick="loadAllReservations(); loadPatronReservations();" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                        <i class="fas fa-sync-alt"></i> {{ __('Tải lại danh sách') }}
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Left Column: Hold Form -->
                     <div>
@@ -311,6 +335,182 @@
                         <div class="text-center text-gray-500 py-4">
                             <p class="text-sm">{{ __("Đang tải danh sách...") }}</p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Currently Borrowed Tab -->
+            <div id="borrowedContent" class="space-y-6 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-indigo-400">{{ __('Danh sách sách đang được mượn') }}</h3>
+                    <div class="flex items-center gap-4">
+                        <button type="button" onclick="window.location.href='{{ route('admin.circulation.loan-desk') }}?tab=borrowed'" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                            <i class="fas fa-sync-alt"></i> {{ __('Tải lại') }}
+                        </button>
+                        <span class="bg-indigo-900/50 text-indigo-400 px-3 py-1 rounded-full text-xs font-bold">
+                            {{ $activeLoans->count() }} {{ __('cuốn sách') }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-admin rounded-lg overflow-hidden border border-gray-700">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-800 text-xs uppercase text-gray-400">
+                                <tr>
+                                    <th class="p-3 text-left">{{ __('Mã vạch') }}</th>
+                                    <th class="p-3 text-left">{{ __('Tên sách') }}</th>
+                                    <th class="p-3 text-left">{{ __('Người mượn') }}</th>
+                                    <th class="p-3 text-left">{{ __('Ngày mượn') }}</th>
+                                    <th class="p-3 text-left">{{ __('Hạn trả') }}</th>
+                                    <th class="p-3 text-left text-center">{{ __('Trạng thái') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                @forelse($activeLoans as $loan)
+                                <tr class="hover:bg-gray-800/50 transition-colors">
+                                    <td class="p-3 font-mono text-blue-400 text-xs">{{ $loan->bookItem->barcode }}</td>
+                                    <td class="p-3 font-medium text-gray-200">{{ $loan->bookItem->bibliographicRecord->title ?? 'N/A' }}</td>
+                                    <td class="p-3">
+                                        <div class="font-medium text-gray-300">{{ $loan->patron->display_name ?? $loan->patron->user->name ?? 'N/A' }}</div>
+                                        <div class="text-[10px] text-gray-500 font-mono">{{ $loan->patron->patron_code }}</div>
+                                    </td>
+                                    <td class="p-3 text-xs text-gray-400">
+                                        {{ $loan->loan_date ? $loan->loan_date->format('d/m/Y H:i') : '-' }}
+                                    </td>
+                                    <td class="p-3 text-xs {{ $loan->isOverdue() ? 'text-rose-500 font-bold' : 'text-gray-400' }}">
+                                        {{ $loan->due_date ? $loan->due_date->format('d/m/Y') : '-' }}
+                                        @if($loan->isOverdue())
+                                            <span class="ml-1 text-[8px] bg-rose-900/30 text-rose-500 px-1 py-0.5 rounded border border-rose-500/30 uppercase">Quá hạn</span>
+                                        @endif
+                                    </td>
+                                    <td class="p-3 text-center">
+                                        <span class="px-2 py-1 text-[10px] font-bold uppercase rounded bg-indigo-900/30 text-indigo-400 border border-indigo-500/30">
+                                            {{ __('Đang mượn') }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="6" class="p-12 text-center text-gray-500 italic">
+                                        {{ __('Không có sách nào đang được mượn.') }}
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Requests Tab -->
+            <div id="requestsContent" class="space-y-6 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-amber-400">{{ __('Yêu cầu mượn sách đang chờ') }}</h3>
+                    <div class="flex items-center gap-4">
+                        <button type="button" onclick="window.location.href='{{ route('admin.circulation.loan-desk') }}?tab=requests'" class="text-xs text-gray-400 hover:text-white transition-colors flex items-center gap-1">
+                            <i class="fas fa-sync-alt"></i> {{ __('Tải lại') }}
+                        </button>
+                        <div class="flex gap-2">
+                            <span class="bg-amber-900/50 text-amber-400 px-3 py-1 rounded-full text-xs font-bold">
+                                {{ $loanRequests->where('status', 'pending')->count() }} {{ __('đang chờ') }}
+                            </span>
+                            <span class="bg-emerald-900/50 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold">
+                                {{ $loanRequests->where('status', 'ready')->count() }} {{ __('sẵn sàng') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-admin rounded-lg overflow-hidden border border-gray-700">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-800 text-xs uppercase text-gray-400">
+                                <tr>
+                                    <th class="p-3 text-left">{{ __('Độc giả') }}</th>
+                                    <th class="p-3 text-left">{{ __('Tài liệu yêu cầu') }}</th>
+                                    <th class="p-3 text-left">{{ __('Ngày đăng ký') }}</th>
+                                    <th class="p-3 text-center">{{ __('Trạng thái') }}</th>
+                                    <th class="p-3 text-right">{{ __('Thao tác') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-700">
+                                @forelse($loanRequests as $req)
+                                @php
+                                    $reqTitle = $req->bibliographicRecord->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Không có nhan đề';
+                                @endphp
+                                <tr class="hover:bg-gray-800/50 transition-colors">
+                                    <td class="p-3">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-indigo-900/30 flex items-center justify-center text-indigo-400 font-bold text-[10px] border border-indigo-500/30">
+                                                {{ substr($req->patron->display_name ?? $req->patron->user->name, 0, 1) }}
+                                            </div>
+                                            <div>
+                                                <p class="text-xs font-bold text-gray-200">{{ $req->patron->display_name ?? $req->patron->user->name }}</p>
+                                                <p class="text-[10px] text-gray-500 font-mono">{{ $req->patron->patron_code }}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="p-3">
+                                        <div class="max-w-xs">
+                                            <p class="text-xs font-bold text-gray-300 line-clamp-1" title="{{ $reqTitle }}">{{ $reqTitle }}</p>
+                                            <p class="text-[10px] text-gray-500">Record ID: #{{ $req->bibliographic_record_id }}</p>
+                                        </div>
+                                    </td>
+                                    <td class="p-3 text-xs text-gray-400">
+                                        {{ $req->reservation_date->format('d/m/Y H:i') }}
+                                    </td>
+                                    <td class="p-3 text-center">
+                                        @if($req->status == 'pending')
+                                            <span class="px-2 py-0.5 bg-amber-900/30 text-amber-400 text-[10px] font-bold uppercase rounded border border-amber-500/30">Chờ duyệt</span>
+                                        @elseif($req->status == 'ready')
+                                            <div class="flex flex-col items-center">
+                                                <span class="px-2 py-0.5 bg-emerald-900/30 text-emerald-400 text-[10px] font-bold uppercase rounded border border-emerald-500/30">Chờ lấy</span>
+                                                @if($req->expiry_date)
+                                                    @php
+                                                        $daysLeft = now()->diffInDays($req->expiry_date, false);
+                                                        $isExpiringSoon = $daysLeft <= 1;
+                                                    @endphp
+                                                    <span class="text-[9px] mt-1 {{ $isExpiringSoon ? 'text-rose-400 animate-pulse font-bold' : 'text-gray-400' }}">
+                                                        <i class="fas fa-clock mr-1"></i>
+                                                        @if($daysLeft > 0)
+                                                            {{ __('Còn :days ngày', ['days' => ceil($daysLeft)]) }}
+                                                        @else
+                                                            {{ __('Hết hạn hôm nay') }}
+                                                        @endif
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </td>
+                                    <td class="p-3 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            @if($req->status == 'pending')
+                                                <button onclick="approveLoanRequest({{ $req->id }})" class="w-8 h-8 flex items-center justify-center bg-emerald-900/30 text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-lg transition-all border border-emerald-500/30" title="{{ __('Phê duyệt') }}">
+                                                    <i class="fas fa-check text-xs"></i>
+                                                </button>
+                                                <button onclick="openRejectLoanModal({{ $req->id }})" class="w-8 h-8 flex items-center justify-center bg-rose-900/30 text-rose-400 hover:bg-rose-600 hover:text-white rounded-lg transition-all border border-rose-500/30" title="{{ __('Từ chối') }}">
+                                                    <i class="fas fa-times text-xs"></i>
+                                                </button>
+                                            @elseif($req->status == 'ready')
+                                                <button onclick="fulfillReservation({{ $req->id }})" class="w-8 h-8 flex items-center justify-center bg-blue-900/30 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition-all border border-blue-500/30" title="{{ __('Cho mượn') }}">
+                                                    <i class="fas fa-hand-holding text-xs"></i>
+                                                </button>
+                                                <button onclick="openRejectLoanModal({{ $req->id }})" class="w-8 h-8 flex items-center justify-center bg-rose-900/30 text-rose-400 hover:bg-rose-600 hover:text-white rounded-lg transition-all border border-rose-500/30" title="{{ __('Hủy yêu cầu') }}">
+                                                    <i class="fas fa-times text-xs"></i>
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="p-12 text-center text-gray-500 italic">
+                                        <i class="fas fa-inbox text-3xl mb-3 opacity-20"></i>
+                                        <p>{{ __('Không có yêu cầu mượn nào.') }}</p>
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -523,10 +723,10 @@ async function loadPatronActiveLoans() {
 
         if (data.success && data.data) {
             const patronData = data.data;
-            // Hiển thị info bạn đọc ở cột phải (sử dụng component patron-info nếu có thể, hoặc render thủ công)
-            // Lưu ý: data.html ở version cũ có thể không còn, ta nên render thủ công dựa trên data.data
             
-            // Render danh sách mượn
+            // Hiển thị thông tin bạn đọc ở cột phải
+            displayPatronResult(data);
+            
             let loansHtml = '<div class="space-y-3">';
             if (patronData.active_loans && patronData.active_loans.length > 0) {
                 patronData.active_loans.forEach(loan => {
@@ -609,7 +809,10 @@ function submitReturn(loanId, forgive) {
     fetch(`{{ route('admin.circulation.checkin') }}`, {
         method: 'POST',
         body: formData,
-        headers: { 'Accept': 'application/json' }
+        headers: { 
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
     })
     .then(response => response.json())
     .then(data => {
@@ -630,79 +833,88 @@ let patronSearchTimeout;
 let bookSearchTimeout;
 
 // Patron search with 0.5s delay
-document.getElementById('patron_code').addEventListener('input', function() {
-    clearTimeout(patronSearchTimeout);
-    const value = this.value.trim();
-    
-    if (value.length >= 2) {
-        patronSearchTimeout = setTimeout(() => {
-            searchPatronByCode(value);
-        }, 500);
-    } else {
-        // Clear patron info when input is empty
-        const infoDiv = document.getElementById('patronInfo');
-        if (infoDiv) {
-            infoDiv.innerHTML = `
-                <div class="text-center text-gray-500 text-sm py-8">
-                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                    </svg>
-                    <p>{{ __('Nhập mã bạn đọc để hiển thị thông tin') }}</p>
-                </div>
-            `;
+const patronCodeInput = document.getElementById('patron_code');
+if (patronCodeInput) {
+    patronCodeInput.addEventListener('input', function() {
+        clearTimeout(patronSearchTimeout);
+        const value = this.value.trim();
+        
+        if (value.length >= 2) {
+            patronSearchTimeout = setTimeout(() => {
+                searchPatronByCode(value);
+            }, 500);
+        } else {
+            // Clear patron info when input is empty
+            const infoDiv = document.getElementById('patronInfo');
+            if (infoDiv) {
+                infoDiv.innerHTML = `
+                    <div class="text-center text-gray-500 text-sm py-8">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <p>{{ __('Nhập mã bạn đọc để hiển thị thông tin') }}</p>
+                    </div>
+                `;
+            }
         }
-    }
-});
+    });
+}
 
 // Book search with 0.5s delay
-document.getElementById('book_barcode').addEventListener('input', function() {
-    clearTimeout(bookSearchTimeout);
-    const value = this.value.trim();
-    
-    if (value.length >= 2) {
-        bookSearchTimeout = setTimeout(() => {
-            searchBookByBarcode(value);
-        }, 500);
-    } else {
-        // Clear book info when input is empty
-        const resultDiv = document.getElementById('bookSearchResult');
-        if (resultDiv) {
-            resultDiv.innerHTML = `
-                <div class="text-center text-gray-500 text-sm py-8">
-                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
-                    <p>{{ __('Nhập mã vạch sách để hiển thị thông tin') }}</p>
-                </div>
-            `;
+const bookBarcodeInput = document.getElementById('book_barcode');
+if (bookBarcodeInput) {
+    bookBarcodeInput.addEventListener('input', function() {
+        clearTimeout(bookSearchTimeout);
+        const value = this.value.trim();
+        
+        if (value.length >= 2) {
+            bookSearchTimeout = setTimeout(() => {
+                searchBookByBarcode(value);
+            }, 500);
+        } else {
+            // Clear book info when input is empty
+            const resultDiv = document.getElementById('bookSearchResult');
+            if (resultDiv) {
+                resultDiv.innerHTML = `
+                    <div class="text-center text-gray-500 text-sm py-8">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <p>{{ __('Nhập mã vạch sách để hiển thị thông tin') }}</p>
+                    </div>
+                `;
+            }
         }
-    }
-});
+    });
+}
 
 // Checkin book search with 0.5s delay
-document.getElementById('checkin_book_barcode').addEventListener('input', function() {
-    clearTimeout(bookSearchTimeout);
-    const value = this.value.trim();
-    
-    if (value.length >= 2) {
-        bookSearchTimeout = setTimeout(() => {
-            searchCheckinBook();
-        }, 500);
-    } else {
-        // Clear checkin book info when input is empty
-        const infoDiv = document.getElementById('checkinBookInfo');
-        if (infoDiv) {
-            infoDiv.innerHTML = `
-                <div class="text-center text-gray-500 text-sm py-8">
-                    <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-                    </svg>
-                    <p>{{ __('Nhập mã vạch sách để hiển thị thông tin') }}</p>
-                </div>
-            `;
+const checkinBookBarcodeInput = document.getElementById('checkin_book_barcode');
+if (checkinBookBarcodeInput) {
+    checkinBookBarcodeInput.addEventListener('input', function() {
+        clearTimeout(bookSearchTimeout);
+        const value = this.value.trim();
+        
+        if (value.length >= 2) {
+            bookSearchTimeout = setTimeout(() => {
+                searchCheckinBook();
+            }, 500);
+        } else {
+            // Clear checkin book info when input is empty
+            const infoDiv = document.getElementById('checkinBookInfo');
+            if (infoDiv) {
+                infoDiv.innerHTML = `
+                    <div class="text-center text-gray-500 text-sm py-8">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        <p>{{ __('Nhập mã vạch sách để hiển thị thông tin') }}</p>
+                    </div>
+                `;
+            }
         }
-    }
-});
+    });
+}
 
 // Manual search functions
 function triggerPatronSearch() {
@@ -958,6 +1170,10 @@ function displayPatronResult(patron) {
                !document.getElementById('holdContent').classList.contains('hidden')) {
         // Hold tab is active
         infoDiv = document.getElementById('holdPatronInfo');
+    } else if (document.getElementById('checkinContent').style.display !== 'none' && 
+               !document.getElementById('checkinContent').classList.contains('hidden')) {
+        // Checkin tab is active
+        infoDiv = document.getElementById('checkinPatronInfo');
     } else {
         // Loan tab is active (default)
         infoDiv = document.getElementById('patronInfo');
@@ -2075,9 +2291,12 @@ function displayReadingRoomTransactions(data) {
     returnBtn.disabled = false;
     
     // Add checkbox event listener
-    document.querySelectorAll('.reading-room-checkbox').forEach(checkbox => {
-        checkbox.addEventListener('change', updateReturnButton);
-    });
+    const checkboxes = document.querySelectorAll('.reading-room-checkbox');
+    if (checkboxes.length > 0) {
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateReturnButton);
+        });
+    }
 }
 
 // Update return button state
@@ -2743,25 +2962,36 @@ function displayAllReservations(data) {
     container.innerHTML = html;
 }
 
-// Update switchTab function to handle hold tab
+// Update switchTab function to// Tab switching function
 function switchTab(tabName) {
-    // Hide all tabs
+    // Update URL query parameter without reloading page
+    const url = new URL(window.location);
+    url.searchParams.set('tab', tabName);
+    window.history.pushState({}, '', url);
+
+    // Hide all tab contents
     document.getElementById('checkoutContent').classList.add('hidden');
     document.getElementById('checkinContent').classList.add('hidden');
     document.getElementById('readingRoomContent').classList.add('hidden');
     document.getElementById('holdContent').classList.add('hidden');
+    document.getElementById('borrowedContent').classList.add('hidden');
+    document.getElementById('requestsContent').classList.add('hidden');
     
     // Remove active styles from all tabs
     document.getElementById('checkoutTab').classList.remove('border-green-500', 'text-green-600', 'bg-green-50', 'dark:bg-green-900/20', 'dark:text-green-400');
     document.getElementById('checkinTab').classList.remove('border-blue-500', 'text-blue-600', 'bg-blue-50', 'dark:bg-blue-900/20', 'dark:text-blue-400');
     document.getElementById('readingRoomTab').classList.remove('border-purple-500', 'text-purple-600', 'bg-purple-50', 'dark:bg-purple-900/20', 'dark:text-purple-400');
     document.getElementById('holdTab').classList.remove('border-orange-500', 'text-orange-600', 'bg-orange-50', 'dark:bg-orange-900/20', 'dark:text-orange-400');
+    document.getElementById('borrowedTab').classList.remove('border-indigo-500', 'text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-900/20', 'dark:text-indigo-400');
+    document.getElementById('requestsTab').classList.remove('border-indigo-500', 'text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-900/20', 'dark:text-indigo-400');
     
     // Add inactive styles to all tabs
     document.getElementById('checkoutTab').classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
     document.getElementById('checkinTab').classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
     document.getElementById('readingRoomTab').classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
     document.getElementById('holdTab').classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+    document.getElementById('borrowedTab').classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+    document.getElementById('requestsTab').classList.add('border-transparent', 'text-gray-600', 'dark:text-gray-400');
     
     // Show selected tab and add active styles
     if (tabName === 'checkout') {
@@ -2786,7 +3016,105 @@ function switchTab(tabName) {
         
         // Load all reservations when tab is opened
         loadAllReservations();
+    } else if (tabName === 'borrowed') {
+        document.getElementById('borrowedContent').classList.remove('hidden');
+        document.getElementById('borrowedTab').classList.remove('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+        document.getElementById('borrowedTab').classList.add('border-indigo-500', 'text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-900/20', 'dark:text-indigo-400');
+    } else if (tabName === 'requests') {
+        document.getElementById('requestsContent').classList.remove('hidden');
+        document.getElementById('requestsTab').classList.remove('border-transparent', 'text-gray-600', 'dark:text-gray-400');
+        document.getElementById('requestsTab').classList.add('border-indigo-500', 'text-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-900/20', 'dark:text-indigo-400');
     }
+}
+
+// Auto-switch tab on page load based on query param
+window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab');
+    if (tab && ['checkout', 'checkin', 'reading-room', 'hold', 'borrowed', 'requests'].includes(tab)) {
+        switchTab(tab);
+    }
+});
+
+// ==================== LOAN REQUEST FUNCTIONS ====================
+
+async function approveLoanRequest(id) {
+    if (typeof SwalHelper === 'undefined') {
+        const result = await Swal.fire({
+            title: '{{ __("Phê duyệt yêu cầu?") }}',
+            text: '{{ __("Bạn có chắc chắn muốn phê duyệt yêu cầu mượn này?") }}',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#10b981',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: '{{ __("Phê duyệt") }}',
+            cancelButtonText: '{{ __("Hủy") }}'
+        });
+        
+        if (!result.isConfirmed) return;
+    } else {
+        const confirmed = await SwalHelper.showApproveConfirm();
+        if (!confirmed) return;
+    }
+
+    Swal.fire({ title: '{{ __("Đang xử lý...") }}', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `/topsecret/circulation/requests/${id}/approve`;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (csrfToken) {
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function openRejectLoanModal(id) {
+    Swal.fire({
+        title: '{{ __("Từ chối yêu cầu") }}',
+        input: 'textarea',
+        inputLabel: '{{ __("Lý do từ chối") }}',
+        inputPlaceholder: '{{ __("Nhập lý do để thông báo cho độc giả...") }}',
+        inputAttributes: {
+            'aria-label': '{{ __("Lý do từ chối") }}'
+        },
+        showCancelButton: true,
+        confirmButtonText: '{{ __("Xác nhận từ chối") }}',
+        cancelButtonText: '{{ __("Hủy bỏ") }}',
+        confirmButtonColor: '#ef4444',
+        showLoaderOnConfirm: true,
+        preConfirm: (reason) => {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/topsecret/circulation/requests/${id}/reject`;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (csrfToken) {
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+                
+                const reasonInput = document.createElement('input');
+                reasonInput.type = 'hidden';
+                reasonInput.name = 'reason';
+                reasonInput.value = reason;
+                form.appendChild(reasonInput);
+            }
+
+            document.body.appendChild(form);
+            form.submit();
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+    });
 }
 </script>
 

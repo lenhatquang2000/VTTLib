@@ -37,33 +37,46 @@
     </div>
 
     <!-- Tabs Navigation (Same as Loan Desk) -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div class="flex border-b border-gray-200 dark:border-slate-700">
-            <div class="flex space-x-1 p-2">
-                <a href="<?php echo e(route('admin.circulation.loan-desk')); ?>" 
-                        class="px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                    <i class="fas fa-arrow-right mr-2"></i><?php echo e(__('Mượn sách')); ?>
-
+            <div class="flex space-x-1 mb-6">
+                <a href="<?php echo e(route('admin.circulation.loan-desk')); ?>"
+                        class="px-6 py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                    <i class="fas fa-arrow-right mr-2"></i><?php echo e(__('Mượn sách')); ?> (<?php echo e(__('Loan')); ?>)
                 </a>
                 <a href="<?php echo e(route('admin.circulation.loan-desk')); ?>?tab=checkin"
-                        class="px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
-                    <i class="fas fa-arrow-left mr-2"></i><?php echo e(__('Trả sách')); ?>
-
+                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                    <i class="fas fa-arrow-left mr-2"></i><?php echo e(__('Trả sách')); ?> (<?php echo e(__('Return')); ?>)
                 </a>
                 <a href="<?php echo e(route('admin.circulation.loan-desk')); ?>?tab=reading-room"
-                        class="px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
                     <i class="fas fa-book-reader mr-2"></i><?php echo e(__('Mượn đọc')); ?>
 
                 </a>
                 <a href="<?php echo e(route('admin.circulation.loan-desk')); ?>?tab=hold"
-                        class="px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
                     <i class="fas fa-bookmark mr-2"></i><?php echo e(__('Giữ lại')); ?>
 
                 </a>
-                <a href="<?php echo e(route('admin.circulation.requests')); ?>"
-                        class="px-6 py-3 text-sm font-medium rounded-lg transition-all duration-200 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-500">
-                    <i class="fas fa-clipboard-list mr-2"></i><?php echo e(__('Yêu cầu mượn')); ?>
+                <a href="<?php echo e(route('admin.circulation.loan-desk')); ?>?tab=borrowed"
+                        class="px-6 -mb-px py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200">
+                    <i class="fas fa-book mr-2"></i><?php echo e(__('Sách đang mượn')); ?>
 
+                </a>
+                <a href="<?php echo e(route('admin.circulation.requests')); ?>"
+                        class="px-6 py-3 text-sm font-medium rounded-t-lg transition-all duration-200 border-b-2 border-indigo-500 text-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-400 flex items-center gap-2">
+                    <i class="fas fa-clipboard-list"></i>
+                    <?php echo e(__('Yêu cầu mượn')); ?>
+
+                    <?php
+                        $pendingCount = \App\Models\Reservation::where('status', 'pending')->count();
+                    ?>
+                    <?php if($pendingCount > 0): ?>
+                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full text-[9px] font-bold bg-rose-500 text-white shadow-sm">
+                            <?php echo e($pendingCount); ?>
+
+                        </span>
+                    <?php endif; ?>
                 </a>
             </div>
         </div>
@@ -122,10 +135,10 @@
                             <td class="px-6 py-4 text-right">
                                 <?php if($req->status == 'pending'): ?>
                                 <div class="flex justify-end gap-2">
-                                    <button onclick="approveRequest(<?php echo e($req->id); ?>)" class="p-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-lg transition-all" title="Phê duyệt">
+                                    <button onclick="approveRequest(<?php echo e($req->id); ?>)" class="w-10 h-10 flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-600 hover:text-white rounded-full transition-all" title="Phê duyệt">
                                         <i class="fas fa-check"></i>
                                     </button>
-                                    <button onclick="openRejectModal(<?php echo e($req->id); ?>)" class="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 hover:bg-rose-600 hover:text-white rounded-lg transition-all" title="Từ chối">
+                                    <button onclick="openRejectModal(<?php echo e($req->id); ?>)" class="w-10 h-10 flex items-center justify-center bg-rose-50 dark:bg-rose-900/20 text-rose-500 dark:text-rose-400 hover:bg-rose-600 hover:text-white rounded-full transition-all" title="Từ chối">
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>

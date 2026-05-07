@@ -109,13 +109,15 @@
                                                         @foreach($value as $field => $change)
                                                             <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">
                                                                 <span class="font-medium">{{ $field }}:</span>
-                                                                <span class="line-through text-red-500">{{ $change['old'] ?? 'N/A' }}</span>
+                                                                <span class="line-through text-red-500">{{ is_array($change['old'] ?? null) ? json_encode($change['old']) : ($change['old'] ?? 'N/A') }}</span>
                                                                 <span class="mx-1">→</span>
-                                                                <span class="text-green-600">{{ $change['new'] ?? 'N/A' }}</span>
+                                                                <span class="text-green-600">{{ is_array($change['new'] ?? null) ? json_encode($change['new']) : ($change['new'] ?? 'N/A') }}</span>
                                                             </p>
                                                         @endforeach
                                                     </div>
-                                                @elseif(is_string($value))
+                                                @elseif(is_array($value))
+                                                    <p class="text-xs"><span class="font-medium">{{ $key }}:</span> {{ json_encode($value) }}</p>
+                                                @else
                                                     <p class="text-xs"><span class="font-medium">{{ $key }}:</span> {{ $value }}</p>
                                                 @endif
                                             @endforeach

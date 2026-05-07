@@ -12,6 +12,7 @@ class Reservation extends Model
         'bibliographic_record_id',
         'book_item_id',
         'reservation_date',
+        'approved_at',
         'expiry_date',
         'pickup_date',
         'status',
@@ -23,6 +24,7 @@ class Reservation extends Model
 
     protected $casts = [
         'reservation_date' => 'datetime',
+        'approved_at' => 'datetime',
         'expiry_date' => 'datetime',
         'pickup_date' => 'datetime',
         'notified_at' => 'datetime',

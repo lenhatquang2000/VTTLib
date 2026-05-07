@@ -103,60 +103,76 @@
                 <input type="hidden" name="search" value="{{ $search ?? '' }}">
                 
                 <!-- Advanced Filters Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Status') }}</label>
-                        <select name="status" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="all" {{ ($status ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Status') }}</option>
-                            <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
-                            <option value="locked" {{ ($status ?? '') == 'locked' ? 'selected' : '' }}>{{ __('Locked') }}</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Patron Group') }}</label>
-                        <select name="patron_group" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="all" {{ ($patronGroup ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Groups') }}</option>
+                <div class="flex flex-col lg:flex-row gap-8">
+                    <!-- Left Column: Patron Group (Radio Buttons) -->
+                    <div class="lg:w-1/3 border-r border-gray-100 dark:border-slate-800 pr-8">
+                        <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-4">{{ __('Nhóm độc giả') }}</label>
+                        <div class="flex flex-col gap-2">
+                            <label class="flex items-center group cursor-pointer">
+                                <input type="radio" name="patron_group" value="all" {{ ($patronGroup ?? 'all') == 'all' ? 'checked' : '' }} 
+                                    onchange="this.form.submit()" class="hidden peer">
+                                <div class="flex items-center space-x-3 w-full p-3 rounded-xl border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-all peer-checked:bg-slate-200 dark:peer-checked:bg-slate-700 peer-checked:border-slate-300 dark:peer-checked:border-slate-600 group-hover:border-indigo-200">
+                                    <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center peer-checked:border-slate-500">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-slate-300 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                    </div>
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300 peer-checked:text-slate-900 dark:peer-checked:text-white">{{ __('Tất cả các nhóm') }}</span>
+                                </div>
+                            </label>
                             @if(isset($patronGroups))
                                 @foreach($patronGroups as $group)
-                                    <option value="{{ $group->id }}" {{ ($patronGroup ?? '') == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
+                                    <label class="flex items-center group cursor-pointer">
+                                        <input type="radio" name="patron_group" value="{{ $group->id }}" {{ ($patronGroup ?? '') == $group->id ? 'checked' : '' }} 
+                                            onchange="this.form.submit()" class="hidden peer">
+                                        <div class="flex items-center space-x-3 w-full p-3 rounded-xl border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-all peer-checked:bg-slate-200 dark:peer-checked:bg-slate-700 peer-checked:border-slate-300 dark:peer-checked:border-slate-600 group-hover:border-indigo-200">
+                                            <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center peer-checked:border-slate-500">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-slate-300 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                            </div>
+                                            <span class="text-sm font-bold text-slate-600 dark:text-slate-300 peer-checked:text-slate-900 dark:peer-checked:text-white">{{ $group->name }}</span>
+                                        </div>
+                                    </label>
                                 @endforeach
                             @endif
-                        </select>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Branch') }}</label>
-                        <select name="branch" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="all" {{ ($branch ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Branches') }}</option>
-                            @if(isset($branches))
-                                @foreach($branches as $branchItem)
-                                    <option value="{{ $branchItem->id }}" {{ ($branch ?? '') == $branchItem->id ? 'selected' : '' }}>{{ $branchItem->name }}</option>
-                                @endforeach
-                            @endif
-                        </select>
-                    </div>
+                    <!-- Right Column: Other Filters -->
+                    <div class="flex-1 space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Status -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Trạng thái') }}</label>
+                                <select name="status" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    <option value="all" {{ ($status ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('Tất cả trạng thái') }}</option>
+                                    <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>{{ __('Đang hoạt động') }}</option>
+                                    <option value="locked" {{ ($status ?? '') == 'locked' ? 'selected' : '' }}>{{ __('Bị khóa') }}</option>
+                                </select>
+                            </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Per Page') }}</label>
-                        <select name="per_page" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="15" {{ ($perPage ?? 15) == 15 ? 'selected' : '' }}>15</option>
-                            <option value="30" {{ ($perPage ?? '') == 30 ? 'selected' : '' }}>30</option>
-                            <option value="50" {{ ($perPage ?? '') == 50 ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ ($perPage ?? '') == 100 ? 'selected' : '' }}>100</option>
-                        </select>
-                    </div>
-                </div>
+                            <!-- Branch -->
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Chi nhánh') }}</label>
+                                <select name="branch" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    <option value="all" {{ ($branch ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('Tất cả chi nhánh') }}</option>
+                                    @if(isset($branches))
+                                        @foreach($branches as $branchItem)
+                                            <option value="{{ $branchItem->id }}" {{ ($branch ?? '') == $branchItem->id ? 'selected' : '' }}>{{ $branchItem->name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
 
-                <!-- Date Range -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date From') }}</label>
-                        <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Registration Date To') }}</label>
-                        <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <!-- Date Range -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày đăng ký từ') }}</label>
+                                <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày đăng ký đến') }}</label>
+                                <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -255,7 +271,18 @@
             </div>
         </div>
         
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-4">
+            <!-- Per Page Select (Moved from Filters) -->
+            <div class="flex items-center space-x-2 whitespace-nowrap">
+                <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('Mỗi trang:') }}</span>
+                <select onchange="changePerPage(this.value)" class="bg-gray-100 dark:bg-slate-800 border-none rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-slate-400 focus:ring-0 cursor-pointer">
+                    <option value="15" {{ ($perPage ?? 15) == 15 ? 'selected' : '' }}>15</option>
+                    <option value="30" {{ ($perPage ?? 15) == 30 ? 'selected' : '' }}>30</option>
+                    <option value="50" {{ ($perPage ?? 15) == 50 ? 'selected' : '' }}>50</option>
+                    <option value="100" {{ ($perPage ?? 15) == 100 ? 'selected' : '' }}>100</option>
+                </select>
+            </div>
+
             <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('View Mode:') }}</span>
             <div class="bg-gray-100 dark:bg-slate-800 rounded-lg p-1 flex">
                 <button onclick="changeViewMode('card')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? 'card') == 'card' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
@@ -284,7 +311,7 @@
     @if(isset($patrons) && $patrons->count() > 0)
         <!-- Card View (Default) -->
         @if(($viewMode ?? 'card') == 'card')
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 justify-center">
                 @forelse($patrons as $patron)
                     <div class="group relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 w-full min-h-[200px] overflow-hidden">
                         <!-- Logo Watermark Background -->
@@ -322,7 +349,7 @@
                                         {{ date('d/m/Y', strtotime($patron->registration_date)) }} - {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
                                     </div>
                                     <!-- Barcode Area -->
-                                    <div class="relative">
+                                    <div class="relative cursor-zoom-in" onclick="zoomBarcode(this, '{{ $patron->patron_code }}')">
                                         <div class="h-[45px] w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-start overflow-hidden">
                                             {!! $barcodeService->renderSvg($patron->patron_code) !!}
                                         </div>
@@ -640,30 +667,44 @@
             <p class="text-gray-500 dark:text-slate-400">{{ __('Try adjusting your search criteria or filters.') }}</p>
         </div>
     @endif
+
+    <!-- Barcode Zoom Modal -->
+    <div id="barcodeZoomModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm transition-all duration-300" onclick="closeBarcodeZoom()">
+        <div class="relative bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-2xl w-full transform transition-all duration-300 scale-95 opacity-0" id="barcodeZoomContent" onclick="event.stopPropagation()">
+            <button onclick="closeBarcodeZoom()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 uppercase tracking-wider" id="zoomPatronCode"></h3>
+                <div id="zoomedBarcodeContainer" class="bg-white p-6 rounded-xl border border-slate-200 flex justify-center items-center min-h-[150px]">
+                </div>
+                <p class="mt-6 text-slate-500 dark:text-slate-400 text-sm font-medium">
+                    {{ __('Nhấn ESC hoặc vùng ngoài để đóng') }}
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Renew Modal -->
-<div id="renewModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeRenewModal()"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all">
-            <div class="px-8 py-5 bg-slate-50 border-b border-slate-100">
-                <h3 class="text-lg font-black text-slate-800 tracking-tight uppercase">{{ __('Gia hạn thẻ') }}</h3>
-                <p class="text-indigo-600 text-[10px] font-bold mt-1 uppercase" id="renewPatronName"></p>
-            </div>
-            <form id="renewForm" method="POST" class="p-8 space-y-5">
-                @csrf @method('PATCH')
-                <div class="space-y-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày hết hạn mới') }}</label>
-                    <input type="date" name="expiry_date" id="renew_expiry_date" required 
-                        class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                </div>
-                <div class="flex space-x-3 pt-4 border-t border-slate-50">
-                    <button type="button" onclick="closeRenewModal()" class="flex-1 bg-white border border-slate-200 text-slate-400 py-3 rounded-xl uppercase text-[10px] font-black hover:bg-slate-50 transition-all">{{ __('Hủy') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-[10px] font-black shadow-md hover:bg-indigo-500 transition-all">{{ __('Cập nhật') }}</button>
-                </div>
-            </form>
+<div id="renewModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" onclick="closeRenewModal()">
+    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onclick="event.stopPropagation()">
+        <div class="p-8 border-b border-slate-50 text-center">
+            <h3 class="text-lg font-black text-slate-800 tracking-tight uppercase">{{ __('Gia hạn thẻ') }}</h3>
+            <p class="text-indigo-600 text-[10px] font-bold mt-1 uppercase" id="renewPatronName"></p>
         </div>
+        <form id="renewForm" method="POST" class="p-8 space-y-5">
+            @csrf @method('PATCH')
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày hết hạn mới') }}</label>
+                <input type="date" name="expiry_date" id="renew_expiry_date" required 
+                    class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+            </div>
+            <div class="flex space-x-3 pt-4 border-t border-slate-50">
+                <button type="button" onclick="closeRenewModal()" class="flex-1 bg-white border border-slate-200 text-slate-400 py-3 rounded-xl uppercase text-[10px] font-black hover:bg-slate-50 transition-all">{{ __('Hủy') }}</button>
+                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-[10px] font-black shadow-md hover:bg-indigo-500 transition-all">{{ __('Cập nhật') }}</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -1168,6 +1209,7 @@ function toggleFilters() {
     const text = document.getElementById('filterToggleText');
     const searchIcon = document.getElementById('searchIcon');
     const searchInput = document.querySelector('input[name="search"]');
+    const url = new URL(window.location);
     
     if (filtersDiv.classList.contains('hidden')) {
         filtersDiv.classList.remove('hidden');
@@ -1182,8 +1224,9 @@ function toggleFilters() {
             searchInput.classList.remove('pl-10');
             searchInput.classList.add('pl-3');
         }
-        // Set flag that filters are open
+        // Set flag in localStorage and URL
         localStorage.setItem('filtersOpen', 'true');
+        url.searchParams.set('filters', 'open');
     } else {
         filtersDiv.classList.add('hidden');
         icon.style.transform = 'rotate(0deg)';
@@ -1197,14 +1240,19 @@ function toggleFilters() {
             searchInput.classList.remove('pl-3');
             searchInput.classList.add('pl-10');
         }
-        // Set flag that filters are closed
+        // Set flag in localStorage and URL
         localStorage.setItem('filtersOpen', 'false');
+        url.searchParams.delete('filters');
     }
+    // Update URL without reloading page
+    window.history.replaceState({}, '', url);
 }
 
 // Check if filters should be open on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const filtersOpen = localStorage.getItem('filtersOpen') === 'true';
+    const urlParams = new URLSearchParams(window.location.search);
+    const filtersOpen = urlParams.get('filters') === 'open' || localStorage.getItem('filtersOpen') === 'true';
+    
     if (filtersOpen) {
         const filtersDiv = document.getElementById('advancedFilters');
         const icon = document.getElementById('filterToggleIcon');
@@ -1226,16 +1274,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 searchInput.classList.remove('pl-10');
                 searchInput.classList.add('pl-3');
             }
+            // Ensure URL has the parameter if it came from localStorage
+            if (!urlParams.has('filters')) {
+                const url = new URL(window.location);
+                url.searchParams.set('filters', 'open');
+                window.history.replaceState({}, '', url);
+            }
         }
     }
-});    
-    // Sync main search form with advanced filters form
+});
+
+// Sync main search form with advanced filters form
+document.addEventListener('DOMContentLoaded', function() {
     const mainSearchForm = document.getElementById('mainSearchForm');
     if (mainSearchForm) {
         mainSearchForm.addEventListener('submit', function(e) {
             // Update hidden inputs with current values from advanced filters
             const statusSelect = document.querySelector('#advancedFiltersForm select[name="status"]');
-            const patronGroupSelect = document.querySelector('#advancedFiltersForm select[name="patron_group"]');
+            const patronGroupRadio = document.querySelector('#advancedFiltersForm input[name="patron_group"]:checked');
             const branchSelect = document.querySelector('#advancedFiltersForm select[name="branch"]');
             const perPageSelect = document.querySelector('#advancedFiltersForm select[name="per_page"]');
             const dateFromInput = document.querySelector('#advancedFiltersForm input[name="date_from"]');
@@ -1244,8 +1300,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (statusSelect) {
                 document.querySelector('#mainSearchForm input[name="status"]').value = statusSelect.value;
             }
-            if (patronGroupSelect) {
-                document.querySelector('#mainSearchForm input[name="patron_group"]').value = patronGroupSelect.value;
+            if (patronGroupRadio) {
+                document.querySelector('#mainSearchForm input[name="patron_group"]').value = patronGroupRadio.value;
             }
             if (branchSelect) {
                 document.querySelector('#mainSearchForm input[name="branch"]').value = branchSelect.value;
@@ -1314,6 +1370,60 @@ function changeViewMode(mode) {
     window.location.href = url.toString();
 }
 
+function changePerPage(count) {
+    const url = new URL(window.location);
+    url.searchParams.set('per_page', count);
+    window.location.href = url.toString();
+}
+
+function zoomBarcode(element, patronCode) {
+    const modal = document.getElementById('barcodeZoomModal');
+    const content = document.getElementById('barcodeZoomContent');
+    const container = document.getElementById('zoomedBarcodeContainer');
+    const codeTitle = document.getElementById('zoomPatronCode');
+    const svg = element.querySelector('svg').cloneNode(true);
+    
+    // Clear and inject
+    container.innerHTML = '';
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '150');
+    container.appendChild(svg);
+    codeTitle.textContent = patronCode;
+    
+    // Show modal with animation
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        content.classList.remove('scale-95', 'opacity-0');
+        content.classList.add('scale-100', 'opacity-100');
+    }, 10);
+    
+    document.body.style.overflow = 'hidden';
+    
+    // ESC key to close
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            closeBarcodeZoom();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+}
+
+function closeBarcodeZoom() {
+    const modal = document.getElementById('barcodeZoomModal');
+    const content = document.getElementById('barcodeZoomContent');
+    
+    if (content) {
+        content.classList.remove('scale-100', 'opacity-100');
+        content.classList.add('scale-95', 'opacity-0');
+    }
+    
+    setTimeout(() => {
+        if (modal) modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }, 300);
+}
+
 function openRenewModal(patron) {
     document.getElementById('renewForm').action = `{{ route('admin.patrons.renew', ['id' => ':id']) }}`.replace(':id', patron.id);
     document.getElementById('renewPatronName').textContent = patron.name;
@@ -1323,8 +1433,11 @@ function openRenewModal(patron) {
 }
 
 function closeRenewModal() {
-    document.getElementById('renewModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
+    const modal = document.getElementById('renewModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 }
 </script>
 @endsection

@@ -1,3 +1,52 @@
+
+
+<?php $__env->startSection('header_css'); ?>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: #f8fafc;
+        border: 1px solid transparent;
+        border-radius: 1rem;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        transition: all 0.3s;
+    }
+    .dark .select2-container--default .select2-selection--single {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 0.75rem;
+        padding-left: 1.25rem;
+    }
+    .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: #f1f5f9;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+        right: 10px;
+    }
+    .select2-dropdown {
+        border-radius: 1rem;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    .dark .select2-dropdown {
+        background-color: #1e293b;
+        border-color: #334155;
+    }
+    .select2-results__option {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+</style>
+<?php $__env->stopSection(); ?>
+
 <?php $__env->startSection('content'); ?>
 <div class="space-y-6 pb-12">
     <!-- Header Area -->
@@ -8,12 +57,15 @@
                 <?php echo e(__('Back to List')); ?>
 
             </a>
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight"><?php echo e(__('Edit Patron')); ?></h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1"><?php echo e(__('Edit information for')); ?>: <?php echo e($patron->display_name); ?></p>
+            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight"><?php echo e(__('Register New Patron')); ?></h1>
         </div>
         <div class="flex items-center space-x-4">
-            <span class="px-4 py-2 <?php echo e($patron->card_status == 'normal' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20'); ?> text-[10px] font-black uppercase tracking-widest rounded-xl border shadow-sm">
-                <?php echo e(__('Tình trạng thẻ')); ?>: <?php echo e($patron->card_status == 'normal' ? __('Bình thường') : __('Bị khóa')); ?>
+            <button type="button" onclick="autoFillRandom()" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-500/20 transition-all flex items-center space-x-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <span><?php echo e(__('Auto Fill')); ?></span>
+            </button>
+            <span class="px-4 py-2 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest rounded-xl border border-emerald-100 dark:border-emerald-500/20 shadow-sm">
+                <?php echo e(__('Tình trạng thẻ')); ?>: <?php echo e(__('Bình thường')); ?>
 
             </span>
         </div>
@@ -28,26 +80,18 @@
         </div>
     <?php endif; ?>
 
-    <form id="patronEditForm" action="<?php echo e(route('admin.patrons.update', $patron->id)); ?>" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <?php echo csrf_field(); ?> <?php echo method_field('PATCH'); ?>
+    <form action="<?php echo e(route('admin.patrons.store')); ?>" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <?php echo csrf_field(); ?>
         
         <!-- Sidebar: Image & Status Toggles -->
         <div class="lg:col-span-1 space-y-6">
             <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 flex flex-col items-center">
                 <div class="w-full aspect-square rounded-3xl bg-slate-50 dark:bg-slate-950/50 border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden relative group cursor-pointer mb-6" onclick="document.getElementById('avatar-input').click()">
-                    <?php if($patron->profile_image): ?>
-                        <img id="avatar-preview" src="<?php echo e(asset('storage/' . $patron->profile_image)); ?>" class="w-full h-full object-cover">
-                        <div id="avatar-placeholder" class="hidden text-slate-400 dark:text-slate-600 flex flex-col items-center">
-                            <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest"><?php echo e(__('Ảnh đại diện')); ?></span>
-                        </div>
-                    <?php else: ?>
-                        <img id="avatar-preview" src="#" class="hidden w-full h-full object-cover">
-                        <div id="avatar-placeholder" class="text-slate-400 dark:text-slate-600 flex flex-col items-center">
-                            <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest"><?php echo e(__('Ảnh đại diện')); ?></span>
-                        </div>
-                    <?php endif; ?>
+                    <img id="avatar-preview" src="#" class="hidden w-full h-full object-cover">
+                    <div id="avatar-placeholder" class="text-slate-400 dark:text-slate-600 flex flex-col items-center">
+                        <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="text-[10px] font-black uppercase tracking-widest"><?php echo e(__('Ảnh đại diện')); ?></span>
+                    </div>
                 </div>
                 <input type="file" name="profile_image" id="avatar-input" class="hidden" accept="image/*" onchange="previewAvatar(this)">
                 <div class="flex space-x-2 w-full">
@@ -68,14 +112,14 @@
                 <label class="flex items-center justify-between group cursor-pointer">
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400"><?php echo e(__('Chỉ đăng ký đọc')); ?></span>
                     <div class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="is_read_only" value="1" class="sr-only peer" <?php echo e($patron->is_read_only ? 'checked' : ''); ?>>
+                        <input type="checkbox" name="is_read_only" value="1" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
                     </div>
                 </label>
                 <label class="flex items-center justify-between group cursor-pointer">
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400"><?php echo e(__('Thẻ chờ in')); ?></span>
                     <div class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="is_waiting_for_print" value="1" class="sr-only peer" <?php echo e($patron->is_waiting_for_print ? 'checked' : ''); ?>>
+                        <input type="checkbox" name="is_waiting_for_print" value="1" class="sr-only peer" checked>
                         <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
                     </div>
                 </label>
@@ -84,7 +128,7 @@
                 <label class="flex items-center justify-between group cursor-pointer">
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400"><?php echo e(__('Đọc tại chỗ')); ?></span>
                     <div class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="is_reading_room_only" value="1" class="sr-only peer" <?php echo e($patron->is_reading_room_only ? 'checked' : ''); ?>>
+                        <input type="checkbox" name="is_reading_room_only" value="1" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                     </div>
                 </label>
@@ -93,25 +137,17 @@
                 <label class="flex items-center justify-between group cursor-pointer">
                     <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400"><?php echo e(__('Thêm vào danh sách chờ in')); ?></span>
                     <div class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" name="add_to_print_queue" value="1" class="sr-only peer" <?php echo e($patron->add_to_print_queue ? 'checked' : ''); ?>>
+                        <input type="checkbox" name="add_to_print_queue" value="1" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </div>
                 </label>
             </div>
 
-            <?php
-                $linkedUser = $patron->user ? $patron->user->only(['id', 'name', 'email', 'username']) : null;
-            ?>
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4" x-data="userSearch(<?php echo json_encode($linkedUser, 15, 512) ?>)">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4" x-data="userSearch()">
                 <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-indigo-500 ml-1"><?php echo e(__('Liên kết tài khoản')); ?></label>
-                        <button type="button" @click="removeLink" class="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600">
-                            <?php echo e(__('Xoá liên kết')); ?>
-
-                        </button>
-                    </div>
+                    <label class="text-[10px] font-black uppercase tracking-widest text-indigo-500 ml-1"><?php echo e(__('Liên kết tài khoản')); ?></label>
                     
+                    <!-- Search Input -->
                     <div class="relative group">
                         <input type="text" 
                             x-model="query" 
@@ -130,8 +166,10 @@
                         </button>
                     </div>
 
+                    <!-- Hidden ID input for form submission -->
                     <input type="hidden" name="user_id" :value="selectedUser?.id">
 
+                    <!-- Result Display -->
                     <div x-show="status === 'found'" x-cloak class="p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
                         <div class="flex items-center space-x-3">
                             <div class="p-2 bg-emerald-500 rounded-xl text-white">
@@ -140,7 +178,7 @@
                             <div>
                                 <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1">Tài khoản hợp lệ</p>
                                 <p class="text-sm font-bold text-slate-900 dark:text-slate-100">
-                                    <span x-text="selectedUser.name"></span>
+                                    <span x-text="selectedUser.name"></span> 
                                     (<span x-text="selectedUser.username" class="text-indigo-600 dark:text-indigo-400"></span>)
                                 </p>
                                 <p class="text-[11px] text-slate-500 dark:text-slate-400" x-text="selectedUser.email"></p>
@@ -163,34 +201,6 @@
                     <p class="text-[9px] text-slate-400 italic px-1" x-show="status === 'idle'"><?php echo e(__('Hệ thống tự động tìm sau 1s ngưng nhập hoặc nhấn icon tìm kiếm')); ?></p>
                 </div>
             </div>
-
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
-                <div class="text-center">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3"><?php echo e(__('Trạng thái hiện tại')); ?></h3>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400"><?php echo e(__('Thẻ')); ?></span>
-                            <span class="px-2 py-1 text-[8px] font-black rounded-full <?php echo e($patron->card_status == 'normal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'); ?>">
-                                <?php echo e($patron->card_status == 'normal' ? __('Bình thường') : __('Bị khóa')); ?>
-
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400"><?php echo e(__('Số dư')); ?></span>
-                            <span class="text-[10px] font-bold <?php echo e($patron->balance >= 0 ? 'text-green-600' : 'text-red-600'); ?>">
-                                <?php echo e(number_format($patron->balance, 0, ',', '.')); ?> VNĐ
-                            </span>
-                        </div>
-                        <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400"><?php echo e(__('Ngày hết hạn')); ?></span>
-                            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">
-                                <?php echo e(date('d/m/Y', strtotime($patron->expiry_date))); ?>
-
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Main Form Content -->
@@ -204,36 +214,39 @@
                     <div class="space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Mã độc giả')); ?> <span class="text-rose-500">*</span></label>
                         <div class="relative">
-                            <input type="text" name="patron_code" required value="<?php echo e($patron->patron_code); ?>"
+                            <input type="text" name="patron_code" required value="<?php echo e(old('patron_code', $nextCode ?? date('ymdHis'))); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            <?php if(isset($nextCode)): ?>
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-[8px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter rounded-md"><?php echo e(__('Quy tắc hệ thống')); ?></span>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('MSSV')); ?></label>
-                        <input type="text" name="mssv" value="<?php echo e($patron->mssv ?? ''); ?>" placeholder="Ex: 20210001"
+                        <input type="text" name="mssv" value="<?php echo e(old('mssv')); ?>" placeholder="Ex: 20210001"
                             class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                     </div>
                     <div class="space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Số danh bạ')); ?></label>
-                        <input type="text" name="phone_contact" value="<?php echo e($patron->phone_contact ?? ''); ?>" placeholder="5339"
+                        <input type="text" name="phone_contact" value="<?php echo e(old('phone_contact')); ?>" placeholder="5339"
                             class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                     </div>
                     <div class="md:col-span-1 space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Loại độc giả')); ?></label>
                         <select name="patron_group_id" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
                             <?php $__currentLoopData = $patronGroups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <option value="<?php echo e($group->id); ?>" <?php echo e($patron->patron_group_id == $group->id ? 'selected' : ''); ?>><?php echo e($group->name); ?></option>
+                                <option value="<?php echo e($group->id); ?>"><?php echo e($group->name); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
                     <div class="md:col-span-1 space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Tên đầy đủ')); ?> <span class="text-rose-500">*</span></label>
-                        <input type="text" name="name" required value="<?php echo e(old('name', $patron->user?->name ?? $patron->display_name)); ?>" placeholder="NGUYEN VAN A"
+                        <input type="text" name="name" required value="<?php echo e(old('name')); ?>" placeholder="NGUYEN VAN A"
                             class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                     </div>
                     <div class="md:col-span-1 space-y-2">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Tên hiển thị')); ?> <span class="text-rose-500">*</span></label>
-                        <input type="text" name="display_name" required value="<?php echo e($patron->display_name); ?>" placeholder="Van A"
+                        <input type="text" name="display_name" required value="<?php echo e(old('display_name')); ?>" placeholder="Van A"
                             class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                     </div>
                 </div>
@@ -248,18 +261,18 @@
                     <div class="space-y-4">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Ngày sinh')); ?></label>
-                            <input type="date" name="date_of_birth" value="<?php echo e($patron->date_of_birth); ?>"
+                            <input type="date" name="dob" value="<?php echo e(old('dob')); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1 block"><?php echo e(__('Giới tính')); ?></label>
                             <div class="flex items-center space-x-6 h-[46px]">
                                 <label class="flex items-center space-x-2 cursor-pointer group">
-                                    <input type="radio" name="gender" value="male" class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 focus:ring-indigo-500" <?php echo e($patron->gender == 'male' ? 'checked' : ''); ?>>
+                                    <input type="radio" name="gender" value="male" class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 focus:ring-indigo-500" checked>
                                     <span class="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors"><?php echo e(__('Nam')); ?></span>
                                 </label>
                                 <label class="flex items-center space-x-2 cursor-pointer group">
-                                    <input type="radio" name="gender" value="female" class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 focus:ring-indigo-500" <?php echo e($patron->gender == 'female' ? 'checked' : ''); ?>>
+                                    <input type="radio" name="gender" value="female" class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 focus:ring-indigo-500">
                                     <span class="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors"><?php echo e(__('Nữ')); ?></span>
                                 </label>
                             </div>
@@ -269,24 +282,24 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Tên trường')); ?></label>
-                                <input type="text" name="school_name" value="<?php echo e($patron->school_name ?? ''); ?>"
+                                <input type="text" name="school_name" value="<?php echo e(old('school_name')); ?>"
                                     class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Khóa')); ?></label>
-                                <input type="text" name="batch" value="<?php echo e($patron->batch ?? ''); ?>"
+                                <input type="text" name="batch" value="<?php echo e(old('batch')); ?>"
                                     class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                             </div>
                         </div>
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Bộ phận')); ?></label>
-                                <input type="text" name="department" value="<?php echo e($patron->department); ?>"
+                                <input type="text" name="department" value="<?php echo e(old('department')); ?>"
                                     class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                             </div>
                             <div class="space-y-2">
                                 <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Chức vụ/Lớp')); ?></label>
-                                <input type="text" name="position_class" value="<?php echo e($patron->position_class ?? ''); ?>"
+                                <input type="text" name="position_class" value="<?php echo e(old('position_class')); ?>"
                                     class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                             </div>
                         </div>
@@ -303,22 +316,27 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Số điện thoại')); ?></label>
-                            <input type="text" name="phone" value="<?php echo e($patron->phone); ?>"
+                            <input type="text" name="phone" value="<?php echo e(old('phone')); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Fax')); ?></label>
-                            <input type="text" name="fax" value="<?php echo e($patron->fax ?? ''); ?>"
+                            <input type="text" name="fax" value="<?php echo e(old('fax')); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Email')); ?> <span class="text-rose-500">*</span></label>
-                            <input type="email" name="email" value="<?php echo e(old('email', $patron->user?->email ?? '')); ?>"
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Email')); ?></label>
+                            <input type="email" name="email" value="<?php echo e(old('email')); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Mật khẩu mới (để trống nếu không đổi)')); ?></label>
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Mật khẩu OPAC')); ?></label>
                             <input type="password" name="password" placeholder="••••••••"
+                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Xác nhận mật khẩu')); ?></label>
+                            <input type="password" name="password_confirmation" placeholder="••••••••"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
                         </div>
                     </div>
@@ -326,17 +344,18 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Chi nhánh')); ?></label>
-                            <select name="branch_id" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
+                            <select name="branch" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
+                                <option value="all"><?php echo e(__('Tất cả chi nhánh')); ?></option>
                                 <?php $__currentLoopData = $branches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $b): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($b->id); ?>" <?php echo e($patron->branch_id == $b->id ? 'selected' : ''); ?>><?php echo e($b->name); ?></option>
+                                    <option value="<?php echo e($b->id); ?>"><?php echo e($b->name); ?></option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Phân loại')); ?></label>
                             <select name="classification_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
-                                <option value="individual" <?php echo e(($patron->classification_type ?? 'individual') == 'individual' ? 'selected' : ''); ?>><?php echo e(__('Cá nhân')); ?></option>
-                                <option value="group" <?php echo e(($patron->classification_type ?? 'individual') == 'group' ? 'selected' : ''); ?>><?php echo e(__('Tổ chức')); ?></option>
+                                <option value="individual"><?php echo e(__('Cá nhân')); ?></option>
+                                <option value="group"><?php echo e(__('Tổ chức')); ?></option>
                             </select>
                         </div>
                     </div>
@@ -350,19 +369,11 @@
                             </button>
                         </div>
                         <div id="address-list" class="space-y-3">
-                            <?php if($patron->address): ?>
-                                <div class="relative group">
-                                    <input type="text" name="addresses[]" value="<?php echo e($patron->address); ?>" placeholder="<?php echo e(__('Địa chỉ chính...')); ?>"
-                                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md"><?php echo e(__('Mặc định')); ?></span>
-                                </div>
-                            <?php else: ?>
-                                <div class="relative group">
-                                    <input type="text" name="addresses[]" placeholder="<?php echo e(__('Địa chỉ chính...')); ?>"
-                                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md"><?php echo e(__('Mặc định')); ?></span>
-                                </div>
-                            <?php endif; ?>
+                            <div class="relative group">
+                                <input type="text" name="addresses[]" placeholder="<?php echo e(__('Địa chỉ chính...')); ?>"
+                                    class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md"><?php echo e(__('Mặc định')); ?></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -377,17 +388,17 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Lệ phí làm thẻ')); ?></label>
-                            <input type="number" name="card_fee" value="<?php echo e($patron->card_fee ?? 0); ?>"
+                            <input type="number" name="card_fee" value="0"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Tiền thế chân')); ?></label>
-                            <input type="number" name="deposit" value="<?php echo e($patron->deposit ?? 0); ?>"
+                            <input type="number" name="deposit" value="0"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Số dư tài khoản')); ?></label>
-                            <input type="number" name="balance" value="<?php echo e($patron->balance); ?>"
+                            <input type="number" name="balance" value="0"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                     </div>
@@ -400,12 +411,12 @@
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Ngày đăng ký')); ?> <span class="text-rose-500">*</span></label>
-                            <input type="date" name="registration_date" required value="<?php echo e($patron->registration_date); ?>"
+                            <input type="date" name="registration_date" required value="<?php echo e(date('Y-m-d')); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                         <div class="space-y-2">
                             <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Ngày hết hạn')); ?> <span class="text-rose-500">*</span></label>
-                            <input type="date" name="expiry_date" required value="<?php echo e($patron->expiry_date); ?>"
+                            <input type="date" name="expiry_date" required value="<?php echo e(date('Y-m-d', strtotime('+1 year'))); ?>"
                                 class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
                         </div>
                     </div>
@@ -413,7 +424,7 @@
                     <div class="space-y-2 pt-6 border-t border-slate-50 dark:border-slate-800">
                         <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1"><?php echo e(__('Ghi chú')); ?></label>
                         <textarea name="notes" rows="3" placeholder="<?php echo e(__('Nhập ghi chú thêm về độc giả...')); ?>"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"><?php echo e($patron->notes ?? ''); ?></textarea>
+                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"></textarea>
                     </div>
 
                     <div class="space-y-2">
@@ -431,13 +442,13 @@
                 </div>
             </div>
 
-            <input type="hidden" name="card_status" value="<?php echo e($patron->card_status); ?>">
+            <input type="hidden" name="card_status" value="normal">
 
             <!-- Submit Button -->
-            <button type="button" onclick="confirmUpdate()" class="group w-full relative overflow-hidden bg-slate-900 dark:bg-indigo-600 text-white rounded-3xl py-6 shadow-2xl transition-all hover:shadow-indigo-500/25 active:scale-[0.98]">
+            <button type="submit" class="group w-full relative overflow-hidden bg-slate-900 dark:bg-indigo-600 text-white rounded-3xl py-6 shadow-2xl transition-all hover:shadow-indigo-500/25 active:scale-[0.98]">
                 <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="relative flex items-center justify-center space-x-3">
-                    <span class="text-sm font-black uppercase tracking-[0.3em] ml-2"><?php echo e(__('Update Patron Information')); ?></span>
+                    <span class="text-sm font-black uppercase tracking-[0.3em] ml-2"><?php echo e(__('Initialize Identity')); ?></span>
                     <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </div>
             </button>
@@ -447,27 +458,27 @@
 
 <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
-    function userSearch(initialUser = null) {
+    function userSearch() {
         return {
             query: '',
             loading: false,
-            status: initialUser ? 'found' : 'idle',
-            selectedUser: initialUser,
+            status: 'idle', // idle, found, not_found
+            selectedUser: null,
 
             async search() {
                 if (this.query.trim().length < 2) {
-                    this.status = this.selectedUser ? 'found' : 'idle';
+                    this.status = 'idle';
+                    this.selectedUser = null;
                     return;
                 }
 
                 this.loading = true;
                 try {
-                    const includeUserId = this.selectedUser?.id ?? <?php echo e($patron->user_id ?? 'null'); ?>;
-                    const includeParam = includeUserId ? `&include_user_id=${encodeURIComponent(includeUserId)}` : '';
-                    const response = await fetch(`<?php echo e(route('admin.patrons.search-users')); ?>?q=${encodeURIComponent(this.query)}${includeParam}`);
+                    const response = await fetch(`<?php echo e(route('admin.patrons.search-users')); ?>?q=${encodeURIComponent(this.query)}`);
                     const data = await response.json();
 
                     if (data && data.length > 0) {
+                        // Lấy kết quả đầu tiên (giả định khớp tốt nhất)
                         this.selectedUser = data[0];
                         this.status = 'found';
                         this.autoFill(this.selectedUser);
@@ -485,20 +496,15 @@
 
             autoFill(user) {
                 if (user) {
-                    const nameFields = document.getElementsByName('name');
-                    const displayNameFields = document.getElementsByName('display_name');
-                    const emailFields = document.getElementsByName('email');
-
-                    if (nameFields.length > 0) nameFields[0].value = user.name;
-                    if (displayNameFields.length > 0) displayNameFields[0].value = user.name.split(' ').pop();
-                    if (emailFields.length > 0) emailFields[0].value = user.email;
+                    document.getElementsByName('name')[0].value = user.name;
+                    document.getElementsByName('display_name')[0].value = user.name.split(' ').pop();
+                    document.getElementsByName('email')[0].value = user.email;
+                    
+                    // Hiện Toast thông báo
+                    if (window.Toast) {
+                        window.Toast.fire({ icon: 'success', title: 'Đã liên kết với: ' + user.name });
+                    }
                 }
-            },
-
-            removeLink() {
-                this.selectedUser = null;
-                this.query = '';
-                this.status = 'idle';
             }
         }
     }
@@ -535,38 +541,45 @@
         `;
         container.appendChild(div);
     }
-</script>
 
-<script>
-function openRenewModal() {
-    document.getElementById('renewModal').classList.remove('hidden');
-}
+    function autoFillRandom() {
+        const firstNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Phan', 'Vũ', 'Đặng', 'Bùi', 'Đỗ'];
+        const middleNames = ['Văn', 'Thị', 'Minh', 'Anh', 'Đức', 'Thanh', 'Hữu', 'Quốc', 'Ngọc', 'Kim'];
+        const lastNames = ['An', 'Bình', 'Chi', 'Dũng', 'Em', 'Giang', 'Hương', 'Khánh', 'Linh', 'Minh', 'Nam', 'Oanh', 'Phúc', 'Quang', 'Sơn', 'Tâm', 'Uyên', 'Việt', 'Xuân', 'Yên'];
+        
+        const randomName = `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${middleNames[Math.floor(Math.random() * middleNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+        const randomSuffix = Math.floor(Math.random() * 10000); // Tăng độ dài suffix để tránh trùng email
+        const email = randomName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '.') + randomSuffix + '@example.com';
+        
+        document.getElementsByName('name')[0].value = randomName;
+        document.getElementsByName('display_name')[0].value = randomName.split(' ').pop();
+        document.getElementsByName('email')[0].value = email;
+        
+        // Fix: Đảm bảo mật khẩu và xác nhận mật khẩu khớp nhau
+        const randomPass = 'Password123@' + Math.floor(Math.random() * 100);
+        const passFields = document.getElementsByName('password');
+        const confirmFields = document.getElementsByName('password_confirmation');
+        
+        if (passFields.length > 0) passFields[0].value = randomPass;
+        if (confirmFields.length > 0) confirmFields[0].value = randomPass;
 
-function closeRenewModal() {
-    document.getElementById('renewModal').classList.add('hidden');
-}
-
-function confirmUpdate() {
-    Swal.fire({
-        title: '<?php echo e(__("Phê duyệt yêu cầu")); ?>',
-        text: '<?php echo e(__("Bạn có chắc chắn muốn phê duyệt yêu cầu này và giữ sách cho độc giả?")); ?>',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#4f46e5',
-        cancelButtonColor: '#f43f5e',
-        confirmButtonText: '<?php echo e(__("Phê duyệt")); ?>',
-        cancelButtonText: '<?php echo e(__("Hủy")); ?>',
-        background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
-        color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#0f172a',
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('patronEditForm').submit();
+        document.getElementsByName('mssv')[0].value = '2026' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        document.getElementsByName('phone')[0].value = '09' + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+        document.getElementsByName('phone_contact')[0].value = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        
+        // Random school and department
+        const schools = ['Đại học Cần Thơ', 'Đại học Bách Khoa', 'Đại học Võ Trường Toản', 'Đại học Y Dược'];
+        const depts = ['Công nghệ thông tin', 'Quản trị kinh doanh', 'Y đa khoa', 'Dược học'];
+        
+        document.getElementsByName('school_name')[0].value = schools[Math.floor(Math.random() * schools.length)];
+        document.getElementsByName('department')[0].value = depts[Math.floor(Math.random() * depts.length)];
+        document.getElementsByName('batch')[0].value = 'K' + (Math.floor(Math.random() * 5) + 20);
+        
+        if (window.Toast) {
+            window.Toast.fire({ icon: 'info', title: 'Đã tự động điền dữ liệu mẫu' });
         }
-    });
-}
-
+    }
 </script>
-
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/patrons/edit.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/patrons/create.blade.php ENDPATH**/ ?>
