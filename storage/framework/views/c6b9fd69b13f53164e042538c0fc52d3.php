@@ -1,4 +1,4 @@
-<div class="space-y-4">
+<div class="grid grid-cols-1 gap-4" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));">
     <?php $__empty_1 = true; $__currentLoopData = $sidebarBooks ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $book): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
     <?php
         $title = $book->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Không có nhan đề';

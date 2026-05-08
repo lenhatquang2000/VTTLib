@@ -146,6 +146,39 @@
                         </div>
                         <p class="text-[10px] text-slate-400">PNG, JPG, SVG, WebP, ICO — Tối đa 2MB</p>
                     </div>
+
+                    
+                    <div class="space-y-2 md:col-span-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <label class="text-[10px] text-indigo-500 dark:text-indigo-400 uppercase font-black tracking-widest"><?php echo e(__('Ảnh giới thiệu sách (Trang chủ)')); ?></label>
+                        <?php $currentBookIntro = \App\Models\SystemSetting::get('book_intro_image'); ?>
+                        <div x-data="{ fileName: '', previewUrl: '<?php echo e($currentBookIntro ? asset('storage/' . $currentBookIntro) : ''); ?>', removeImg: false }" class="space-y-3">
+                            <div class="flex items-center gap-3">
+                                <label class="flex-1 flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-2 border-dashed border-indigo-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-indigo-400 transition-colors">
+                                    <i class="fas fa-image text-slate-400"></i>
+                                    <span class="text-sm text-slate-500" x-text="fileName || 'Chọn ảnh giới thiệu sách...'"></span>
+                                    <input type="file" name="book_intro_image" accept="image/*" class="hidden"
+                                           @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0]); removeImg = false">
+                                </label>
+                                <?php if($currentBookIntro): ?>
+                                    <button type="button" @click="removeImg = !removeImg; previewUrl = removeImg ? '' : '<?php echo e(asset('storage/' . $currentBookIntro)); ?>'"
+                                            class="px-3 py-3 rounded-xl text-sm transition-all"
+                                            :class="removeImg ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500'">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                    <input type="hidden" name="remove_book_intro" :value="removeImg ? 1 : 0">
+                                <?php endif; ?>
+                            </div>
+                            <template x-if="previewUrl">
+                                <div class="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-slate-800 rounded-xl border border-indigo-100 dark:border-slate-700">
+                                    <img :src="previewUrl" class="h-20 w-16 object-cover rounded shadow-sm">
+                                    <div>
+                                        <p class="text-xs font-bold text-indigo-600">Preview ảnh mới</p>
+                                        <p class="text-[10px] text-slate-400 italic">Ảnh này sẽ hiển thị tại Section 4 trang chủ</p>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex justify-end">

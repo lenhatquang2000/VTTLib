@@ -650,10 +650,12 @@ class SiteNodeController extends Controller
         $request->validate([
             'site_name' => 'required|string|max:255',
             'site_logo' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp,ico|max:2048',
+            'book_intro_image' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp|max:2048',
         ]);
 
         \App\Models\SystemSetting::set('site_name', $request->input('site_name'), 'site');
 
+        // Handle Logo
         if ($request->hasFile('site_logo')) {
             $oldLogo = \App\Models\SystemSetting::get('site_logo');
             if ($oldLogo && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldLogo)) {
@@ -670,6 +672,25 @@ class SiteNodeController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($oldLogo);
             }
             \App\Models\SystemSetting::set('site_logo', '', 'site');
+        }
+
+        // Handle Book Intro Image
+        if ($request->hasFile('book_intro_image')) {
+            $oldImg = \App\Models\SystemSetting::get('book_intro_image');
+            if ($oldImg && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldImg)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImg);
+            }
+
+            $path = $request->file('book_intro_image')->store('site', 'public');
+            \App\Models\SystemSetting::set('book_intro_image', $path, 'site');
+        }
+
+        if ($request->boolean('remove_book_intro') && !$request->hasFile('book_intro_image')) {
+            $oldImg = \App\Models\SystemSetting::get('book_intro_image');
+            if ($oldImg && \Illuminate\Support\Facades\Storage::disk('public')->exists($oldImg)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImg);
+            }
+            \App\Models\SystemSetting::set('book_intro_image', '', 'site');
         }
 
         return back()->with('success', __('Layout settings updated successfully.'));

@@ -311,21 +311,30 @@
                                 </button>
                             </div>
                             <div id="news-content">
-                                @include('site.pages.partials.home-news', ['newsType' => $activeNewsType ?? 'news'])
                             </div>
                         </div>
 
                         <!-- Section 4: Giới thiệu sách -->
-                        <div class="bg-white rounded-3xl p-6 text-vttu-dark border border-slate-100 shadow-xl relative overflow-hidden" data-aos="fade-up">
-                            <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full"></div>
-                            <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                                <div class="md:col-span-4">
-                                    <div class="aspect-[3/4] bg-white rounded-2xl shadow-2xl p-4 rotate-3">
+                    <div class="bg-white rounded-3xl p-6 text-vttu-dark border border-slate-100 shadow-xl relative overflow-hidden" data-aos="fade-up">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full"></div>
+                        <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <div class="md:col-span-4">
+                                <div class="aspect-[3/4] bg-white rounded-2xl shadow-2xl p-4 rotate-3 overflow-hidden">
+                                    @php $bookIntroImg = \App\Models\SystemSetting::get('book_intro_image'); @endphp
+                                    @if($bookIntroImg)
+                                        <img src="{{ asset('storage/' . $bookIntroImg) }}" 
+                                             class="w-full h-full object-cover rounded-lg"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                        <div class="hidden w-full h-full bg-slate-200 rounded-lg items-center justify-center">
+                                            <i class="fas fa-book-open text-slate-400 text-5xl"></i>
+                                        </div>
+                                    @else
                                         <div class="w-full h-full bg-slate-200 rounded-lg flex items-center justify-center">
                                             <i class="fas fa-book-open text-slate-400 text-5xl"></i>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
+                            </div>
                                 <div class="md:col-span-8 space-y-6">
                                     <div class="inline-flex px-4 py-1.5 rounded-full bg-vttu-red/5 backdrop-blur border border-vttu-red/10 text-[10px] font-black tracking-widest uppercase text-vttu-red">Book of the Month</div>
                                     <h3 class="text-4xl font-black leading-tight text-vttu-dark">GIỚI THIỆU SÁCH<br>HÀNG THÁNG</h3>
