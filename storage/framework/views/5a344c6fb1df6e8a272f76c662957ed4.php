@@ -43,7 +43,7 @@
     }
 ?>
 
-<div class="min-h-screen bg-background text-foreground animate-fade-in">
+<div class="min-h-screen bg-background text-foreground animate-fade-in" x-data="{ sidebarOpen: true }">
     <!-- Header / Breadcrumb -->
     <header class="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div class="container flex h-14 items-center px-4 md:px-6">
@@ -62,11 +62,18 @@
         </div>
     </header>
 
-    <div class="container px-4 py-4 mt-[6px] md:px-6 md:py-6">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <div class="w-full px-4 py-4 mt-[6px] md:px-6 md:py-6">
+        <div class="flex flex-col lg:flex-row gap-4">
             
             <!-- Sidebar -->
-            <aside class="lg:col-span-3 space-y-4 order-2 lg:order-1">
+            <aside class="lg:w-72 space-y-4 order-2 lg:order-1 transition-all duration-300 overflow-hidden"
+                   x-show="sidebarOpen"
+                   x-transition:enter="transition ease-out duration-300"
+                   x-transition:enter-start="opacity-0 -translate-x-full"
+                   x-transition:enter-end="opacity-100 translate-x-0"
+                   x-transition:leave="transition ease-in duration-200"
+                   x-transition:leave-start="opacity-100 translate-x-0"
+                   x-transition:leave-end="opacity-0 -translate-x-full">
                 <!-- Navigation Card -->
                 <div class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden">
                     <div class="p-3 bg-vttu-red border-b border-vttu-red/20 shadow-sm relative overflow-hidden group">
@@ -124,9 +131,28 @@
             </aside>
 
             <!-- Main Content -->
-            <main class="lg:col-span-9 space-y-4 order-1 lg:order-2">
-                <article class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden">
-                    <!-- Article Header -->
+            <main class="flex-1 space-y-4 order-1 lg:order-2 transition-all duration-300">
+                <?php if($node->node_code === 'tai-lieu-so' || $node->masterpage === 'digital-resources'): ?>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <button @click="sidebarOpen = !sidebarOpen" 
+                                    class="p-2 rounded bg-muted hover:bg-primary/10 hover:text-primary active:scale-95 transition-all border border-border shadow-sm group"
+                                    title="<?php echo e(__('Thu gọn/Mở rộng Sidebar')); ?>">
+                                <i data-lucide="panel-left-close" class="w-4 h-4 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'"></i>
+                            </button>
+                            <div class="w-1 h-4 bg-vttu-red rounded-full"></div>
+                            <h2 class="text-sm font-black uppercase tracking-widest text-vttu-dark"><?php echo e(__('Tài nguyên')); ?></h2>
+                        </div>
+                    </div>
+                    
+                    <?php if(isset($resource)): ?>
+                        <?php echo $__env->make('site.pages.partials.digital-resource-detail-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php else: ?>
+                        <?php echo $__env->make('site.pages.partials.digital-list-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <article class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden text-gray-500">
+                        <!-- Article Header -->
                     <?php $headerColors = $sidebarIcons[$node->icon] ?? ['from-primary/10 to-primary/5', '']; ?>
                     <div class="p-4 border-b border-border bg-gradient-to-r <?php echo e($headerColors[0]); ?> opacity-90">
                         <div class="flex items-center gap-3">
@@ -154,41 +180,42 @@
                     </div>
 
                     <!-- Navigation Footer -->
-                    <div class="p-3 border-t border-border bg-muted/20 grid grid-cols-2 gap-3">
-                        <?php
-                            $prev = $sidebarItems->where('sort_order', '<', $node->sort_order)->last();
-                            $next = $sidebarItems->where('sort_order', '>', $node->sort_order)->first();
-                        ?>
-                        
-                        <div>
-                            <?php if($prev): ?>
-                                <a href="<?php echo e($prev->getUrl()); ?>" class="flex items-center gap-2 p-2 rounded border border-border bg-card hover:bg-muted hover:border-vttu-red/30 active:bg-accent transition-all group">
-                                    <div class="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-vttu-red group-hover:text-white group-active:scale-90 transition-all">
-                                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                    <div class="overflow-hidden">
-                                        <p class="text-[8px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Trước')); ?></p>
-                                        <p class="text-[11px] font-bold text-foreground truncate group-hover:text-vttu-red transition-colors"><?php echo e($prev->display_name); ?></p>
-                                    </div>
-                                </a>
-                            <?php endif; ?>
+                        <div class="p-3 border-t border-border bg-muted/20 grid grid-cols-2 gap-3">
+                            <?php
+                                $prev = $sidebarItems->where('sort_order', '<', $node->sort_order)->last();
+                                $next = $sidebarItems->where('sort_order', '>', $node->sort_order)->first();
+                            ?>
+                            
+                            <div>
+                                <?php if($prev): ?>
+                                    <a href="<?php echo e($prev->getUrl()); ?>" class="flex items-center gap-2 p-2 rounded border border-border bg-card hover:bg-muted hover:border-vttu-red/30 active:bg-accent transition-all group">
+                                        <div class="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-vttu-red group-hover:text-white group-active:scale-90 transition-all">
+                                            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                        <div class="overflow-hidden">
+                                            <p class="text-[8px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Trước')); ?></p>
+                                            <p class="text-[11px] font-bold text-foreground truncate group-hover:text-vttu-red transition-colors"><?php echo e($prev->display_name); ?></p>
+                                        </div>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="text-right">
+                                <?php if($next): ?>
+                                    <a href="<?php echo e($next->getUrl()); ?>" class="flex items-center justify-end gap-2 p-2 rounded border border-border bg-card hover:bg-muted hover:border-vttu-red/30 active:bg-accent transition-all group">
+                                        <div class="overflow-hidden text-right">
+                                            <p class="text-[8px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Tiếp')); ?></p>
+                                            <p class="text-[11px] font-bold text-foreground truncate group-hover:text-vttu-red transition-colors"><?php echo e($next->display_name); ?></p>
+                                        </div>
+                                        <div class="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-vttu-red group-hover:text-white group-active:scale-90 transition-all">
+                                            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                        </div>
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        
-                        <div class="text-right">
-                            <?php if($next): ?>
-                                <a href="<?php echo e($next->getUrl()); ?>" class="flex items-center justify-end gap-2 p-2 rounded border border-border bg-card hover:bg-muted hover:border-vttu-red/30 active:bg-accent transition-all group">
-                                    <div class="overflow-hidden text-right">
-                                        <p class="text-[8px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Tiếp')); ?></p>
-                                        <p class="text-[11px] font-bold text-foreground truncate group-hover:text-vttu-red transition-colors"><?php echo e($next->display_name); ?></p>
-                                    </div>
-                                    <div class="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-vttu-red group-hover:text-white group-active:scale-90 transition-all">
-                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                    </div>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </article>
+                    </article>
+                <?php endif; ?>
 
                 <!-- Page Builder Blocks -->
                 <?php if(isset($node) && $node->activeItems->count() > 0): ?>

@@ -423,6 +423,15 @@ class SiteController extends Controller
                 ->get();
         }
 
+        // Nạp dữ liệu tài liệu số nếu truy cập trang tài liệu số
+        if ($code === 'tai-lieu-so' || $siteNode->masterpage === 'digital-resources') {
+            $extraData['resources'] = \App\Models\DigitalResource::with('folder')
+                ->where('status', 'published')
+                ->latest()
+                ->paginate(15);
+            $extraData['totalCount'] = \App\Models\DigitalResource::where('status', 'published')->count();
+        }
+
         // 1. Kiểm tra template preview qua query param
         $previewTemplate = request()->query('preview_template');
         if ($previewTemplate && view()->exists("site.pages.{$previewTemplate}")) {

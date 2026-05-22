@@ -31,14 +31,14 @@
         
         <div class="flex flex-wrap gap-2 w-full lg:w-auto">
             <button @click="toggleSidebar()" 
-                    class="px-3 py-2 bg-muted hover:bg-muted/80 text-foreground font-medium rounded-md transition-all border border-border flex items-center justify-center text-xs">
+                    class="btn-compact-muted">
                 <i x-show="sidebarOpen" data-lucide="indent" class="w-4 h-4"></i>
                 <i x-show="!sidebarOpen" data-lucide="outdent" class="w-4 h-4"></i>
                 <span class="ml-2" x-text="sidebarOpen ? '<?php echo e(__('Thu gọn')); ?>' : '<?php echo e(__('Mở rộng')); ?>'"></span>
             </button>
             <?php if(request('category_id')): ?>
             <a href="<?php echo e(route('admin.digital-cataloging.create', ['category_id' => request('category_id'), 'collapsed' => request('collapsed')])); ?>" 
-               class="flex-1 lg:flex-none px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-md shadow-sm transition-all flex items-center justify-center text-xs group">
+               class="btn-compact-primary group">
                 <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i>
                 <?php echo e(__('Biên Mục Tài Liệu Số')); ?>
 
@@ -153,7 +153,7 @@
                                placeholder="<?php echo e(__('Tìm kiếm tiêu đề, mã số...')); ?>"
                                class="w-full pl-9 pr-4 py-2 bg-background border border-border rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs">
                     </div>
-                    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-md transition-all shadow-sm flex items-center justify-center text-xs">
+                    <button type="submit" class="btn-compact-primary">
                         <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
                         <?php echo e(__('Lọc')); ?>
 
@@ -176,7 +176,7 @@
                         </thead>
                         <tbody class="divide-y divide-border transition-colors duration-200">
                             <?php $__empty_1 = true; $__currentLoopData = $resources; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $res): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                            <tr class="hover:bg-muted/50 transition-all group">
+                            <tr class="table-row-hover group">
                                 <td class="px-4 py-2">
                                     <div class="flex items-center gap-3">
                                         <div class="relative w-8 h-8 shrink-0 bg-muted rounded flex items-center justify-center text-muted-foreground border border-border shadow-sm">
@@ -233,13 +233,13 @@
                                 </td>
                                 <td class="px-4 py-2 text-right">
                                     <div class="flex justify-end gap-1.5">
-                                        <button class="w-7 h-7 rounded bg-background hover:bg-primary hover:text-primary-foreground text-muted-foreground transition-all flex items-center justify-center border border-border shadow-sm group/btn" title="Xem">
+                                        <button class="btn-icon-compact" title="Xem">
                                             <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                         </button>
-                                        <button class="w-7 h-7 rounded bg-background hover:bg-primary hover:text-primary-foreground text-muted-foreground transition-all flex items-center justify-center border border-border shadow-sm group/btn" title="Biên tập">
+                                        <button class="btn-icon-compact" title="Biên tập">
                                             <i data-lucide="edit" class="w-3.5 h-3.5"></i>
                                         </button>
-                                        <button class="w-7 h-7 rounded bg-background hover:bg-destructive hover:text-destructive-foreground text-muted-foreground transition-all flex items-center justify-center border border-border shadow-sm group/btn" title="Xóa">
+                                        <button class="btn-icon-danger" title="Xóa">
                                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </div>

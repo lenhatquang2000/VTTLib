@@ -33,52 +33,28 @@
         </div>
     </div>
 
-    <!-- Info & Statistics -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <!-- Language Info (4/12) -->
-        <div class="lg:col-span-4 bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-center">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-muted flex items-center justify-center text-muted-foreground">
-                    <i data-lucide="languages" class="w-4 h-4"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Ngôn ngữ hiện tại')); ?></p>
-                    <p class="text-xs font-bold text-foreground"><?php echo e(strtoupper($language)); ?> - <?php echo e($language === 'vi' ? 'Tiếng Việt' : 'English'); ?></p>
-                </div>
+    <!-- Statistics -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Tổng số</p>
+                <i data-lucide="files" class="w-3 h-3 text-blue-500 opacity-50"></i>
             </div>
-            <p class="mt-2 text-[9px] text-muted-foreground italic leading-tight">* <?php echo e(__('Sử dụng bộ chuyển đổi ngôn ngữ ở thanh trên để thay đổi.')); ?></p>
+            <p class="text-xl font-black text-foreground"><?php echo e($stats['total'] ?? 0); ?></p>
         </div>
-
-        <!-- Statistics (8/12) -->
-        <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-1">
-                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Tổng số</p>
-                    <i data-lucide="files" class="w-3 h-3 text-blue-500 opacity-50"></i>
-                </div>
-                <p class="text-xl font-black text-foreground"><?php echo e($stats['total'] ?? 0); ?></p>
+        <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Hoạt động</p>
+                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500 opacity-50"></i>
             </div>
-            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-1">
-                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Hoạt động</p>
-                    <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500 opacity-50"></i>
-                </div>
-                <p class="text-xl font-black text-foreground"><?php echo e($stats['published'] ?? 0); ?></p>
+            <p class="text-xl font-black text-foreground"><?php echo e($stats['published'] ?? 0); ?></p>
+        </div>
+        <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1">
+                <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Bản nháp</p>
+                <i data-lucide="edit-3" class="w-3 h-3 text-amber-500 opacity-50"></i>
             </div>
-            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-1">
-                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Bản nháp</p>
-                    <i data-lucide="edit-3" class="w-3 h-3 text-amber-500 opacity-50"></i>
-                </div>
-                <p class="text-xl font-black text-foreground"><?php echo e($stats['draft'] ?? 0); ?></p>
-            </div>
-            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-1">
-                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Ngôn ngữ</p>
-                    <i data-lucide="globe" class="w-3 h-3 text-purple-500 opacity-50"></i>
-                </div>
-                <p class="text-xl font-black text-foreground uppercase"><?php echo e($language); ?></p>
-            </div>
+            <p class="text-xl font-black text-foreground"><?php echo e($stats['draft'] ?? 0); ?></p>
         </div>
     </div>
 

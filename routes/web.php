@@ -36,6 +36,9 @@ Route::get('/emergency-clear-cache', function() {
 // Barcode Generation (Public access for image display)
 Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::class, 'show'])->name('admin.barcode.show');
 
+// Digital Resource Routes
+Route::get('/digital-resource/{id}', [\App\Http\Controllers\Site\DigitalResourceController::class, 'show'])->name('site.digital-resources.show');
+
 // Public Website Routes
 Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
 Route::get('/opac', [\App\Http\Controllers\SiteController::class, 'opac'])->name('site.opac');
