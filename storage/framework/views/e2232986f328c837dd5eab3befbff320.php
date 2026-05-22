@@ -1,6 +1,4 @@
-@extends('layouts.site')
-
-@php
+<?php
     // Trích xuất dữ liệu MARC trực tiếp để đảm bảo không bị lỗi undefined variable
     $marcData = [];
     foreach ($record->fields as $field) {
@@ -27,22 +25,22 @@
 
     // Tóm tắt (520$a)
     $summary = $marcData['520']['a'] ?? 'Nội dung đang được cập nhật...';
-@endphp
+?>
 
-@section('title', $fullTitle . ' - Chi tiết tài liệu - VTTLib')
+<?php $__env->startSection('title', $fullTitle . ' - Chi tiết tài liệu - VTTLib'); ?>
 
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="bg-slate-50 min-h-screen pt-24 pb-12">
     <div class="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Breadcrumb -->
         <nav class="flex mb-8 text-sm font-medium" aria-label="Breadcrumb">
             <ol class="flex items-center space-x-2">
-                <li><a href="{{ route('home') }}" class="text-slate-400 hover:text-vttu-red transition-colors">Trang chủ</a></li>
+                <li><a href="<?php echo e(route('home')); ?>" class="text-slate-400 hover:text-vttu-red transition-colors">Trang chủ</a></li>
                 <li><i class="fas fa-chevron-right text-[10px] text-slate-300"></i></li>
-                <li><a href="{{ route('opac.search') }}" class="text-slate-400 hover:text-vttu-red transition-colors">Tra cứu OPAC</a></li>
+                <li><a href="<?php echo e(route('opac.search')); ?>" class="text-slate-400 hover:text-vttu-red transition-colors">Tra cứu OPAC</a></li>
                 <li><i class="fas fa-chevron-right text-[10px] text-slate-300"></i></li>
-                <li class="text-vttu-dark truncate max-w-[200px] md:max-w-md">{{ $fullTitle }}</li>
+                <li class="text-vttu-dark truncate max-w-[200px] md:max-w-md"><?php echo e($fullTitle); ?></li>
             </ol>
         </nav>
 
@@ -52,30 +50,30 @@
             <div class="lg:col-span-4 space-y-6">
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col items-center sticky top-28">
                     <div class="w-full aspect-[3/4] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl shadow-slate-200 mb-8 border border-slate-100 relative group">
-                        @if($record->cover_image)
-                            <img src="{{ asset('storage/' . $record->cover_image) }}" class="w-full h-full object-cover">
-                        @else
+                        <?php if($record->cover_image): ?>
+                            <img src="<?php echo e(asset('storage/' . $record->cover_image)); ?>" class="w-full h-full object-cover">
+                        <?php else: ?>
                             <div class="w-full h-full flex flex-col items-center justify-center text-slate-200">
                                 <i class="fas fa-book-open text-8xl"></i>
                             </div>
-                        @endif
+                        <?php endif; ?>
                         <div class="absolute top-4 right-4">
-                            <span class="px-4 py-1.5 bg-vttu-red text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">{{ $record->record_type ?? 'Sách' }}</span>
+                            <span class="px-4 py-1.5 bg-vttu-red text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg"><?php echo e($record->record_type ?? 'Sách'); ?></span>
                         </div>
                     </div>
 
                     <div class="w-full space-y-3">
-                        @if($record->items->where('status', 'available')->count() > 0)
-                            <button type="button" onclick="confirmReservation({{ $record->id }}, '{{ addslashes($fullTitle) }}')" class="w-full py-4 bg-vttu-red text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-vttu-dark transition-all shadow-xl shadow-vttu-red/20 flex items-center justify-center gap-3">
+                        <?php if($record->items->where('status', 'available')->count() > 0): ?>
+                            <button type="button" onclick="confirmReservation(<?php echo e($record->id); ?>, '<?php echo e(addslashes($fullTitle)); ?>')" class="w-full py-4 bg-vttu-red text-white rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:bg-vttu-dark transition-all shadow-xl shadow-vttu-red/20 flex items-center justify-center gap-3">
                                 <i class="fas fa-shopping-basket"></i>
                                 Đăng ký mượn ngay
                             </button>
-                        @else
+                        <?php else: ?>
                             <button disabled class="w-full py-4 bg-slate-200 text-slate-400 rounded-2xl font-black uppercase text-xs tracking-[0.2em] cursor-not-allowed flex items-center justify-center gap-3">
                                 <i class="fas fa-clock"></i>
                                 Tài liệu tạm hết
                             </button>
-                        @endif
+                        <?php endif; ?>
                         
                         <button class="w-full py-4 bg-white text-vttu-dark border-2 border-slate-100 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:border-vttu-red/20 hover:text-vttu-red transition-all flex items-center justify-center gap-3">
                             <i class="far fa-heart"></i>
@@ -104,7 +102,8 @@
                 <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
                     <div class="mb-8 pb-8 border-b border-slate-50">
                         <h1 class="text-3xl md:text-4xl font-black text-vttu-dark tracking-tight leading-tight mb-4">
-                            {{ $fullTitle }}
+                            <?php echo e($fullTitle); ?>
+
                         </h1>
                         <div class="flex flex-wrap items-center gap-6">
                             <div class="flex items-center gap-2">
@@ -113,7 +112,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Tác giả</p>
-                                    <p class="text-sm font-bold text-vttu-dark leading-none">{{ $author }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark leading-none"><?php echo e($author); ?></p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -122,7 +121,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Nhà xuất bản</p>
-                                    <p class="text-sm font-bold text-vttu-dark leading-none">{{ $publisher }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark leading-none"><?php echo e($publisher); ?></p>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -131,7 +130,7 @@
                                 </div>
                                 <div>
                                     <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Năm XB</p>
-                                    <p class="text-sm font-bold text-vttu-dark leading-none">{{ $pubYear ?: 'Đang cập nhật' }}</p>
+                                    <p class="text-sm font-bold text-vttu-dark leading-none"><?php echo e($pubYear ?: 'Đang cập nhật'); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -145,7 +144,7 @@
                         </h3>
                         <div class="prose prose-slate max-w-none">
                             <p class="text-slate-600 leading-relaxed font-medium bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
-                                "{{ $summary }}"
+                                "<?php echo e($summary); ?>"
                             </p>
                         </div>
                     </div>
@@ -159,23 +158,23 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                             <div class="flex justify-between py-3 border-b border-slate-50 items-center">
                                 <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Mã vạch (Barcode)</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $record->items->first()?->barcode ?? 'N/A' }}</span>
+                                <span class="text-sm font-bold text-vttu-dark"><?php echo e($record->items->first()?->barcode ?? 'N/A'); ?></span>
                             </div>
                             <div class="flex justify-between py-3 border-b border-slate-50 items-center">
                                 <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Khổ sách</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['300']['c'] ?? 'Đang cập nhật' }}</span>
+                                <span class="text-sm font-bold text-vttu-dark"><?php echo e($marcData['300']['c'] ?? 'Đang cập nhật'); ?></span>
                             </div>
                             <div class="flex justify-between py-3 border-b border-slate-50 items-center">
                                 <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Số trang</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['300']['a'] ?? 'Đang cập nhật' }}</span>
+                                <span class="text-sm font-bold text-vttu-dark"><?php echo e($marcData['300']['a'] ?? 'Đang cập nhật'); ?></span>
                             </div>
                             <div class="flex justify-between py-3 border-b border-slate-50 items-center">
                                 <span class="text-xs font-black text-slate-400 uppercase tracking-widest">ISBN</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['020']['a'] ?? 'N/A' }}</span>
+                                <span class="text-sm font-bold text-vttu-dark"><?php echo e($marcData['020']['a'] ?? 'N/A'); ?></span>
                             </div>
                             <div class="flex justify-between py-3 border-b border-slate-50 items-center">
                                 <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Phân loại DDC</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['082']['a'] ?? 'N/A' }}</span>
+                                <span class="text-sm font-bold text-vttu-dark"><?php echo e($marcData['082']['a'] ?? 'N/A'); ?></span>
                             </div>
                             <div class="flex justify-between py-3 border-b border-slate-50 items-center">
                                 <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Ngôn ngữ</span>
@@ -202,20 +201,20 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-50">
-                                @foreach($record->items as $item)
+                                <?php $__currentLoopData = $record->items; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <tr>
-                                    <td class="py-4 font-mono text-sm font-bold text-vttu-dark">{{ $item->accession_number }}</td>
-                                    <td class="py-4 text-sm font-bold text-slate-600">{{ $item->storageLocation->name ?? 'N/A' }}</td>
-                                    <td class="py-4 text-sm font-bold text-slate-600">{{ $item->shelf ?? 'Đang cập nhật' }}</td>
+                                    <td class="py-4 font-mono text-sm font-bold text-vttu-dark"><?php echo e($item->accession_number); ?></td>
+                                    <td class="py-4 text-sm font-bold text-slate-600"><?php echo e($item->storageLocation->name ?? 'N/A'); ?></td>
+                                    <td class="py-4 text-sm font-bold text-slate-600"><?php echo e($item->shelf ?? 'Đang cập nhật'); ?></td>
                                     <td class="py-4 text-center">
-                                        @if($item->status == 'available')
+                                        <?php if($item->status == 'available'): ?>
                                             <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase rounded-lg">Có thể mượn</span>
-                                        @else
+                                        <?php else: ?>
                                             <span class="px-3 py-1 bg-rose-50 text-rose-500 text-[10px] font-black uppercase rounded-lg">Đang bận</span>
-                                        @endif
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>
@@ -225,7 +224,7 @@
         </div>
     </div>
 </div>
-@section('scripts')
+<?php $__env->startSection('scripts'); ?>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     @keyframes swal-book-float {
@@ -294,7 +293,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
@@ -337,5 +336,7 @@
         });
     }
 </script>
-@endsection
-@endsection
+<?php $__env->stopSection(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.site', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/site/pages/book-detail.blade.php ENDPATH**/ ?>

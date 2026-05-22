@@ -219,45 +219,36 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
                      :class="sidebarOpen ? 'lg:w-[72%]' : 'lg:w-full'">
                     <div class="space-y-6 w-full">
                         <!-- Section 1: 3 Tabs (Sách Mới | Tạp Chí Online | Thư mục) -->
-                        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
-                            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
-                                <div class="flex items-center gap-6 overflow-x-auto" id="book-tabs">
+                        <div class="bg-white/95 backdrop-blur-sm rounded-md p-4 shadow-sm border border-slate-100" data-aos="fade-up">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                                <div class="flex items-center gap-3 overflow-x-auto" id="book-tabs">
                                     <button @click="loadTab('book', 'book-tabs', 'books-content')"
-                                        class="tab-btn text-xl font-black px-6 py-2 rounded-xl whitespace-nowrap transition-all <?php echo e(($activeType ?? 'book') === 'book' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red'); ?>">
+                                        class="tab-btn text-sm font-bold px-4 py-1.5 rounded-sm whitespace-nowrap transition-all <?php echo e(($activeType ?? 'book') === 'book' ? 'text-white bg-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'); ?>">
                                         <?php echo e(__('SÁCH MỚI')); ?>
 
                                     </button>
                                     <button @click="loadTab('journal', 'book-tabs', 'books-content')"
-                                        class="tab-btn text-xl font-black px-6 py-2 rounded-xl whitespace-nowrap transition-all <?php echo e(($activeType ?? '') === 'journal' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red'); ?>">
+                                        class="tab-btn text-sm font-bold px-4 py-1.5 rounded-sm whitespace-nowrap transition-all <?php echo e(($activeType ?? '') === 'journal' ? 'text-white bg-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'); ?>">
                                         <?php echo e(__('TẠP CHÍ ONLINE')); ?>
 
                                     </button>
                                     <button @click="loadTab('folder', 'book-tabs', 'books-content')"
-                                        class="tab-btn text-xl font-black px-6 py-2 rounded-xl whitespace-nowrap transition-all <?php echo e(($activeType ?? '') === 'folder' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red'); ?>">
+                                        class="tab-btn text-sm font-bold px-4 py-1.5 rounded-sm whitespace-nowrap transition-all <?php echo e(($activeType ?? '') === 'folder' ? 'text-white bg-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'); ?>">
                                         <?php echo e(__('THƯ MỤC')); ?>
 
                                     </button>
                                 </div>
                                 
                                 
-                                <button @click="sidebarOpen = !sidebarOpen; 
-                                        $nextTick(() => {
-                                            console.log('Sidebar Toggled. Open:', sidebarOpen);
-                                            const leftCol = $el.closest('.flex-col');
-                                            const infoGrid = document.getElementById('info-grid');
-                                            console.log('Left Column Width:', leftCol ? leftCol.offsetWidth : 'N/A');
-                                            console.log('Info Grid Width:', infoGrid ? infoGrid.offsetWidth : 'N/A');
-                                            if(infoGrid) {
-                                                console.log('Child 1 width:', infoGrid.children[0].offsetWidth);
-                                                console.log('Child 2 width:', infoGrid.children[1].offsetWidth);
-                                            }
-                                        })" 
-                                        class="hidden lg:flex items-center justify-center w-12 h-12 bg-slate-50 hover:bg-vttu-red hover:text-white text-slate-400 rounded-2xl transition-all shadow-sm border border-slate-100 group">
+                                <button @click="sidebarOpen = !sidebarOpen" 
+                                        class="hidden lg:flex items-center justify-center w-8 h-8 bg-slate-50 hover:bg-vttu-red hover:text-white text-slate-400 rounded-sm transition-all shadow-sm border border-slate-100 group">
                                     <i class="fas" :class="sidebarOpen ? 'fa-indent' : 'fa-outdent'"></i>
                                 </button>
                             </div>
-                            <div id="books-content">
-                                <?php echo $__env->make('site.pages.partials.home-books', ['newBooks' => $newBooks], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <div id="books-content" class="min-h-[300px] relative flex items-start justify-start pt-4">
+                                <div class="flex items-center justify-center w-full py-20">
+                                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-vttu-red"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -529,8 +520,8 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
     // Define the data function first for Alpine.js
     function catalogWizard() {
         return {
-            loadTab(type, tabsId, contentId) {
-                const target = event.currentTarget;
+            loadTab(type, tabsId, contentId, eventOverride = null) {
+                const target = eventOverride ? eventOverride.currentTarget : event.currentTarget;
                 const contentDiv = document.getElementById(contentId);
                 const tabsDiv = document.getElementById(tabsId);
                 
@@ -541,18 +532,53 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
                 fetch(`<?php echo e(route('home')); ?>?type=${type}`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
-                .then(response => response.text())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
                 .then(html => {
                     contentDiv.innerHTML = html;
                     contentDiv.classList.remove('tab-loading');
                     
                     tabsDiv.querySelectorAll('.tab-btn').forEach(btn => {
-                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-sm');
                         btn.classList.add('text-slate-400', 'hover:text-vttu-red');
                     });
                     target.classList.remove('text-slate-400', 'hover:text-vttu-red');
-                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-sm');
+
+                    // Re-init Swiper for new content
+                    this.initBooksSwiper();
+                })
+                .catch(error => {
+                    console.error('Error loading tab:', error);
+                    contentDiv.classList.remove('tab-loading');
                 });
+            },
+            initBooksSwiper() {
+                // Đảm bảo Swiper cũ được destroy nếu cần hoặc chỉ khởi tạo nếu có container
+                const container = document.querySelector('.books-swiper-container');
+                if (container) {
+                    if (container.swiper) container.swiper.destroy();
+                    new Swiper('.books-swiper-container', {
+                        slidesPerView: 1,
+                        spaceBetween: 12,
+                        centeredSlides: false,
+                        navigation: {
+                            nextEl: '.books-next',
+                            prevEl: '.books-prev',
+                        },
+                        pagination: {
+                            el: '.books-pagination',
+                            clickable: true,
+                        },
+                        breakpoints: {
+                            640: { slidesPerView: 2, spaceBetween: 16 },
+                            1024: { slidesPerView: 3, spaceBetween: 20 },
+                            1280: { slidesPerView: 4, spaceBetween: 24 }
+                        }
+                    });
+                }
             },
             loadResourceTab(event, type, tabsId, contentId) {
                 const target = event.currentTarget;
@@ -680,6 +706,17 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
             },
             speed: 1000,
         });
+        // Initialize Books Swiper on load
+        const wizard = catalogWizard();
+        // wizard.initBooksSwiper(); // Không init trực tiếp vì sẽ load bằng AJAX bên dưới
+
+        // Force load tab đầu tiên bằng AJAX khi vào trang
+        const firstTab = document.querySelector('#book-tabs .tab-btn');
+        if (firstTab) {
+            // Tạo một mock event để khớp với logic loadTab
+            const mockEvent = { currentTarget: firstTab };
+            wizard.loadTab('book', 'book-tabs', 'books-content', mockEvent);
+        }
     });
 </script>
 <?php $__env->stopSection(); ?>
