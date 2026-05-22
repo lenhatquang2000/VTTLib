@@ -61,7 +61,7 @@ class SiteController extends Controller
             $query->where('record_type', 'book');
         }
 
-        $newBooks = $query->latest()->take(8)->get();
+        $newBooks = $query->latest()->take(20)->get();
 
         // Kiểm tra AJAX cho Section 1 tabs (Sách mới | Tạp chí | Thư mục)
         if ($request->ajax() && $request->has('type')) {

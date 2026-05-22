@@ -247,35 +247,35 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                             
                             @if($showAnnouncements)
                                 <!-- Thông báo -->
-                                <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl shadow-black/5 border border-slate-100 overflow-hidden" data-aos="fade-up">
-                                    <div class="bg-gradient-to-r from-vttu-red to-vttu-dark px-6 py-4 flex items-center justify-between">
-                                        <h3 class="text-xl font-black text-white font-montserrat tracking-tight uppercase">{{ __('THÔNG BÁO') }}</h3>
-                                        <a href="#" class="text-vttu-yellow text-[10px] font-black uppercase tracking-widest hover:underline">{{ __('Xem tất cả') }}</a>
+                                <div class="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up">
+                                    <div class="bg-vttu-red px-4 py-3 flex items-center justify-between">
+                                        <h3 class="text-sm font-bold text-white uppercase tracking-tight">{{ __('THÔNG BÁO') }}</h3>
+                                        <a href="#" class="text-vttu-yellow text-[10px] font-bold uppercase tracking-widest hover:underline">{{ __('Xem tất cả') }}</a>
                                     </div>
-                                    <div class="p-6">
+                                    <div class="p-3">
                                         @if(isset($homeAnnouncements) && $homeAnnouncements->count() > 0)
-                                            @php 
-                                                $firstAnnouncement = $homeAnnouncements->first(); 
-                                            @endphp
-                                            <div class="aspect-video bg-slate-100 rounded-2xl mb-4 flex items-center justify-center overflow-hidden group">
-                                                <a href="{{ $firstAnnouncement->url }}" class="w-full h-full">
-                                                    <img src="{{ $firstAnnouncement->featured_image ?? 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80' }}" 
-                                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                            @php $firstAnn = $homeAnnouncements->first(); @endphp
+                                            <div class="mb-3 aspect-video rounded-md overflow-hidden bg-slate-100 relative group">
+                                                <a href="{{ $firstAnn->url }}" class="w-full h-full block">
+                                                    <img src="{{ $firstAnn->featured_image ?? 'https://img.freepik.com/free-vector/breaking-news-concept_23-2148514216.jpg' }}" 
+                                                         class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                                         onerror="this.onerror=null;this.src='https://img.freepik.com/free-vector/breaking-news-concept_23-2148514216.jpg'">
                                                 </a>
                                             </div>
-                                            <div class="space-y-3">
+                                            <div class="space-y-2">
                                                 @foreach($homeAnnouncements as $item)
-                                                    <a href="{{ $item->url }}" class="block text-vttu-dark font-bold hover:text-vttu-red transition-colors text-sm line-clamp-1">
-                                                        • {{ $item->title }}
+                                                    <a href="{{ $item->url }}" class="flex items-start gap-2 text-vttu-dark hover:text-vttu-red transition-colors group">
+                                                        <span class="text-vttu-red mt-1">•</span>
+                                                        <div class="flex-1">
+                                                            <p class="text-xs font-medium line-clamp-2 leading-snug group-hover:underline">{{ $item->title }}</p>
+                                                            <p class="text-[10px] text-slate-400 mt-0.5">{{ $item->created_at->format('H:i:s') }}</p>
+                                                        </div>
                                                     </a>
                                                 @endforeach
                                             </div>
                                         @else
-                                            <div class="aspect-video bg-slate-100 rounded-2xl mb-4 flex items-center justify-center overflow-hidden group">
-                                                <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                                            </div>
-                                            <div class="space-y-3">
-                                                <p class="text-sm text-slate-400 italic">Chưa có thông báo mới cập nhật</p>
+                                            <div class="py-6 text-center">
+                                                <p class="text-xs text-slate-400 italic">Chưa có thông báo mới cập nhật</p>
                                             </div>
                                         @endif
                                     </div>
@@ -283,36 +283,38 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                             @endif
 
                             <!-- Tin tức sự kiện -->
-                            <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl shadow-black/5 border border-slate-100 overflow-hidden" data-aos="fade-up">
-                                <div class="bg-gradient-to-r from-vttu-red to-vttu-dark px-6 py-4 flex items-center justify-between">
-                                    <h3 class="text-xl font-black text-white font-montserrat tracking-tight uppercase">{{ __('TIN TỨC SỰ KIỆN') }}</h3>
-                                    <a href="{{ route('news.index') }}" class="text-vttu-yellow text-[10px] font-black uppercase tracking-widest hover:underline">{{ __('Xem tất cả') }}</a>
+                            <div class="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up">
+                                <div class="bg-vttu-red px-4 py-3 flex items-center justify-between">
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-tight">{{ __('TIN TỨC SỰ KIỆN') }}</h3>
+                                    <a href="{{ route('news.index') }}" class="text-vttu-yellow text-[10px] font-bold uppercase tracking-widest hover:underline">{{ __('Xem tất cả') }}</a>
                                 </div>
-                                <div class="p-6">
+                                <div class="p-3">
                                     @if(isset($homeNews) && $homeNews->count() > 0)
                                         @php 
-                                            $newsOrdered = $homeNews->sortBy('sort_order')->take(5);
+                                            $newsOrdered = $homeNews->sortBy('sort_order');
                                             $firstNews = $newsOrdered->first(); 
                                         @endphp
-                                        <div class="aspect-video bg-slate-100 rounded-2xl mb-4 flex items-center justify-center overflow-hidden group">
-                                            <a href="{{ $firstNews->url }}" class="w-full h-full">
-                                                <img src="{{ $firstNews->featured_image ?? 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80' }}" 
-                                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                        <div class="mb-3 aspect-video rounded-md overflow-hidden bg-slate-100 relative group">
+                                            <a href="{{ $firstNews->url }}" class="w-full h-full block">
+                                                <img src="{{ $firstNews->featured_image ?? 'https://img.freepik.com/free-vector/breaking-news-concept_23-2148514216.jpg' }}" 
+                                                     class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                                     onerror="this.onerror=null;this.src='https://img.freepik.com/free-vector/breaking-news-concept_23-2148514216.jpg'">
                                             </a>
                                         </div>
-                                        <div class="space-y-3">
-                                            @foreach($newsOrdered as $item)
-                                                <a href="{{ $item->url }}" class="block text-vttu-dark font-bold hover:text-vttu-red transition-colors text-sm line-clamp-1">
-                                                    • {{ $item->title }}
+                                        <div class="space-y-2">
+                                            @foreach($homeNews->sortBy('sort_order')->take(5) as $item)
+                                                <a href="{{ $item->url }}" class="flex items-start gap-2 text-vttu-dark hover:text-vttu-red transition-colors group">
+                                                    <span class="text-vttu-red mt-1">•</span>
+                                                    <div class="flex-1">
+                                                        <p class="text-xs font-medium line-clamp-2 leading-snug group-hover:underline">{{ $item->title }}</p>
+                                                        <p class="text-[10px] text-slate-400 mt-0.5">{{ $item->created_at->format('H:i:s') }}</p>
+                                                    </div>
                                                 </a>
                                             @endforeach
                                         </div>
                                     @else
-                                        <div class="aspect-video bg-slate-100 rounded-2xl mb-4 flex items-center justify-center overflow-hidden group">
-                                            <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                                        </div>
-                                        <div class="space-y-3">
-                                            <p class="text-sm text-slate-400 italic">Chưa có tin tức mới cập nhật</p>
+                                        <div class="py-6 text-center">
+                                            <p class="text-xs text-slate-400 italic">Chưa có tin tức mới cập nhật</p>
                                         </div>
                                     @endif
                                 </div>
@@ -320,63 +322,63 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                         </div>
 
                         <!-- Section 3: 2 Tabs (Tin mới | Video) -->
-                        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
-                            <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6" id="news-tabs">
+                        <div class="bg-white rounded-md shadow-sm border border-slate-100 p-4" data-aos="fade-up">
+                            <div class="flex items-center gap-4 border-b border-slate-100 pb-3 mb-4" id="news-tabs">
                                 <button @click="loadNewsTab('news', 'news-tabs', 'news-content')"
-                                    class="tab-btn text-xl font-black px-6 py-2 rounded-xl transition-all {{ ($activeNewsType ?? 'news') === 'news' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                    class="tab-btn text-sm font-bold px-4 py-1.5 rounded-sm transition-all {{ ($activeNewsType ?? 'news') === 'news' ? 'text-white bg-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}">
                                     {{ __('TIN MỚI') }}
                                 </button>
                                 <button @click="loadNewsTab('video', 'news-tabs', 'news-content')"
-                                    class="tab-btn text-xl font-black px-6 py-2 rounded-xl transition-all {{ ($activeNewsType ?? '') === 'video' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20' : 'text-slate-400 hover:text-vttu-red' }}">
+                                    class="tab-btn text-sm font-bold px-4 py-1.5 rounded-sm transition-all {{ ($activeNewsType ?? '') === 'video' ? 'text-white bg-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}">
                                     {{ __('VIDEO') }}
                                 </button>
                             </div>
-                            <div id="news-content">
+                            <div id="news-content" class="min-h-[200px] relative">
                                 @include('site.pages.partials.home-news', ['homeNews' => $homeNews])
                             </div>
                         </div>
 
                         <!-- Section 4: Giới thiệu sách -->
-                    <div class="bg-white rounded-3xl p-6 text-vttu-dark border border-slate-100 shadow-xl relative overflow-hidden" data-aos="fade-up">
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 blur-[80px] rounded-full"></div>
-                        <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                            <div class="md:col-span-4">
-                                <div class="aspect-[3/4] bg-white rounded-2xl shadow-2xl p-4 rotate-3 overflow-hidden">
-                                    @php $bookIntroImg = \App\Models\SystemSetting::get('book_intro_image'); @endphp
-                                    @if($bookIntroImg)
-                                        <img src="{{ asset('storage/' . $bookIntroImg) }}" 
-                                             class="w-full h-full object-cover rounded-lg"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
-                                        <div class="hidden w-full h-full bg-slate-200 rounded-lg items-center justify-center">
-                                            <i class="fas fa-book-open text-slate-400 text-5xl"></i>
-                                        </div>
-                                    @else
-                                        <div class="w-full h-full bg-slate-200 rounded-lg flex items-center justify-center">
-                                            <i class="fas fa-book-open text-slate-400 text-5xl"></i>
-                                        </div>
-                                    @endif
+                        <div class="bg-white rounded-md p-4 text-vttu-dark border border-slate-100 shadow-sm relative overflow-hidden" data-aos="fade-up">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-vttu-red/5 blur-3xl rounded-full"></div>
+                            <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                                <div class="md:col-span-3">
+                                    <div class="aspect-[3/4] bg-slate-100 rounded-sm shadow-md p-2 rotate-2 overflow-hidden border border-white">
+                                        @php $bookIntroImg = \App\Models\SystemSetting::get('book_intro_image'); @endphp
+                                        @if($bookIntroImg)
+                                            <img src="{{ asset('storage/' . $bookIntroImg) }}" 
+                                                 class="w-full h-full object-contain mix-blend-multiply"
+                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                            <div class="hidden w-full h-full bg-slate-50 items-center justify-center">
+                                                <i class="fas fa-book-open text-slate-300 text-3xl"></i>
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full bg-slate-50 flex items-center justify-center">
+                                                <i class="fas fa-book-open text-slate-300 text-3xl"></i>
+                                            </div>
+                                        @endif
+                                    </div>
                                 </div>
-                            </div>
-                                <div class="md:col-span-8 space-y-6">
-                                    <div class="inline-flex px-4 py-1.5 rounded-full bg-vttu-red/5 backdrop-blur border border-vttu-red/10 text-[10px] font-black tracking-widest uppercase text-vttu-red">Book of the Month</div>
-                                    <h3 class="text-4xl font-black leading-tight text-vttu-dark">{{ __('GIỚI THIỆU SÁCH') }}<br>{{ __('HÀNG THÁNG') }}</h3>
-                                    <p class="text-vttu-red/80 leading-relaxed">{{ __('Khám phá những tựa sách hay và giá trị nhất được đội ngũ thủ thư VTTU chọn lọc kỹ lưỡng dành cho bạn.') }}</p>
-                                    <button class="px-8 py-4 bg-vttu-yellow text-vttu-dark font-black rounded-2xl hover:bg-yellow-400 transition-all">{{ __('Khám phá ngay') }}</button>
+                                <div class="md:col-span-9 space-y-3">
+                                    <div class="inline-flex px-2 py-0.5 rounded-sm bg-vttu-red/5 border border-vttu-red/10 text-[9px] font-bold tracking-widest uppercase text-vttu-red">Book of the Month</div>
+                                    <h3 class="text-xl font-bold leading-tight text-vttu-dark uppercase">{{ __('GIỚI THIỆU SÁCH HÀNG THÁNG') }}</h3>
+                                    <p class="text-xs text-slate-500 leading-relaxed">{{ __('Khám phá những tựa sách hay và giá trị nhất được đội ngũ thủ thư VTTU chọn lọc kỹ lưỡng dành cho bạn.') }}</p>
+                                    <button class="px-6 py-2 bg-vttu-yellow text-vttu-dark text-xs font-bold rounded-sm hover:bg-yellow-400 transition-all shadow-sm">{{ __('Khám phá ngay') }}</button>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Section 5: 3 Tabs (Sản khoa | Nhi Khoa | Nội Khoa) -->
-                        <div class="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-xl shadow-black/5 border border-slate-100" data-aos="fade-up">
-                            <div class="flex items-center gap-6 border-b border-slate-100 pb-4 mb-6 overflow-x-auto" id="medical-tabs">
+                        <div class="bg-white rounded-md p-4 shadow-sm border border-slate-100" data-aos="fade-up">
+                            <div class="flex items-center gap-3 border-b border-slate-100 pb-3 mb-4 overflow-x-auto" id="medical-tabs">
                                 <button @click="loadMedicalTab('Sản khoa', 'medical-tabs', 'medical-content')"
-                                    class="tab-btn text-lg font-black text-white bg-vttu-red px-6 py-2 rounded-xl shadow-lg shadow-vttu-red/20 whitespace-nowrap transition-all">{{ __('CHUYÊN ĐỀ SẢN KHOA') }}</button>
+                                    class="tab-btn text-xs font-bold text-white bg-vttu-red px-4 py-1.5 rounded-sm shadow-sm whitespace-nowrap transition-all uppercase">{{ __('SẢN KHOA') }}</button>
                                 <button @click="loadMedicalTab('Nhi khoa', 'medical-tabs', 'medical-content')"
-                                    class="tab-btn text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">{{ __('CHUYÊN ĐỀ NHI KHOA') }}</button>
+                                    class="tab-btn text-xs font-bold text-slate-400 hover:text-vttu-red px-4 py-1.5 rounded-sm whitespace-nowrap transition-all uppercase">{{ __('NHI KHOA') }}</button>
                                 <button @click="loadMedicalTab('Nội khoa', 'medical-tabs', 'medical-content')"
-                                    class="tab-btn text-lg font-black text-slate-400 hover:text-vttu-red px-6 py-2 rounded-xl whitespace-nowrap transition-all">{{ __('CHUYÊN ĐỀ NỘI KHOA') }}</button>
+                                    class="tab-btn text-xs font-bold text-slate-400 hover:text-vttu-red px-4 py-1.5 rounded-sm whitespace-nowrap transition-all uppercase">{{ __('NỘI KHOA') }}</button>
                             </div>
-                            <div id="medical-content">
+                            <div id="medical-content" class="min-h-[200px]">
                                 @include('site.pages.partials.home-medical', ['medicalResources' => $medicalResources])
                             </div>
                         </div>
@@ -385,78 +387,79 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
 
                 <!-- RIGHT COLUMN (Sidebar) -->
                 <div class="transition-all duration-500 ease-in-out lg:sticky lg:top-24 h-fit" 
-                     :class="sidebarOpen ? 'lg:w-[25%] opacity-100 visible translate-x-0' : 'lg:w-0 lg:ml-[-2rem] opacity-0 invisible translate-x-full'">
-                    <div class="space-y-0 divide-y divide-vttu-red/10 min-w-[280px]">
+                     :class="sidebarOpen ? 'lg:w-[25%] opacity-100 visible translate-x-0' : 'lg:w-0 lg:ml-[-1rem] opacity-0 invisible translate-x-full'">
+                    <div class="space-y-4 min-w-[280px]">
                         
                         <!-- Thời gian phục vụ -->
-                        <div class="bg-vttu-red p-8 relative overflow-hidden group shadow-2xl shadow-vttu-red/20" data-aos="fade-left">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-2xl rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div>
-                            <div class="flex items-center gap-4 mb-8 relative z-10">
-                                <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-vttu-yellow border border-white/20">
-                                    <i class="fas fa-clock text-xl"></i>
+                        <div class="bg-vttu-red p-4 rounded-md relative overflow-hidden group shadow-sm" data-aos="fade-left">
+                            <div class="flex items-center gap-3 mb-4 relative z-10">
+                                <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-sm flex items-center justify-center text-vttu-yellow border border-white/20">
+                                    <i class="fas fa-clock text-lg"></i>
                                 </div>
-                                <h3 class="text-2xl font-black text-white tracking-tight leading-tight">{{ __('THỜI GIAN') }}<br>{{ __('PHỤC VỤ') }}</h3>
+                                <h3 class="text-lg font-bold text-white tracking-tight leading-tight uppercase">{{ __('THỜI GIAN') }}<br>{{ __('PHỤC VỤ') }}</h3>
                             </div>
-                            <div class="space-y-4 relative z-10">
-                                <div class="flex justify-between items-center p-5 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/20 transition-all">
-                                    <span class="font-bold text-white/90 text-sm uppercase tracking-widest">{{ __('Thứ 2 - Thứ 6') }}</span>
-                                    <span class="font-black text-vttu-yellow text-base tracking-tighter">7:30 - 20:00</span>
+                            <div class="space-y-2 relative z-10">
+                                <div class="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-sm border border-white/10 hover:bg-white/20 transition-all">
+                                    <span class="font-medium text-white/90 text-[11px] uppercase tracking-widest">{{ __('Thứ 2 - Thứ 6') }}</span>
+                                    <span class="font-bold text-vttu-yellow text-sm">7:30 - 20:00</span>
                                 </div>
-                                <div class="flex justify-between items-center p-5 bg-white/10 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/20 transition-all">
-                                    <span class="font-bold text-white/90 text-sm uppercase tracking-widest">{{ __('Thứ 7 - CN') }}</span>
-                                    <span class="font-black text-vttu-yellow text-base tracking-tighter">8:00 - 17:00</span>
+                                <div class="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-sm border border-white/10 hover:bg-white/20 transition-all">
+                                    <span class="font-medium text-white/90 text-[11px] uppercase tracking-widest">{{ __('Thứ 7 - CN') }}</span>
+                                    <span class="font-bold text-vttu-yellow text-sm">8:00 - 17:00</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- 2 Tabs: Sách Mới | Nổi bật -->
-                        <div class="bg-white p-6 shadow-xl" data-aos="fade-left">
-                            <div class="flex bg-slate-100 p-1.5 rounded-2xl mb-6" id="resource-tabs">
+                        <div class="bg-white p-4 rounded-md shadow-sm border border-slate-100" data-aos="fade-left">
+                            <div class="flex bg-slate-50 p-1 rounded-sm mb-4" id="resource-tabs">
                                 <button @click="loadResourceTab($event, 'new', 'resource-tabs', 'resources-content')"
-                                    class="tab-btn flex-1 py-3 text-xs font-black text-center rounded-xl transition-all {{ ($activeResourceType ?? 'new') === 'new' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20 uppercase tracking-widest' : 'text-slate-400 hover:text-vttu-red uppercase tracking-widest' }}">
+                                    class="tab-btn flex-1 py-2 text-[10px] font-bold text-center rounded-sm transition-all {{ ($activeResourceType ?? 'new') === 'new' ? 'text-white bg-vttu-red shadow-sm uppercase tracking-widest' : 'text-slate-400 hover:text-vttu-red uppercase tracking-widest' }}">
                                     {{ __('Mới') }}
                                 </button>
                                 <button @click="loadResourceTab($event, 'featured', 'resource-tabs', 'resources-content')"
-                                    class="tab-btn flex-1 py-3 text-xs font-black text-center rounded-xl transition-all {{ ($activeResourceType ?? '') === 'featured' ? 'text-white bg-vttu-red shadow-lg shadow-vttu-red/20 uppercase tracking-widest' : 'text-slate-400 hover:text-vttu-red uppercase tracking-widest' }}">
+                                    class="tab-btn flex-1 py-2 text-[10px] font-bold text-center rounded-sm transition-all {{ ($activeResourceType ?? '') === 'featured' ? 'text-white bg-vttu-red shadow-sm uppercase tracking-widest' : 'text-slate-400 hover:text-vttu-red uppercase tracking-widest' }}">
                                     {{ __('Nổi bật') }}
                                 </button>
                             </div>
-                            <div id="resources-content">
+                            <div id="resources-content" class="min-h-[200px]">
                                 @include('site.pages.partials.sidebar-books', ['sidebarBooks' => $sidebarBooks])
                             </div>
                         </div>
 
                         <!-- Video Section -->
-                        <div class="bg-white/95 backdrop-blur-sm p-6" data-aos="fade-left">
-                            <h3 class="text-xl font-black text-vttu-dark mb-4">VIDEO</h3>
-                            <div class="aspect-video bg-slate-900 rounded-2xl relative overflow-hidden group cursor-pointer shadow-lg">
+                        <div class="bg-white rounded-md shadow-sm border border-slate-100 p-4" data-aos="fade-left">
+                            <h3 class="text-sm font-bold text-vttu-dark mb-3 uppercase tracking-tight">{{ __('VIDEO') }}</h3>
+                            <div class="aspect-video bg-slate-900 rounded-sm relative overflow-hidden group cursor-pointer shadow-sm">
                                 <div class="absolute inset-0 flex items-center justify-center z-10">
-                                    <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white group-hover:scale-125 transition-transform border border-white/30">
-                                        <i class="fas fa-play text-xs"></i>
+                                    <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform border border-white/30">
+                                        <i class="fas fa-play text-[10px]"></i>
                                     </div>
                                 </div>
-                                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover opacity-60">
+                                <img src="https://img.freepik.com/free-vector/video-streaming-concept-illustration_114360-10731.jpg" class="w-full h-full object-cover opacity-60">
                             </div>
-                            <p class="text-sm font-bold text-vttu-dark mt-4 leading-snug">Hướng dẫn đăng ký và sử dụng tài khoản thư viện số VTTU</p>
+                            <p class="text-[11px] font-medium text-vttu-dark mt-3 leading-snug">{{ __('Hướng dẫn đăng ký và sử dụng tài khoản thư viện số VTTU') }}</p>
                         </div>
 
                         <!-- Link Buttons -->
-                        <div class="grid grid-cols-1 gap-4 p-6" data-aos="fade-left">
-                            <a href="#" class="flex items-center justify-between p-6 bg-gradient-to-r from-vttu-red to-vttu-dark rounded-3xl text-white shadow-lg shadow-vttu-red/20 hover:-translate-y-1 transition-all group">
-                                <div class="flex items-center gap-4">
-                                    <i class="fas fa-globe text-xl"></i>
-                                    <span class="font-black text-sm uppercase tracking-widest">Tài nguyên mở</span>
+                        <div class="grid grid-cols-1 gap-2" data-aos="fade-left">
+                            <a href="#" class="flex items-center justify-between p-4 bg-vttu-red rounded-sm text-white shadow-sm hover:-translate-y-0.5 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-globe text-lg text-vttu-yellow"></i>
+                                    <span class="font-bold text-[11px] uppercase tracking-widest">{{ __('Tài nguyên mở') }}</span>
                                 </div>
-                                <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                                <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                             </a>
-                            <a href="#" class="flex items-center justify-between p-6 bg-gradient-to-r from-vttu-dark to-black rounded-3xl text-white shadow-lg shadow-black/20 hover:-translate-y-1 transition-all group">
-                                <div class="flex items-center gap-4">
-                                    <i class="fas fa-desktop text-xl"></i>
-                                    <span class="font-black text-sm uppercase tracking-widest">Học liệu số</span>
+                            <a href="#" class="flex items-center justify-between p-4 bg-vttu-dark rounded-sm text-white shadow-sm hover:-translate-y-0.5 transition-all group">
+                                <div class="flex items-center gap-3">
+                                    <i class="fas fa-desktop text-lg text-vttu-yellow"></i>
+                                    <span class="font-bold text-[11px] uppercase tracking-widest">{{ __('Học liệu số') }}</span>
                                 </div>
-                                <i class="fas fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+                                <i class="fas fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                             </a>
                         </div>
+                    </div>
+                </div>
                     </div>
                 </div>
             </div>
@@ -464,23 +467,23 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
     </section>
 
     <!-- Bottom Slider (4 Items - VTTU Lib) -->
-    <section class="py-12 bg-white overflow-hidden">
+    <section class="py-8 bg-white border-t border-slate-100">
         <div class="px-4 md:px-12 lg:px-24">
-            <div class="flex items-center justify-between mb-8">
-                <h3 class="text-2xl font-black text-vttu-dark tracking-tight">VTTU LIB <span class="text-vttu-red">NETWORK</span></h3>
-                <div class="flex gap-4">
-                    <button class="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all"><i class="fas fa-chevron-left text-xs"></i></button>
-                    <button class="w-10 h-10 rounded-xl border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all"><i class="fas fa-chevron-right text-xs"></i></button>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-vttu-dark tracking-tight uppercase">VTTU LIB <span class="text-vttu-red">NETWORK</span></h3>
+                <div class="flex gap-2">
+                    <button class="w-8 h-8 rounded-sm border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all shadow-sm"><i class="fas fa-chevron-left text-[10px]"></i></button>
+                    <button class="w-8 h-8 rounded-sm border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all shadow-sm"><i class="fas fa-chevron-right text-[10px]"></i></button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 @for($i=1; $i<=4; $i++)
-                <div class="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-white hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                    <div class="w-20 h-20 bg-white rounded-3xl shadow-lg flex items-center justify-center mb-6 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                        <i class="fas fa-university text-3xl"></i>
+                <div class="p-6 bg-slate-50 rounded-md border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-white hover:shadow-md transition-all duration-300">
+                    <div class="w-12 h-12 bg-white rounded-sm shadow-sm flex items-center justify-center mb-4 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                        <i class="fas fa-university text-xl"></i>
                     </div>
-                    <span class="font-black text-vttu-dark text-lg uppercase tracking-widest">VTTU LIB {{ $i }}</span>
-                    <p class="text-[10px] font-bold text-vttu-red/40 mt-2 uppercase tracking-widest">Library Information System</p>
+                    <span class="font-bold text-vttu-dark text-sm uppercase tracking-wider">VTTU LIB {{ $i }}</span>
+                    <p class="text-[9px] font-medium text-slate-400 mt-1 uppercase tracking-widest">Library Information System</p>
                 </div>
                 @endfor
             </div>
@@ -531,6 +534,14 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
 
                     // Re-init Swiper for new content
                     this.initBooksSwiper();
+
+                    // Console log dữ liệu vừa get được
+                    const books = contentDiv.querySelectorAll('.swiper-slide:not(.py-12)'); // py-12 là cho slide trống (empty)
+                    console.log(`[AJAX] Loaded tab: ${type}. Total books found: ${books.length}`);
+                    books.forEach((book, index) => {
+                        const title = book.querySelector('h3')?.textContent?.trim();
+                        console.log(`  ${index + 1}. ${title}`);
+                    });
                 })
                 .catch(error => {
                     console.error('Error loading tab:', error);
@@ -654,11 +665,11 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                     contentDiv.classList.remove('tab-loading');
                     
                     tabsDiv.querySelectorAll('.tab-btn').forEach(btn => {
-                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                        btn.classList.remove('text-white', 'bg-vttu-red', 'shadow-sm');
                         btn.classList.add('text-slate-400', 'hover:text-vttu-red');
                     });
                     target.classList.remove('text-slate-400', 'hover:text-vttu-red');
-                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-lg', 'shadow-vttu-red/20');
+                    target.classList.add('text-white', 'bg-vttu-red', 'shadow-sm');
                 });
             }
         }
