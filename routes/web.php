@@ -39,6 +39,7 @@ Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::cl
 // Digital Resource Routes
 Route::get('/digital-resource/{id}', [\App\Http\Controllers\Site\DigitalResourceController::class, 'show'])->name('site.digital-resources.show');
 Route::get('/digital-resource/{id}/view', [\App\Http\Controllers\Site\DigitalResourceController::class, 'viewPdf'])->name('site.digital-resources.view');
+Route::get('/digital-resource/{id}/stream', [\App\Http\Controllers\Site\DigitalResourceController::class, 'streamPdf'])->name('site.digital-resources.stream');
 
 // Public Website Routes
 Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');

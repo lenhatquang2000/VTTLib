@@ -60,7 +60,7 @@
                         </div>
                         <div class="flex items-start justify-between border-b border-border/50 pb-2">
                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ __('Số trang/ tờ') }}:</span>
-                            <span class="text-xs font-black text-primary uppercase">{{ $resource->pages_count ?: '---' }}</span>
+                            <span id="pdf-page-count" class="text-xs font-black text-primary uppercase">{{ $resource->pages_count ?: '---' }}</span>
                         </div>
                         <div class="flex items-start justify-between border-b border-border/50 pb-2">
                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ __('Định dạng') }}:</span>
@@ -126,10 +126,25 @@
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
+        }
+
+        // Tự động lấy số trang PDF
+        const pdfUrl = "{{ $resource->file_url }}";
+        const pageCountSpan = document.getElementById('pdf-page-count');
+        
+        if (pdfUrl && pageCountSpan && pageCountSpan.textContent.trim() === '---') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const loadingTask = pdfjsLib.getDocument(pdfUrl);
+            loadingTask.promise.then(function(pdf) {
+                pageCountSpan.textContent = pdf.numPages + ' {{ __("trang") }}';
+            }).catch(function(error) {
+                console.error('Error loading PDF to get page count:', error);
+            });
         }
     });
 </script>

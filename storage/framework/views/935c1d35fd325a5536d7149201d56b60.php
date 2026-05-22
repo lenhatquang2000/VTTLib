@@ -40,38 +40,95 @@
         </div>
     </div>
 
-    <!-- PDF Viewer Container -->
-    <div id="pdf-viewer-wrapper" class="bg-slate-950 border border-border rounded-sm shadow-lg overflow-hidden transition-all duration-500 ease-in-out"
-         :class="isFullscreen ? 'fixed inset-0 z-[9999] m-0 rounded-none w-screen h-screen bg-black' : 'relative h-[750px] md:h-[calc(100vh-180px)]'">
-        
-        <!-- PDF.js Canvas Container -->
-        <div id="pdf-render-container" class="w-full h-full overflow-y-auto custom-scrollbar flex flex-col items-center bg-black/40 p-4 gap-6">
-            <!-- Loading State -->
-            <div id="pdf-loading" class="flex flex-col items-center justify-center h-full">
-                <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                <p class="text-[10px] font-bold uppercase tracking-widest mt-4 text-slate-400"><?php echo e(__('Đang chuẩn bị tài liệu...')); ?></p>
-            </div>
-        </div>
-
-        <!-- Floating Close Button in Fullscreen -->
-        <div x-show="isFullscreen" class="absolute top-4 right-6 z-[10000]" x-transition>
-            <button @click="isFullscreen = false; if(typeof sidebarOpen !== 'undefined') sidebarOpen = true" 
-                    class="flex items-center gap-2 px-4 py-2 bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20 group">
-                <i data-lucide="minimize" class="w-5 h-5"></i>
-                <span class="text-[10px] font-black uppercase tracking-widest"><?php echo e(__('Thu nhỏ')); ?></span>
-            </button>
-        </div>
-    </div>
-
     <?php
         $viewLimits = json_decode(\App\Models\SystemSetting::get('digital_view_page_limits', '[]'), true) ?: [];
+        $allowedGroups = json_decode(\App\Models\SystemSetting::get('digital_download_allowed_groups', '[]'), true) ?: [];
         $userGroupId = auth()->user()?->patronDetail?->patron_group_id;
+        
+        $canDownload = in_array($userGroupId, $allowedGroups);
         $pageLimit = (!auth()->check() || is_null($userGroupId)) ? ($viewLimits['guest'] ?? 10) : ($viewLimits[$userGroupId] ?? 0);
     ?>
 
+    <?php if($canDownload): ?>
+        <!-- CHẾ ĐỘ ƯU TIÊN: Dùng Iframe cho người có quyền Download -->
+        <div class="bg-card border border-border rounded-sm shadow-lg overflow-hidden relative"
+             :class="isFullscreen ? 'fixed inset-0 z-[9999] m-0 rounded-none w-screen h-screen' : 'relative h-[750px] md:h-[calc(100vh-180px)]'">
+            
+            <iframe src="<?php echo e($resource->file_url); ?>#toolbar=1&navpanes=1&scrollbar=1" 
+                    class="w-full h-full border-none"
+                    allow="autoplay">
+            </iframe>
+
+            <!-- Nút thu nhỏ khi fullscreen -->
+            <div x-show="isFullscreen" class="absolute top-4 right-6 z-[10000]" x-transition>
+                <button @click="isFullscreen = false; if(typeof sidebarOpen !== 'undefined') sidebarOpen = true" 
+                        class="flex items-center gap-2 px-4 py-2 bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20 group">
+                    <i data-lucide="minimize" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest"><?php echo e(__('Thu nhỏ')); ?></span>
+                </button>
+            </div>
+        </div>
+    <?php else: ?>
+        <!-- CHẾ ĐỘ BẢO MẬT: Dùng PDF.js Render cho Guest/Nhóm bị giới hạn -->
+        <div id="pdf-viewer-wrapper" class="bg-slate-950 border border-border rounded-sm shadow-lg overflow-hidden transition-all duration-500 ease-in-out"
+             :class="isFullscreen ? 'fixed inset-0 z-[9999] m-0 rounded-none w-screen h-screen bg-black' : 'relative h-[750px] md:h-[calc(100vh-180px)]'">
+            
+            <div id="pdf-render-container" class="w-full h-full overflow-y-auto custom-scrollbar flex flex-col items-center bg-black/40 p-4 gap-6">
+                <div id="pdf-loading" class="flex flex-col items-center justify-center h-full">
+                    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-[10px] font-bold uppercase tracking-widest mt-4 text-slate-400"><?php echo e(__('Đang chuẩn bị tài liệu...')); ?></p>
+                </div>
+            </div>
+
+            <div x-show="isFullscreen" class="absolute top-4 right-6 z-[10000]" x-transition>
+                <button @click="isFullscreen = false; if(typeof sidebarOpen !== 'undefined') sidebarOpen = true" 
+                        class="flex items-center gap-2 px-4 py-2 bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20 group">
+                    <i data-lucide="minimize" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest"><?php echo e(__('Thu nhỏ')); ?></span>
+                </button>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <input type="hidden" id="pdf-data" 
-           data-url="<?php echo e($resource->file_url); ?>" 
-           data-limit="<?php echo e($pageLimit); ?>">
+           data-url="<?php echo e(route('site.digital-resources.stream', $resource->id)); ?>" 
+           data-limit="<?php echo e($pageLimit); ?>"
+           data-mode="<?php echo e($canDownload ? 'iframe' : 'render'); ?>">
+
+    <style>
+        .pdf-page-wrapper { 
+            position: relative; 
+            margin-bottom: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        /* Đảm bảo SVG chiếm đúng không gian */
+        .pdf-page-wrapper svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Tùy chỉnh màu khi bôi đen chữ trong SVG */
+        .pdf-page-wrapper svg text::selection { 
+            background: rgba(var(--vttu-red-rgb, 123, 0, 0), 0.3);
+        }
+
+        .annotationLayer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: transparent;
+            cursor: pointer;
+            z-index: 10;
+        }
+    </style>
 
     <?php if(!$resource->file_url): ?>
         <div class="w-full h-full flex flex-col items-center justify-center bg-muted/20">
@@ -91,10 +148,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const pdfData = document.getElementById('pdf-data');
+        const mode = pdfData.getAttribute('data-mode');
+        
+        if (mode === 'iframe') {
+            console.log('Mode: Native Iframe (Full Access)');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            return; // Dừng script PDF.js nếu đang dùng Iframe
+        }
+
         // PDF.js worker setup
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const pdfData = document.getElementById('pdf-data');
         const url = pdfData.getAttribute('data-url');
         const limit = parseInt(pdfData.getAttribute('data-limit') || 0);
         const container = document.getElementById('pdf-render-container');
@@ -160,66 +225,57 @@
         async function renderPage(pdf, pageNum) {
             const page = await pdf.getPage(pageNum);
             
-            // Log chi tiết để tìm nguyên nhân thu nhỏ
             const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
             const unscaledViewport = page.getViewport({ scale: 1 });
             
-            console.log(`--- Debug Render Page ${pageNum} ---`);
-            console.log('Container Width:', containerWidth);
-            console.log('Container Height:', containerHeight);
-            console.log('PDF Original Width:', unscaledViewport.width);
-            console.log('PDF Original Height:', unscaledViewport.height);
-
-            // Tính toán tỷ lệ thông minh theo kích thước màn hình
             const isMobile = window.innerWidth < 768;
-            const targetRatio = isMobile ? 0.95 : 0.70; // Mobile dùng 95%, Desktop dùng 70% cho thoáng
-            
+            const targetRatio = isMobile ? 0.95 : 0.70;
             const availableWidth = (containerWidth - 32) * targetRatio;
             const scale = availableWidth / unscaledViewport.width;
             const viewport = page.getViewport({ scale: scale });
-            
-            console.log('Calculated Scale:', scale);
-            console.log('Final Render Width:', viewport.width);
-            console.log('Final Render Height:', viewport.height);
 
-            // Create page wrapper with fixed width for stability
+            // Create page wrapper
             const pageWrapper = document.createElement('div');
-            pageWrapper.className = 'relative shadow-2xl border border-slate-800 bg-white rounded-sm overflow-hidden mb-8 flex justify-center items-start';
+            pageWrapper.className = 'pdf-page-wrapper';
             pageWrapper.style.width = availableWidth + 'px';
             pageWrapper.style.minHeight = viewport.height + 'px';
-            
-            // Create canvas
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d', { alpha: false });
-            
-            // Đặt kích thước canvas vật lý (cho độ nét)
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = viewport.width * dpr;
-            canvas.height = viewport.height * dpr;
-            
-            // Đặt kích thước hiển thị CSS
-            canvas.style.width = viewport.width + 'px';
-            canvas.style.height = viewport.height + 'px';
-            canvas.className = 'block select-none pointer-events-none';
+            pageWrapper.setAttribute('data-page', pageNum);
 
-            pageWrapper.appendChild(canvas);
+            // --- SVG RENDERING (THE SMART WAY) ---
+            const operatorList = await page.getOperatorList();
+            const svgGfx = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
+            const svg = await svgGfx.getSVG(operatorList, viewport);
+            
+            pageWrapper.appendChild(svg);
+
+            // --- ADD ANNOTATION LAYER (For Links) ---
+            const annotations = await page.getAnnotations();
+            if (annotations.length > 0) {
+                const annotDiv = document.createElement('div');
+                annotDiv.className = 'annotationLayer';
+                pageWrapper.appendChild(annotDiv);
+
+                const linkService = new pdfjsLib.PDFLinkService();
+                linkService.setDocument(pdf);
+                linkService.setViewer({
+                    scrollPageIntoView: function(params) {
+                        const targetPage = document.querySelector(`.pdf-page-wrapper[data-page="${params.pageNumber}"]`);
+                        if (targetPage) targetPage.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+
+                pdfjsLib.AnnotationLayer.render({
+                    viewport: viewport.clone({ dontFlip: true }),
+                    div: annotDiv,
+                    annotations: annotations,
+                    page: page,
+                    linkService: linkService,
+                    downloadManager: null
+                });
+            }
+
             container.appendChild(pageWrapper);
-
-            // Scale context để vẽ đúng tỷ lệ dpr
-            context.scale(dpr, dpr);
-
-            // Render PDF page into canvas context
-            const renderContext = {
-                canvasContext: context,
-                viewport: viewport,
-                enableWebGL: true,
-                intent: 'display'
-            };
-            
-            await page.render(renderContext).promise;
-            console.log(`Page ${pageNum} rendered successfully at scale ${scale}`);
-            console.log('-----------------------------------');
+            console.log(`Page ${pageNum} rendered as SVG (Interactive Text)`);
         }
 
         <?php if(auth()->guard()->check()): ?>

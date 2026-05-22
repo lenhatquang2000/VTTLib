@@ -39,4 +39,25 @@ class DigitalResourceController extends Controller
 
         return view('site.pages.digital-resource-view', compact('resource', 'menuItems', 'footerItems', 'node'));
     }
+
+    /**
+     * Stream PDF file for viewer
+     */
+    public function streamPdf($id)
+    {
+        $resource = DigitalResource::findOrFail($id);
+        
+        // Đường dẫn file PDF trong storage
+        $filePath = storage_path('app/public/' . $resource->file_path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->file($filePath, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $resource->file_name . '"',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate, max-age=0',
+        ]);
+    }
 }
