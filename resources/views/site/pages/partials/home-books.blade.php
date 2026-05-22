@@ -16,7 +16,11 @@
                 <i class="fas fa-book-open text-slate-300 group-hover:text-vttu-red text-4xl transition-colors"></i>
             @endif
             <div class="absolute top-2 right-2">
-                <span class="px-2 py-0.5 bg-white/90 backdrop-blur text-vttu-dark rounded-lg text-[8px] font-black uppercase tracking-widest shadow-sm">{{ $book->record_type ?? 'Sách' }}</span>
+                @php
+                    $lang = app()->getLocale();
+                    $typeDisplay = ($lang === 'vi') ? ($book->record_type_vi ?? 'Sách') : ($book->record_type_en ?? 'Book');
+                @endphp
+                <span class="px-2 py-0.5 bg-white/90 backdrop-blur text-vttu-dark rounded-lg text-[8px] font-black uppercase tracking-widest shadow-sm">{{ $typeDisplay }}</span>
             </div>
         </a>
 

@@ -1,9 +1,9 @@
 
 
 <?php
-    $accent       = $accent ?? 'blue';
+    $accent       = $accent ?? 'primary';
     $badgeText    = $badgeText ?? $node->display_name;
-    $badgeIcon    = $badgeIcon ?? ($node->icon ?? 'fas fa-info-circle');
+    $badgeIcon    = $badgeIcon ?? ($node->icon ?? 'circle-info');
     $sectionLabel = $sectionLabel ?? 'Giới thiệu';
 
     // Sidebar: lấy các trang anh em
@@ -17,7 +17,7 @@
         $sidebarItems = collect([$node]);
     }
 
-    // Icon → gradient mapping cho sidebar
+    // Client view colors based on Rule.txt
     $sidebarIcons = [
         'fas fa-circle-info'    => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
         'fas fa-bullseye'       => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
@@ -26,228 +26,192 @@
         'fas fa-sitemap'        => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
     ];
 
-    // ── Accent color mapping (Tailwind-safe) ──
-    $accentGradient = 'from-vttu-red to-vttu-dark';
-    $accentShadow = 'shadow-vttu-red/20';
-    $accentDivider = 'from-vttu-red/30';
-    $activeNav = 'bg-vttu-red text-white shadow-lg shadow-vttu-red/25';
-    $badgeColor = 'text-vttu-red';
-    $pingColor = 'bg-vttu-red';
+    // Lucide icon mapping from FA if possible, or fallback to database icon
+    function getLucideIcon($faIcon) {
+        $map = [
+            'fas fa-circle-info'    => 'info',
+            'fas fa-bullseye'       => 'target',
+            'fas fa-scale-balanced' => 'scale',
+            'fas fa-clock'          => 'clock',
+            'fas fa-sitemap'        => 'sitemap',
+            'fas fa-home'           => 'home',
+            'fas fa-search'         => 'search',
+            'fas fa-arrow-left'     => 'arrow-left',
+            'fas fa-arrow-right'    => 'arrow-right',
+        ];
+        return $map[$faIcon] ?? 'file-text';
+    }
 ?>
 
-<div class="min-h-screen bg-slate-50">
+<div class="min-h-screen bg-background text-foreground animate-fade-in">
+    <!-- Header / Breadcrumb -->
+    <header class="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div class="container flex h-14 items-center px-4 md:px-6">
+            <nav class="flex items-center space-x-2 text-sm font-medium">
+                <a href="/" class="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </a>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-muted-foreground opacity-50"></i>
+                <a href="/page/gioi-thieu" class="text-muted-foreground hover:text-foreground transition-colors">
+                    <?php echo e(__('Giới thiệu')); ?>
 
-    
-    <section class="relative overflow-hidden bg-white border-b border-slate-100">
-        <div class="w-full px-4 md:px-12 lg:px-24 relative z-10 pt-12 pb-16">
-            
-            <nav class="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-vttu-red/60 mb-8" data-aos="fade-down" data-aos-delay="100">
-                <a href="/" class="hover:text-vttu-red transition-colors"><i class="fas fa-home"></i></a>
-                <i class="fas fa-chevron-right text-[7px]"></i>
-                <a href="/page/gioi-thieu" class="hover:text-vttu-red transition-colors">Giới thiệu</a>
-                <i class="fas fa-chevron-right text-[7px]"></i>
-                <span class="text-vttu-red font-black"><?php echo e($node->display_name); ?></span>
+                </a>
+                <i data-lucide="chevron-right" class="w-3 h-3 text-muted-foreground opacity-50"></i>
+                <span class="font-bold text-foreground"><?php echo e($node->display_name); ?></span>
             </nav>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                <div data-aos="fade-right" data-aos-delay="200">
-                    <div class="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-vttu-red/5 border border-vttu-red/10 backdrop-blur-xl text-[10px] font-black uppercase tracking-[0.35em] text-vttu-red mb-6">
-                        <span class="relative flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-vttu-red opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-vttu-red"></span>
-                        </span>
-                        <?php echo e($badgeText); ?>
-
-                    </div>
-                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] mb-6 text-vttu-dark">
-                        <span class="text-vttu-red">Thư viện</span><br>
-                        <span>Đại học Võ Trường Toản</span>
-                    </h1>
-                    <p class="text-lg text-vttu-dark/70 leading-relaxed max-w-xl">
-                        <?php echo e($node->description); ?>
-
-                    </p>
-                </div>
-
-                
-                <div class="grid grid-cols-2 gap-5" data-aos="fade-left" data-aos-delay="400">
-                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                            <i class="fas fa-calendar-alt text-vttu-red group-hover:text-white"></i>
-                        </div>
-                        <div class="text-3xl font-black text-vttu-dark mb-1">15+</div>
-                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Năm hoạt động</div>
-                    </div>
-                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                            <i class="fas fa-book-open text-vttu-red group-hover:text-white"></i>
-                        </div>
-                        <div class="text-3xl font-black text-vttu-dark mb-1">50K+</div>
-                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Tài liệu</div>
-                    </div>
-                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                            <i class="fas fa-users text-vttu-red group-hover:text-white"></i>
-                        </div>
-                        <div class="text-3xl font-black text-vttu-dark mb-1">10K+</div>
-                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Bạn đọc / Năm</div>
-                    </div>
-                    <div class="group p-7 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500">
-                        <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center mb-5 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                            <i class="fas fa-laptop text-vttu-red group-hover:text-white"></i>
-                        </div>
-                        <div class="text-3xl font-black text-vttu-dark mb-1">24/7</div>
-                        <div class="text-xs font-bold text-vttu-red/40 uppercase tracking-widest">Tra cứu Online</div>
-                    </div>
-                </div>
-            </div>
         </div>
-    </section>
+    </header>
 
-    
-    <section class="py-16">
-        <div class="w-full px-4 md:px-12 lg:px-24">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-
-                
-                <aside class="lg:col-span-3 order-2 lg:order-1" data-aos="fade-right" data-aos-delay="100">
-                    <div class="sticky top-24 space-y-6">
-                        <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
-                            <div class="p-7 bg-vttu-dark text-white relative overflow-hidden">
-                                <div class="absolute top-0 right-0 w-24 h-24 bg-vttu-red/20 blur-2xl rounded-full"></div>
-                                <div class="relative z-10">
-                                    <div class="text-[9px] font-black uppercase tracking-[0.4em] text-vttu-yellow/70 mb-2">Chuyên mục</div>
-                                    <div class="text-xl font-black"><?php echo e($sectionLabel); ?></div>
-                                </div>
-                            </div>
-                            <nav class="p-3">
-                                <?php $__currentLoopData = $sidebarItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <?php
-                                        $active = $item->id === $node->id;
-                                        $iconColors = $sidebarIcons[$item->icon] ?? ['from-slate-500 to-slate-400', 'shadow-slate-500/25'];
-                                    ?>
-                                    <a href="<?php echo e($item->getUrl()); ?>"
-                                       class="group flex items-center gap-4 px-5 py-4 rounded-2xl transition-all duration-300 mb-1
-                                              <?php echo e($active ? $activeNav : 'text-vttu-dark/70 hover:bg-slate-50 hover:text-vttu-red'); ?>">
-                                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xs flex-shrink-0 transition-all
-                                                    <?php echo e($active
-                                                        ? 'bg-white/20 text-white'
-                                                        : 'bg-vttu-red/10 text-vttu-red group-hover:scale-110'); ?>">
-                                            <i class="<?php echo e($item->icon); ?>"></i>
-                                        </div>
-                                        <span class="font-bold text-sm leading-tight"><?php echo e($item->display_name); ?></span>
-                                        <?php if($active): ?>
-                                            <i class="fas fa-chevron-right text-[9px] text-white/50 ml-auto"></i>
-                                        <?php endif; ?>
-                                    </a>
-                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                            </nav>
+    <div class="container px-4 py-4 mt-[6px] md:px-6 md:py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            
+            <!-- Sidebar -->
+            <aside class="lg:col-span-3 space-y-4 order-2 lg:order-1">
+                <!-- Navigation Card -->
+                <div class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden">
+                    <div class="p-3 bg-vttu-red border-b border-vttu-red/20 shadow-sm relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 blur-xl rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-700"></div>
+                        <div class="flex items-center gap-2 relative z-10">
+                            <div class="w-1 h-4 bg-vttu-yellow rounded-full"></div>
+                            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-white"><?php echo e($sectionLabel); ?></h3>
                         </div>
-
-                        
-                        <div class="relative group">
-                            <div class="absolute -inset-1 bg-vttu-red/20 rounded-3xl blur-lg opacity-25 group-hover:opacity-40 transition-opacity"></div>
-                            <div class="relative bg-vttu-dark rounded-3xl p-8 text-white overflow-hidden">
-                                <div class="absolute top-0 right-0 w-32 h-32 bg-vttu-red/15 blur-3xl rounded-full"></div>
-                                <div class="relative z-10 text-center">
-                                    <div class="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-5 backdrop-blur-sm">
-                                        <i class="fas fa-search text-xl text-vttu-yellow"></i>
+                    </div>
+                    <nav class="p-2 space-y-1">
+                        <?php $__currentLoopData = $sidebarItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <?php 
+                                $active = $item->id === $node->id;
+                                $colorClasses = $sidebarIcons[$item->icon] ?? null;
+                            ?>
+                            <a href="<?php echo e($item->getUrl()); ?>"
+                               class="flex items-center gap-3 px-3 py-2 rounded text-sm transition-all relative group
+                                      <?php echo e($active 
+                                         ? 'bg-vttu-red text-white font-bold shadow-md shadow-vttu-red/20' 
+                                         : 'text-muted-foreground hover:bg-vttu-red/10 hover:text-vttu-red active:bg-vttu-red active:text-white active:scale-[0.98]'); ?>">
+                                
+                                <?php if(!$active && $colorClasses): ?>
+                                    <div class="w-8 h-8 rounded-sm bg-gradient-to-br <?php echo e($colorClasses[0]); ?> <?php echo e($colorClasses[1]); ?> flex items-center justify-center text-white flex-shrink-0 transition-all group-hover:scale-110 group-active:scale-95 group-active:bg-none group-active:text-vttu-yellow">
+                                        <i data-lucide="<?php echo e(getLucideIcon($item->icon)); ?>" class="w-4 h-4"></i>
                                     </div>
-                                    <h4 class="font-black text-base mb-2">Tra cứu OPAC</h4>
-                                    <p class="text-white/60 text-xs leading-relaxed mb-5">Tìm kiếm tài liệu trực tuyến trong hệ thống Thư viện.</p>
-                                    <a href="http://opac.vttu.edu.vn" target="_blank"
-                                       class="block w-full py-3.5 bg-vttu-yellow text-vttu-dark rounded-xl font-black text-sm hover:bg-yellow-400 transition-all shadow-lg">
-                                        Tra cứu ngay <i class="fas fa-arrow-right ml-1 text-xs"></i>
-                                    </a>
-                                </div>
+                                <?php else: ?>
+                                    <div class="w-8 h-8 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 group-active:scale-95">
+                                        <i data-lucide="<?php echo e(getLucideIcon($item->icon)); ?>" class="w-4 h-4 <?php echo e($active ? 'text-vttu-yellow' : 'opacity-70'); ?>"></i>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <span class="truncate transition-colors"><?php echo e($item->display_name); ?></span>
+                                <?php if($active): ?>
+                                    <i data-lucide="chevron-right" class="w-3 h-3 ml-auto text-vttu-yellow/70 group-hover:translate-x-0.5 transition-transform"></i>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </nav>
+                </div>
+
+                <!-- CTA Card -->
+                <div class="bg-gradient-to-br from-vttu-red/10 to-vttu-dark/10 border border-vttu-red/20 rounded-md p-4 text-center space-y-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-vttu-red to-vttu-dark rounded-full flex items-center justify-center mx-auto text-vttu-yellow shadow-lg shadow-vttu-red/20">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-foreground italic"><?php echo e(__('Tra cứu OPAC')); ?></h4>
+                        <p class="text-xs text-muted-foreground leading-relaxed mt-1"><?php echo e(__('Tìm kiếm tài liệu trực tuyến')); ?></p>
+                    </div>
+                    <a href="<?php echo e(route('opac.search')); ?>"
+                       class="inline-flex items-center justify-center w-full px-4 py-2 bg-vttu-yellow text-vttu-dark text-xs font-black rounded shadow-sm hover:bg-yellow-400 active:scale-[0.98] transition-all">
+                        <?php echo e(__('Tra cứu ngay')); ?> <i data-lucide="arrow-right" class="w-3 h-3 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="lg:col-span-9 space-y-4 order-1 lg:order-2">
+                <article class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden">
+                    <!-- Article Header -->
+                    <?php $headerColors = $sidebarIcons[$node->icon] ?? ['from-primary/10 to-primary/5', '']; ?>
+                    <div class="p-4 border-b border-border bg-gradient-to-r <?php echo e($headerColors[0]); ?> opacity-90">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-sm">
+                                <i data-lucide="<?php echo e(getLucideIcon($node->icon)); ?>" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-white/70 uppercase tracking-widest"><?php echo e($sectionLabel); ?></p>
+                                <h1 class="text-xl md:text-2xl font-black text-white tracking-tight"><?php echo e($node->display_name); ?></h1>
                             </div>
                         </div>
                     </div>
-                </aside>
 
-                
-                <div class="lg:col-span-9 order-1 lg:order-2 space-y-8" data-aos="fade-up" data-aos-delay="200">
-                    <div class="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/20 overflow-hidden">
-                        
-                        <div class="px-10 pt-10 pb-0">
-                            <div class="flex items-center gap-4 mb-8">
-                                <div class="w-12 h-12 rounded-2xl bg-vttu-red/10 flex items-center justify-center shadow-lg">
-                                    <i class="<?php echo e($badgeIcon); ?> text-vttu-red text-lg"></i>
-                                </div>
-                                <div>
-                                    <div class="text-[10px] font-black text-vttu-red/60 uppercase tracking-[0.3em]"><?php echo e($sectionLabel); ?></div>
-                                    <h2 class="text-2xl md:text-3xl font-black text-vttu-dark tracking-tight"><?php echo e($node->display_name); ?></h2>
-                                </div>
-                            </div>
-                            <div class="h-px bg-gradient-to-r from-vttu-red/20 via-slate-200 to-transparent"></div>
-                        </div>
+                    <!-- Article Body -->
+                    <div class="p-4 md:p-6">
+                        <div class="prose prose-sm md:prose-base dark:prose-invert max-w-none 
+                                    prose-headings:text-foreground prose-headings:font-bold
+                                    prose-p:text-muted-foreground prose-p:leading-relaxed
+                                    prose-strong:text-foreground
+                                    prose-a:text-vttu-red prose-a:font-bold prose-a:no-underline hover:prose-a:underline
+                                    prose-img:rounded-md prose-img:border prose-img:border-border shadow-vttu-red/5">
+                            <?php echo $node->content; ?>
 
-                        
-                        <div class="p-10 relative">
-                            <div class="absolute -top-20 -right-20 w-80 h-80 bg-vttu-red/[0.03] blur-[100px] rounded-full pointer-events-none"></div>
-
-                            <div class="relative z-10 prose prose-slate prose-lg max-w-none
-                                prose-headings:font-black prose-headings:tracking-tight prose-headings:text-vttu-dark
-                                prose-p:text-vttu-dark/80 prose-p:leading-[1.85]
-                                prose-strong:text-vttu-dark
-                                prose-li:text-vttu-dark/80
-                                prose-a:text-vttu-red prose-a:font-bold prose-a:no-underline hover:prose-a:underline
-                                prose-img:rounded-2xl prose-img:shadow-xl">
-                                <?php echo $node->content; ?>
-
-                            </div>
                         </div>
                     </div>
 
-                    
-                    <?php if(isset($node) && $node->activeItems->count() > 0): ?>
-                        <div id="page-builder-content" class="space-y-8">
-                            <?php $__currentLoopData = $node->activeItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                <div class="builder-item" data-aos="fade-up">
-                                    <?php $itemData = is_string($item->item_data) ? json_decode($item->item_data, true) : $item->item_data; ?>
-                                    <?php if ($__env->exists('site.items.' . $item->item_type, ['item' => $item, 'data' => $itemData])) echo $__env->make('site.items.' . $item->item_type, ['item' => $item, 'data' => $itemData], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-                                </div>
-                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                        </div>
-                    <?php endif; ?>
-
-                    
-                    <div class="flex flex-col md:flex-row justify-between gap-5">
+                    <!-- Navigation Footer -->
+                    <div class="p-3 border-t border-border bg-muted/20 grid grid-cols-2 gap-3">
                         <?php
                             $prev = $sidebarItems->where('sort_order', '<', $node->sort_order)->last();
                             $next = $sidebarItems->where('sort_order', '>', $node->sort_order)->first();
                         ?>
-                        <div class="w-full md:w-1/2">
+                        
+                        <div>
                             <?php if($prev): ?>
-                                <a href="<?php echo e($prev->getUrl()); ?>" class="group flex items-center gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-vttu-red/20 transition-all duration-300">
-                                    <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-vttu-red group-hover:text-white transition-all flex-shrink-0">
-                                        <i class="fas fa-arrow-left text-sm"></i>
+                                <a href="<?php echo e($prev->getUrl()); ?>" class="flex items-center gap-2 p-2 rounded border border-border bg-card hover:bg-muted hover:border-vttu-red/30 active:bg-accent transition-all group">
+                                    <div class="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-vttu-red group-hover:text-white group-active:scale-90 transition-all">
+                                        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
                                     </div>
-                                    <div>
-                                        <div class="text-[9px] font-black text-vttu-red/40 uppercase tracking-widest">Trang trước</div>
-                                        <div class="text-sm font-bold text-vttu-dark group-hover:text-vttu-red transition-colors"><?php echo e($prev->display_name); ?></div>
+                                    <div class="overflow-hidden">
+                                        <p class="text-[8px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Trước')); ?></p>
+                                        <p class="text-[11px] font-bold text-foreground truncate group-hover:text-vttu-red transition-colors"><?php echo e($prev->display_name); ?></p>
                                     </div>
                                 </a>
                             <?php endif; ?>
                         </div>
-                        <div class="w-full md:w-1/2">
+                        
+                        <div class="text-right">
                             <?php if($next): ?>
-                                <a href="<?php echo e($next->getUrl()); ?>" class="group flex items-center justify-end gap-5 p-6 bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-vttu-red/20 transition-all duration-300 text-right">
-                                    <div>
-                                        <div class="text-[9px] font-black text-vttu-red/40 uppercase tracking-widest">Tiếp theo</div>
-                                        <div class="text-sm font-bold text-vttu-dark group-hover:text-vttu-red transition-colors"><?php echo e($next->display_name); ?></div>
+                                <a href="<?php echo e($next->getUrl()); ?>" class="flex items-center justify-end gap-2 p-2 rounded border border-border bg-card hover:bg-muted hover:border-vttu-red/30 active:bg-accent transition-all group">
+                                    <div class="overflow-hidden text-right">
+                                        <p class="text-[8px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Tiếp')); ?></p>
+                                        <p class="text-[11px] font-bold text-foreground truncate group-hover:text-vttu-red transition-colors"><?php echo e($next->display_name); ?></p>
                                     </div>
-                                    <div class="w-11 h-11 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400 group-hover:bg-vttu-red group-hover:text-white transition-all flex-shrink-0">
-                                        <i class="fas fa-arrow-right text-sm"></i>
+                                    <div class="w-7 h-7 rounded bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-vttu-red group-hover:text-white group-active:scale-90 transition-all">
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                                     </div>
                                 </a>
                             <?php endif; ?>
                         </div>
                     </div>
-                </div>
+                </article>
 
-            </div>
+                <!-- Page Builder Blocks -->
+                <?php if(isset($node) && $node->activeItems->count() > 0): ?>
+                    <div class="space-y-3">
+                        <?php $__currentLoopData = $node->activeItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <div class="bg-card border border-border rounded-md shadow-sm p-3">
+                                <?php $itemData = is_string($item->item_data) ? json_decode($item->item_data, true) : $item->item_data; ?>
+                                <?php if ($__env->exists('site.items.' . $item->item_type, ['item' => $item, 'data' => $itemData])) echo $__env->make('site.items.' . $item->item_type, ['item' => $item, 'data' => $itemData], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            </div>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </div>
+                <?php endif; ?>
+            </main>
         </div>
-    </section>
+    </div>
 </div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
 <?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/site/partials/inner-page.blade.php ENDPATH**/ ?>

@@ -13,14 +13,32 @@ class BibliographicRecord extends Model
         'leader', 
         'cover_image',
         'record_type', 
+        'record_type_vi',
+        'record_type_en',
         'status',
+        'status_vi',
+        'status_en',
+        'is_featured',
         'framework',
         'subject_category',
+        'bibliographic_level',
+        'bibliographic_level_vi',
+        'bibliographic_level_en',
         'serial_frequency',
+        'serial_frequency_vi',
+        'serial_frequency_en',
         'date_type',
+        'date_type_vi',
+        'date_type_en',
         'acquisition_method',
+        'acquisition_method_vi',
+        'acquisition_method_en',
         'document_format',
-        'cataloging_standard'
+        'document_format_vi',
+        'document_format_en',
+        'cataloging_standard',
+        'cataloging_standard_vi',
+        'cataloging_standard_en'
     ];
 
     public function fields()

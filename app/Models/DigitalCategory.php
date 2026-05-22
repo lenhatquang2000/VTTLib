@@ -18,4 +18,9 @@ class DigitalCategory extends Model
     {
         return $this->hasMany(DigitalDocument::class, 'folder_id')->orderBy('sort_order')->orderBy('created_at', 'desc');
     }
+
+    public function resources(): HasMany
+    {
+        return $this->hasMany(DigitalResource::class, 'category_id');
+    }
 }

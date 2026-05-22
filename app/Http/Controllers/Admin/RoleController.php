@@ -56,6 +56,11 @@ class RoleController extends Controller
         return view('admin.roles.edit', compact('role', 'sidebars', 'roleSidebars'));
     }
 
+    public function show(Role $role)
+    {
+        return redirect()->route('admin.roles.index');
+    }
+
     public function update(Request $request, Role $role)
     {
         $validated = $request->validate([

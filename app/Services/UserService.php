@@ -322,7 +322,7 @@ class UserService
                             ];
                         })->toArray();
 
-                        \App\Models\RoleUserSidebar::insert($inserts);
+                        \App\Models\UserRoleSidebar::insert($inserts);
                     }
                 }
             });

@@ -278,19 +278,15 @@ class MarcBookController extends Controller
             }
 
             // Create bibliographic record with metadata
-            $record = BibliographicRecord::create([
+            $metadata = $this->getMetadataWithNames($request);
+            $record = BibliographicRecord::create(array_merge([
                 'leader' => '00000nam a2200000 i 4500',
                 'cover_image' => $coverImagePath,
-                'record_type' => $request->input('record_type', 'book'),
-                'status' => $request->input('status', BibliographicRecord::STATUS_PENDING),
                 'framework' => $request->input('framework', 'STANDARD'),
+                'status' => $request->input('status', BibliographicRecord::STATUS_PENDING),
+                'is_featured' => $request->boolean('is_featured'),
                 'subject_category' => $request->input('subject_category'),
-                'serial_frequency' => $request->input('serial_frequency'),
-                'date_type' => $request->input('date_type'),
-                'acquisition_method' => $request->input('acquisition_method'),
-                'document_format' => $request->input('document_format'),
-                'cataloging_standard' => $request->input('cataloging_standard'),
-            ]);
+            ], $metadata));
 
             // Process MARC fields
             $fields = $request->input('fields', []);
@@ -371,11 +367,151 @@ class MarcBookController extends Controller
 
             DB::commit();
             $tab = $request->input('tab', 0);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('Record_Created_Successfully'),
+                    'redirect' => route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab]),
+                    'record_id' => $record->id,
+                ]);
+            }
+
             return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Created_Successfully'));
         } catch (\Exception $e) {
             DB::rollBack();
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error while cataloging: ' . $e->getMessage(),
+                ], 500);
+            }
+
             return back()->with('error', 'Error while cataloging: ' . $e->getMessage())->withInput();
         }
+    }
+
+    private function getMetadataWithNames(Request $request)
+    {
+        $metadata = [
+            'record_type' => $request->record_type,
+            'bibliographic_level' => $request->bibliographic_level,
+            'serial_frequency' => $request->serial_frequency,
+            'date_type' => $request->date_type,
+            'acquisition_method' => $request->acquisition_method,
+            'document_format' => $request->document_format,
+            'cataloging_standard' => $request->cataloging_standard,
+        ];
+
+        $mappings = [
+            'status' => [
+                'pending' => ['vi' => 'Mới', 'en' => 'New'],
+                'approved' => ['vi' => 'Đã duyệt', 'en' => 'Approved'],
+            ],
+            'record_type' => [
+                'book' => ['vi' => 'Sách', 'en' => 'Books'],
+                'article' => ['vi' => 'Bài trích', 'en' => 'Article'],
+                'collection' => ['vi' => 'Bộ sưu tập', 'en' => 'Collection'],
+                'file' => ['vi' => 'Tập tin', 'en' => 'Computer file'],
+                'address' => ['vi' => 'Địa chỉ', 'en' => 'Address'],
+                'map' => ['vi' => 'Bản đồ', 'en' => 'Maps'],
+                'mixed' => ['vi' => 'Tài liệu hỗn hợp', 'en' => 'Mixed Material'],
+                'audio' => ['vi' => 'Âm thanh', 'en' => 'Music'],
+                'journal' => ['vi' => 'Ấn phẩm định kỳ', 'en' => 'Serials'],
+                'digital' => ['vi' => 'Số hóa', 'en' => 'Digitization'],
+                'resource' => ['vi' => 'Tài liệu số', 'en' => 'Digital Resource'],
+                'video' => ['vi' => 'Video', 'en' => 'Video'],
+                'visual' => ['vi' => 'Thiết bị, vật thể', 'en' => 'Visual Material'],
+            ],
+            'bibliographic_level' => [
+                'a' => ['vi' => 'Tài liệu văn bản', 'en' => 'Language material'],
+                'c' => ['vi' => 'Bản nhạc in', 'en' => 'Notated music'],
+                'd' => ['vi' => 'Bản nhạc chép tay', 'en' => 'Manuscript notated music'],
+                'e' => ['vi' => 'Bản đồ in', 'en' => 'Cartographic material'],
+                'f' => ['vi' => 'Bản đồ vẽ tay', 'en' => 'Manuscript cartographic material'],
+                'g' => ['vi' => 'Các tư liệu chiếu', 'en' => 'Projected medium'],
+                'i' => ['vi' => 'Ghi âm không thuộc âm nhạc', 'en' => 'Nonmusical sound recording'],
+                'j' => ['vi' => 'Ghi âm thuộc âm nhạc', 'en' => 'Musical sound recording'],
+                'k' => ['vi' => 'Đồ họa phẳng', 'en' => 'Two-dimensional nonprojectable graphic'],
+                'm' => ['vi' => 'Tập tin máy tính', 'en' => 'Computer file'],
+                'o' => ['vi' => 'Bộ tài liệu', 'en' => 'Kit'],
+                'p' => ['vi' => 'Tài liệu hỗn hợp', 'en' => 'Mixed material'],
+                'r' => ['vi' => 'Đồ vật 3 chiều', 'en' => '3-D object'],
+                't' => ['vi' => 'Tài liệu viết tay', 'en' => 'Manuscript language material'],
+            ],
+            'serial_frequency' => [
+                'unknown' => ['vi' => 'Không xác định', 'en' => 'No determinable frequency'],
+                'a' => ['vi' => 'Hàng năm', 'en' => 'Annual'],
+                'b' => ['vi' => 'Hai tháng/kỳ', 'en' => 'Bimonthly'],
+                'c' => ['vi' => 'Hai kỳ/tuần', 'en' => 'Semiweekly'],
+                'd' => ['vi' => 'Nhật báo', 'en' => 'Daily'],
+                'e' => ['vi' => 'Hai tuần/kỳ', 'en' => 'Biweekly'],
+                'f' => ['vi' => 'Hai kỳ/năm', 'en' => 'Semiannual'],
+                'g' => ['vi' => 'Hai năm/kỳ', 'en' => 'Biennial'],
+                'h' => ['vi' => 'Ba năm/kỳ', 'en' => 'Triennial'],
+                'i' => ['vi' => 'Ba kỳ/tuần', 'en' => 'Three times a week'],
+                'j' => ['vi' => 'Ba kỳ/tháng', 'en' => 'Three times a month'],
+                'm' => ['vi' => 'Báo tháng', 'en' => 'Monthly'],
+                'q' => ['vi' => 'Báo quý', 'en' => 'Quarterly'],
+                's' => ['vi' => 'Hai kỳ/tháng', 'en' => 'Semimonthly'],
+                't' => ['vi' => 'Ba kỳ/năm', 'en' => 'Three times a year'],
+                'u' => ['vi' => 'Không biết', 'en' => 'Unknown'],
+                'w' => ['vi' => 'Tuần báo', 'en' => 'Weekly'],
+                'z' => ['vi' => 'Khác', 'en' => 'Other'],
+            ],
+            'date_type' => [
+                'bc' => ['vi' => 'No dates given; B.C. date involved', 'en' => 'No dates given; B.C. date involved'],
+                'c' => ['vi' => 'Continuing resource currently published', 'en' => 'Continuing resource currently published'],
+                'd' => ['vi' => 'Continuing resource ceased publication', 'en' => 'Continuing resource ceased publication'],
+                'e' => ['vi' => 'Detailed date', 'en' => 'Detailed date'],
+                'i' => ['vi' => 'Inclusive dates of collection', 'en' => 'Inclusive dates of collection'],
+                'k' => ['vi' => 'Range of years of bulk of collection', 'en' => 'Range of years of bulk of collection'],
+                'm' => ['vi' => 'Multiple dates', 'en' => 'Multiple dates'],
+                'n' => ['vi' => 'Dates unknown', 'en' => 'Dates unknown'],
+                'p' => ['vi' => 'Date of distribution/release/issue and production/recording session when different', 'en' => 'Date of distribution/release/issue and production/recording session when different'],
+                'q' => ['vi' => 'Questionable date', 'en' => 'Questionable date'],
+                'r' => ['vi' => 'Reprint/reissue date and original date', 'en' => 'Reprint/reissue date and original date'],
+                's' => ['vi' => 'Single known date/probable date', 'en' => 'Single known date/probable date'],
+                't' => ['vi' => 'Publication date and copyright date', 'en' => 'Publication date and copyright date'],
+                'u' => ['vi' => 'Continuing resource status unknown', 'en' => 'Continuing resource status unknown'],
+            ],
+            'acquisition_method' => [
+                'vol_date' => ['vi' => 'Vol.# MM/DD/YYYY', 'en' => 'Vol.# MM/DD/YYYY'],
+                'untraced' => ['vi' => 'Ấn phẩm không theo dõi', 'en' => 'Untraced serials'],
+                'date' => ['vi' => 'MM/DD/YYYY', 'en' => 'MM/DD/YYYY'],
+                'month_year' => ['vi' => 'MM, YYYY', 'en' => 'MM, YYYY'],
+                'season_year' => ['vi' => 'Season, YYYY', 'en' => 'Season, YYYY'],
+                'year' => ['vi' => 'YYYY', 'en' => 'YYYY'],
+                'vol' => ['vi' => 'Vol.#', 'en' => 'Vol.#'],
+                'vol_month_year' => ['vi' => 'Vol.# MM, YYYY', 'en' => 'Vol.# MM, YYYY'],
+                'vol_year' => ['vi' => 'Vol.# YYYY', 'en' => 'Vol.# YYYY'],
+                'vol_season_year' => ['vi' => 'Vol.# Season, YYYY', 'en' => 'Vol.# Season, YYYY'],
+                'other' => ['vi' => 'Khác', 'en' => 'Other'],
+            ],
+            'document_format' => [
+                'none' => ['vi' => 'Không có trong các loại sau', 'en' => 'None of the following'],
+                'a' => ['vi' => 'Vi phim', 'en' => 'Microfilm'],
+                'b' => ['vi' => 'Vi phiếu', 'en' => 'Microfiche'],
+                'c' => ['vi' => 'Vi phiếu mờ', 'en' => 'Microopaque'],
+                'f' => ['vi' => 'Chữ in lớn', 'en' => 'Large print'],
+                'g' => ['vi' => 'Chữ nổi', 'en' => 'Braille'],
+                'r' => ['vi' => 'Bản sao, bản in thông thường', 'en' => 'Regular print reproduction'],
+                's' => ['vi' => 'Điện tử', 'en' => 'Electronic'],
+            ],
+            'cataloging_standard' => [
+                'AACR2' => ['vi' => 'AACR-2', 'en' => 'AACR-2'],
+                'ISBD' => ['vi' => 'ISBD', 'en' => 'ISBD'],
+            ],
+        ];
+
+        foreach ($mappings as $field => $options) {
+            $val = $request->input($field);
+            if ($val && isset($options[$val])) {
+                $metadata["{$field}_vi"] = $options[$val]['vi'];
+                $metadata["{$field}_en"] = $options[$val]['en'];
+            }
+        }
+
+        return $metadata;
     }
 
     private function generateBarcode()
@@ -436,15 +572,14 @@ class MarcBookController extends Controller
             $record->update(['leader' => $leader]);
 
             // Update record metadata if provided
-            $metadataFields = ['status', 'framework', 'subject_category', 'record_type', 'serial_frequency', 
-                              'date_type', 'acquisition_method', 'document_format', 'cataloging_standard'];
-            
-            foreach ($metadataFields as $field) {
-                if ($request->has($field)) {
-                    $record->$field = $request->$field;
-                }
-            }
-            $record->save();
+            $metadata = $this->getMetadataWithNames($request);
+            $record->update(array_merge([
+                'leader' => $leader,
+                'framework' => $request->input('framework', $record->framework),
+                'status' => $request->input('status', $record->status),
+                'is_featured' => $request->boolean('is_featured'),
+                'subject_category' => $request->input('subject_category', $record->subject_category),
+            ], $metadata));
 
             $fields = $request->input('fields', []);
             $sequence = 0;
@@ -620,6 +755,15 @@ class MarcBookController extends Controller
 
             DB::commit();
             $tab = $request->input('tab', 0);
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => __('Record_Updated_Successfully'),
+                    'redirect' => route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab]),
+                    'record_id' => $record->id,
+                ]);
+            }
+
             return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Record_Updated_Successfully'));
         } catch (\Exception $e) {
             DB::rollBack();
@@ -633,6 +777,13 @@ class MarcBookController extends Controller
                 'request_data' => $request->all()
             ]);
             
+            if ($request->expectsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error while updating: ' . $e->getMessage(),
+                ], 500);
+            }
+
             return back()->with('error', 'Error while updating: ' . $e->getMessage())->withInput();
         }
     }

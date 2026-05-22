@@ -15,6 +15,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -30,11 +33,82 @@
                     fontFamily: {
                         sans: ['Instrument Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
                     },
+                    colors: {
+                        border: 'hsl(var(--border))',
+                        input: 'hsl(var(--input))',
+                        ring: 'hsl(var(--ring))',
+                        background: 'hsl(var(--background))',
+                        foreground: 'hsl(var(--foreground))',
+                        primary: {
+                            DEFAULT: 'hsl(var(--primary))',
+                            foreground: 'hsl(var(--primary-foreground))',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(var(--secondary))',
+                            foreground: 'hsl(var(--secondary-foreground))',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(var(--destructive))',
+                            foreground: 'hsl(var(--destructive-foreground))',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(var(--muted))',
+                            foreground: 'hsl(var(--muted-foreground))',
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(var(--accent))',
+                            foreground: 'hsl(var(--accent-foreground))',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(var(--card))',
+                            foreground: 'hsl(var(--card-foreground))',
+                        },
+                    },
                 },
             },
             plugins: [],
         }
     </script>
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 47.4% 11.2%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 47.4% 11.2%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
+        }
+
+        .dark {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --card: 222.2 84% 6.9%;
+            --card-foreground: 210 40% 98%;
+            --primary: 217.2 91.2% 59.8%;
+            --primary-foreground: 222.2 47.4% 11.2%;
+            --secondary: 217.2 32.6% 17.5%;
+            --secondary-foreground: 210 40% 98%;
+            --muted: 217.2 32.6% 17.5%;
+            --muted-foreground: 215 20.2% 65.1%;
+            --accent: 217.2 32.6% 17.5%;
+            --accent-foreground: 210 40% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 217.2 32.6% 25%;
+            --input: 217.2 32.6% 17.5%;
+            --ring: 224.3 76.3% 48%;
+        }
     <style>
         @import url('https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700');
     </style>
@@ -71,21 +145,34 @@
             max-height: calc(100vh - 4rem) !important;
         }
 
-        /* Admin Component Classes */
-        .card-admin {
-            @apply bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800;
+        /* Table/Data List: Hover effect */
+        .table-row-hover {
+            @apply transition-colors duration-150 hover:bg-muted/50 active:bg-muted;
         }
 
-        .btn-primary {
-            @apply inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900;
+        /* Button: Professional Hover/Active Effects */
+        .btn-compact {
+            @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
         }
 
-        .btn-secondary {
-            @apply inline-flex items-center px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 dark:focus:ring-offset-slate-900;
+        .btn-compact-primary {
+            @apply btn-compact bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm;
         }
 
-        .btn-danger {
-            @apply inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:focus:ring-offset-slate-900;
+        .btn-compact-secondary {
+            @apply btn-compact bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-border;
+        }
+
+        .btn-compact-muted {
+            @apply btn-compact bg-muted text-muted-foreground hover:bg-muted/80 border border-border;
+        }
+
+        .btn-icon-compact {
+            @apply w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90;
+        }
+
+        .btn-icon-danger {
+            @apply btn-icon-compact hover:bg-destructive hover:text-destructive-foreground;
         }
 
         .input-field {
@@ -271,7 +358,7 @@
 </head>
 
 <body
-    class="font-sans antialiased bg-gray-100 dark:bg-slate-950 text-gray-900 dark:text-slate-100 flex min-h-screen transition-colors duration-300"
+    class="font-sans antialiased bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-slate-100 flex min-h-screen transition-colors duration-300"
     x-data="{ 
         sidebarOpen: true, 
         darkMode: localStorage.getItem('theme') === 'dark',
@@ -289,7 +376,7 @@
 
     <!-- Sidebar -->
     <aside :class="sidebarOpen ? 'w-72' : 'w-24 px-2'"
-        class="bg-white dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 text-slate-800 dark:text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
+        class="bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-800 text-slate-800 dark:text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
         <div class="h-16 flex items-center px-6 bg-slate-50/50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 overflow-hidden whitespace-nowrap">
             <span class="text-xl font-black tracking-tighter flex items-center">
                 <span class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs mr-3 shadow-sm">V</span>
@@ -464,7 +551,7 @@
 
         <!-- Page Content -->
         <main
-            class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-slate-950 p-6 transition-colors duration-300">
+            class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-slate-900 p-6 transition-colors duration-300">
             <x-breadcrumb />
             @yield('content')
         </main>
@@ -653,6 +740,9 @@
     </div>
 
     @vite(['resources/js/app.js'])
+    <script>
+        lucide.createIcons();
+    </script>
     @stack('scripts')
 </body>
 

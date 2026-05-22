@@ -133,8 +133,148 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
                                 <select x-model="formData.status" name="status"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="pending">{{ __('New_Status_Text') }}</option>
-                                    <option value="approved">{{ __('Approved') }}</option>
+                                    <option value="pending">New - Mới</option>
+                                    <option value="approved">Corrected or revised - Đã duyệt</option>
+                                </select>
+                            </div>
+
+                            <div class="flex items-center space-x-3 p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="is_featured" x-model="formData.is_featured" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                </label>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-vttu-dark dark:text-slate-200">{{ __('Featured_Book') }}</span>
+                                    <span class="text-[10px] text-vttu-red font-medium italic italic opacity-70">{{ __('Hiển thị ở khu vực nổi bật trên trang chủ') }}</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Thể loại') }}</label>
+                                <select x-model="formData.record_type" name="record_type"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="book">Books - Sách</option>
+                                    <option value="article">Bài trích</option>
+                                    <option value="collection">Bộ sưu tập</option>
+                                    <option value="file">Computer file - Tập tin</option>
+                                    <option value="address">Địa chỉ</option>
+                                    <option value="map">Maps - Bản đồ</option>
+                                    <option value="mixed">Mixed Material - Tài liệu hỗn hợp</option>
+                                    <option value="audio">Music - Âm thanh</option>
+                                    <option value="journal">Serials - Ấn phẩm định kỳ</option>
+                                    <option value="digital">Số hóa</option>
+                                    <option value="resource">Tài liệu số</option>
+                                    <option value="video">Video - Tài liệu chiếu hình</option>
+                                    <option value="visual">Visual Material - Thiết bị, vật thể</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Kiểu biểu ghi') }}</label>
+                                <select x-model="formData.bibliographic_level" name="bibliographic_level"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="a">Language material - Tài liệu văn bản</option>
+                                    <option value="c">Notated music - Bản nhạc in</option>
+                                    <option value="d">Manuscript notated music - Bản nhạc chép tay</option>
+                                    <option value="e">Cartographic material - Bản đồ in</option>
+                                    <option value="f">Manuscript cartographic material - Bản đồ vẽ tay</option>
+                                    <option value="g">Projected medium - Các tư liệu chiếu</option>
+                                    <option value="i">Nonmusical sound recording - Ghi âm không thuộc âm nhạc</option>
+                                    <option value="j">Musical sound recording - Ghi âm thuộc âm nhạc</option>
+                                    <option value="k">Two-dimensional nonprojectable graphic - Đồ họa phẳng</option>
+                                    <option value="m">Computer file - Tập tin máy tính</option>
+                                    <option value="o">Kit - Bộ tài liệu</option>
+                                    <option value="p">Mixed material - Tài liệu hỗn hợp</option>
+                                    <option value="r">3-D object - Đồ vật 3 chiều</option>
+                                    <option value="t">Manuscript language material - Tài liệu viết tay</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Tần suất xuất bản tạp chí') }}</label>
+                                <select x-model="formData.serial_frequency" name="serial_frequency"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="unknown">No determinable frequency - Không xác định</option>
+                                    <option value="a">Annual - Hàng năm</option>
+                                    <option value="b">Bimonthly - Hai tháng/kỳ</option>
+                                    <option value="c">Semiweekly - Hai kỳ/tuần</option>
+                                    <option value="d">Daily - Nhật báo</option>
+                                    <option value="e">Biweekly - Hai tuần/kỳ</option>
+                                    <option value="f">Semiannual - Hai kỳ/năm</option>
+                                    <option value="g">Biennial - Hai năm/kỳ</option>
+                                    <option value="h">Triennial - Ba năm/kỳ</option>
+                                    <option value="i">Three times a week - Ba kỳ/tuần</option>
+                                    <option value="j">Three times a month - Ba kỳ/tháng</option>
+                                    <option value="m">Monthly - Báo tháng</option>
+                                    <option value="q">Quarterly - Báo quý</option>
+                                    <option value="s">Semimonthly - Hai kỳ/tháng</option>
+                                    <option value="t">Three times a year - Ba kỳ/năm</option>
+                                    <option value="u">Unknown - Không biết</option>
+                                    <option value="w">Weekly - Tuần báo</option>
+                                    <option value="z">Other - Khác</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Loại ngày xuất bản') }}</label>
+                                <select x-model="formData.date_type" name="date_type"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="bc">No dates given; B.C. date involved</option>
+                                    <option value="c">Continuing resource currently published</option>
+                                    <option value="d">Continuing resource ceased publication</option>
+                                    <option value="e">Detailed date</option>
+                                    <option value="i">Inclusive dates of collection</option>
+                                    <option value="k">Range of years of bulk of collection</option>
+                                    <option value="m">Multiple dates</option>
+                                    <option value="n">Dates unknown</option>
+                                    <option value="p">Date of distribution/release/issue and production/recording session when different</option>
+                                    <option value="q">Questionable date</option>
+                                    <option value="r">Reprint/reissue date and original date</option>
+                                    <option value="s">Single known date/probable date</option>
+                                    <option value="t">Publication date and copyright date</option>
+                                    <option value="u">Continuing resource status unknown</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Hình thức nhận (Tạp chí)') }}</label>
+                                <select x-model="formData.acquisition_method" name="acquisition_method"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="vol_date">Vol.# MM/DD/YYYY</option>
+                                    <option value="untraced">Untraced serials - Ấn phẩm không theo dõi</option>
+                                    <option value="date">MM/DD/YYYY</option>
+                                    <option value="month_year">MM, YYYY</option>
+                                    <option value="season_year">Season, YYYY</option>
+                                    <option value="year">YYYY</option>
+                                    <option value="vol">Vol.#</option>
+                                    <option value="vol_month_year">Vol.# MM, YYYY</option>
+                                    <option value="vol_year">Vol.# YYYY</option>
+                                    <option value="vol_season_year">Vol.# Season, YYYY</option>
+                                    <option value="other">Other - Khác</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Định dạng tài liệu') }}</label>
+                                <select x-model="formData.document_format" name="document_format"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="none">None of the following - Không có trong các loại sau</option>
+                                    <option value="a">Microfilm - Vi phim</option>
+                                    <option value="b">Microfiche - Vi phiếu</option>
+                                    <option value="c">Microopaque - Vi phiếu mờ</option>
+                                    <option value="f">Large print - Chữ in lớn</option>
+                                    <option value="g">Braille - Chữ nổi</option>
+                                    <option value="r">Regular print reproduction - Bản sao, bản in thông thường</option>
+                                    <option value="s">Electronic - Điện tử</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Chuẩn biên mục') }}</label>
+                                <select x-model="formData.cataloging_standard" name="cataloging_standard"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="AACR2">AACR-2</option>
+                                    <option value="ISBD">ISBD</option>
                                 </select>
                             </div>
 
@@ -438,8 +578,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             formData: {
                 framework: "{{ $currentFramework->code ?? ($record->framework ?? 'AVMARC21') }}",
                 status: "{{ $record->status ?? 'pending' }}",
+                is_featured: {{ $record->is_featured ? 'true' : 'false' }},
                 subject_category: "{{ $record->subject_category ?? 'Article' }}",
                 record_type: "{{ $record->record_type ?? 'book' }}",
+                bibliographic_level: "{{ $record->bibliographic_level ?? 'a' }}",
                 serial_frequency: "{{ $record->serial_frequency ?? 'unknown' }}",
                 date_type: "{{ $record->date_type ?? 'bc' }}",
                 acquisition_method: "{{ $record->acquisition_method ?? 'untraced' }}",

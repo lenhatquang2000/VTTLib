@@ -1,0 +1,118 @@
+Tạo giao diện quản lý thư viện/tài liệu số với phong cách CHUYÊN NGHIỆP, COMPACT và hỗ trợ DARK/LIGHT THEME.
+
+Important thing:
+{
+    Text dùng màu xám not white
+border line dùng  màu xám not white
+button cần có màu nền ( phù hợp với theme darklight)
+đầy đủ hiệu ứng hover, active cho row table và button
+dùng tailwind css
+
+đối với CLient view nên  dùng những màu này
+   $sidebarIcons = [
+        'fas fa-circle-info'    => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-bullseye'       => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-scale-balanced' => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-clock'          => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+        'fas fa-sitemap'        => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
+    ];
+
+còn topsecret admin view thì dùng theo những trang trong layout admin đang sử dụng
+
+nếu hiện tại đang dùng icon lưu trong database thì ưu tiên sử dụng icon đang được lưu trong databse 
+}
+============================================
+📐 1. SPACING (Khoảng cách) - BẮT BUỘC
+============================================
+- Padding trong card: p-3 hoặc p-4 (CẤM dùng p-6, p-8 trở lên)
+- Gap giữa elements: gap-2, gap-3 (CẤM dùng gap-6, gap-8)
+- Margin giữa sections: my-3, my-4 (CẤM dùng my-8, my-10)
+- Table row: py-2 px-3
+- Container padding: px-4 (mobile), px-6 (tablet/desktop)
+
+============================================
+🔲 2. BORDER-RADIUS - BẮT BUỘC
+============================================
+- Card/Container: rounded hoặc rounded-md (CẤM rounded-xl, rounded-2xl, rounded-3xl)
+- Button: rounded-sm hoặc rounded
+- Input/Select: rounded-sm
+- Badge/Tag: rounded-sm
+- Avatar: rounded-full (chỉ cho avatar)
+- Modal/Dialog: rounded-md
+
+============================================
+🎨 3. ICONS - BẮT BUỘC
+============================================
+- CHỈ dùng Lucide React icons
+- Màu icon: text-muted-foreground hoặc currentColor
+- Size: w-4 h-4 (16px) cho inline, w-5 h-5 (20px) cho button
+- CẤM dùng emoji, icon nhiều màu, hoặc icon từ thư viện khác
+- Ví dụ: <FileText className="w-4 h-4" />, <Folder className="w-4 h-4" />
+
+============================================
+🌓 4. DARK/LIGHT THEME
+============================================
+- Background: bg-background
+- Card: bg-card border border-border
+- Text chính: text-foreground
+- Text phụ: text-muted-foreground
+- Hover: hover:bg-muted hoặc hover:bg-accent
+- Active/Selected: bg-primary text-primary-foreground
+- CẤM hardcode màu như bg-white, text-black, bg-gray-100
+
+============================================
+📱 5. RESPONSIVE - BẮT BUỘC HỖ TRỢ 3 LOẠI MÀN HÌNH
+============================================
+
+A. MOBILE (< 640px - sm):
+   - Sidebar: ẩn mặc định, hiện qua hamburger menu hoặc drawer
+   - Layout: flex-col, stack vertical
+   - Table: chuyển sang card list hoặc horizontal scroll
+   - Font size: text-sm cho body
+   - Padding container: px-4
+   - Button: full width hoặc icon-only
+   - Navigation: bottom nav hoặc hamburger menu
+
+B. TABLET / MÀN HÌNH VUÔNG (640px - 1024px - sm đến lg):
+   - Sidebar: collapsible (thu gọn icon-only) hoặc overlay
+   - Layout: grid-cols-1 md:grid-cols-2
+   - Table: hiển thị cột quan trọng, ẩn cột phụ
+   - Padding container: px-6
+   - Font size: text-sm
+
+C. DESKTOP / LAPTOP (> 1024px - lg, xl):
+   - Sidebar: hiển thị đầy đủ, width w-56 hoặc w-64
+   - Layout: flex-row, sidebar + main content
+   - Table: hiển thị đầy đủ tất cả cột
+   - Padding container: px-6 lg:px-8
+   - Font size: text-sm cho table, text-base cho heading
+
+============================================
+📋 6. CẤU TRÚC COMPONENT
+============================================
+
+HEADER:
+- Height: h-14 hoặc h-16
+- Sticky top với bg-background/95 backdrop-blur
+- Breadcrumb: text-sm, ẩn trên mobile (chỉ hiện trang hiện tại)
+
+SIDEBAR:
+- Desktop: w-56, fixed hoặc sticky
+- Mobile: Sheet/Drawer từ bên trái
+- Item: px-3 py-2 rounded text-sm
+- Active: bg-primary text-primary-foreground
+- Hover: hover:bg-muted
+
+TABLE/DATA LIST:
+- Header: text-xs uppercase tracking-wide text-muted-foreground bg-muted/50
+- Row: py-2 px-3 border-b border-border
+- Hover row: hover:bg-muted/50
+- Mobile: Card-based layout thay vì table
+  
+SEARCH & FILTERS:
+- Input height: h-9 hoặc h-10
+- Flex wrap trên mobile: flex-col sm:flex-row
+- Filter buttons: nhóm lại trong dropdown trên mobile
+
+ACTION BUTTONS:
+- Desktop: Icon +

@@ -89,6 +89,7 @@ class SiteNodeController extends Controller
             'url' => 'nullable|string|max:255',
             'sort_order' => 'integer|min:0',
             'language' => 'required|string|max:5',
+            'display_name_en' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string|max:255'
@@ -206,6 +207,7 @@ class SiteNodeController extends Controller
             'url' => 'nullable|string|max:255',
             'sort_order' => 'integer|min:0',
             'language' => 'required|string|max:5',
+            'display_name_en' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'meta_keywords' => 'nullable|string|max:255'

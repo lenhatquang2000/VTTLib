@@ -145,6 +145,12 @@ Route::get('/', function () {
     Route::resource('digital-categories', \App\Http\Controllers\Admin\DigitalCategoryController::class)->names('admin.digital-categories')->except(['show']);
     Route::resource('digital-documents', \App\Http\Controllers\Admin\DigitalDocumentController::class)->names('admin.digital-documents')->except(['show']);
 
+    // Digital Cataloging
+    Route::get('/digital-cataloging', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'index'])->name('admin.digital-cataloging.index');
+    Route::get('/digital-cataloging/create', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'create'])->name('admin.digital-cataloging.create');
+    Route::post('/digital-cataloging', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'store'])->name('admin.digital-cataloging.store');
+    Route::post('/digital-cataloging/category', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'storeCategory'])->name('admin.digital-cataloging.category.store');
+
     // News Management
     Route::prefix('news')->name('admin.news.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\NewsController::class, 'index'])->name('index');
@@ -163,6 +169,21 @@ Route::get('/', function () {
         Route::get('/statistics', [\App\Http\Controllers\Admin\NewsController::class, 'statistics'])->name('statistics');
         Route::post('/auto-generate', [\App\Http\Controllers\Admin\NewsController::class, 'autoGenerate'])->name('auto-generate');
         Route::post('/reorder', [\App\Http\Controllers\Admin\NewsController::class, 'reorder'])->name('reorder');
+    });
+
+    // Announcement Management (Independent from News)
+    Route::prefix('announcements')->name('admin.announcements.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\AnnouncementController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'store'])->name('store');
+        Route::get('/{announcement}/edit', [\App\Http\Controllers\Admin\AnnouncementController::class, 'edit'])->name('edit');
+        Route::put('/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'update'])->name('update');
+        Route::delete('/{announcement}', [\App\Http\Controllers\Admin\AnnouncementController::class, 'destroy'])->name('destroy');
+        
+        // AJAX Routes
+        Route::post('/bulk-action', [\App\Http\Controllers\Admin\AnnouncementController::class, 'bulkAction'])->name('bulk-action');
+        Route::post('/auto-generate', [\App\Http\Controllers\Admin\AnnouncementController::class, 'autoGenerate'])->name('auto-generate');
+        Route::post('/reorder', [\App\Http\Controllers\Admin\AnnouncementController::class, 'reorder'])->name('reorder');
     });
 
     // News Categories Management

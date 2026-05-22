@@ -18,8 +18,9 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        $query = News::with(['category', 'author', 'tags'])
-            ->orderBy('sort_order', 'asc')
+        $query = News::with(['category', 'author']);
+
+        $query->orderBy('sort_order', 'asc')
             ->orderBy('created_at', 'desc');
 
         // Filters
@@ -40,11 +41,9 @@ class NewsController extends Controller
         }
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('summary', 'like', "%{$search}%")
-                  ->orWhere('content', 'like', "%{$search}%");
+            $query->where(function($q) use ($request) {
+                $q->where('title', 'LIKE', "%{$request->search}%")
+                  ->orWhere('summary', 'LIKE', "%{$request->search}%");
             });
         }
 
@@ -479,8 +478,13 @@ class NewsController extends Controller
     public function autoGenerate(Request $request)
     {
         try {
-            $categories = NewsCategory::active()->get();
-            $categoryId = $categories->isNotEmpty() ? $categories->random()->id : null;
+            // Get category if provided
+            $categoryId = $request->input('category_id');
+            
+            if (!$categoryId) {
+                $categories = NewsCategory::active()->get();
+                $categoryId = $categories->isNotEmpty() ? $categories->random()->id : null;
+            }
             
             // Get the current max sort_order
             $maxOrder = News::max('sort_order') ?? -1;
@@ -526,9 +530,9 @@ class NewsController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Tự động tạo tin tức thành công!',
+                'message' => 'Tự động tạo thành công!',
                 'news' => $news,
-                'redirect' => route('admin.news.index')
+                'redirect' => $request->has('category_id') ? route('admin.news.announcements') : route('admin.news.index')
             ]);
         } catch (\Exception $e) {
             return response()->json([

@@ -11,6 +11,7 @@ class SiteNode extends Model
         'node_code',
         'node_name',
         'display_name',
+        'display_name_en',
         'description',
         'parent_id',
         'icon',
@@ -33,6 +34,17 @@ class SiteNode extends Model
         'meta_description',
         'meta_keywords'
     ];
+
+    /**
+     * Get display name based on current locale
+     */
+    public function getDisplayNameAttribute($value)
+    {
+        if (app()->getLocale() === 'en' && !empty($this->attributes['display_name_en'])) {
+            return $this->attributes['display_name_en'];
+        }
+        return $value;
+    }
 
     protected $casts = [
         'allowed_roles' => 'array',
@@ -186,14 +198,13 @@ class SiteNode extends Model
     /**
      * Get tree structure as array
      */
-    public static function getTree($language = 'vi', $user = null)
+    public static function getTree($user = null)
     {
         return self::with(['activeChildren' => function ($query) use ($user) {
                 $query->accessible($user);
             }])
             ->active()
             ->root()
-            ->byLanguage($language)
             ->accessible($user)
             ->orderBy('sort_order')
             ->orderBy('display_name')
@@ -204,14 +215,14 @@ class SiteNode extends Model
     /**
      * Get menu items for specific display type
      */
-    public static function getMenuItems($displayType = 'menu', $language = 'vi', $user = null)
+    public static function getMenuItems($displayType = 'menu', $user = null)
     {
-        return self::with(['activeChildren' => function ($query) use ($user, $displayType) {
-                $query->accessible($user)->byDisplayType($displayType);
+        return self::with(['activeChildren' => function ($query) use ($user) {
+                $query->accessible($user);
             }])
             ->active()
+            ->root()
             ->byDisplayType($displayType)
-            ->byLanguage($language)
             ->accessible($user)
             ->orderBy('sort_order')
             ->orderBy('display_name')

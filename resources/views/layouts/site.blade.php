@@ -142,10 +142,10 @@
 <body class="bg-gray-50">
     <!-- Header -->
     <header id="siteHeader" class="fixed top-0 left-0 w-full z-50 transition-all duration-500 bg-vttu-dark shadow-xl">
-        <nav class="container mx-auto px-4 md:px-12 lg:px-24 py-3 transition-all duration-500" id="headerNav">
-            <div class="flex justify-between items-center px-8 py-2 transition-all duration-500" id="headerContainer">
+        <nav class="w-full px-4 md:px-12 lg:px-24 py-3 transition-all duration-500" id="headerNav">
+            <div class="flex justify-between items-center transition-all duration-500" id="headerContainer">
                 <!-- Logo -->
-                <div class="flex items-center">
+                <div class="flex-shrink-0">
                     <a href="/" class="flex items-center space-x-2">
                         @php $siteLogo = \App\Models\SystemSetting::get('site_logo'); @endphp
                         @if($siteLogo)
@@ -153,62 +153,124 @@
                         @else
                             <i class="fas fa-book-open text-vttu-yellow text-2xl transition-all duration-500" id="headerLogoIcon"></i>
                         @endif
-                        <span class="font-black text-xl text-white tracking-tighter transition-all duration-500" id="headerTitle">{{ \App\Models\SystemSetting::get('site_name', 'VTTLib') }}</span>
+                        <span class="font-black text-xl text-white tracking-tighter transition-all duration-500 whitespace-nowrap" id="headerTitle">{{ \App\Models\SystemSetting::get('site_name', 'VTTLib') }}</span>
                     </a>
                 </div>
 
                 <!-- Desktop Menu -->
-                <div class="hidden lg:flex items-center space-x-8">
+                <div class="hidden lg:flex items-center space-x-6 flex-grow justify-center">
                     @if(isset($menuItems))
                         @foreach($menuItems as $item)
-                            <div class="relative group">
-                                <a href="{{ $item->getUrl() }}" 
-                                   class="text-white/80 hover:text-white font-black text-xs uppercase tracking-[0.2em] transition-all py-2 block">
-                                    {{ $item->display_name }}
-                                </a>
-                                <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-vttu-yellow transition-all group-hover:w-full"></div>
-                            </div>
+                            @if($item->activeChildren && $item->activeChildren->count() > 0)
+                                <!-- Dropdown Node -->
+                                <div class="relative group h-full flex items-center" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
+                                    <button class="text-white/80 group-hover:text-white font-black text-xs uppercase tracking-[0.1em] transition-all py-5 flex items-center space-x-1 outline-none">
+                                        <span>{{ __($item->display_name) }}</span>
+                                        <i class="fas fa-chevron-down text-[8px] opacity-50 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                                    </button>
+                                    <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-vttu-yellow transition-all group-hover:w-full"></div>
+
+                                    <!-- Dropdown Menu -->
+                                    <div x-show="open" 
+                                         x-transition:enter="transition ease-out duration-200"
+                                         x-transition:enter-start="opacity-0 translate-y-2"
+                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                         x-transition:leave="transition ease-in duration-150"
+                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                         x-transition:leave-end="opacity-0 translate-y-2"
+                                         class="absolute top-full left-1/2 -translate-x-1/2 mt-0 w-56 bg-white rounded-xl shadow-2xl border border-slate-100 py-2 z-[60] overflow-hidden"
+                                         style="display: none;">
+                                        @foreach($item->activeChildren as $child)
+                                            <a href="{{ $child->getUrl() }}" 
+                                               class="flex items-center space-x-3 px-4 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all group/item">
+                                                @if($child->icon)
+                                                    <i class="{{ $child->icon }} text-xs opacity-50 group-hover/item:opacity-100 transition-opacity w-4 text-center"></i>
+                                                @endif
+                                                <span class="text-[10px] font-black uppercase tracking-widest">{{ __($child->display_name) }}</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <div class="relative group whitespace-nowrap">
+                                    <a href="{{ $item->getUrl() }}" 
+                                       class="text-white/80 hover:text-white font-black text-xs uppercase tracking-[0.1em] transition-all py-5 block">
+                                        {{ __($item->display_name) }}
+                                    </a>
+                                    <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-vttu-yellow transition-all group-hover:w-full"></div>
+                                </div>
+                            @endif
                         @endforeach
                     @endif
+                </div>
+
+                <!-- Language & User Desktop -->
+                <div class="hidden lg:flex items-center space-x-4 flex-shrink-0">
+                    <!-- Language Switcher Desktop -->
+                    <div class="relative group" x-data="{ open: false }">
+                        <button @click="open = !open" @click.away="open = false" 
+                                class="flex items-center space-x-2 px-3 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full border border-white/20 transition-all backdrop-blur-md">
+                            <i class="fas fa-globe text-xs"></i>
+                            <span class="font-black text-[10px] uppercase tracking-widest">{{ app()->getLocale() == 'vi' ? 'VI' : 'EN' }}</span>
+                            <i class="fas fa-chevron-down text-[8px] opacity-50 transition-transform" :class="open ? 'rotate-180' : ''"></i>
+                        </button>
+                        
+                        <!-- Dropdown -->
+                        <div x-show="open" 
+                             style="display: none;"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             class="absolute right-0 mt-2 w-40 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-[70]">
+                            <a href="{{ route('lang.switch', 'vi') }}" class="flex items-center justify-between px-4 py-2 text-vttu-dark hover:bg-vttu-red/5 transition-all {{ app()->getLocale() == 'vi' ? 'bg-vttu-red/5' : '' }}">
+                                <span class="text-[10px] font-black uppercase tracking-widest">Tiếng Việt</span>
+                                @if(app()->getLocale() == 'vi') <i class="fas fa-check text-[8px] text-vttu-red"></i> @endif
+                            </a>
+                            <a href="{{ route('lang.switch', 'en') }}" class="flex items-center justify-between px-4 py-2 text-vttu-dark hover:bg-vttu-red/5 transition-all {{ app()->getLocale() == 'en' ? 'bg-vttu-red/5' : '' }}">
+                                <span class="text-[10px] font-black uppercase tracking-widest">English</span>
+                                @if(app()->getLocale() == 'en') <i class="fas fa-check text-[8px] text-vttu-red"></i> @endif
+                            </a>
+                        </div>
+                    </div>
                     
                     @auth
                         <div class="relative group">
-                            <button class="flex items-center space-x-3 px-6 py-2.5 bg-white/10 hover:bg-white text-white hover:text-vttu-red rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md group-hover:shadow-vttu-red/20">
-                                <div class="w-7 h-7 bg-vttu-yellow text-vttu-dark rounded-full flex items-center justify-center text-[10px] font-black">
+                            <button class="flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white text-white hover:text-vttu-red rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md group-hover:shadow-vttu-red/20">
+                                <div class="w-6 h-6 bg-vttu-yellow text-vttu-dark rounded-full flex items-center justify-center text-[8px] font-black">
                                     {{ strtoupper(substr(Auth::user()->full_name ?? Auth::user()->username, 0, 1)) }}
                                 </div>
-                                <span class="font-black text-xs uppercase tracking-widest whitespace-nowrap">{{ Auth::user()->full_name ?? Auth::user()->username }}</span>
-                                <i class="fas fa-chevron-down text-[10px] opacity-50 group-hover:rotate-180 transition-transform"></i>
+                                <span class="font-black text-[10px] uppercase tracking-widest whitespace-nowrap truncate max-w-[100px]">{{ Auth::user()->full_name ?? Auth::user()->username }}</span>
+                                <i class="fas fa-chevron-down text-[8px] opacity-50 group-hover:rotate-180 transition-transform"></i>
                             </button>
                             
                             <!-- Dropdown Menu -->
-                            <div class="absolute right-0 top-full mt-2 w-56 bg-white rounded-3xl shadow-2xl border border-slate-100 py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-[60]">
-                                <div class="px-6 py-2 border-b border-slate-50 mb-2">
-                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tài khoản</p>
-                                    <p class="text-sm font-black text-vttu-dark truncate">{{ Auth::user()->username }}</p>
+                            <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-[60]">
+                                <div class="px-4 py-2 border-b border-slate-50 mb-1">
+                                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">{{ __('Tài khoản') }}</p>
+                                    <p class="text-xs font-black text-vttu-dark truncate">{{ Auth::user()->username }}</p>
                                 </div>
                                 @if(!Auth::user()->hasRole('visitor'))
-                                    <a href="/topsecret/dashboard" class="flex items-center space-x-3 px-6 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
-                                        <i class="fas fa-tachometer-alt w-5"></i>
-                                        <span class="text-xs font-black uppercase tracking-widest">Quản trị</span>
+                                    <a href="/topsecret/dashboard" class="flex items-center space-x-2 px-4 py-2 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
+                                        <i class="fas fa-tachometer-alt w-4 text-[10px]"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Quản trị') }}</span>
                                     </a>
                                 @endif
-                                <a href="{{ route('profile') }}" class="flex items-center space-x-3 px-6 py-3 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
-                                    <i class="fas fa-user-circle w-5"></i>
-                                    <span class="text-xs font-black uppercase tracking-widest">Hồ sơ</span>
+                                <a href="{{ route('profile') }}" class="flex items-center space-x-2 px-4 py-2 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
+                                    <i class="fas fa-user-circle w-4 text-[10px]"></i>
+                                    <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Hồ sơ') }}</span>
                                 </a>
-                                <form action="{{ route('logout') }}" method="POST" class="mt-2 border-t border-slate-50 pt-2">
+                                <form action="{{ route('logout') }}" method="POST" class="mt-1 border-t border-slate-50 pt-1">
                                     @csrf
-                                    <button type="submit" class="w-full flex items-center space-x-3 px-6 py-3 text-red-500 hover:bg-red-50 transition-all text-left">
-                                        <i class="fas fa-sign-out-alt w-5"></i>
-                                        <span class="text-xs font-black uppercase tracking-widest">Đăng xuất</span>
+                                    <button type="submit" class="w-full flex items-center space-x-2 px-4 py-2 text-red-500 hover:bg-red-50 transition-all text-left">
+                                        <i class="fas fa-sign-out-alt w-4 text-[10px]"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Đăng xuất') }}</span>
                                     </button>
                                 </form>
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('login') }}" class="px-8 py-3 bg-white/10 hover:bg-white text-white hover:text-vttu-red font-black text-xs uppercase tracking-widest rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md">
-                            Đăng nhập
+                        <a href="{{ route('login') }}" class="px-6 py-2 bg-white/10 hover:bg-white text-white hover:text-vttu-red font-black text-[10px] uppercase tracking-widest rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md whitespace-nowrap">
+                            {{ __('Đăng nhập') }}
                         </a>
                     @endauth
                 </div>
@@ -223,29 +285,61 @@
 
             <!-- Mobile Menu -->
             <div id="mobileMenu" class="hidden lg:hidden mt-4 bg-slate-900/95 backdrop-blur-2xl rounded-[2rem] border border-white/10 p-6 shadow-2xl">
+                <!-- Language Switcher Mobile -->
+                <div class="flex items-center justify-center space-x-4 mb-6 pb-6 border-b border-white/5">
+                    <a href="{{ route('lang.switch', 'vi') }}" 
+                       class="flex-1 text-center py-2 rounded-xl font-black tracking-widest transition-all {{ app()->getLocale() == 'vi' ? 'bg-vttu-yellow text-vttu-dark' : 'bg-white/5 text-white/40' }}">VI</a>
+                    <a href="{{ route('lang.switch', 'en') }}" 
+                       class="flex-1 text-center py-2 rounded-xl font-black tracking-widest transition-all {{ app()->getLocale() == 'en' ? 'bg-vttu-yellow text-vttu-dark' : 'bg-white/5 text-white/40' }}">EN</a>
+                </div>
+
                 @if(isset($menuItems))
                     @foreach($menuItems as $item)
-                        <a href="{{ $item->getUrl() }}" 
-                           class="block py-4 text-white/80 hover:text-white font-black text-sm uppercase tracking-widest border-b border-white/5 last:border-0">
-                            {{ $item->display_name }}
-                        </a>
+                        @if($item->activeChildren->count() > 0)
+                            <div x-data="{ open: false }" class="border-b border-white/5 last:border-0">
+                                <button @click="open = !open" 
+                                        class="w-full flex items-center justify-between py-4 text-white/80 hover:text-white font-black text-sm uppercase tracking-widest outline-none">
+                                    <span>{{ __($item->display_name) }}</span>
+                                    <i class="fas fa-chevron-down text-xs transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
+                                </button>
+                                <div x-show="open" 
+                                     x-collapse
+                                     class="pl-4 pb-2 space-y-2"
+                                     style="display: none;">
+                                    @foreach($item->activeChildren as $child)
+                                        <a href="{{ $child->getUrl() }}" 
+                                           class="block py-2 text-white/50 hover:text-vttu-yellow text-[11px] font-black uppercase tracking-widest transition-all">
+                                            @if($child->icon)
+                                                <i class="{{ $child->icon }} mr-2 text-[10px] opacity-50"></i>
+                                            @endif
+                                            {{ __($child->display_name) }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @else
+                            <a href="{{ $item->getUrl() }}" 
+                               class="block py-4 text-white/80 hover:text-white font-black text-sm uppercase tracking-widest border-b border-white/5 last:border-0">
+                                {{ __($item->display_name) }}
+                            </a>
+                        @endif
                     @endforeach
                 @endif
                 
                 @auth
                     <div class="py-4 border-b border-white/5">
-                        <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">Đã đăng nhập</p>
+                        <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">{{ __('Đã đăng nhập') }}</p>
                         <p class="text-white font-black">{{ Auth::user()->full_name ?? Auth::user()->username }}</p>
                     </div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit" class="w-full mt-6 py-4 bg-vttu-red text-white text-center font-black rounded-2xl uppercase tracking-widest text-xs">
-                            ĐĂNG XUẤT
+                            {{ __('ĐĂNG XUẤT') }}
                         </button>
                     </form>
                 @else
                     <a href="{{ route('login') }}" class="block mt-6 py-4 bg-vttu-red text-white text-center font-black rounded-2xl">
-                        ĐĂNG NHẬP
+                        {{ __('ĐĂNG NHẬP') }}
                     </a>
                 @endauth
             </div>
@@ -258,31 +352,48 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-vttu-dark text-white py-12 border-t border-vttu-red/20">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer class="bg-vttu-dark text-white/90 border-t border-white/5 py-8 md:py-12 mt-8 transition-colors duration-200">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 <!-- About -->
-                <div>
-                    <div class="flex items-center space-x-2 mb-4">
-                        <i class="fas fa-book-open text-vttu-yellow text-xl"></i>
-                        <span class="font-bold text-lg">Thư viện số</span>
+                <div class="space-y-3">
+                    <div class="flex items-center space-x-2 group cursor-default">
+                        <div class="w-8 h-8 rounded-sm bg-white/10 flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-all duration-300 shadow-sm border border-white/10">
+                            <i data-lucide="book-open" class="w-4 h-4"></i>
+                        </div>
+                        <span class="font-black text-sm uppercase tracking-tighter text-white">{{ __('Thư viện số') }}</span>
                     </div>
-                    <p class="text-white/60">
-                        Nền tảng quản lý thư viện hiện đại, hiệu quả và toàn diện.
+                    <p class="text-xs leading-relaxed text-white/60 max-w-xs">
+                        {{ __('Nền tảng quản lý thư viện hiện đại, hiệu quả và toàn diện. Nâng tầm trải nghiệm nghiên cứu và học tập.') }}
                     </p>
+                    <div class="flex items-center gap-2 pt-1">
+                        <a href="#" class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-white/60 hover:bg-vttu-yellow hover:text-vttu-dark active:scale-90 transition-all border border-white/10">
+                            <i data-lucide="facebook" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-white/60 hover:bg-vttu-yellow hover:text-vttu-dark active:scale-90 transition-all border border-white/10">
+                            <i data-lucide="youtube" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#" class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-white/60 hover:bg-vttu-yellow hover:text-vttu-dark active:scale-90 transition-all border border-white/10">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Quick Links -->
-                <div>
-                    <h3 class="font-semibold mb-4 text-vttu-yellow">Liên kết nhanh</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-3 bg-vttu-yellow rounded-full"></div>
+                        <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-vttu-yellow/80">{{ __('Liên kết nhanh') }}</h3>
+                    </div>
                     @if(isset($menuItems))
                         <ul class="space-y-2">
                             @foreach($menuItems->take(5) as $item)
                                 @if($item->can_access ?? true)
                                     <li>
                                         <a href="{{ $item->getUrl() }}" 
-                                           class="text-white/60 hover:text-vttu-yellow transition"
+                                           class="text-xs text-white/50 hover:text-vttu-yellow hover:pl-1 flex items-center group transition-all"
                                            @if($item->target === '_blank') target="_blank" @endif>
+                                            <i data-lucide="chevron-right" class="w-3 h-3 mr-1.5 opacity-0 group-hover:opacity-100 transition-all"></i>
                                             {{ $item->display_name }}
                                         </a>
                                     </li>
@@ -293,16 +404,20 @@
                 </div>
 
                 <!-- Services -->
-                <div>
-                    <h3 class="font-semibold mb-4 text-vttu-yellow">Dịch vụ</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-3 bg-vttu-yellow rounded-full"></div>
+                        <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-vttu-yellow/80">{{ __('Dịch vụ') }}</h3>
+                    </div>
                     @if(isset($footerItems))
                         <ul class="space-y-2">
                             @foreach($footerItems as $item)
                                 @if($item->can_access ?? true)
                                     <li>
                                         <a href="{{ $item->getUrl() }}" 
-                                           class="text-white/60 hover:text-vttu-yellow transition"
+                                           class="text-xs text-white/50 hover:text-vttu-yellow hover:pl-1 flex items-center group transition-all"
                                            @if($item->target === '_blank') target="_blank" @endif>
+                                            <i data-lucide="chevron-right" class="w-3 h-3 mr-1.5 opacity-0 group-hover:opacity-100 transition-all"></i>
                                             {{ $item->display_name }}
                                         </a>
                                     </li>
@@ -313,44 +428,60 @@
                 </div>
 
                 <!-- Contact -->
-                <div>
-                    <h3 class="font-semibold mb-4 text-vttu-yellow">Liên hệ</h3>
-                    @if(isset($footerItems))
-                        @php
-                            $contactNode = $footerItems->firstWhere('node_code', 'lien-he');
-                        @endphp
-                        @if($contactNode && $contactNode->content)
-                            <div class="prose prose-sm text-white/60">
-                                {!! $contactNode->content !!}
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-3 bg-vttu-yellow rounded-full"></div>
+                        <h3 class="text-[10px] font-black uppercase tracking-[0.2em] text-vttu-yellow/80">{{ __('Liên hệ') }}</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 group">
+                            <div class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-vttu-yellow flex-shrink-0 group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-colors border border-white/10 shadow-sm">
+                                <i data-lucide="map-pin" class="w-4 h-4"></i>
                             </div>
-                        @else
-                            <ul class="space-y-2 text-white/60">
-                                <li class="flex items-center">
-                                    <i class="fas fa-map-marker-alt mr-2 text-vttu-yellow"></i>
-                                    123 Đường ABC, Quận 1, TP.HCM
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-phone mr-2 text-vttu-yellow"></i>
-                                    (028) 1234 5678
-                                </li>
-                                <li class="flex items-center">
-                                    <i class="fas fa-envelope mr-2 text-vttu-yellow"></i>
-                                    info@thuvienso.vn
-                                </li>
-                            </ul>
-                        @endif
-                    @endif
+                            <span class="text-xs leading-relaxed text-white/60 group-hover:text-white transition-colors font-medium">
+                                Quốc Lộ 1A, Tân Phú Thạnh, Châu Thành A, Hậu Giang
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-3 group">
+                            <div class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-vttu-yellow flex-shrink-0 group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-colors border border-white/10 shadow-sm">
+                                <i data-lucide="phone" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-xs text-white/60 group-hover:text-white transition-colors font-medium">0293 3504 345</span>
+                        </div>
+                        <div class="flex items-center gap-3 group">
+                            <div class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-vttu-yellow flex-shrink-0 group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-colors border border-white/10 shadow-sm">
+                                <i data-lucide="mail" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-xs text-white/60 group-hover:text-white transition-colors font-medium truncate">Mailthuvien@vttu.edu.vn</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Bottom Footer -->
-            <div class="border-t border-white/10 mt-8 pt-8 text-center text-white/40">
-                <p>&copy; {{ date('Y') }} Thư viện số. Tất cả quyền được bảo lưu.</p>
+            <div class="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[10px] font-medium text-white/40 text-center md:text-left">
+                    &copy; {{ date('Y') }} <span class="font-bold text-vttu-yellow">{{ __('VTTU Library') }}</span>. 
+                    {{ __('Tất cả quyền được bảo lưu.') }}
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="text-[10px] font-bold text-white/40 hover:text-vttu-yellow transition-colors">{{ __('Điều khoản') }}</a>
+                    <a href="#" class="text-[10px] font-bold text-white/40 hover:text-vttu-yellow transition-colors">{{ __('Bảo mật') }}</a>
+                    <div class="w-1.5 h-1.5 rounded-full bg-vttu-yellow animate-pulse"></div>
+                    <span class="text-[10px] font-black text-vttu-yellow/70 tracking-widest uppercase">System Online</span>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         // Global Image Fallback Handler

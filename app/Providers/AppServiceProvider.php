@@ -22,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register JSON translations path for client
+        $this->app->make('translator')->addJsonPath(resource_path('lang/client'));
+
         // Tuyệt đối không dùng env() ở đây, chỉ dùng config()
         if (config('app.env') !== 'local' || config('app.force_https')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');

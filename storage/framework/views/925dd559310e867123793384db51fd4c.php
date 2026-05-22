@@ -1,189 +1,163 @@
 <?php $__env->startSection('content'); ?>
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-slate-100"><?php echo e(__('Site Management')); ?></h1>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1"><?php echo e(__('Manage website structure and content')); ?></p>
+<div class="space-y-4 animate-fade-in">
+    <!-- Header & Actions -->
+    <div class="bg-card p-4 rounded-xl border border-border shadow-sm space-y-4 lg:space-y-0 lg:flex lg:items-center lg:justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-sm border border-primary/10">
+                <i data-lucide="sitemap" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-0.5">
+                    <span><?php echo e(__('Site')); ?></span>
+                    <i data-lucide="chevron-right" class="w-3 h-3 opacity-50"></i>
+                    <span><?php echo e(__('Management')); ?></span>
+                </div>
+                <h1 class="text-xl font-black text-foreground tracking-tight"><?php echo e(__('Quản lý Cấu trúc Website')); ?></h1>
+            </div>
         </div>
-        <div class="flex gap-2">
-            <a href="<?php echo e(route('admin.site-nodes.create')); ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200">
-                <i class="fas fa-plus mr-2"></i><?php echo e(__('Add Node')); ?>
+        
+        <div class="flex flex-wrap items-center gap-2">
+            <button onclick="expandAll()" class="inline-flex items-center px-4 py-2 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-lg transition-all border border-border shadow-sm">
+                <i data-lucide="expand" class="w-4 h-4 mr-2"></i> <?php echo e(__('Mở hết')); ?>
+
+            </button>
+            <button onclick="collapseAll()" class="inline-flex items-center px-4 py-2 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-lg transition-all border border-border shadow-sm">
+                <i data-lucide="shrink" class="w-4 h-4 mr-2"></i> <?php echo e(__('Thu hết')); ?>
+
+            </button>
+            <div class="w-px h-6 bg-border mx-1"></div>
+            <a href="<?php echo e(route('admin.site-nodes.create')); ?>" class="inline-flex items-center px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg transition-all shadow-md shadow-primary/20 border border-primary/10">
+                <i data-lucide="plus" class="w-4 h-4 mr-2"></i><?php echo e(__('Thêm Node')); ?>
 
             </a>
         </div>
     </div>
 
-    <!-- Language Info -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-        <div class="flex items-center justify-between">
+    <!-- Info & Statistics -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <!-- Language Info (4/12) -->
+        <div class="lg:col-span-4 bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-center">
             <div class="flex items-center gap-3">
-                <i class="fas fa-language text-xl text-slate-500 dark:text-slate-400"></i>
+                <div class="w-8 h-8 rounded bg-muted flex items-center justify-center text-muted-foreground">
+                    <i data-lucide="languages" class="w-4 h-4"></i>
+                </div>
                 <div>
-                    <p class="text-sm font-medium text-slate-900 dark:text-slate-100"><?php echo e(__('Current Language')); ?></p>
-                    <p class="text-xs text-slate-500 dark:text-slate-400"><?php echo e(strtoupper($language)); ?> - <?php echo e($language === 'vi' ? 'Tiếng Việt' : 'English'); ?></p>
+                    <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider"><?php echo e(__('Ngôn ngữ hiện tại')); ?></p>
+                    <p class="text-xs font-bold text-foreground"><?php echo e(strtoupper($language)); ?> - <?php echo e($language === 'vi' ? 'Tiếng Việt' : 'English'); ?></p>
                 </div>
             </div>
-            <p class="text-xs text-slate-400 dark:text-slate-500"><?php echo e(__('Use language switcher in topbar to change')); ?></p>
+            <p class="mt-2 text-[9px] text-muted-foreground italic leading-tight">* <?php echo e(__('Sử dụng bộ chuyển đổi ngôn ngữ ở thanh trên để thay đổi.')); ?></p>
         </div>
-    </div>
 
-    <!-- Statistics Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Total Nodes</p>
-                    <p class="text-2xl font-bold text-blue-600 dark:text-blue-400"><?php echo e($stats['total'] ?? 0); ?></p>
+        <!-- Statistics (8/12) -->
+        <div class="lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Tổng số</p>
+                    <i data-lucide="files" class="w-3 h-3 text-blue-500 opacity-50"></i>
                 </div>
-                <i class="fas fa-sitemap text-3xl text-blue-600 dark:text-blue-400 opacity-20"></i>
+                <p class="text-xl font-black text-foreground"><?php echo e($stats['total'] ?? 0); ?></p>
             </div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Published</p>
-                    <p class="text-2xl font-bold text-green-600 dark:text-green-400"><?php echo e($stats['published'] ?? 0); ?></p>
+            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Hoạt động</p>
+                    <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500 opacity-50"></i>
                 </div>
-                <i class="fas fa-check-circle text-3xl text-green-600 dark:text-green-400 opacity-20"></i>
+                <p class="text-xl font-black text-foreground"><?php echo e($stats['published'] ?? 0); ?></p>
             </div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Draft</p>
-                    <p class="text-2xl font-bold text-gray-600 dark:text-gray-400"><?php echo e($stats['draft'] ?? 0); ?></p>
+            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Bản nháp</p>
+                    <i data-lucide="edit-3" class="w-3 h-3 text-amber-500 opacity-50"></i>
                 </div>
-                <i class="fas fa-edit text-3xl text-gray-600 dark:text-gray-400 opacity-20"></i>
+                <p class="text-xl font-black text-foreground"><?php echo e($stats['draft'] ?? 0); ?></p>
             </div>
-        </div>
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Current Language</p>
-                    <p class="text-2xl font-bold text-purple-600 dark:text-purple-400"><?php echo e(strtoupper($language)); ?></p>
+            <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-1">
+                    <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Ngôn ngữ</p>
+                    <i data-lucide="globe" class="w-3 h-3 text-purple-500 opacity-50"></i>
                 </div>
-                <i class="fas fa-language text-3xl text-purple-600 dark:text-purple-400 opacity-20"></i>
+                <p class="text-xl font-black text-foreground uppercase"><?php echo e($language); ?></p>
             </div>
         </div>
     </div>
 
     <!-- Layout Settings (Collapse) -->
-    <div x-data="{ open: false }" class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <button @click="open = !open" type="button" class="w-full flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+    <div x-data="{ open: false }" class="bg-card border border-border rounded-md overflow-hidden shadow-sm transition-all duration-200">
+        <button @click="open = !open" type="button" class="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                    <i class="fas fa-palette text-white text-sm"></i>
+                <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+                    <i data-lucide="palette" class="w-4 h-4"></i>
                 </div>
                 <div class="text-left">
-                    <h3 class="text-sm font-bold text-gray-900 dark:text-slate-100"><?php echo e(__('Layout Settings')); ?></h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400"><?php echo e(__('Configure website logo and banner name')); ?></p>
+                    <h3 class="text-xs font-bold text-foreground uppercase tracking-tight"><?php echo e(__('Cấu hình giao diện (Logo & Banner)')); ?></h3>
                 </div>
             </div>
-            <i class="fas fa-chevron-down text-slate-400 text-xs transition-transform duration-300" :class="open && 'rotate-180'"></i>
+            <i data-lucide="chevron-down" class="w-4 h-4 text-muted-foreground transition-transform duration-300" :class="open && 'rotate-180'"></i>
         </button>
 
-        <div x-show="open" x-collapse x-cloak class="border-t border-slate-200 dark:border-slate-700">
-            <form action="<?php echo e(route('admin.site-nodes.layout-settings')); ?>" method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+        <div x-show="open" x-collapse x-cloak class="border-t border-border">
+            <form action="<?php echo e(route('admin.site-nodes.layout-settings')); ?>" method="POST" enctype="multipart/form-data" class="p-4 space-y-4">
                 <?php echo csrf_field(); ?>
-
-                
-                <div class="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-4 p-3 bg-muted/30 rounded-md border border-border border-dashed">
                     <div class="flex items-center gap-3">
                         <?php $currentLogo = \App\Models\SystemSetting::get('site_logo'); ?>
                         <?php if($currentLogo): ?>
-                            <img src="<?php echo e(asset('storage/' . $currentLogo)); ?>" alt="Logo" class="h-10 w-10 object-contain rounded-lg border border-slate-200 dark:border-slate-600">
+                            <img src="<?php echo e(asset('storage/' . $currentLogo)); ?>" alt="Logo" class="h-8 w-8 object-contain rounded border border-border bg-background">
                         <?php else: ?>
-                            <div class="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                <i class="fas fa-book-open text-blue-600 dark:text-blue-400 text-lg"></i>
+                            <div class="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
+                                <i data-lucide="library" class="w-4 h-4 text-primary"></i>
                             </div>
                         <?php endif; ?>
-                        <span class="font-bold text-gray-800 dark:text-slate-200 text-lg">
+                        <span class="font-bold text-foreground text-sm uppercase tracking-tight">
                             <?php echo e(\App\Models\SystemSetting::get('site_name', 'Thư viện số')); ?>
 
                         </span>
                     </div>
-                    <span class="ml-auto text-[10px] font-bold text-slate-400 uppercase tracking-widest">Preview hiện tại</span>
+                    <span class="ml-auto text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Preview hiện tại</span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider"><?php echo e(__('Banner Name')); ?></label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider"><?php echo e(__('Tên Banner hiển thị')); ?></label>
                         <input type="text" name="site_name"
                                value="<?php echo e(\App\Models\SystemSetting::get('site_name', 'Thư viện số')); ?>"
-                               placeholder="VD: Thư viện số"
-                               class="w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                        <p class="text-[10px] text-slate-400">Tên hiển thị trên header trang web</p>
+                               placeholder="VD: Thư viện số VTTU"
+                               class="w-full bg-background border border-border rounded p-2 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
                     </div>
 
-                    
-                    <div class="space-y-2">
-                        <label class="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold tracking-wider"><?php echo e(__('Logo')); ?></label>
-                        <div x-data="{ fileName: '', previewUrl: '<?php echo e($currentLogo ? asset('storage/' . $currentLogo) : ''); ?>', removeLogo: false }" class="space-y-3">
-                            <div class="flex items-center gap-3">
-                                <label class="flex-1 flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors">
-                                    <i class="fas fa-cloud-upload-alt text-slate-400"></i>
-                                    <span class="text-sm text-slate-500" x-text="fileName || 'Chọn file logo...'"></span>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider"><?php echo e(__('Tải lên Logo')); ?></label>
+                        <div x-data="{ fileName: '', previewUrl: '<?php echo e($currentLogo ? asset('storage/' . $currentLogo) : ''); ?>', removeLogo: false }" class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <label class="flex-1 flex items-center gap-2 px-3 py-2 bg-background border border-border border-dashed rounded cursor-pointer hover:bg-muted/50 transition-colors">
+                                    <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground"></i>
+                                    <span class="text-[11px] text-muted-foreground truncate" x-text="fileName || 'Chọn file logo...'"></span>
                                     <input type="file" name="site_logo" accept="image/*" class="hidden"
                                            @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0]); removeLogo = false">
                                 </label>
                                 <?php if($currentLogo): ?>
                                     <button type="button" @click="removeLogo = !removeLogo; previewUrl = removeLogo ? '' : '<?php echo e(asset('storage/' . $currentLogo)); ?>'"
-                                            class="px-3 py-3 rounded-xl text-sm transition-all"
-                                            :class="removeLogo ? 'bg-red-100 dark:bg-red-900/30 text-red-600' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 hover:bg-red-50 hover:text-red-500'">
-                                        <i class="fas fa-trash-alt"></i>
+                                            class="w-8 h-8 flex items-center justify-center rounded transition-all"
+                                            :class="removeLogo ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive'">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                     <input type="hidden" name="remove_logo" :value="removeLogo ? 1 : 0">
                                 <?php endif; ?>
                             </div>
                             <template x-if="previewUrl">
-                                <div class="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                                    <img :src="previewUrl" class="h-8 w-8 object-contain rounded">
-                                    <span class="text-xs text-slate-500">Preview logo mới</span>
-                                </div>
-                            </template>
-                        </div>
-                        <p class="text-[10px] text-slate-400">PNG, JPG, SVG, WebP, ICO — Tối đa 2MB</p>
-                    </div>
-
-                    
-                    <div class="space-y-2 md:col-span-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                        <label class="text-[10px] text-indigo-500 dark:text-indigo-400 uppercase font-black tracking-widest"><?php echo e(__('Ảnh giới thiệu sách (Trang chủ)')); ?></label>
-                        <?php $currentBookIntro = \App\Models\SystemSetting::get('book_intro_image'); ?>
-                        <div x-data="{ fileName: '', previewUrl: '<?php echo e($currentBookIntro ? asset('storage/' . $currentBookIntro) : ''); ?>', removeImg: false }" class="space-y-3">
-                            <div class="flex items-center gap-3">
-                                <label class="flex-1 flex items-center gap-3 px-4 py-3 bg-white dark:bg-slate-800 border-2 border-dashed border-indigo-200 dark:border-slate-600 rounded-xl cursor-pointer hover:border-indigo-400 transition-colors">
-                                    <i class="fas fa-image text-slate-400"></i>
-                                    <span class="text-sm text-slate-500" x-text="fileName || 'Chọn ảnh giới thiệu sách...'"></span>
-                                    <input type="file" name="book_intro_image" accept="image/*" class="hidden"
-                                           @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0]); removeImg = false">
-                                </label>
-                                <?php if($currentBookIntro): ?>
-                                    <button type="button" @click="removeImg = !removeImg; previewUrl = removeImg ? '' : '<?php echo e(asset('storage/' . $currentBookIntro)); ?>'"
-                                            class="px-3 py-3 rounded-xl text-sm transition-all"
-                                            :class="removeImg ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-red-500'">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                    <input type="hidden" name="remove_book_intro" :value="removeImg ? 1 : 0">
-                                <?php endif; ?>
-                            </div>
-                            <template x-if="previewUrl">
-                                <div class="flex items-center gap-3 p-3 bg-indigo-50 dark:bg-slate-800 rounded-xl border border-indigo-100 dark:border-slate-700">
-                                    <img :src="previewUrl" class="h-20 w-16 object-cover rounded shadow-sm">
-                                    <div>
-                                        <p class="text-xs font-bold text-indigo-600">Preview ảnh mới</p>
-                                        <p class="text-[10px] text-slate-400 italic">Ảnh này sẽ hiển thị tại Section 4 trang chủ</p>
-                                    </div>
+                                <div class="flex items-center gap-2 p-2 bg-muted/50 rounded-md border border-border">
+                                    <img :src="previewUrl" class="h-6 w-6 object-contain rounded">
+                                    <span class="text-[10px] text-muted-foreground italic">Xem trước logo mới</span>
                                 </div>
                             </template>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button type="submit" class="inline-flex items-center px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-colors text-sm shadow-lg shadow-indigo-500/20">
-                        <i class="fas fa-save mr-2"></i><?php echo e(__('Save Settings')); ?>
+                <div class="flex justify-end pt-2 border-t border-border">
+                    <button type="submit" class="btn-compact-primary">
+                        <i data-lucide="save" class="w-4 h-4 mr-2"></i><?php echo e(__('Lưu cấu hình')); ?>
 
                     </button>
                 </div>
@@ -191,144 +165,56 @@
         </div>
     </div>
 
-    <!-- Tree View -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-slate-100"><?php echo e(__('Site Structure')); ?></h3>
-            <div class="flex gap-2">
-                <button onclick="expandAll()" class="inline-flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors duration-200 text-sm">
-                    <i class="fas fa-expand-alt mr-1"></i> <?php echo e(__('Expand All')); ?>
-
-                </button>
-                <button onclick="collapseAll()" class="inline-flex items-center px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium rounded-lg transition-colors duration-200 text-sm">
-                    <i class="fas fa-compress-alt mr-1"></i> <?php echo e(__('Collapse All')); ?>
-
-                </button>
-            </div>
+    <!-- Site Structure Tree -->
+    <div class="bg-card border border-border rounded-xl shadow-sm p-5 transition-colors duration-200">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="w-1.5 h-5 bg-primary rounded-full"></div>
+            <h3 class="text-sm font-black text-foreground uppercase tracking-wider"><?php echo e(__('Cấu trúc Site (Dạng cây)')); ?></h3>
         </div>
         
-        <?php if(count($tree) > 0): ?>
-        <div id="site-tree" class="space-y-2">
-            <?php echo $__env->make('admin.site-nodes.tree', ['nodes' => $tree, 'level' => 0], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-        </div>
-        <?php else: ?>
-        <div class="text-center py-12">
-            <div class="bg-slate-100 dark:bg-slate-800 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-sitemap text-slate-400 dark:text-slate-500 text-3xl"></i>
+        <div class="relative">
+            <?php if(count($tree) > 0): ?>
+            <div id="site-tree" class="space-y-1">
+                <?php echo $__env->make('admin.site-nodes.tree', ['nodes' => $tree, 'level' => 0], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
             </div>
-            <h3 class="text-xl font-semibold text-slate-600 dark:text-slate-400 mb-2"><?php echo e(__('No nodes found')); ?></h3>
-            <p class="text-slate-500 dark:text-slate-400 mb-4"><?php echo e(__('Start by creating your first page')); ?></p>
-            <a href="<?php echo e(route('admin.site-nodes.create')); ?>" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200">
-                <i class="fas fa-plus mr-2"></i><?php echo e(__('Create First Node')); ?>
+            <?php else: ?>
+            <div class="flex flex-col items-center py-16">
+                <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center text-muted-foreground mb-4 border border-border border-dashed">
+                    <i data-lucide="sitemap" class="w-8 h-8 opacity-20"></i>
+                </div>
+                <h3 class="text-sm font-bold text-foreground mb-1"><?php echo e(__('Chưa có Node nào')); ?></h3>
+                <p class="text-xs text-muted-foreground mb-4"><?php echo e(__('Hãy bắt đầu bằng cách tạo trang đầu tiên của bạn.')); ?></p>
+                <a href="<?php echo e(route('admin.site-nodes.create')); ?>" class="btn-compact-primary">
+                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i><?php echo e(__('Tạo Node đầu tiên')); ?>
 
-            </a>
+                </a>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endif; ?>
     </div>
 </div>
 
 <?php $__env->startPush('styles'); ?>
 <style>
-    .tree-node {
-        border-left: 2px solid #374151;
-        transition: all 0.3s ease;
-    }
-    
-    .tree-node:hover {
-        border-left-color: #3b82f6;
-        background-color: rgba(59, 130, 246, 0.05);
-    }
-    
     .tree-node-content {
         display: flex;
         align-items: center;
-        padding: 12px 16px;
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
-    
-    .tree-node-content:hover {
-        background-color: rgba(59, 130, 246, 0.1);
+        padding: 6px 12px;
+        border-radius: 4px;
     }
     
     .tree-children {
-        margin-left: 24px;
-        border-left: 1px dashed #4b5563;
-        padding-left: 16px;
-        margin-top: 8px;
+        display: block;
     }
     
-    .toggle-btn {
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .toggle-btn:hover {
-        background-color: rgba(59, 130, 246, 0.2);
-    }
-    
-    .node-icon {
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 6px;
-        margin-right: 12px;
-    }
-    
-    .node-actions {
-        display: flex;
-        gap: 4px;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
-    
-    .tree-node:hover .node-actions {
-        opacity: 1;
-    }
-    
-    .action-btn {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .action-btn:hover {
-        background-color: rgba(59, 130, 246, 0.2);
-    }
-    
-    .status-badge {
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-    
-    .status-active {
-        background-color: rgba(34, 197, 94, 0.2);
-        color: #22c55e;
-    }
-    
-    .status-inactive {
-        background-color: rgba(239, 68, 68, 0.2);
-        color: #ef4444;
+    .hidden {
+        display: none;
     }
 </style>
 <?php $__env->stopPush(); ?>
 
 <?php $__env->startPush('scripts'); ?>
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
 function toggleNode(nodeId) {
     const children = document.getElementById(`children-${nodeId}`);
@@ -336,31 +222,41 @@ function toggleNode(nodeId) {
     
     if (children) {
         children.classList.toggle('hidden');
-        toggle.innerHTML = children.classList.contains('hidden') ? 
-            '<i class="fas fa-chevron-right text-xs"></i>' : 
-            '<i class="fas fa-chevron-down text-xs"></i>';
+        const icon = toggle.querySelector('svg, i');
+        if (children.classList.contains('hidden')) {
+            icon.style.transform = 'rotate(-90deg)';
+        } else {
+            icon.style.transform = 'rotate(0deg)';
+        }
     }
 }
 
 function expandAll() {
     const allChildren = document.querySelectorAll('.tree-children');
-    const allToggles = document.querySelectorAll('.toggle-btn i');
+    const allToggles = document.querySelectorAll('.w-5.h-5 i');
     
     allChildren.forEach(child => child.classList.remove('hidden'));
-    allToggles.forEach(toggle => {
-        toggle.className = 'fas fa-chevron-down text-xs';
+    allToggles.forEach(icon => {
+        icon.style.transform = 'rotate(0deg)';
     });
 }
 
 function collapseAll() {
     const allChildren = document.querySelectorAll('.tree-children');
-    const allToggles = document.querySelectorAll('.toggle-btn i');
+    const allToggles = document.querySelectorAll('.w-5.h-5 i');
     
     allChildren.forEach(child => child.classList.add('hidden'));
-    allToggles.forEach(toggle => {
-        toggle.className = 'fas fa-chevron-right text-xs';
+    allToggles.forEach(icon => {
+        icon.style.transform = 'rotate(-90deg)';
     });
 }
+
+// Re-initialize Lucide icons after content updates
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
 
 function toggleStatus(nodeId) {
     fetch(`/topsecret/site-nodes/${nodeId}/toggle-status`, {

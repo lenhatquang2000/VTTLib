@@ -59,6 +59,14 @@
                             </div>
                             
                             <div>
+                                <label class="block text-sm font-medium mb-1">{{ __('Display Name (EN)') }}</label>
+                                <input type="text" name="display_name_en" 
+                                       class="input-field w-full" 
+                                       placeholder="{{ __('English name shown on menu') }}"
+                                       value="{{ old('display_name_en', $siteNode->display_name_en) }}">
+                            </div>
+                            
+                            <div>
                                 <label class="block text-sm font-medium mb-1">{{ __('Description') }}</label>
                                 <textarea name="description" rows="3"
                                           class="input-field w-full"
@@ -124,14 +132,6 @@
                                 <input type="number" name="sort_order" 
                                        class="input-field w-full" 
                                        value="{{ old('sort_order', $siteNode->sort_order) }}">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium mb-1">{{ __('Language') }}</label>
-                                <select name="language" class="input-field w-full">
-                                    <option value="vi" {{ old('language', $siteNode->language) == 'vi' ? 'selected' : '' }}>{{ __('Vietnamese') }}</option>
-                                    <option value="en" {{ old('language', $siteNode->language) == 'en' ? 'selected' : '' }}>{{ __('English') }}</option>
-                                </select>
                             </div>
                             
                             <div class="flex items-center">
@@ -252,7 +252,7 @@
             
             <!-- Action Buttons -->
     <div class="flex justify-end items-center gap-4 mt-8 pt-6 border-t border-gray-700">
-        <a href="{{ route('admin.site-nodes.index', ['language' => $siteNode->language]) }}" 
+        <a href="{{ route('admin.site-nodes.index') }}" 
            class="px-6 py-2.5 rounded-xl border border-gray-600 text-gray-400 font-semibold hover:bg-gray-700 hover:text-white transition-all duration-200 flex items-center">
             <i class="fas fa-times mr-2 text-sm opacity-70"></i>{{ __('Cancel') }}
         </a>
