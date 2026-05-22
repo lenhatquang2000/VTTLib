@@ -38,6 +38,7 @@ Route::get('/barcode/{code}', [\App\Http\Controllers\Admin\BarcodeController::cl
 
 // Digital Resource Routes
 Route::get('/digital-resource/{id}', [\App\Http\Controllers\Site\DigitalResourceController::class, 'show'])->name('site.digital-resources.show');
+Route::get('/digital-resource/{id}/view', [\App\Http\Controllers\Site\DigitalResourceController::class, 'viewPdf'])->name('site.digital-resources.view');
 
 // Public Website Routes
 Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
@@ -51,15 +52,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-profile', [\App\Http\Controllers\SiteController::class, 'profile'])->name('profile');
 });
 
-Route::get('/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
+// Admin Panel Redirect
+Route::get('/topsecret', [AdminController::class, 'redirect'])->middleware(['auth', 'role:admin']);
 
 // Admin Panel Routes (Consolidated for all staff levels)
 Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function () {
-    // ...
-    Route::get('/circulation/requests', [\App\Http\Controllers\Admin\CirculationController::class, 'loanRequests'])->name('admin.circulation.requests');
-    Route::post('/circulation/requests/{reservation}/approve', [\App\Http\Controllers\Admin\CirculationController::class, 'approveRequest'])->name('admin.circulation.requests.approve');
-    Route::post('/circulation/requests/{reservation}/reject', [\App\Http\Controllers\Admin\CirculationController::class, 'rejectRequest'])->name('admin.circulation.requests.reject');
+    Route::get('/', [AdminController::class, 'redirect']);
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // ... (các route admin khác)
 });
+
+Route::get('/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
 Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])->name('site.sitemap');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');
 
@@ -78,36 +82,36 @@ Route::prefix('tin-tuc')->name('news.')->group(function () {
     Route::post('/{news}/like', [\App\Http\Controllers\NewsController::class, 'like'])->name('like');
 });
 
+use App\Http\Controllers\SiteController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PatronGroupController;
 use App\Http\Controllers\Admin\ActivityLogController;
 
+// Admin Panel Redirect
+Route::get('/topsecret', [AdminController::class, 'redirect'])->middleware(['auth', 'role:admin']);
+
 // Admin Panel Routes (Consolidated for all staff levels)
 Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function () {
-    // Temporary fix for storage link
-Route::get('/storage-link', function () {
-    try {
-        if (file_exists(public_path('storage'))) {
-            // Nếu là link cũ bị hỏng hoặc thư mục, thử xoá
-            if (is_link(public_path('storage'))) {
-                app('files')->delete(public_path('storage'));
-            } else {
-                return "Thư mục public/storage đã tồn tại. Vui lòng xoá thủ công thư mục này trước khi chạy lại.";
-            }
-        }
-        
-        app('files')->link(storage_path('app/public'), public_path('storage'));
-        return "Đã tạo link storage thành công!.";
-    } catch (\Exception $e) {
-        return "Lỗi khi tạo link: " . $e->getMessage();
-    }
-});
-
-Route::get('/', function () {
-        return redirect()->route('admin.dashboard');
-    });
+    Route::get('/', [AdminController::class, 'redirect']);
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+
+    // Temporary fix for storage link
+    Route::get('/storage-link', function () {
+        try {
+            if (file_exists(public_path('storage'))) {
+                if (is_link(public_path('storage'))) {
+                    app('files')->delete(public_path('storage'));
+                } else {
+                    return "Thư mục public/storage đã tồn tại. Vui lòng xoá thủ công thư mục này trước khi chạy lại.";
+                }
+            }
+            app('files')->link(storage_path('app/public'), public_path('storage'));
+            return "Đã tạo link storage thành công!.";
+        } catch (\Exception $e) {
+            return "Lỗi khi tạo link: " . $e->getMessage();
+        }
+    });
 
     // Statistics
     Route::get('/statistics', [\App\Http\Controllers\Admin\StatisticsController::class, 'index'])->name('admin.statistics.index');
@@ -151,7 +155,9 @@ Route::get('/', function () {
     // Digital Cataloging
     Route::get('/digital-cataloging', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'index'])->name('admin.digital-cataloging.index');
     Route::get('/digital-cataloging/create', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'create'])->name('admin.digital-cataloging.create');
+    Route::get('/digital-cataloging/{id}/edit', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'edit'])->name('admin.digital-cataloging.edit');
     Route::post('/digital-cataloging', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'store'])->name('admin.digital-cataloging.store');
+    Route::delete('/digital-cataloging/{id}', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'destroy'])->name('admin.digital-cataloging.destroy');
     Route::post('/digital-cataloging/category', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'storeCategory'])->name('admin.digital-cataloging.category.store');
 
     // News Management
@@ -368,6 +374,7 @@ Route::get('/', function () {
     Route::put('/sidebar-management/parent', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'updateParent'])->name('admin.sidebar.parent');
     Route::put('/sidebar-management/toggle-active', [\App\Http\Controllers\Admin\SidebarManagementController::class, 'toggleActive'])->name('admin.sidebar.toggle-active');
     Route::post('/settings/policy', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updatePolicy'])->name('admin.settings.policy.update');
+    Route::post('/settings/policy-digital', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateDigitalPolicy'])->name('admin.settings.policy.update_digital');
 
     Route::post('/settings/barcode', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'storeBarcodeConfig'])->name('admin.settings.barcode.store');
     Route::put('/settings/barcode/{config}', [\App\Http\Controllers\Admin\SystemSettingsController::class, 'updateBarcodeConfig'])->name('admin.settings.barcode.update');

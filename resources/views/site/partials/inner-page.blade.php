@@ -144,16 +144,19 @@
                     <div class="flex items-center justify-between mb-2">
                         <div class="flex items-center gap-2">
                             <button @click="sidebarOpen = !sidebarOpen" 
-                                    class="p-2 rounded bg-muted hover:bg-primary/10 hover:text-primary active:scale-95 transition-all border border-border shadow-sm group"
+                                    class="p-1.5 rounded bg-muted hover:bg-primary/10 hover:text-primary active:scale-95 transition-all border border-border shadow-sm group"
                                     title="{{ __('Thu gọn/Mở rộng Sidebar') }}">
-                                <i data-lucide="panel-left-close" class="w-4 h-4 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'"></i>
+                                <i data-lucide="panel-left-close" class="w-3.5 h-3.5 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'"></i>
                             </button>
-                            <div class="w-1 h-4 bg-vttu-red rounded-full"></div>
-                            <h2 class="text-sm font-black uppercase tracking-widest text-vttu-dark">{{ __('Tài nguyên') }}</h2>
+
+                            <div class="w-1 h-3.5 bg-vttu-red rounded-full ml-1"></div>
+                            <h2 class="text-xs font-black uppercase tracking-widest text-vttu-dark">{{ __('Tài nguyên') }}</h2>
                         </div>
                     </div>
                     
-                    @if(isset($resource))
+                    @if(request()->routeIs('site.digital-resources.view'))
+                        @include('site.pages.partials.digital-resource-view-content')
+                    @elseif(isset($resource))
                         @include('site.pages.partials.digital-resource-detail-content')
                     @else
                         @include('site.pages.partials.digital-list-content')

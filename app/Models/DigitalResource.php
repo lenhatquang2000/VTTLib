@@ -15,6 +15,7 @@ class DigitalResource extends Model
         'title',
         'resource_type',
         'file_path',
+        'cover_path',
         'file_name',
         'file_size',
         'language',
@@ -62,6 +63,40 @@ class DigitalResource extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Accessor for author name (from authors array)
+     */
+    public function getAuthorAttribute()
+    {
+        if (is_array($this->authors) && count($this->authors) > 0) {
+            return implode(', ', $this->authors);
+        }
+        return $this->authors; // Fallback if string
+    }
+
+    /**
+     * Get full file URL
+     */
+    public function getFileUrlAttribute()
+    {
+        if ($this->file_path) {
+            return asset('storage/' . $this->file_path);
+        }
+        return null;
+    }
+
+    /**
+     * Get thumbnail URL
+     */
+    public function getThumbnailUrlAttribute()
+    {
+        if ($this->cover_path) {
+            return asset('storage/' . $this->cover_path);
+        }
+        // For now using placeholder, should be actual cover image if exists
+        return "https://placehold.co/300x400/7B0000/FFFFFF?text=DOC";
     }
 
     // Helper to check if resource is published

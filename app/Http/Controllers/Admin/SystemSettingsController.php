@@ -18,8 +18,9 @@ class SystemSettingsController extends Controller
         $barcodeConfigs = BarcodeConfig::all();
         $branches = Branch::with('storageLocations')->get();
         $suppliers = Supplier::all();
+        $patronGroups = \App\Models\PatronGroup::where('is_active', true)->orderBy('order')->get();
         
-        return view('admin.settings.index', compact('settings', 'barcodeConfigs', 'branches', 'suppliers'));
+        return view('admin.settings.index', compact('settings', 'barcodeConfigs', 'branches', 'suppliers', 'patronGroups'));
     }
 
     public function updateLibraryInfo(Request $request)
@@ -61,6 +62,24 @@ class SystemSettingsController extends Controller
         }
 
         return back()->with('success', __('Library policies updated successfully.'));
+    }
+
+    public function updateDigitalPolicy(Request $request)
+    {
+        $data = $request->validate([
+            'digital_download_allowed_groups' => 'nullable|array',
+            'digital_view_page_limits' => 'nullable|array',
+        ]);
+
+        // Lưu quyền tải
+        $allowedGroups = $data['digital_download_allowed_groups'] ?? [];
+        SystemSetting::set('digital_download_allowed_groups', json_encode($allowedGroups), 'policy');
+
+        // Lưu giới hạn số trang xem
+        $viewLimits = $data['digital_view_page_limits'] ?? [];
+        SystemSetting::set('digital_view_page_limits', json_encode($viewLimits), 'policy');
+
+        return back()->with('success', __('Cấu hình chính sách tài liệu số đã được cập nhật.'));
     }
 
     public function storeBarcodeConfig(Request $request)

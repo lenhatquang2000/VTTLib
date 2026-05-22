@@ -29,17 +29,17 @@
             </div>
         </div>
         
-        <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
             <button @click="toggleSidebar()" 
-                    class="btn-compact-muted">
-                <i x-show="sidebarOpen" data-lucide="indent" class="w-4 h-4"></i>
-                <i x-show="!sidebarOpen" data-lucide="outdent" class="w-4 h-4"></i>
-                <span class="ml-2" x-text="sidebarOpen ? '<?php echo e(__('Thu gọn')); ?>' : '<?php echo e(__('Mở rộng')); ?>'"></span>
+                    class="inline-flex items-center whitespace-nowrap px-3 py-2 bg-muted hover:bg-muted/80 text-muted-foreground active:scale-[0.98] transition-all shadow-sm border border-border rounded">
+                <i x-show="sidebarOpen" data-lucide="panel-left-close" class="w-4 h-4"></i>
+                <i x-show="!sidebarOpen" data-lucide="panel-left-open" class="w-4 h-4"></i>
+                <span class="ml-2 font-bold text-xs" x-text="sidebarOpen ? '<?php echo e(__('Thu gọn')); ?>' : '<?php echo e(__('Mở rộng')); ?>'"></span>
             </button>
             <?php if(request('category_id')): ?>
             <a href="<?php echo e(route('admin.digital-cataloging.create', ['category_id' => request('category_id'), 'collapsed' => request('collapsed')])); ?>" 
-               class="btn-compact-primary group">
-                <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i>
+               class="inline-flex items-center px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-black rounded shadow-md shadow-primary/20 active:scale-[0.98] transition-all border border-primary/10 group">
+                <i data-lucide="plus-circle" class="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-300"></i>
                 <?php echo e(__('Biên Mục Tài Liệu Số')); ?>
 
             </a>
@@ -149,14 +149,20 @@
                     <input type="hidden" name="collapsed" value="<?php echo e(request('collapsed')); ?>">
                     <div class="flex-1 relative group">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors"></i>
-                        <input type="text" name="search" value="<?php echo e(request('search')); ?>"
+                        <input type="text" name="search" id="search-input" value="<?php echo e(request('search')); ?>"
                                placeholder="<?php echo e(__('Tìm kiếm tiêu đề, mã số...')); ?>"
-                               class="w-full pl-9 pr-4 py-2 bg-background border border-border rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs">
+                               oninput="debounceSubmit(this)"
+                               class="w-full pl-9 pr-10 py-2 bg-background border border-border rounded text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary transition-all text-xs">
+                        <?php if(request('search')): ?>
+                            <a href="<?php echo e(route('admin.digital-cataloging.index', array_merge(request()->except('search', 'page')))); ?>" 
+                               class="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full text-muted-foreground hover:text-vttu-red transition-all"
+                               title="<?php echo e(__('Xóa tìm kiếm')); ?>">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </a>
+                        <?php endif; ?>
                     </div>
                     <button type="submit" class="btn-compact-primary">
-                        <i data-lucide="filter" class="w-4 h-4 mr-2"></i>
-                        <?php echo e(__('Lọc')); ?>
-
+                        <i data-lucide="filter" class="w-4 h-4"></i>
                     </button>
                 </form>
             </div>
@@ -176,7 +182,9 @@
                         </thead>
                         <tbody class="divide-y divide-border transition-colors duration-200">
                             <?php $__empty_1 = true; $__currentLoopData = $resources; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $res): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-                            <tr class="table-row-hover group">
+                            <tr class="table-row-hover group cursor-pointer" 
+                                ondblclick="window.location.href='<?php echo e(route('admin.digital-cataloging.edit', $res->id)); ?>'"
+                                title="<?php echo e(__('Nhấn đúp để chỉnh sửa')); ?>">
                                 <td class="px-4 py-2">
                                     <div class="flex items-center gap-3">
                                         <div class="relative w-8 h-8 shrink-0 bg-muted rounded flex items-center justify-center text-muted-foreground border border-border shadow-sm">
@@ -233,13 +241,16 @@
                                 </td>
                                 <td class="px-4 py-2 text-right">
                                     <div class="flex justify-end gap-1.5">
-                                        <button class="btn-icon-compact" title="Xem">
+                                        <a href="<?php echo e(route('site.digital-resources.show', $res->id)); ?>" target="_blank" class="btn-icon-compact" title="Xem">
                                             <i data-lucide="eye" class="w-3.5 h-3.5"></i>
-                                        </button>
-                                        <button class="btn-icon-compact" title="Biên tập">
+                                        </a>
+                                        <a href="<?php echo e(route('admin.digital-cataloging.edit', $res->id)); ?>" class="btn-icon-compact" title="Biên tập">
                                             <i data-lucide="edit" class="w-3.5 h-3.5"></i>
-                                        </button>
-                                        <button class="btn-icon-danger" title="Xóa">
+                                        </a>
+                                        <button class="btn-icon-danger btn-delete" 
+                                                data-id="<?php echo e($res->id); ?>" 
+                                                data-title="<?php echo e($res->title); ?>"
+                                                title="Xóa">
                                             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </div>
@@ -272,6 +283,69 @@
         </div>
     </div>
 </div>
+
+<script>
+let searchTimeout;
+function debounceSubmit(input) {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        input.closest('form').submit();
+    }, 1000); // 1 giây
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle Delete Action
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            const title = this.getAttribute('data-title');
+            
+            if (window.SwalHelper) {
+                const confirmed = await window.SwalHelper.showConfirm(
+                    'Xác nhận xóa?',
+                    `Bạn có chắc chắn muốn xóa tài liệu "${title}" không? Hành động này không thể hoàn tác.`,
+                    'Xóa ngay',
+                    'Hủy bỏ'
+                );
+
+                if (confirmed) {
+                    try {
+                        const response = await fetch(`/topsecret/digital-cataloging/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            window.SwalHelper.showSuccess('Đã xóa!', result.message);
+                            // Xóa hàng trong bảng ngay lập tức
+                            this.closest('tr').classList.add('opacity-0', 'scale-95');
+                            setTimeout(() => {
+                                this.closest('tr').remove();
+                                // Nếu không còn hàng nào, tải lại trang để hiện thông báo trống
+                                if (document.querySelectorAll('tbody tr').length === 0) {
+                                    window.location.reload();
+                                }
+                            }, 300);
+                        } else {
+                            window.SwalHelper.showError('Lỗi!', result.message || 'Không thể xóa tài liệu.');
+                        }
+                    } catch (error) {
+                        console.error('Delete error:', error);
+                        window.SwalHelper.showError('Lỗi hệ thống!', 'Đã có lỗi xảy ra khi thực hiện lệnh xóa.');
+                    }
+                }
+            }
+        });
+    });
+});
+</script>
 <?php $__env->stopSection(); ?>
 
 

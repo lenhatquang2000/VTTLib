@@ -12,4 +12,12 @@ class AdminController extends Controller
         $users = \App\Models\User::with('roles')->latest()->take(10)->get();
         return view('admin.dashboard', compact('users'));
     }
+
+    /**
+     * Redirect to dashboard
+     */
+    public function redirect()
+    {
+        return redirect()->route('admin.dashboard');
+    }
 }

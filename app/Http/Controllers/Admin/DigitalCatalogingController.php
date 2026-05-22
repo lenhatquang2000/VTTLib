@@ -35,29 +35,65 @@ class DigitalCatalogingController extends Controller
     {
         $folderId = $request->category_id;
         $folder = \App\Models\DigitalFolder::findOrFail($folderId);
+        $resource = new DigitalResource(); // Khởi tạo object rỗng cho form dùng chung
         
-        return view('admin.digital_cataloging.create', compact('folder'));
+        return view('admin.digital_cataloging.create', compact('folder', 'resource'));
+    }
+
+    public function edit($id)
+    {
+        $resource = DigitalResource::findOrFail($id);
+        $folder = $resource->folder;
+        
+        return view('admin.digital_cataloging.create', compact('folder', 'resource'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $id = $request->input('id');
+        $isEdit = !empty($id);
+
+        $rules = [
             'folder_id' => 'required|exists:digital_folders,id',
             'title' => 'required|string|max:255',
-            'file_resource' => 'required|file|mimes:pdf|max:51200', // 50MB
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'language' => 'required|string',
-        ]);
+            'file_resource' => ($isEdit ? 'nullable' : 'required') . '|file|mimes:pdf|max:51200',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ];
 
-        $resource = new DigitalResource();
+        $request->validate($rules);
+
+        if ($isEdit) {
+            $resource = DigitalResource::findOrFail($id);
+        } else {
+            $resource = new DigitalResource();
+            $resource->created_by = auth()->id();
+        }
+
         $resource->folder_id = $request->folder_id;
         $resource->title = $request->title;
-        $resource->authors = $request->authors ? [$request->authors] : [];
+        
+        // Tách chuỗi tác giả thành mảng
+        if ($request->authors) {
+            $authorsArray = array_map('trim', explode(',', $request->authors));
+            $resource->authors = array_filter($authorsArray);
+        } else {
+            $resource->authors = [];
+        }
+
         $resource->resource_type = $request->resource_type;
         $resource->language = $request->language;
         $resource->description = $request->description;
         $resource->publisher = $request->publisher;
-        $resource->secondary_authors = $request->secondary_authors ? [$request->secondary_authors] : [];
+        
+        // Tương tự cho tác giả phụ
+        if ($request->secondary_authors) {
+            $sAuthorsArray = array_map('trim', explode(',', $request->secondary_authors));
+            $resource->secondary_authors = array_filter($sAuthorsArray);
+        } else {
+            $resource->secondary_authors = [];
+        }
+
         $resource->publish_year = $request->publish_year;
         $resource->format = $request->format;
         $resource->identifier = $request->identifier;
@@ -66,8 +102,7 @@ class DigitalCatalogingController extends Controller
         $resource->coverage = $request->coverage;
         $resource->copyright = $request->copyright;
         $resource->cataloging_link = $request->cataloging_link;
-        $resource->status = 'published';
-        $resource->created_by = auth()->id();
+        $resource->status = $request->input('status', 'published');
 
         // Xử lý upload file PDF
         if ($request->hasFile('file_resource')) {
@@ -85,15 +120,29 @@ class DigitalCatalogingController extends Controller
             $image = $request->file('cover_image');
             $imageName = 'cover_' . time() . '.' . $image->getClientOriginalExtension();
             $imagePath = $image->storeAs('covers', $imageName, 'public');
-            // Giả sử có cột cover_path trong bảng digital_resources, nếu không có ta có thể dùng meta hoặc cột khác
-            // Ở đây tôi sẽ giả định có cột cover_image hoặc lưu vào description
-            // Bạn có thể tạo migration thêm cột nếu cần.
+            $resource->cover_path = $imagePath;
         }
 
         $resource->save();
 
         return redirect()->route('admin.digital-cataloging.index', ['category_id' => $request->folder_id])
-                         ->with('success', 'Biên mục tài liệu số thành công!');
+                         ->with('success', $isEdit ? 'Cập nhật tài liệu số thành công!' : 'Biên mục tài liệu số thành công!');
+    }
+
+    public function destroy($id)
+    {
+        $resource = DigitalResource::findOrFail($id);
+        
+        // Có thể thêm xóa file vật lý ở đây nếu muốn
+        // Storage::disk('public')->delete($resource->file_path);
+        // if ($resource->cover_path) Storage::disk('public')->delete($resource->cover_path);
+
+        $resource->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tài liệu đã được xóa thành công!'
+        ]);
     }
 
     public function storeCategory(Request $request)

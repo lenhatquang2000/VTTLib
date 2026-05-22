@@ -97,14 +97,26 @@
                         </td>
                         <td class="py-4 px-6 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ $resource->file_url }}" target="_blank"
+                                <a href="{{ route('site.digital-resources.view', $resource->id) }}"
+                                   onclick="console.log('Button clicked, href:', this.href); window.location.href=this.href; return false;"
                                    class="inline-flex items-center px-4 py-1.5 bg-vttu-yellow text-vttu-dark rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 active:scale-95 transition-all shadow-sm">
                                     <i data-lucide="eye" class="w-3.5 h-3.5 mr-1.5"></i> {{ __('Xem') }}
                                 </a>
-                                <a href="{{ route('admin.digital-resources.download', $resource->id) }}"
-                                   class="inline-flex items-center px-4 py-1.5 bg-[#3b82f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 active:scale-95 transition-all shadow-sm">
-                                    <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> {{ __('Tải') }}
-                                </a>
+
+                                @auth
+                                    @php
+                                        $allowedGroups = json_decode(\App\Models\SystemSetting::get('digital_download_allowed_groups', '[]'), true) ?: [];
+                                        $userGroupId = auth()->user()->patronDetail?->patron_group_id;
+                                        $canDownload = in_array($userGroupId, $allowedGroups);
+                                    @endphp
+
+                                    @if($canDownload)
+                                        <a href="{{ route('admin.digital-resources.download', $resource->id) }}"
+                                           class="inline-flex items-center px-4 py-1.5 bg-[#3b82f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 active:scale-95 transition-all shadow-sm">
+                                            <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> {{ __('Tải') }}
+                                        </a>
+                                    @endif
+                                @endauth
                             </div>
                         </td>
                     </tr>
