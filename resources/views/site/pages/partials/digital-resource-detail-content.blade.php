@@ -11,9 +11,16 @@
                              alt="{{ $resource->title }}">
                         <div class="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                     </div>
-                    <div class="flex items-center justify-center gap-3 py-2 px-4 bg-muted/30 rounded-full border border-border">
-                        <i data-lucide="eye" class="w-4 h-4 text-vttu-red"></i>
-                        <span class="text-sm font-bold text-vttu-dark">{{ number_format($resource->views ?? 0) }}</span>
+                    <div class="flex items-center justify-center gap-4 py-2 px-4 bg-muted/30 rounded-full border border-border">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="eye" class="w-4 h-4 text-vttu-red"></i>
+                            <span class="text-xs font-bold text-vttu-dark">{{ number_format($resource->view_count ?? 0) }}</span>
+                        </div>
+                        <div class="w-px h-3 bg-border"></div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="download" class="w-3.5 h-3.5 text-emerald-600"></i>
+                            <span class="text-xs font-bold text-vttu-dark">{{ number_format($resource->download_count ?? 0) }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -111,7 +118,7 @@
                                     @endphp
 
                                     @if($canDownload)
-                                        <a href="{{ route('admin.digital-resources.download', $resource->id) }}"
+                                        <a href="{{ route('site.digital-resources.download', $resource->id) }}"
                                            class="inline-flex items-center px-4 py-1.5 bg-[#3b82f6] text-white rounded-sm text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 active:scale-95 transition-all shadow-sm">
                                             <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> {{ __('Tải') }}
                                         </a>

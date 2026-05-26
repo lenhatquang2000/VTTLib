@@ -1,31 +1,31 @@
-@extends('layouts.admin')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
 <div class="space-y-4 pb-10">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-card p-3 rounded-md border border-border sticky top-0 z-20 backdrop-blur-sm shadow-sm">
         <div>
-            <h1 class="text-lg font-bold text-foreground">{{ __('Create_News') }}</h1>
-            <p class="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{{ __('Create_News_Instruction') }}</p>
+            <h1 class="text-lg font-bold text-foreground"><?php echo e(__('Create_News')); ?></h1>
+            <p class="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5"><?php echo e(__('Create_News_Instruction')); ?></p>
         </div>
         <div class="flex items-center gap-2 w-full sm:w-auto">
             <button type="button" onclick="autoGenerateNews()" 
                     class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:bg-muted/80 border border-border active:scale-95 transition-all text-xs font-semibold cursor-pointer">
                 <i data-lucide="sparkles" class="w-4 h-4"></i>
-                {{ __('Auto_Generate') }}
+                <?php echo e(__('Auto_Generate')); ?>
+
             </button>
-            <a href="{{ route('admin.news.index') }}" 
+            <a href="<?php echo e(route('admin.news.index')); ?>" 
                class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded bg-muted text-muted-foreground hover:bg-muted/80 border border-border active:scale-95 transition-all text-xs font-semibold cursor-pointer">
                 <i data-lucide="chevron-left" class="w-4 h-4"></i>
-                {{ __('Back') }}
+                <?php echo e(__('Back')); ?>
+
             </a>
         </div>
     </div>
 
     <!-- Form -->
-    <form action="{{ route('admin.news.store') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        @method('POST')
+    <form action="<?php echo e(route('admin.news.store')); ?>" method="POST" enctype="multipart/form-data">
+        <?php echo csrf_field(); ?>
+        <?php echo method_field('POST'); ?>
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <!-- Main Content -->
@@ -34,7 +34,8 @@
                 <div class="bg-card rounded-md border border-border p-3 shadow-sm">
                     <h3 class="text-xs font-bold mb-3 text-primary uppercase tracking-widest flex items-center gap-2">
                         <i data-lucide="info" class="w-4 h-4"></i>
-                        {{ __('Basic_Information') }}
+                        <?php echo e(__('Basic_Information')); ?>
+
                     </h3>
                     <div class="space-y-3">
                         <div>
@@ -42,7 +43,7 @@
                             <input type="text" name="title" required
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary" 
                                    placeholder="Nhập tiêu đề bài viết"
-                                   value="{{ old('title') }}">
+                                   value="<?php echo e(old('title')); ?>">
                         </div>
                         
                         <div>
@@ -50,21 +51,21 @@
                             <input type="text" name="slug" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary" 
                                    placeholder="Tự động tạo từ tiêu đề"
-                                   value="{{ old('slug') }}">
+                                   value="<?php echo e(old('slug')); ?>">
                         </div>
                         
                         <div>
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Tóm tắt</label>
                             <textarea name="summary" rows="2"
                                       class="flex min-h-[60px] w-full rounded-sm border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                                      placeholder="Tóm tắt nội dung bài viết">{{ old('summary') }}</textarea>
+                                      placeholder="Tóm tắt nội dung bài viết"><?php echo e(old('summary')); ?></textarea>
                         </div>
                         
                         <div>
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Nội dung *</label>
                             <div class="border border-input rounded-sm overflow-hidden focus-within:ring-1 focus-within:ring-primary">
                                 <textarea name="content" id="content" rows="15"
-                                          class="w-full bg-background text-sm focus:outline-none" required>{{ old('content') }}</textarea>
+                                          class="w-full bg-background text-sm focus:outline-none" required><?php echo e(old('content')); ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -82,14 +83,14 @@
                             <input type="text" name="meta_title" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary" 
                                    placeholder="Tiêu đề SEO"
-                                   value="{{ old('meta_title') }}">
+                                   value="<?php echo e(old('meta_title')); ?>">
                         </div>
                         
                         <div class="md:col-span-2">
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Meta Description</label>
                             <textarea name="meta_description" rows="2"
                                       class="flex min-h-[60px] w-full rounded-sm border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                                      placeholder="Mô tả SEO">{{ old('meta_description') }}</textarea>
+                                      placeholder="Mô tả SEO"><?php echo e(old('meta_description')); ?></textarea>
                         </div>
                         
                         <div class="md:col-span-2">
@@ -97,7 +98,7 @@
                             <input type="text" name="meta_keywords" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary" 
                                    placeholder="từ khóa 1, từ khóa 2, từ khóa 3"
-                                   value="{{ old('meta_keywords') }}">
+                                   value="<?php echo e(old('meta_keywords')); ?>">
                         </div>
                     </div>
                 </div>
@@ -109,16 +110,17 @@
                 <div class="bg-card rounded-md border border-border p-3 shadow-sm">
                     <h3 class="text-xs font-bold mb-3 text-primary uppercase tracking-widest flex items-center gap-2">
                         <i data-lucide="send" class="w-4 h-4"></i>
-                        {{ __('Publication') }}
+                        <?php echo e(__('Publication')); ?>
+
                     </h3>
                     <div class="space-y-3">
                         <div>
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Trạng thái *</label>
                             <select name="status" class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary">
-                                <option value="draft" {{ old('status') == 'draft' ? 'selected' : '' }}>Bản nháp</option>
-                                <option value="pending" {{ old('status') == 'pending' ? 'selected' : '' }}>Chờ duyệt</option>
-                                <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Đã đăng</option>
-                                <option value="archived" {{ old('status') == 'archived' ? 'selected' : '' }}>Lưu trữ</option>
+                                <option value="draft" <?php echo e(old('status') == 'draft' ? 'selected' : ''); ?>>Bản nháp</option>
+                                <option value="pending" <?php echo e(old('status') == 'pending' ? 'selected' : ''); ?>>Chờ duyệt</option>
+                                <option value="published" <?php echo e(old('status') == 'published' ? 'selected' : ''); ?>>Đã đăng</option>
+                                <option value="archived" <?php echo e(old('status') == 'archived' ? 'selected' : ''); ?>>Lưu trữ</option>
                             </select>
                         </div>
                         
@@ -126,26 +128,26 @@
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Ngày đăng</label>
                             <input type="datetime-local" name="published_at" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                                   value="{{ old('published_at') ?? now()->format('Y-m-d\TH:i') }}">
+                                   value="<?php echo e(old('published_at') ?? now()->format('Y-m-d\TH:i')); ?>">
                         </div>
                         
                         <div>
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Ngày hết hạn</label>
                             <input type="datetime-local" name="expired_at" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                                   value="{{ old('expired_at') }}">
+                                   value="<?php echo e(old('expired_at')); ?>">
                         </div>
                         
                         <div class="space-y-1.5 pt-1 border-t border-border mt-2">
                             <label class="flex items-center gap-2 cursor-pointer group">
                                 <input type="checkbox" name="is_featured" id="is_featured" 
-                                       class="rounded-sm border-input bg-background text-primary focus:ring-primary w-3.5 h-3.5" {{ old('is_featured') ? 'checked' : '' }}>
+                                       class="rounded-sm border-input bg-background text-primary focus:ring-primary w-3.5 h-3.5" <?php echo e(old('is_featured') ? 'checked' : ''); ?>>
                                 <span class="text-[11px] font-medium text-foreground group-hover:text-primary transition-colors">Tin nổi bật</span>
                             </label>
                             
                             <label class="flex items-center gap-2 cursor-pointer group">
                                 <input type="checkbox" name="allow_comments" id="allow_comments" 
-                                       class="rounded-sm border-input bg-background text-primary focus:ring-primary w-3.5 h-3.5" {{ old('allow_comments') ? 'checked' : '' }}>
+                                       class="rounded-sm border-input bg-background text-primary focus:ring-primary w-3.5 h-3.5" <?php echo e(old('allow_comments') ? 'checked' : ''); ?>>
                                 <span class="text-[11px] font-medium text-foreground group-hover:text-primary transition-colors">Cho phép bình luận</span>
                             </label>
                         </div>
@@ -177,7 +179,7 @@
                             <input type="text" name="featured_image" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" 
                                    placeholder="Nhập URL hình ảnh"
-                                   value="{{ old('featured_image') }}"
+                                   value="<?php echo e(old('featured_image')); ?>"
                                    oninput="handleUrlPreview(this.value)">
                         </div>
                         
@@ -196,7 +198,7 @@
                             </div>
                         </div>
                         
-                        <div id="image-preview-container" class="{{ old('featured_image') ? '' : 'hidden' }} border border-border rounded p-1.5 bg-muted/50">
+                        <div id="image-preview-container" class="<?php echo e(old('featured_image') ? '' : 'hidden'); ?> border border-border rounded p-1.5 bg-muted/50">
                             <div class="flex justify-between items-center mb-1.5">
                                 <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Xem trước:</p>
                                 <button type="button" onclick="removeImage()" 
@@ -205,7 +207,7 @@
                                 </button>
                             </div>
                             <div class="relative rounded overflow-hidden aspect-video bg-muted border border-border">
-                                <img id="image-preview" src="{{ old('featured_image') }}" 
+                                <img id="image-preview" src="<?php echo e(old('featured_image')); ?>" 
                                      class="w-full h-full object-cover">
                                 <div id="image-error-msg" class="hidden absolute inset-0 bg-destructive/10 backdrop-blur-[2px] flex items-center justify-center text-destructive text-[10px] font-bold p-2 text-center">
                                 </div>
@@ -225,11 +227,12 @@
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Chuyên mục</label>
                             <select name="category_id" class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary">
                                 <option value="">-- Chọn chuyên mục --</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                        {{ $category->name }}
+                                <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($category->id); ?>" <?php echo e(old('category_id') == $category->id ? 'selected' : ''); ?>>
+                                        <?php echo e($category->name); ?>
+
                                     </option>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                         </div>
                         
@@ -238,14 +241,14 @@
                             <input type="text" name="tags" 
                                    class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary" 
                                    placeholder="tag1, tag2, tag3"
-                                   value="{{ old('tags') ? implode(', ', old('tags')) : '' }}">
+                                   value="<?php echo e(old('tags') ? implode(', ', old('tags')) : ''); ?>">
                         </div>
                         
                         <div>
                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Ngôn ngữ</label>
                             <select name="language" class="flex h-9 w-full rounded-sm border border-input bg-background px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-primary">
-                                <option value="vi" {{ old('language') == 'vi' ? 'selected' : '' }}>Tiếng Việt</option>
-                                <option value="en" {{ old('language') == 'en' ? 'selected' : '' }}>English</option>
+                                <option value="vi" <?php echo e(old('language') == 'vi' ? 'selected' : ''); ?>>Tiếng Việt</option>
+                                <option value="en" <?php echo e(old('language') == 'en' ? 'selected' : ''); ?>>English</option>
                             </select>
                         </div>
                     </div>
@@ -269,8 +272,8 @@
     </form>
 </div>
 
-@push('scripts')
-<script src="https://cdn.tiny.cloud/1/{{ env('TinyEMC') }}/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<?php $__env->startPush('scripts'); ?>
+<script src="https://cdn.tiny.cloud/1/<?php echo e(env('TinyEMC')); ?>/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
     tinymce.init({
         selector: '#content',
@@ -359,11 +362,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function autoGenerateNews() {
-    fetch('{{ route("admin.news.auto-generate") }}', {
+    fetch('<?php echo e(route("admin.news.auto-generate")); ?>', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            'X-CSRF-TOKEN': '<?php echo e(csrf_token()); ?>'
         }
     })
     .then(response => response.json())
@@ -395,5 +398,7 @@ function autoGenerateNews() {
     });
 }
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/admin/news/create.blade.php ENDPATH**/ ?>

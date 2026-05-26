@@ -13,8 +13,8 @@ class DigitalResourceController extends Controller
     {
         $resource = DigitalResource::with('folder')->findOrFail($id);
         
-        // Tăng lượt xem
-        $resource->increment('views');
+        // Tăng lượt xem (sử dụng view_count để đồng bộ với Admin)
+        $resource->increment('view_count');
         
         // Get common data for site layout
         $menuItems = SiteNode::getMenuItems('menu');
@@ -38,6 +38,25 @@ class DigitalResourceController extends Controller
         $node = SiteNode::where('node_code', 'tai-lieu-so')->first();
 
         return view('site.pages.digital-resource-view', compact('resource', 'menuItems', 'footerItems', 'node'));
+    }
+
+    /**
+     * Download digital resource
+     */
+    public function download($id)
+    {
+        $resource = DigitalResource::findOrFail($id);
+        
+        // Tăng lượt tải
+        $resource->increment('download_count');
+        
+        $filePath = storage_path('app/public/' . $resource->file_path);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found');
+        }
+
+        return response()->download($filePath, $resource->file_name);
     }
 
     /**

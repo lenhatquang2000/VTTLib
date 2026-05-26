@@ -241,13 +241,7 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                         </div>
 
                         <div id="info-grid" class="grid grid-cols-1 gap-6 transition-all duration-500" :class="sidebarOpen ? 'md:grid-cols-2' : 'md:grid-cols-2'">
-                            @php
-                                $showAnnouncements = \App\Models\Sidebar::where('name', 'Announcements')->where('is_active', 1)->exists();
-                            @endphp
-                            
-                            @if($showAnnouncements)
-                                <!-- Thông báo -->
-                                <div class="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up">
+                            <div class="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up">
                                     <div class="bg-vttu-red px-4 py-3 flex items-center justify-between">
                                         <h3 class="text-sm font-bold text-white uppercase tracking-tight">{{ __('THÔNG BÁO') }}</h3>
                                         <a href="#" class="text-vttu-yellow text-[10px] font-bold uppercase tracking-widest hover:underline">{{ __('Xem tất cả') }}</a>
@@ -280,7 +274,6 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                                         @endif
                                     </div>
                                 </div>
-                            @endif
 
                             <!-- Tin tức sự kiện -->
                             <div class="bg-white rounded-md shadow-sm border border-slate-100 overflow-hidden" data-aos="fade-up">
@@ -334,14 +327,14 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                                 </button>
                             </div>
                             <div id="news-content" class="min-h-[200px] relative">
-                                @include('site.pages.partials.home-news', ['homeNews' => $homeNews])
+                                @include('site.pages.partials.home-news', ['homeNews' => $tabNews ?? $homeNews])
                             </div>
                         </div>
 
                         <!-- Section 4: Giới thiệu sách -->
                         <div class="bg-white rounded-md p-4 text-vttu-dark border border-slate-100 shadow-sm relative overflow-hidden" data-aos="fade-up">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-vttu-red/5 blur-3xl rounded-full"></div>
-                            <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 items-center mb-10">
                                 <div class="md:col-span-3">
                                     <div class="aspect-[3/4] bg-slate-100 rounded-sm shadow-md p-2 rotate-2 overflow-hidden border border-white">
                                         @php $bookIntroImg = \App\Models\SystemSetting::get('book_intro_image'); @endphp
@@ -363,7 +356,49 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                                     <div class="inline-flex px-2 py-0.5 rounded-sm bg-vttu-red/5 border border-vttu-red/10 text-[9px] font-bold tracking-widest uppercase text-vttu-red">Book of the Month</div>
                                     <h3 class="text-xl font-bold leading-tight text-vttu-dark uppercase">{{ __('GIỚI THIỆU SÁCH HÀNG THÁNG') }}</h3>
                                     <p class="text-xs text-slate-500 leading-relaxed">{{ __('Khám phá những tựa sách hay và giá trị nhất được đội ngũ thủ thư VTTU chọn lọc kỹ lưỡng dành cho bạn.') }}</p>
-                                    <button class="px-6 py-2 bg-vttu-yellow text-vttu-dark text-xs font-bold rounded-sm hover:bg-yellow-400 transition-all shadow-sm">{{ __('Khám phá ngay') }}</button>
+                                    <a href="{{ route('opac.search') }}" class="inline-block px-6 py-2 bg-vttu-yellow text-vttu-dark text-xs font-bold rounded-sm hover:bg-yellow-400 transition-all shadow-sm text-center">{{ __('Khám phá ngay') }}</a>
+                                </div>
+                            </div>
+                            <div class="border-t border-vttu-red"></div>
+                            <!-- Carousel bên dưới (Giả lập 2 cuốn sách theo mẫu Grid - Kích thước nhỏ) -->
+                            <div class="mt-6 pt-6 border-t border-slate-50">
+                                <div class="flex gap-3">
+                                    @for($i=1; $i<=2; $i++)
+                                    <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm w-[160px] flex-shrink-0">
+                                        <!-- Book Cover -->
+                                        <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
+                                            @if($i == 1)
+                                                <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
+                                            @else
+                                                <div class="w-full h-full flex items-center justify-center bg-slate-50">
+                                                    <i class="fas fa-book-open text-slate-200 text-2xl"></i>
+                                                </div>
+                                            @endif
+                                            <div class="absolute top-1.5 right-1.5">
+                                                <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Book Info -->
+                                        <div class="flex-grow flex flex-col gap-1.5">
+                                            <h3 class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
+                                                {{ $i == 1 ? 'Giáo trình Kinh tế phát triển' : 'Giáo trình Lý thuyết giải phẫu chức năng hệ vận động' }}
+                                            </h3>
+                                            
+                                            <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
+                                                <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
+                                                {{ $i == 1 ? 'Phí Thị Hằng' : 'Hoàng Anh Lân' }}
+                                            </p>
+                                            
+                                            <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
+                                                <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
+                                                <button class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
+                                                    <i class="fas fa-arrow-right text-[7px]"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endfor
                                 </div>
                             </div>
                         </div>

@@ -61,7 +61,7 @@ class SiteController extends Controller
             $query->where('record_type', 'book');
         }
 
-        $newBooks = $query->latest()->take(20)->get();
+        $newBooks = $query->where('status', 'approved')->latest()->take(20)->get();
 
         // Kiểm tra AJAX cho Section 1 tabs (Sách mới | Tạp chí | Thư mục)
         if ($request->ajax() && $request->has('type')) {
@@ -91,20 +91,29 @@ class SiteController extends Controller
             return view('site.pages.partials.home-medical', compact('medicalResources'));
         }
 
-        $homeNews = \App\Models\News::published()->latest()->take(5)->get();
+        // 4. Lấy dữ liệu Tin tức & Thông báo
+        $homeNews = \App\Models\News::published()
+            ->whereHas('category', function($q) {
+                $q->where('slug', 'tin-tuc');
+            })
+            ->featured()
+            ->latest()
+            ->take(5)
+            ->get();
 
-        // Kiểm tra xem Sidebar Thông báo có được bật trong database không
-        $announcementSidebar = \App\Models\Sidebar::where('name', 'Announcements')
-            ->where('is_active', 1)
-            ->first();
+        $homeAnnouncements = \App\Models\News::published()
+            ->whereHas('category', function($q) {
+                $q->where('slug', 'thong-bao');
+            })
+            ->latest()
+            ->take(5)
+            ->get();
 
-        $homeAnnouncements = collect();
-        if ($announcementSidebar) {
-            $homeAnnouncements = \App\Models\Announcement::published()
-                ->latest()
-                ->take(5)
-                ->get();
-        }
+        // Dữ liệu cho tab Tin Mới (Section 3) - Lấy tất cả tin mới không nhất thiết phải nổi bật
+        $tabNews = \App\Models\News::published()
+            ->latest()
+            ->take(6)
+            ->get();
 
         // Lấy sidebarBooks mặc định (tab Mới)
         $sidebarBooks = \App\Models\BibliographicRecord::with(['fields.subfields'])
@@ -116,7 +125,7 @@ class SiteController extends Controller
 
         return view('site.pages.home', compact(
             'menuItems', 'footerItems', 'newResources', 'medicalResources', 
-            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements'
+            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews'
         ));
     }
 
@@ -346,8 +355,27 @@ class SiteController extends Controller
 
         if ($isHome || $isAjaxSidebar) {
             // Nạp các dữ liệu chung cho Home
-            $extraData['homeNews'] = \App\Models\News::published()->latest()->take(5)->get();
-            $extraData['tabNews'] = $extraData['homeNews'];
+            $extraData['homeNews'] = \App\Models\News::published()
+                ->whereHas('category', function($q) {
+                    $q->where('slug', 'tin-tuc');
+                })
+                ->featured()
+                ->latest()
+                ->take(5)
+                ->get();
+                
+            $extraData['homeAnnouncements'] = \App\Models\News::published()
+                ->whereHas('category', function($q) {
+                    $q->where('slug', 'thong-bao');
+                })
+                ->latest()
+                ->take(5)
+                ->get();
+
+            $extraData['tabNews'] = \App\Models\News::published()
+                ->latest()
+                ->take(6)
+                ->get();
             $extraData['newResources'] = \App\Models\DigitalResource::with('folder')
                 ->where('status', 'published')
                 ->latest()
