@@ -27,5 +27,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException $exception, $request) {
+            return response()->view('errors.method-not-allowed', [
+                'exception' => $exception
+            ], 405);
+        });
     })->create();

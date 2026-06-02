@@ -10,7 +10,7 @@ class ClientController extends Controller
     {
         // Check for session expired message
         $message = session('message');
-        
+
         return view('client.home', compact('message'));
     }
 }

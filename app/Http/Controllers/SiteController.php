@@ -72,11 +72,17 @@ class SiteController extends Controller
         if ($request->ajax() && $request->has('news_type')) {
             $newsType = $request->query('news_type', 'news');
             if ($newsType === 'video') {
-                $homeNews = \App\Models\News::where('status', 'published')->whereNotNull('video_url')->latest()->take(6)->get();
+                $tabNews = \App\Models\News::published()
+                    ->whereHas('category', function($q) {
+                        $q->where('slug', 'video');
+                    })
+                    ->latest()
+                    ->take(6)
+                    ->get();
             } else {
-                $homeNews = \App\Models\News::published()->latest()->take(6)->get();
+                $tabNews = \App\Models\News::published()->latest()->take(6)->get();
             }
-            return view('site.pages.partials.home-news', compact('homeNews'));
+            return view('site.pages.partials.home-news', compact('tabNews', 'newsType'));
         }
 
         // Kiểm tra AJAX cho Section 5 tabs (Sản khoa | Nhi khoa | Nội khoa)
@@ -115,6 +121,13 @@ class SiteController extends Controller
             ->take(6)
             ->get();
 
+        // Dữ liệu cho section Giới Thiệu Sách Hàng Tháng (category_id == 7)
+        $bookIntroductionNews = \App\Models\News::published()
+            ->where('category_id', 7)
+            ->latest()
+            ->take(2)
+            ->get();
+
         // Lấy sidebarBooks mặc định (tab Mới)
         $sidebarBooks = \App\Models\BibliographicRecord::with(['fields.subfields'])
             ->where('status', \App\Models\BibliographicRecord::STATUS_APPROVED)
@@ -124,8 +137,8 @@ class SiteController extends Controller
             ->get();
 
         return view('site.pages.home', compact(
-            'menuItems', 'footerItems', 'newResources', 'medicalResources', 
-            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews'
+            'menuItems', 'footerItems', 'newResources', 'medicalResources',
+            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews', 'bookIntroductionNews'
         ));
     }
 

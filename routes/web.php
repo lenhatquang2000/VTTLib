@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
 
 // Client Routes
-Route::get('/', [ClientController::class, 'index'])->name('client.home');
+// Route::get('/', [ClientController::class, 'index'])->name('client.home');
 
 // Authentication Links
 Route::get('/login', [ClientLoginController::class, 'create'])->name('login');

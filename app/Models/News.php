@@ -148,6 +148,38 @@ class News extends Model
         return $this->published_at ? $this->published_at->format('d/m/Y H:i') : '';
     }
 
+    public function getVideoUrlAttribute()
+    {
+        if (!$this->content) return null;
+
+        // Extract YouTube URL (first match only)
+        if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $this->content, $matches)) {
+            return 'https://www.youtube.com/embed/' . $matches[1];
+        }
+
+        // Extract Vimeo URL (first match only)
+        if (preg_match('/vimeo\.com\/(\d+)/i', $this->content, $matches)) {
+            return 'https://player.vimeo.com/video/' . $matches[1];
+        }
+
+        // Extract Google Drive URL (first match only)
+        if (preg_match('/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/i', $this->content, $matches)) {
+            return 'https://drive.google.com/file/d/' . $matches[1] . '/preview';
+        }
+
+        // Extract video tag src (first match only)
+        if (preg_match('/<video[^>]+src=["\']([^"\']+)["\']/i', $this->content, $matches)) {
+            return $matches[1];
+        }
+
+        // Extract iframe src (first match only)
+        if (preg_match('/<iframe[^>]+src=["\']([^"\']+)["\']/i', $this->content, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
     public function getStatusLabelAttribute()
     {
         return match($this->status) {

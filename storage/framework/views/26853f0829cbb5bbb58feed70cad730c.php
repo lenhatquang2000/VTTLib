@@ -377,44 +377,83 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
                             <!-- Carousel bên dưới (Giả lập 2 cuốn sách theo mẫu Grid - Kích thước nhỏ) -->
                             <div class="mt-6 pt-6 border-t border-slate-50">
                                 <div class="flex gap-3">
-                                    <?php for($i=1; $i<=2; $i++): ?>
-                                    <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm w-[160px] flex-shrink-0">
-                                        <!-- Book Cover -->
-                                        <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
-                                            <?php if($i == 1): ?>
-                                                <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
-                                            <?php else: ?>
-                                                <div class="w-full h-full flex items-center justify-center bg-slate-50">
-                                                    <i class="fas fa-book-open text-slate-200 text-2xl"></i>
+                                    <?php if(isset($bookIntroductionNews) && count($bookIntroductionNews) > 0): ?>
+                                        <?php $__currentLoopData = $bookIntroductionNews; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm w-[160px] flex-shrink-0">
+                                            <!-- Book Cover -->
+                                            <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
+                                                <?php if($item->featured_image): ?>
+                                                    <img src="<?php echo e($item->featured_image); ?>" class="w-full h-full object-contain">
+                                                <?php else: ?>
+                                                    <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
+                                                <?php endif; ?>
+                                                <div class="absolute top-1.5 right-1.5">
+                                                    <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
                                                 </div>
-                                            <?php endif; ?>
-                                            <div class="absolute top-1.5 right-1.5">
-                                                <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
+                                            </div>
+
+                                            <!-- Book Info -->
+                                            <div class="flex-grow flex flex-col gap-1.5">
+                                                <a href="<?php echo e($item->url); ?>" class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
+                                                    <?php echo e($item->title); ?>
+
+                                                </a>
+
+                                                <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
+                                                    <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
+                                                    <?php echo e($item->author->name ?? 'VTTU'); ?>
+
+                                                </p>
+
+                                                <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
+                                                    <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
+                                                    <a href="<?php echo e($item->url); ?>" class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
+                                                        <i class="fas fa-arrow-right text-[7px]"></i>
+                                                    </a>
+                                                </div>
                                             </div>
                                         </div>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php else: ?>
+                                        <?php for($i=1; $i<=2; $i++): ?>
+                                        <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm w-[160px] flex-shrink-0">
+                                            <!-- Book Cover -->
+                                            <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
+                                                <?php if($i == 1): ?>
+                                                    <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
+                                                <?php else: ?>
+                                                    <div class="w-full h-full flex items-center justify-center bg-slate-50">
+                                                        <i class="fas fa-book-open text-slate-200 text-2xl"></i>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <div class="absolute top-1.5 right-1.5">
+                                                    <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
+                                                </div>
+                                            </div>
 
-                                        <!-- Book Info -->
-                                        <div class="flex-grow flex flex-col gap-1.5">
-                                            <h3 class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
-                                                <?php echo e($i == 1 ? 'Giáo trình Kinh tế phát triển' : 'Giáo trình Lý thuyết giải phẫu chức năng hệ vận động'); ?>
+                                            <!-- Book Info -->
+                                            <div class="flex-grow flex flex-col gap-1.5">
+                                                <h3 class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
+                                                    <?php echo e($i == 1 ? 'Giáo trình Kinh tế phát triển' : 'Giáo trình Lý thuyết giải phẫu chức năng hệ vận động'); ?>
 
-                                            </h3>
-                                            
-                                            <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
-                                                <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
-                                                <?php echo e($i == 1 ? 'Phí Thị Hằng' : 'Hoàng Anh Lân'); ?>
+                                                </h3>
 
-                                            </p>
-                                            
-                                            <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
-                                                <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
-                                                <button class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
-                                                    <i class="fas fa-arrow-right text-[7px]"></i>
-                                                </button>
+                                                <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
+                                                    <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
+                                                    <?php echo e($i == 1 ? 'Phí Thị Hằng' : 'Hoàng Anh Lân'); ?>
+
+                                                </p>
+
+                                                <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
+                                                    <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
+                                                    <button class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
+                                                        <i class="fas fa-arrow-right text-[7px]"></i>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <?php endfor; ?>
+                                        <?php endfor; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
