@@ -1,137 +1,139 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-8 animate-in fade-in duration-700">
-    <!-- Action Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-4 animate-in fade-in duration-500">
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">{{ __('Privilege Controller') }}</h1>
-            <p class="text-lg font-medium text-slate-500 dark:text-slate-400 mt-1">{{ __('Assign and manage security clearances for system subjects.') }}</p>
+            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Privilege Controller') }}</h1>
+            <p class="text-sm text-muted-foreground">{{ __('Assign and manage security clearances for system subjects.') }}</p>
         </div>
     </div>
 
     <!-- Administrative Navigation Tabs -->
-    <div class="flex items-center space-x-2 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-[2rem] w-fit border border-slate-200 dark:border-slate-800">
-        <a href="{{ route('admin.users.index') }}" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all {{ Route::is('admin.users.index') ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+    <div class="flex items-center gap-1 p-1 bg-muted/50 rounded-md w-fit border border-border">
+        <a href="{{ route('admin.users.index') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.users.index') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Users List') }}
         </a>
-        <a href="{{ route('admin.users.privileges') }}" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all {{ Route::is('admin.users.privileges') ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+        <a href="{{ route('admin.users.privileges') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.users.privileges') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Privilege Controller') }}
         </a>
-        <a href="{{ route('admin.roles.index') }}" class="px-8 py-3 rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest transition-all {{ Route::is('admin.roles.index') ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300' }}">
+        <a href="{{ route('admin.roles.index') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.roles.index') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Role Management') }}
         </a>
     </div>
 
-    <!-- Main Content -->
-    <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
         <!-- Filter Bar -->
-        <div class="p-4 bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700">
-            <form action="{{ route('admin.users.privileges') }}" method="GET" class="flex gap-3">
+        <div class="p-3 bg-muted/30 border-b border-border">
+            <form action="{{ route('admin.users.privileges') }}" method="GET" class="flex flex-col sm:flex-row gap-2">
                 <!-- Search Input -->
-                <div class="relative flex-1 max-w-xl">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                <div class="relative flex-1 sm:max-w-xs">
+                    <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                        <i data-lucide="search" class="w-4 h-4 text-muted-foreground"></i>
                     </div>
                     <input type="text" name="search" value="{{ $search }}" 
                         placeholder="Search users..." 
-                        class="block w-full pl-10 pr-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent !important" style="min-width: 300px !important;">
+                        class="block w-full pl-9 pr-3 py-1.5 h-9 text-sm border border-input rounded-sm bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 
                 <!-- Role Filter -->
-                <select name="role_id" class="w-32 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                <select name="role_id" class="h-9 w-full sm:w-40 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     <option value="">All Roles</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}" {{ $roleId == $role->id ? 'selected' : '' }}>{{ $role->display_name }}</option>
                     @endforeach
                 </select>
 
-                <!-- Search Button -->
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
-                    Search
-                </button>
+                <!-- Action Buttons -->
+                <div class="flex gap-2">
+                    <button type="submit" class="btn-compact-primary h-9 px-4">
+                        {{ __('Search') }}
+                    </button>
 
-                <!-- Clear Filters -->
-                @if($search || $roleId)
-                    <a href="{{ route('admin.users.privileges') }}" 
-                        class="px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors inline-flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        Clear
-                    </a>
-                @endif
+                    @if($search || $roleId)
+                        <a href="{{ route('admin.users.privileges') }}" 
+                            class="btn-compact-secondary h-9 px-4">
+                            <i data-lucide="x" class="w-4 h-4 mr-1"></i>
+                            {{ __('Clear') }}
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 
-        <!-- Main Table -->
+        <!-- Table View -->
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead>
-                    <tr class="bg-slate-50/80 dark:bg-slate-900/50 text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-700/50 uppercase text-[10px] font-black tracking-[0.2em]">
-                        <th class="px-8 py-6">{{ __('Identity') }}</th>
-                        <th class="px-6 py-6">{{ __('Username') }}</th>
-                        <th class="px-6 py-6">{{ __('Clearance Level') }}</th>
-                        <th class="px-6 py-6">{{ __('Status / Permissions') }}</th>
-                        <th class="px-8 py-6 text-right">{{ __('Operations') }}</th>
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+                    <tr>
+                        <th class="py-2 px-3">{{ __('Identity') }}</th>
+                        <th class="py-2 px-3">{{ __('Username') }}</th>
+                        <th class="py-2 px-3">{{ __('Clearance Level') }}</th>
+                        <th class="py-2 px-3">{{ __('Status / Permissions') }}</th>
+                        <th class="py-2 px-3 w-32 text-right">{{ __('Operations') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
+                <tbody class="divide-y divide-border">
                     @forelse($roleUsers as $ru)
-                        <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all duration-200">
-                            <td class="px-8 py-6 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    <div class="relative group-hover:scale-110 transition-transform duration-300">
-                                        <div class="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 border-2 border-white dark:border-slate-800 shadow-sm flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg uppercase">
-                                            {{ substr($ru->user->name, 0, 1) }}
-                                        </div>
-                                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-slate-800 rounded-full shadow-sm"></div>
+                        <tr class="table-row-hover group">
+                            <td class="py-2 px-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs uppercase shrink-0">
+                                        {{ substr($ru->user->name, 0, 1) }}
                                     </div>
-                                    <div class="ml-4">
-                                        <div class="text-sm font-black text-slate-900 dark:text-white leading-tight">{{ $ru->user->name }}</div>
-                                        <div class="text-xs font-bold text-slate-400 mt-0.5">{{ $ru->user->email }}</div>
+                                    <div class="min-w-0">
+                                        <div class="text-sm font-semibold text-foreground leading-tight truncate">{{ $ru->user->name }}</div>
+                                        <div class="text-[11px] text-muted-foreground leading-tight truncate">{{ $ru->user->email }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-6 font-mono text-xs font-bold text-slate-500 dark:text-slate-400">
+                            <td class="py-2 px-3 font-mono text-xs text-muted-foreground">
                                 @ {{ $ru->user->username ?? '---' }}
                             </td>
-                            <td class="px-6 py-6">
+                            <td class="py-2 px-3">
                                 @php
                                     $roleClass = match($ru->role->name) {
-                                        'root' => 'bg-rose-50 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/30',
-                                        'admin' => 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-900/30',
-                                        'visitor' => 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/30',
-                                        default => 'bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border-slate-200'
+                                        'root' => 'bg-destructive/10 text-destructive border-destructive/20',
+                                        'admin' => 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+                                        'visitor' => 'bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20',
+                                        default => 'bg-primary/10 text-primary border-primary/20'
                                     };
                                 @endphp
-                                <span class="inline-flex items-center px-4 py-1.5 border rounded-xl text-[10px] font-black uppercase tracking-[0.15em] {{ $roleClass }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-bold border {{ $roleClass }}">
                                     {{ $ru->role->display_name }}
                                 </span>
                             </td>
-                            <td class="px-6 py-6">
-                                <div class="flex items-center gap-3">
-                                    <button
-                                        onclick="openSidebarSettings('{{ $ru->id }}', '{{ $ru->user->name }}', '{{ $ru->role->name }}', {{ $ru->sidebars->pluck('sidebar_id') }})"
-                                        class="inline-flex items-center px-4 py-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-xl border border-indigo-100 dark:border-indigo-900/30 hover:bg-indigo-600 hover:text-white transition group/btn shadow-sm whitespace-nowrap">
-                                        <svg class="w-3.5 h-3.5 mr-2 group-hover/btn:rotate-180 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                                        {{ __('Modify Tabs') }} <span class="ml-2 px-2 py-0.5 bg-white dark:bg-slate-800 rounded-lg text-[9px] group-hover/btn:bg-white/20 transition-colors">{{ $ru->sidebars->count() }}</span>
-                                    </button>
-                                </div>
+                            <td class="py-2 px-3">
+                                <button
+                                    onclick="openSidebarSettings('{{ $ru->id }}', '{{ $ru->user->name }}', '{{ $ru->role->name }}', {{ $ru->sidebars->pluck('sidebar_id') }})"
+                                    class="btn-compact-primary text-[10px] px-3 py-1.5">
+                                    <i data-lucide="settings-2" class="w-3.5 h-3.5 mr-1"></i>
+                                    {{ __('Modify Tabs') }} <span class="ml-1 px-1.5 py-0.5 bg-background rounded-sm text-[9px]">{{ $ru->sidebars->count() }}</span>
+                                </button>
                             </td>
-                            <td class="px-8 py-6 text-right">
-                                <div class="flex justify-end gap-2">
-                                    <a href="{{ route('admin.users.edit', $ru->user_id) }}" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <td class="py-2 px-3 text-right">
+                                <div class="flex justify-end items-center gap-1.5">
+                                    <a href="{{ route('admin.users.edit', $ru->user_id) }}" class="btn-icon-compact" title="{{ __('Edit') }}">
+                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </a>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-8 py-24 text-center text-slate-500 italic">{{ __('No privileged identities found.') }}</td>
+                            <td colspan="5" class="py-12 text-center">
+                                <div class="flex flex-col items-center max-w-sm mx-auto">
+                                    <div class="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4 border border-border">
+                                        <i data-lucide="search-x" class="w-6 h-6 text-muted-foreground"></i>
+                                    </div>
+                                    <h4 class="text-base font-bold text-foreground">{{ __('No Privileged Identities Found') }}</h4>
+                                    <p class="text-muted-foreground text-sm mt-1">{{ __('Try adjusting your filters.') }}</p>
+                                    <a href="{{ route('admin.users.privileges') }}" class="btn-compact-primary mt-4">
+                                        {{ __('Reset Filters') }}
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -139,45 +141,53 @@
         </div>
 
         <!-- Pagination -->
-        <div class="px-8 py-8 border-t border-slate-100 dark:border-slate-700/50">
-            {{ $roleUsers->links() }}
+        <div class="px-4 py-3 bg-muted/30 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
+                {{ __('Displaying') }} {{ $roleUsers->firstItem() ?? 0 }} - {{ $roleUsers->lastItem() ?? 0 }} {{ __('of') }} {{ $roleUsers->total() }}
+            </div>
+            <div>
+                {{ $roleUsers->links() }}
+            </div>
         </div>
     </div>
 </div>
 
 <!-- SIDEBAR MODAL -->
-<div id="sidebarModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="closeModal('sidebarModal')"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl p-4">
-        <div class="bg-white dark:bg-slate-800 rounded-[3rem] shadow-2xl relative overflow-hidden max-h-[90vh] flex flex-col border border-slate-200 dark:border-slate-700 animate-modal">
-            <div class="p-10 border-b border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+<div id="sidebarModal" class="fixed inset-0 z-[9999] hidden">
+    <div class="absolute inset-0 bg-background/80 backdrop-blur-sm" onclick="closeModal('sidebarModal')"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-4">
+        <div class="bg-card rounded-md shadow-lg relative overflow-hidden max-h-[90vh] flex flex-col border border-border">
+            <div class="p-4 border-b border-border bg-card">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="text-3xl font-black text-slate-900 dark:text-white tracking-tight">{{ __('Access Control Terminal') }}</h3>
-                        <div class="mt-4 flex flex-wrap gap-3">
-                            <span class="bg-indigo-50 dark:bg-indigo-900/20 px-4 py-1.5 rounded-xl text-[9px] font-black text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 uppercase tracking-widest">Target: <span id="modal-subject-name" class="ml-1 text-slate-900 dark:text-white"></span></span>
-                            <span class="bg-amber-50 dark:bg-amber-900/20 px-4 py-1.5 rounded-xl text-[9px] font-black text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 uppercase tracking-widest">Role: <span id="modal-role-name" class="ml-1 text-slate-900 dark:text-white"></span></span>
+                        <h3 class="text-base font-bold text-foreground leading-tight">{{ __('Access Control Terminal') }}</h3>
+                        <div class="mt-2 flex flex-wrap gap-2">
+                            <span class="bg-primary/10 px-2 py-0.5 rounded-sm text-[10px] font-bold text-primary uppercase border border-primary/20">Target: <span id="modal-subject-name" class="ml-1 text-foreground"></span></span>
+                            <span class="bg-amber-500/10 px-2 py-0.5 rounded-sm text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase border border-amber-500/20">Role: <span id="modal-role-name" class="ml-1 text-foreground"></span></span>
                         </div>
                     </div>
+                    <button onclick="closeModal('sidebarModal')" class="btn-icon-compact">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-10 bg-slate-50/50 dark:bg-slate-900/20 custom-scrollbar">
+            <div class="flex-1 overflow-y-auto p-4 bg-muted/10 custom-scrollbar">
                 <form id="sidebarTabsForm" method="POST">
                     @csrf
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         @foreach($sidebars as $sidebar)
-                            <div class="col-span-1 md:col-span-2 space-y-4 mb-6 last:mb-0">
-                                <label class="flex items-center p-5 bg-white dark:bg-slate-800 rounded-[2rem] border-2 border-slate-100 dark:border-slate-700 shadow-sm cursor-pointer hover:border-indigo-500 transition-all">
-                                    <input type="checkbox" name="sidebar_ids[]" value="{{ $sidebar->id }}" class="sidebar-checkbox w-6 h-6 rounded-lg text-indigo-600">
-                                    <div class="ml-4 font-black uppercase text-sm tracking-wider">{{ __($sidebar->name) }}</div>
+                            <div class="space-y-2 mb-4">
+                                <label class="flex items-center gap-3 p-2 bg-card rounded border border-border hover:border-primary/50 transition-all cursor-pointer group">
+                                    <input type="checkbox" name="sidebar_ids[]" value="{{ $sidebar->id }}" class="sidebar-checkbox w-4 h-4 rounded-sm text-primary border-input bg-background focus:ring-primary focus:ring-offset-background">
+                                    <span class="text-xs font-bold text-foreground uppercase tracking-wide">{{ __($sidebar->name) }}</span>
                                 </label>
                                 @if($sidebar->children->isNotEmpty())
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8 border-l-2 border-slate-100 dark:border-slate-700">
+                                    <div class="grid grid-cols-1 gap-1.5 pl-6 border-l border-border ml-4">
                                         @foreach($sidebar->children as $child)
-                                            <label class="flex items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-transparent shadow-sm hover:border-indigo-300 transition-all cursor-pointer">
-                                                <input type="checkbox" name="sidebar_ids[]" value="{{ $child->id }}" class="sidebar-checkbox w-4 h-4 rounded text-indigo-600">
-                                                <div class="ml-4 text-xs font-bold uppercase">{{ __($child->name) }}</div>
+                                            <label class="flex items-center gap-2.5 p-1.5 hover:bg-muted/50 rounded-sm cursor-pointer transition-all">
+                                                <input type="checkbox" name="sidebar_ids[]" value="{{ $child->id }}" class="sidebar-checkbox w-3.5 h-3.5 rounded-sm text-primary border-input bg-background focus:ring-primary">
+                                                <span class="text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors">{{ __($child->name) }}</span>
                                             </label>
                                         @endforeach
                                     </div>
@@ -188,34 +198,45 @@
                 </form>
             </div>
 
-            <div class="p-10 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 flex justify-end gap-4">
-                <button type="button" onclick="closeModal('sidebarModal')" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">{{ __('Discard') }}</button>
-                <button type="button" onclick="document.getElementById('sidebarTabsForm').submit()" class="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-indigo-700 shadow-xl shadow-indigo-500/20 transition transform active:scale-95">{{ __('Commit Changes') }}</button>
+            <div class="p-3 border-t border-border bg-card flex justify-end gap-2">
+                <button type="button" onclick="closeModal('sidebarModal')" class="btn-compact-secondary">{{ __('Discard') }}</button>
+                <button type="button" onclick="document.getElementById('sidebarTabsForm').submit()" class="btn-compact-primary">{{ __('Commit Changes') }}</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
-    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+    function openModal(id) {
+        document.getElementById(id).classList.remove('hidden');
+        lucide.createIcons();
+    }
+    
+    function closeModal(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    // Close modals on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.fixed:not(.hidden)').forEach(modal => {
+                closeModal(modal.id);
+            });
+        }
+    });
 
     function openSidebarSettings(roleUserId, name, role, assignedIds) {
         document.getElementById('modal-subject-name').innerText = name;
-        document.getElementById('modal-role-name').innerText = role.toUpperCase();
+        document.getElementById('modal-role-name').innerText = (role || 'N/A').toUpperCase();
         const form = document.getElementById('sidebarTabsForm');
         form.action = `{{ route('admin.users.tabs', ['id' => ':id']) }}`.replace(':id', roleUserId);
         const checkboxes = document.querySelectorAll('.sidebar-checkbox');
         checkboxes.forEach(cb => { cb.checked = assignedIds.includes(parseInt(cb.value)); });
         openModal('sidebarModal');
     }
-</script>
 
-<style>
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-    [data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
-    @keyframes modal-scale { from { transform: translate(-50%, -45%) scale(0.95); opacity: 0; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
-    .animate-modal { animation: modal-scale 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-</style>
+    document.addEventListener('DOMContentLoaded', () => {
+        lucide.createIcons();
+    });
+</script>
 @endsection
