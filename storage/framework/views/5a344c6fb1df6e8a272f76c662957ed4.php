@@ -153,6 +153,32 @@
                     <?php else: ?>
                         <?php echo $__env->make('site.pages.partials.digital-list-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
                     <?php endif; ?>
+                <?php elseif($node->node_code === 'tai-nguyen-giao-duc-mo' || $node->masterpage === 'oer'): ?>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <button @click="sidebarOpen = !sidebarOpen" 
+                                    class="p-1.5 rounded bg-muted hover:bg-primary/10 hover:text-primary active:scale-95 transition-all border border-border shadow-sm group"
+                                    title="<?php echo e(__('Thu gọn/Mở rộng Sidebar')); ?>">
+                                <i data-lucide="panel-left-close" class="w-3.5 h-3.5 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'"></i>
+                            </button>
+
+                            <div class="w-1 h-3.5 bg-vttu-red rounded-full ml-1"></div>
+                            <h2 class="text-xs font-black uppercase tracking-widest text-vttu-dark"><?php echo e(__('Tài nguyên giáo dục mở')); ?></h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="<?php echo e(route('site.oer.landing')); ?>" class="text-xs font-bold text-slate-600 hover:text-vttu-red transition-colors uppercase tracking-wider"><?php echo e(__('Trang chủ OER')); ?></a>
+                        </div>
+                    </div>
+                    
+                    <?php if(request()->query('view') === 'landing'): ?>
+                        <?php echo $__env->make('site.pages.partials.oer-landing-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php elseif(request()->query('view') === 'intro'): ?>
+                        <?php echo $__env->make('site.pages.partials.oer-intro-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php elseif(request()->query('view') === 'contribute'): ?>
+                        <?php echo $__env->make('site.pages.partials.oer-contribute-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php else: ?>
+                        <?php echo $__env->make('site.pages.partials.oer-list-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                    <?php endif; ?>
                 <?php else: ?>
                     <article class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden text-gray-500">
                         <!-- Article Header -->

@@ -152,7 +152,7 @@
 
         /* Button: Professional Hover/Active Effects */
         .btn-compact {
-            @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded text-xs font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+            @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-sm text-[11px] font-bold uppercase tracking-wider transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
         }
 
         .btn-compact-primary {
@@ -168,7 +168,7 @@
         }
 
         .btn-icon-compact {
-            @apply w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90;
+            @apply w-8 h-8 flex items-center justify-center rounded-sm bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90;
         }
 
         .btn-icon-danger {
@@ -176,7 +176,7 @@
         }
 
         .input-field {
-            @apply w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 transition-colors duration-200;
+            @apply w-full px-3 py-1.5 bg-background border border-border rounded-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-primary transition-all duration-200;
         }
 
         .text-blue-400 {
@@ -375,19 +375,19 @@
     }">
 
     <!-- Sidebar -->
-    <aside :class="sidebarOpen ? 'w-72' : 'w-24 px-2'"
-        class="bg-white dark:bg-slate-950 border-r border-slate-100 dark:border-slate-800 text-slate-800 dark:text-white flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
-        <div class="h-16 flex items-center px-6 bg-slate-50/50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 overflow-hidden whitespace-nowrap">
-            <span class="text-xl font-black tracking-tighter flex items-center">
-                <span class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white text-xs mr-3 shadow-sm">V</span>
+    <aside :class="sidebarOpen ? 'w-56' : 'w-16'"
+        class="bg-card border-r border-border text-foreground flex flex-col flex-shrink-0 transition-all duration-300 sticky top-0 h-screen z-50">
+        <div class="h-14 flex items-center px-4 bg-muted/50 border-b border-border overflow-hidden whitespace-nowrap">
+            <span class="text-lg font-bold tracking-tight flex items-center">
+                <div class="w-8 h-8 rounded-sm bg-primary flex items-center justify-center text-primary-foreground text-xs mr-3 shadow-sm shrink-0">V</div>
                 <span x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
-                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
-                    VTTLib <span class="text-[10px] bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded ml-1 tracking-widest uppercase">Admin</span>
+                    x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="truncate">
+                    VTTLib <span class="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm ml-1 tracking-widest uppercase font-bold">Admin</span>
                 </span>
             </span>
         </div>
 
-        <nav class="flex-1 px-4 py-8 space-y-2.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
+        <nav class="flex-1 px-2 py-4 space-y-1 overflow-y-auto custom-scrollbar overflow-x-hidden">
             @php
             $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
             @endphp
@@ -417,28 +417,26 @@
             @if($hasChildren)
             <div class="space-y-1.5" x-data="{ open: {{ $isParentActive ? 'true' : 'false' }} }">
                 <button @click="sidebarOpen ? (open = !open) : (sidebarOpen = true, open = true)"
-                    :class="sidebarOpen ? 'justify-between' : 'justify-center'"
-                    class="w-full flex items-center px-4 py-3.5 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white rounded-2xl transition group">
+                    :class="sidebarOpen ? 'justify-between' : 'justify-center px-0'"
+                    class="w-full flex items-center px-3 py-2 text-muted-foreground hover:bg-muted hover:text-foreground rounded-sm transition-all group">
                     <div class="flex items-center">
-                        <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors">{!! $tab->icon !!}</div>
+                        <div class="flex-shrink-0 w-4 h-4 flex items-center justify-center group-hover:text-primary transition-colors">{!! $tab->icon !!}</div>
                         <span x-show="sidebarOpen" x-cloak
-                            class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ $tab->display_name }}</span>
+                            class="ml-3 font-bold text-[10px] uppercase tracking-wider whitespace-nowrap">{{ $tab->display_name }}</span>
                     </div>
-                    <svg x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
-                        :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
+                    <i data-lucide="chevron-down" x-show="sidebarOpen" x-cloak class="w-3.5 h-3.5 transition-transform duration-300 opacity-60"
+                        :class="open ? 'rotate-180' : ''"></i>
                 </button>
 
-                <div x-show="open && sidebarOpen" x-cloak x-collapse class="px-2 pb-2 space-y-1 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl mt-1">
+                <div x-show="open && sidebarOpen" x-cloak x-collapse class="px-1.5 pb-1 space-y-0.5 mt-1 border-l border-border ml-4.5">
                     @foreach($assignedChildren as $child)
                         <a href="{{ $child->route_name && $child->route_name !== '#' && Route::has($child->route_name) ? route($child->route_name) : '#' }}"
-                            class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200 {{ request()->routeIs($child->route_name . '*') ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200' }}">
+                            class="group flex items-center px-3 py-1.5 text-xs font-bold rounded-sm transition-all duration-200 {{ request()->routeIs($child->route_name . '*') ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground hover:bg-muted hover:text-foreground' }}">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0">
-                                    <i class="{{ $child->icon ?? 'fas fa-circle' }} w-5 h-5 flex items-center justify-center text-[8px] opacity-40 group-hover:opacity-100 transition-all"></i>
+                                    <i class="{{ $child->icon ?? 'fas fa-circle' }} w-3.5 h-3.5 flex items-center justify-center text-[7px] opacity-40 group-hover:opacity-100 transition-all"></i>
                                 </div>
-                                <span class="ml-3 truncate font-bold text-[10px] uppercase tracking-widest">{{ $child->display_name }}</span>
+                                <span class="ml-2.5 truncate uppercase tracking-widest text-[9px]">{{ $child->display_name }}</span>
                             </div>
                         </a>
                     @endforeach
@@ -446,28 +444,24 @@
             </div>
             @else
             <a href="{{ (!blank($tab->route_name) && $tab->route_name !== '#' && Route::has($tab->route_name)) ? route($tab->route_name) : '#' }}"
-                :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                class="flex items-center py-3.5 {{ $isParentActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-indigo-600 dark:hover:text-white' }} rounded-2xl group transition">
-                <div class="flex-shrink-0 w-5 h-5 flex items-center justify-center text-slate-400 group-hover:text-indigo-500 transition-colors" :class="sidebarOpen ? '' : 'w-full'">
+                :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
+                class="flex items-center py-2.5 {{ $isParentActive ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground' }} rounded-sm group transition-all">
+                <div class="flex-shrink-0 w-4 h-4 flex items-center justify-center group-hover:text-primary transition-colors" :class="sidebarOpen ? '' : 'w-full'">
                     {!! $tab->icon !!}
                 </div>
                 <span x-show="sidebarOpen" x-cloak
-                    class="ml-3 font-bold text-[11px] uppercase tracking-widest whitespace-nowrap">{{ $tab->display_name }}</span>
+                    class="ml-3 font-bold text-[10px] uppercase tracking-widest whitespace-nowrap">{{ $tab->display_name }}</span>
             </a>
             @endif
             @endforeach
         </nav>
 
-        <div class="p-4 border-t border-slate-800 dark:border-slate-800/50 overflow-hidden">
+        <div class="p-3 border-t border-border overflow-hidden">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" :class="sidebarOpen ? 'px-4' : 'justify-center px-0'"
-                    class="w-full flex items-center py-2 text-sm text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 group transition">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                        </path>
-                    </svg>
+                <button type="submit" :class="sidebarOpen ? 'px-3' : 'justify-center px-0'"
+                    class="w-full flex items-center py-2 text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-destructive group transition-all">
+                    <i data-lucide="log-out" class="w-4 h-4 flex-shrink-0 group-hover:text-destructive transition-colors"></i>
                     <span x-show="sidebarOpen" x-cloak class="ml-3 whitespace-nowrap">{{ __('Logout') }}</span>
                 </button>
             </form>
@@ -478,70 +472,52 @@
     <div class="flex-1 flex flex-col min-w-0">
         <!-- Topbar -->
         <header
-            class="h-16 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm flex items-center justify-between px-6 z-10 transition-colors duration-300">
+            class="h-14 bg-background border-b border-border shadow-sm flex items-center justify-between px-4 sm:px-6 z-10 transition-colors duration-300 sticky top-0">
             <div class="flex items-center">
                 <button @click="sidebarOpen = !sidebarOpen"
-                    class="p-2 rounded-lg text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 focus:outline-none mr-4">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path x-show="sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h7"></path>
-                        <path x-show="!sidebarOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16"></path>
-                    </svg>
+                    class="p-2 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground focus:outline-none mr-4 transition-colors">
+                    <i data-lucide="menu" class="w-5 h-5" x-show="!sidebarOpen"></i>
+                    <i data-lucide="menu-x" class="w-5 h-5" x-show="sidebarOpen"></i>
                 </button>
-                <h2 class="text-xl font-semibold text-gray-800 dark:text-slate-100 leading-tight">{{ __('Dashboard') }}
-                </h2>
+                <h2 class="text-base font-bold text-foreground tracking-tight">{{ __('Dashboard') }}</h2>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center gap-2">
                 <!-- Theme Toggle -->
                 <button @click="toggleDarkMode()"
-                    class="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 group">
-                    <svg x-show="!darkMode" class="w-5 h-5 group-hover:rotate-12 transition-transform" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                    <svg x-show="darkMode" x-cloak
-                        class="w-5 h-5 group-hover:rotate-90 transition-transform text-amber-400" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
+                    class="p-2 rounded-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-300 group">
+                    <i data-lucide="moon" x-show="!darkMode" class="w-4 h-4 group-hover:rotate-12 transition-transform"></i>
+                    <i data-lucide="sun" x-show="darkMode" x-cloak class="w-4 h-4 group-hover:rotate-90 transition-transform text-amber-500"></i>
                 </button>
 
-                <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
+                <div class="h-4 w-[1px] bg-border mx-1"></div>
 
-                <div class="flex items-center space-x-2 mr-2">
+                <div class="flex items-center gap-2 mr-1">
                     <a href="{{ route('lang.switch', 'vi') }}"
-                        class="text-xs font-bold {{ app()->getLocale() == 'vi' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500' }} hover:text-indigo-500 transition">VI</a>
-                    <span class="text-gray-300 dark:text-slate-700">|</span>
+                        class="text-[10px] font-bold uppercase tracking-wider {{ app()->getLocale() == 'vi' ? 'text-primary' : 'text-muted-foreground hover:text-foreground' }} transition">VI</a>
+                    <span class="text-border text-[10px]">|</span>
                     <a href="{{ route('lang.switch', 'en') }}"
-                        class="text-xs font-bold {{ app()->getLocale() == 'en' ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-400 dark:text-slate-500' }} hover:text-indigo-500 transition">EN</a>
+                        class="text-[10px] font-bold uppercase tracking-wider {{ app()->getLocale() == 'en' ? 'text-primary' : 'text-muted-foreground hover:text-foreground' }} transition">EN</a>
                 </div>
 
-                <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
+                <div class="h-4 w-[1px] bg-border mx-1"></div>
 
-                <div class="relative group cursor-pointer">
+                <div class="relative group cursor-pointer p-2 rounded-sm hover:bg-muted transition-colors">
                     <span
-                        class="absolute -top-1 -right-1 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 bg-red-500 animate-pulse"></span>
-                    <svg class="h-6 w-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 transition-colors"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
+                        class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full ring-2 ring-background bg-destructive animate-pulse"></span>
+                    <i data-lucide="bell" class="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors"></i>
                 </div>
 
-                <div class="flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-800">
-                    <div class="text-right mr-3 hidden sm:block">
-                        <p class="text-sm font-bold text-gray-800 dark:text-slate-100 leading-none mb-1">
+                <div class="flex items-center ml-2 pl-3 border-l border-border gap-3">
+                    <div class="text-right hidden md:block">
+                        <p class="text-[11px] font-bold text-foreground leading-none mb-1">
                             {{ Auth::user()->full_name ?? Auth::user()->name }}
                         </p>
                         <p
-                            class="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
-                            {{ Auth::user()->roles->pluck('display_name')->implode(', ') }}
+                            class="text-[9px] font-bold text-primary uppercase tracking-wider opacity-80">
+                            {{ Auth::user()->roles->pluck('display_name')->first() }}
                         </p>
                     </div>
-                    <div class="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-indigo-500/20 ring-2 ring-white dark:ring-slate-900"
+                    <div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs shadow-sm ring-2 ring-background ring-offset-1 ring-offset-border"
                         title="{{ Auth::user()->name ?? '' }}">
                         {{ substr(Auth::user()->name ?? 'A', 0, 1) }}
                     </div>
@@ -551,8 +527,7 @@
 
         <!-- Page Content -->
         <main
-            class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-slate-900 p-6 transition-colors duration-300">
-            <x-breadcrumb />
+            class="flex-1 overflow-x-hidden overflow-y-auto bg-background p-4 sm:p-6 transition-colors duration-300 custom-scrollbar">
             @yield('content')
         </main>
     </div>
@@ -566,47 +541,27 @@
                 x-transition:leave="transition ease-in duration-200 transform"
                 x-transition:leave-start="translate-x-0 opacity-100 scale-100"
                 x-transition:leave-end="translate-x-full opacity-0 scale-95"
-                class="pointer-events-auto bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 dark:border-slate-800 p-4 min-w-[320px] max-w-md flex items-center space-x-4">
+                class="pointer-events-auto bg-card rounded-md shadow-lg border border-border p-3 min-w-[280px] max-w-md flex items-center space-x-3">
 
-                <div class="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" :class="{
+                <div class="shrink-0 w-8 h-8 rounded-sm flex items-center justify-center" :class="{
                         'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400': toast.type === 'success',
                         'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400': toast.type === 'error' || toast.type === 'danger',
                         'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400': toast.type === 'warning',
-                        'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400': toast.type === 'info'
+                        'bg-primary/10 text-primary': toast.type === 'info'
                      }">
-                    <template x-if="toast.type === 'success'"><svg class="w-6 h-6" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
-                            </path>
-                        </svg></template>
-                    <template x-if="toast.type === 'error' || toast.type === 'danger'"><svg class="w-6 h-6" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"></path>
-                        </svg></template>
-                    <template x-if="toast.type === 'warning'"><svg class="w-6 h-6" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                            </path>
-                        </svg></template>
-                    <template x-if="toast.type === 'info'"><svg class="w-6 h-6" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg></template>
+                    <template x-if="toast.type === 'success'"><i data-lucide="check-circle" class="w-5 h-5"></i></template>
+                    <template x-if="toast.type === 'error' || toast.type === 'danger'"><i data-lucide="alert-circle" class="w-5 h-5"></i></template>
+                    <template x-if="toast.type === 'warning'"><i data-lucide="alert-triangle" class="w-5 h-5"></i></template>
+                    <template x-if="toast.type === 'info'"><i data-lucide="info" class="w-5 h-5"></i></template>
                 </div>
 
                 <div class="flex-1">
-                    <p class="text-sm font-bold text-slate-900 dark:text-slate-100" x-text="toast.message"></p>
+                    <p class="text-xs font-bold text-foreground" x-text="toast.message"></p>
                 </div>
 
                 <button @click="remove(toast.id)"
-                    class="text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
+                    class="text-muted-foreground hover:text-foreground transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
         </template>

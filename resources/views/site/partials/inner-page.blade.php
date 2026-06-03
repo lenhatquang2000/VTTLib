@@ -161,6 +161,32 @@
                     @else
                         @include('site.pages.partials.digital-list-content')
                     @endif
+                @elseif($node->node_code === 'tai-nguyen-giao-duc-mo' || $node->masterpage === 'oer')
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <button @click="sidebarOpen = !sidebarOpen" 
+                                    class="p-1.5 rounded bg-muted hover:bg-primary/10 hover:text-primary active:scale-95 transition-all border border-border shadow-sm group"
+                                    title="{{ __('Thu gọn/Mở rộng Sidebar') }}">
+                                <i data-lucide="panel-left-close" class="w-3.5 h-3.5 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'"></i>
+                            </button>
+
+                            <div class="w-1 h-3.5 bg-vttu-red rounded-full ml-1"></div>
+                            <h2 class="text-xs font-black uppercase tracking-widest text-vttu-dark">{{ __('Tài nguyên giáo dục mở') }}</h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('site.oer.landing') }}" class="text-xs font-bold text-slate-600 hover:text-vttu-red transition-colors uppercase tracking-wider">{{ __('Trang chủ OER') }}</a>
+                        </div>
+                    </div>
+                    
+                    @if(request()->query('view') === 'landing')
+                        @include('site.pages.partials.oer-landing-content')
+                    @elseif(request()->query('view') === 'intro')
+                        @include('site.pages.partials.oer-intro-content')
+                    @elseif(request()->query('view') === 'contribute')
+                        @include('site.pages.partials.oer-contribute-content')
+                    @else
+                        @include('site.pages.partials.oer-list-content')
+                    @endif
                 @else
                     <article class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden text-gray-500">
                         <!-- Article Header -->

@@ -249,6 +249,10 @@ class SiteController extends Controller
     public function bookDetail(\App\Models\BibliographicRecord $record)
     {
         $record->load(['fields.subfields', 'items']);
+        
+        // Tăng lượt xem
+        $record->increment('view_count');
+        
         $menuItems = SiteNode::getMenuItems('menu');
         $footerItems = SiteNode::getMenuItems('footer');
 
@@ -466,11 +470,61 @@ class SiteController extends Controller
 
         // Nạp dữ liệu tài liệu số nếu truy cập trang tài liệu số
         if ($code === 'tai-lieu-so' || $siteNode->masterpage === 'digital-resources') {
-            $extraData['resources'] = \App\Models\DigitalResource::with('folder')
-                ->where('status', 'published')
-                ->latest()
-                ->paginate(15);
+            $sort = request()->query('sort', 'latest');
+            $query = \App\Models\DigitalResource::with('folder')->where('status', 'published');
+            
+            switch ($sort) {
+                case 'most_viewed':
+                    $query->orderBy('view_count', 'desc');
+                    break;
+                case 'most_downloaded':
+                    $query->orderBy('download_count', 'desc');
+                    break;
+                default:
+                    $query->latest();
+            }
+            
+            $extraData['resources'] = $query->paginate(15);
             $extraData['totalCount'] = \App\Models\DigitalResource::where('status', 'published')->count();
+            $extraData['currentSort'] = $sort;
+        }
+
+        // Nạp dữ liệu OER nếu truy cập trang tài nguyên giáo dục mở (chỉ load list, không phải landing page)
+        if ($code === 'tai-nguyen-giao-duc-mo' && $siteNode->masterpage === 'oer') {
+            $sort = request()->query('sort', 'latest');
+            $subject = request()->query('subject');
+            $keyword = request()->query('q');
+            
+            $query = \App\Models\OpenEducationalResource::where('status', 'published');
+            
+            if ($subject) {
+                $query->where('subjects', 'like', '%' . $subject . '%');
+            }
+            
+            if ($keyword) {
+                $query->where(function($q) use ($keyword) {
+                    $q->where('title', 'like', '%' . $keyword . '%')
+                      ->orWhere('authors', 'like', '%' . $keyword . '%')
+                      ->orWhere('description', 'like', '%' . $keyword . '%');
+                });
+            }
+
+            switch ($sort) {
+                case 'most_viewed':
+                    $query->orderBy('view_count', 'desc');
+                    break;
+                case 'most_downloaded':
+                    $query->orderBy('download_count', 'desc');
+                    break;
+                default:
+                    $query->latest();
+            }
+            
+            $extraData['resources'] = $query->paginate(15)->withQueryString();
+            $extraData['totalCount'] = $query->count();
+            $extraData['currentSort'] = $sort;
+            $extraData['currentSubject'] = $subject;
+            $extraData['keyword'] = $keyword;
         }
 
         // 1. Kiểm tra template preview qua query param

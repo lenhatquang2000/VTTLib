@@ -287,10 +287,10 @@ class SiteNodeSeeder extends Seeder
         );
 
         $resourceChildren = [
-            ['tai-lieu-giay', 'Tài liệu giấy', 'fas fa-book', 'Kho sách in, giáo trình, tài liệu tham khảo tại Thư viện.'],
-            ['tai-lieu-so', 'Tài liệu số', 'fas fa-file-pdf', 'Sách điện tử, giáo trình số, báo cáo nghiên cứu.'],
-            ['co-so-du-lieu', 'Cơ sở dữ liệu', 'fas fa-database', 'CSDL do nhà trường mua quyền truy cập và CSDL mở.'],
-            ['tai-nguyen-giao-duc-mo', 'Tài nguyên giáo dục mở', 'fas fa-globe', 'Nguồn tài nguyên giáo dục mở (OER) phục vụ học tập và nghiên cứu.'],
+            ['tai-lieu-giay', 'Tài liệu giấy', 'fas fa-book', 'Kho sách in, giáo trình, tài liệu tham khảo tại Thư viện.', 'about'],
+            ['tai-lieu-so', 'Tài liệu số', 'fas fa-file-pdf', 'Sách điện tử, giáo trình số, báo cáo nghiên cứu.', 'digital-resources'],
+            ['co-so-du-lieu', 'Cơ sở dữ liệu', 'fas fa-database', 'CSDL do nhà trường mua quyền truy cập và CSDL mở.', 'about'],
+            ['tai-nguyen-giao-duc-mo', 'Tài nguyên giáo dục mở', 'fas fa-globe', 'Nguồn tài nguyên giáo dục mở (OER) phục vụ học tập và nghiên cứu.', 'oer'],
         ];
 
         foreach ($resourceChildren as $index => $child) {
@@ -301,7 +301,7 @@ class SiteNodeSeeder extends Seeder
                     'node_name' => $child[1],
                     'display_name' => $child[1],
                     'description' => $child[3],
-                    'masterpage' => 'about',
+                    'masterpage' => $child[4],
                     'icon' => $child[2],
                     'display_type' => 'page',
                     'language' => 'vi',

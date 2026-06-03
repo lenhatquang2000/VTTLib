@@ -87,11 +87,11 @@
                     <div class="w-full mt-8 pt-8 border-t border-slate-50 grid grid-cols-2 gap-4 text-center">
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lượt xem</p>
-                            <p class="text-lg font-black text-vttu-dark">1,204</p>
+                            <p class="text-lg font-black text-vttu-dark">{{ number_format($record->view_count ?? 0) }}</p>
                         </div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lượt mượn</p>
-                            <p class="text-lg font-black text-vttu-dark">45</p>
+                            <p class="text-lg font-black text-vttu-dark">{{ number_format($record->loan_count ?? 0) }}</p>
                         </div>
                     </div>
                 </div>

@@ -38,7 +38,9 @@ class BibliographicRecord extends Model
         'document_format_en',
         'cataloging_standard',
         'cataloging_standard_vi',
-        'cataloging_standard_en'
+        'cataloging_standard_en',
+        'view_count',
+        'loan_count'
     ];
 
     public function fields()

@@ -6,15 +6,15 @@
 <div class="space-y-[6px] animate-fade-in">
     <!-- Tabs Navigation -->
     <div class="flex items-end border-b border-border bg-muted/20 rounded-t-sm overflow-hidden">
-        <button class="px-5 py-2.5 text-[11px] font-black uppercase tracking-widest bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10 transition-all">
+        <button onclick="changeSort('latest')" class="px-5 py-2.5 text-[11px] font-black uppercase tracking-widest <?php echo e($currentSort === 'latest' ? 'bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted'); ?> transition-all">
             <?php echo e(__('Mới nhất')); ?>
 
         </button>
-        <button class="px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted transition-all">
+        <button onclick="changeSort('most_viewed')" class="px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest <?php echo e($currentSort === 'most_viewed' ? 'bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted'); ?> transition-all">
             <?php echo e(__('Xem nhiều')); ?>
 
         </button>
-        <button class="px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted transition-all">
+        <button onclick="changeSort('most_downloaded')" class="px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest <?php echo e($currentSort === 'most_downloaded' ? 'bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted'); ?> transition-all">
             <?php echo e(__('Tải nhiều')); ?>
 
         </button>
@@ -135,4 +135,12 @@
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+function changeSort(sortType) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', sortType);
+    window.location.href = url.toString();
+}
+</script>
 <?php /**PATH E:\Workspace\VTTU\Laravel\VTTLib\resources\views/site/pages/partials/digital-list-content.blade.php ENDPATH**/ ?>

@@ -42,6 +42,14 @@ Route::get('/digital-resource/{id}/view', [\App\Http\Controllers\Site\DigitalRes
 Route::get('/digital-resource/{id}/stream', [\App\Http\Controllers\Site\DigitalResourceController::class, 'streamPdf'])->name('site.digital-resources.stream');
 Route::get('/digital-resource/{id}/download', [\App\Http\Controllers\Site\DigitalResourceController::class, 'download'])->name('site.digital-resources.download');
 
+// OER Routes
+Route::get('/oer', [\App\Http\Controllers\Site\OERController::class, 'landing'])->name('site.oer.landing');
+Route::get('/oer/intro', [\App\Http\Controllers\Site\OERController::class, 'intro'])->name('site.oer.intro');
+Route::get('/oer/contribute', [\App\Http\Controllers\Site\OERController::class, 'contribute'])->name('site.oer.contribute');
+Route::post('/oer/contribute', [\App\Http\Controllers\Site\OERController::class, 'storeContribution'])->name('site.oer.contribute.store');
+Route::get('/oer/{id}', [\App\Http\Controllers\Site\OERController::class, 'show'])->name('site.oer.show');
+Route::get('/oer/{id}/download', [\App\Http\Controllers\Site\OERController::class, 'download'])->name('site.oer.download');
+
 // Public Website Routes
 Route::get('/', [\App\Http\Controllers\SiteController::class, 'home'])->name('home');
 Route::get('/opac', [\App\Http\Controllers\SiteController::class, 'opac'])->name('site.opac');
@@ -161,6 +169,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/digital-cataloging', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'store'])->name('admin.digital-cataloging.store');
     Route::delete('/digital-cataloging/{id}', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'destroy'])->name('admin.digital-cataloging.destroy');
     Route::post('/digital-cataloging/category', [\App\Http\Controllers\Admin\DigitalCatalogingController::class, 'storeCategory'])->name('admin.digital-cataloging.category.store');
+
+    // OER Management
+    Route::prefix('oer-management')->name('admin.oer.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\OERController::class, 'index'])->name('index');
+        Route::get('/contributions', [\App\Http\Controllers\Admin\OERController::class, 'contributions'])->name('contributions');
+        Route::post('/contributions/{id}/approve', [\App\Http\Controllers\Admin\OERController::class, 'approveContribution'])->name('contributions.approve');
+        Route::post('/contributions/{id}/reject', [\App\Http\Controllers\Admin\OERController::class, 'rejectContribution'])->name('contributions.reject');
+    });
 
     // News Management
     Route::prefix('news')->name('admin.news.')->group(function () {

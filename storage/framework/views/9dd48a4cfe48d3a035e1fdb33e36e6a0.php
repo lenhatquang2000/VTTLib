@@ -258,10 +258,10 @@
                             $mbTitle = $mb->fields->where('tag', '245')->first()?->subfields->where('code', 'a')->first()?->value ?? 'Không có nhan đề';
                             $mbPub = $mb->fields->where('tag', '260')->first()?->subfields->where('code', 'b')->first()?->value ?? 'Đang cập nhật';
                         ?>
-                        <div class="group cursor-pointer">
+                        <a href="<?php echo e(route('opac.book.show', $mb->id)); ?>" class="group block">
                             <h4 class="text-[11px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2 leading-tight"><?php echo e($mbTitle); ?></h4>
                             <p class="text-[9px] font-medium text-slate-400 mt-1 uppercase tracking-widest"><?php echo e($mbPub); ?></p>
-                        </div>
+                        </a>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                         <p class="text-[10px] text-slate-400 italic">Đang cập nhật...</p>
                         <?php endif; ?>
