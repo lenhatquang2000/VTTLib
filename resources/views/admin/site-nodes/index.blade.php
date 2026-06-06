@@ -1,187 +1,308 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-4 animate-fade-in">
-    <!-- Header & Actions -->
-    <div class="bg-card p-4 rounded-xl border border-border shadow-sm space-y-4 lg:space-y-0 lg:flex lg:items-center lg:justify-between">
-        <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary shadow-sm border border-primary/10">
-                <i data-lucide="sitemap" class="w-6 h-6"></i>
+<div class="space-y-3 animate-fade-in">
+    <!-- Header -->
+    <div class="bg-card p-4 border border-border rounded">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i data-lucide="sitemap" class="w-4 h-4 text-muted-foreground"></i>
+                <h1 class="text-sm font-bold text-foreground uppercase tracking-wide">{{ __('Quản lý Website') }}</h1>
             </div>
-            <div>
-                <div class="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-0.5">
-                    <span>{{ __('Site') }}</span>
-                    <i data-lucide="chevron-right" class="w-3 h-3 opacity-50"></i>
-                    <span>{{ __('Management') }}</span>
-                </div>
-                <h1 class="text-xl font-black text-foreground tracking-tight">{{ __('Quản lý Cấu trúc Website') }}</h1>
-            </div>
-        </div>
-        
-        <div class="flex flex-wrap items-center gap-2">
-            <button onclick="expandAll()" class="inline-flex items-center px-4 py-2 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-lg transition-all border border-border shadow-sm">
-                <i data-lucide="expand" class="w-4 h-4 mr-2"></i> {{ __('Mở hết') }}
-            </button>
-            <button onclick="collapseAll()" class="inline-flex items-center px-4 py-2 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-lg transition-all border border-border shadow-sm">
-                <i data-lucide="shrink" class="w-4 h-4 mr-2"></i> {{ __('Thu hết') }}
-            </button>
-            <div class="w-px h-6 bg-border mx-1"></div>
-            <a href="{{ route('admin.site-nodes.create') }}" class="inline-flex items-center px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-lg transition-all shadow-md shadow-primary/20 border border-primary/10">
-                <i data-lucide="plus" class="w-4 h-4 mr-2"></i>{{ __('Thêm Node') }}
+            <a href="{{ route('admin.site-nodes.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>{{ __('Thêm') }}
             </a>
         </div>
     </div>
 
-    <!-- Statistics -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-1">
-                <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Tổng số</p>
-                <i data-lucide="files" class="w-3 h-3 text-blue-500 opacity-50"></i>
-            </div>
-            <p class="text-xl font-black text-foreground">{{ $stats['total'] ?? 0 }}</p>
+    <!-- Tabs -->
+    <div x-data="{ activeTab: 'layout' }" class="bg-card border border-border rounded overflow-hidden">
+        <!-- Tab Navigation -->
+        <div class="flex border-b border-border bg-muted/30">
+            <button @click="activeTab = 'layout'" 
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold uppercase text-muted-foreground transition-all"
+                    :class="activeTab === 'layout' ? 'bg-card text-foreground border-b-2 border-primary' : 'hover:bg-muted'">
+                <i data-lucide="palette" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">{{ __('Cấu hình giao diện') }}</span>
+            </button>
+            <button @click="activeTab = 'structure'" 
+                    class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold uppercase text-muted-foreground transition-all"
+                    :class="activeTab === 'structure' ? 'bg-card text-foreground border-b-2 border-primary' : 'hover:bg-muted'">
+                <i data-lucide="sitemap" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">{{ __('Cấu trúc') }}</span>
+            </button>
         </div>
-        <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-1">
-                <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Hoạt động</p>
-                <i data-lucide="check-circle-2" class="w-3 h-3 text-emerald-500 opacity-50"></i>
-            </div>
-            <p class="text-xl font-black text-foreground">{{ $stats['published'] ?? 0 }}</p>
-        </div>
-        <div class="bg-card border border-border rounded-md p-3 shadow-sm flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-1">
-                <p class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Bản nháp</p>
-                <i data-lucide="edit-3" class="w-3 h-3 text-amber-500 opacity-50"></i>
-            </div>
-            <p class="text-xl font-black text-foreground">{{ $stats['draft'] ?? 0 }}</p>
-        </div>
-    </div>
 
-    <!-- Layout Settings (Collapse) -->
-    <div x-data="{ open: false }" class="bg-card border border-border rounded-md overflow-hidden shadow-sm transition-all duration-200">
-        <button @click="open = !open" type="button" class="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary">
-                    <i data-lucide="palette" class="w-4 h-4"></i>
-                </div>
-                <div class="text-left">
-                    <h3 class="text-xs font-bold text-foreground uppercase tracking-tight">{{ __('Cấu hình giao diện (Logo & Banner)') }}</h3>
-                </div>
-            </div>
-            <i data-lucide="chevron-down" class="w-4 h-4 text-muted-foreground transition-transform duration-300" :class="open && 'rotate-180'"></i>
-        </button>
-
-        <div x-show="open" x-collapse x-cloak class="border-t border-border">
-            <form action="{{ route('admin.site-nodes.layout-settings') }}" method="POST" enctype="multipart/form-data" class="p-4 space-y-4">
-                @csrf
-                <div class="flex items-center gap-4 p-3 bg-muted/30 rounded-md border border-border border-dashed">
-                    <div class="flex items-center gap-3">
-                        @php $currentLogo = \App\Models\SystemSetting::get('site_logo'); @endphp
-                        @if($currentLogo)
-                            <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo" class="h-8 w-8 object-contain rounded border border-border bg-background">
-                        @else
-                            <div class="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
-                                <i data-lucide="library" class="w-4 h-4 text-primary"></i>
-                            </div>
-                        @endif
-                        <span class="font-bold text-foreground text-sm uppercase tracking-tight">
-                            {{ \App\Models\SystemSetting::get('site_name', 'Thư viện số') }}
-                        </span>
-                    </div>
-                    <span class="ml-auto text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Preview hiện tại</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Tên Banner hiển thị') }}</label>
-                        <input type="text" name="site_name"
-                               value="{{ \App\Models\SystemSetting::get('site_name', 'Thư viện số') }}"
-                               placeholder="VD: Thư viện số VTTU"
-                               class="w-full bg-background border border-border rounded p-2 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Tải lên Logo') }}</label>
-                        <div x-data="{ fileName: '', previewUrl: '{{ $currentLogo ? asset('storage/' . $currentLogo) : '' }}', removeLogo: false }" class="space-y-2">
-                            <div class="flex items-center gap-2">
-                                <label class="flex-1 flex items-center gap-2 px-3 py-2 bg-background border border-border border-dashed rounded cursor-pointer hover:bg-muted/50 transition-colors">
-                                    <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground"></i>
-                                    <span class="text-[11px] text-muted-foreground truncate" x-text="fileName || 'Chọn file logo...'"></span>
-                                    <input type="file" name="site_logo" accept="image/*" class="hidden"
-                                           @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0]); removeLogo = false">
-                                </label>
+        <!-- Tab Content -->
+        <div class="p-4">
+            <!-- Layout Tab -->
+            <div x-show="activeTab === 'layout'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="space-y-3">
+                <!-- Logo & Name Section -->
+                <div class="border-b border-border pb-3">
+                    <h3 class="text-xs font-bold text-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-4 h-4 text-muted-foreground"></i>
+                        {{ __('Logo & Tên') }}
+                    </h3>
+                    
+                    <form action="{{ route('admin.site-nodes.layout-settings') }}" method="POST" enctype="multipart/form-data" class="space-y-3">
+                        @csrf
+                        
+                        <!-- Preview -->
+                        <div class="p-2.5 bg-muted/20 border border-border rounded">
+                            <p class="text-[9px] text-muted-foreground font-bold uppercase tracking-wide mb-2">Xem trước</p>
+                            <div class="flex items-center gap-2 p-2.5 bg-card border border-border rounded">
+                                @php $currentLogo = \App\Models\SystemSetting::get('site_logo'); @endphp
                                 @if($currentLogo)
-                                    <button type="button" @click="removeLogo = !removeLogo; previewUrl = removeLogo ? '' : '{{ asset('storage/' . $currentLogo) }}'"
-                                            class="w-8 h-8 flex items-center justify-center rounded transition-all"
-                                            :class="removeLogo ? 'bg-destructive/10 text-destructive' : 'bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive'">
-                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                    </button>
-                                    <input type="hidden" name="remove_logo" :value="removeLogo ? 1 : 0">
+                                    <img src="{{ asset('storage/' . $currentLogo) }}" alt="Logo" class="h-10 w-10 object-contain rounded border border-border bg-background">
+                                @else
+                                    <div class="h-10 w-10 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                                        <i data-lucide="library" class="w-5 h-5 text-muted-foreground"></i>
+                                    </div>
                                 @endif
-                            </div>
-                            <template x-if="previewUrl">
-                                <div class="flex items-center gap-2 p-2 bg-muted/50 rounded-md border border-border">
-                                    <img :src="previewUrl" class="h-6 w-6 object-contain rounded">
-                                    <span class="text-[10px] text-muted-foreground italic">Xem trước logo mới</span>
+                                <div class="flex-1 min-w-0">
+                                    <h5 class="text-xs font-bold text-foreground truncate">{{ \App\Models\SystemSetting::get('site_name', 'Thư viện số') }}</h5>
+                                    <p class="text-[9px] text-muted-foreground">Header</p>
                                 </div>
-                            </template>
+                            </div>
                         </div>
+
+                        <!-- Inputs -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div class="space-y-1.5">
+                                <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Tên') }}</label>
+                                <input type="text" name="site_name"
+                                       value="{{ \App\Models\SystemSetting::get('site_name', 'Thư viện số') }}"
+                                       class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                            </div>
+
+                            <div class="space-y-1.5" x-data="{ fileName: '', previewUrl: '{{ $currentLogo ? asset('storage/' . $currentLogo) : '' }}', removeLogo: false }">
+                                <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Logo') }}</label>
+                                <div class="flex items-center gap-1.5">
+                                    <label class="flex-1 flex items-center gap-1.5 px-2.5 h-9 bg-background border border-border border-dashed rounded-sm cursor-pointer hover:bg-muted/50 transition-all group">
+                                        <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"></i>
+                                        <span class="text-xs text-muted-foreground group-hover:text-foreground truncate" x-text="fileName || 'Chọn...'"></span>
+                                        <input type="file" name="site_logo" accept="image/*" class="hidden"
+                                               @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0]); removeLogo = false">
+                                    </label>
+                                    @if($currentLogo)
+                                        <button type="button" @click="removeLogo = !removeLogo; previewUrl = removeLogo ? '' : '{{ asset('storage/' . $currentLogo) }}'"
+                                                class="w-9 h-9 flex items-center justify-center rounded-sm transition-all border border-border"
+                                                :class="removeLogo ? 'bg-red-500/10 text-red-600' : 'bg-background hover:bg-muted'>
+                                            <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                        </button>
+                                        <input type="hidden" name="remove_logo" :value="removeLogo ? 1 : 0">
+                                    @endif
+                                </div>
+                                <template x-if="previewUrl">
+                                    <div class="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded border border-border text-[9px] text-muted-foreground">
+                                        <img :src="previewUrl" class="h-6 w-6 object-contain rounded border border-border bg-background">
+                                        <span>Xem trước</span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="flex justify-end pt-2 border-t border-border">
+                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all active:scale-95">
+                                <i data-lucide="save" class="w-4 h-4"></i>{{ __('Lưu') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Network Logos Section -->
+                <div>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <h3 class="text-xs font-bold text-foreground uppercase tracking-wide flex items-center gap-2">
+                            <i data-lucide="network" class="w-4 h-4 text-muted-foreground"></i>
+                            {{ __('Nhãn hiệu liên kết') }}
+                        </h3>
+                        <button type="button" 
+                                @click="document.getElementById('networkLogoForm').style.display = document.getElementById('networkLogoForm').style.display === 'none' ? 'block' : 'none'"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all">
+                            <i data-lucide="plus" class="w-3 h-3"></i>{{ __('Thêm') }}
+                        </button>
+                    </div>
+
+                    <!-- Add Form -->
+                    <div id="networkLogoForm" style="display: none;" class="mb-2.5 p-2.5 bg-muted/20 border border-border border-dashed rounded space-y-2.5" x-data="{ fileName: '', previewUrl: '' }">
+                        <form action="{{ route('admin.site-nodes.add-network-logo') }}" method="POST" enctype="multipart/form-data" class="space-y-2.5">
+                            @csrf
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Tên') }} *</label>
+                                    <input type="text" name="name" required placeholder="Tên thư viện" class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('URL') }} *</label>
+                                    <input type="url" name="url" required placeholder="https://..." class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
+                                </div>
+                                <div class="space-y-1.5 sm:col-span-2">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Logo') }} *</label>
+                                    <label class="flex items-center gap-1.5 px-2.5 h-9 bg-background border border-border border-dashed rounded-sm cursor-pointer hover:bg-muted/50 transition-all group">
+                                        <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"></i>
+                                        <span class="text-xs text-muted-foreground group-hover:text-foreground truncate" x-text="fileName || 'Chọn...'"></span>
+                                        <input type="file" name="logo_path" accept="image/*" required class="hidden" @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0])">
+                                    </label>
+                                    <template x-if="previewUrl">
+                                        <div class="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded border border-border text-[9px] text-muted-foreground">
+                                            <img :src="previewUrl" class="h-6 w-6 object-contain rounded border border-border bg-background">
+                                            <span>Xem trước</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-1.5 pt-2 border-t border-border">
+                                <button type="button" @click="document.getElementById('networkLogoForm').style.display = 'none'" class="px-3 py-1.5 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-sm transition-all">{{ __('Hủy') }}</button>
+                                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all active:scale-95">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>{{ __('Thêm') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- List -->
+                    @php $networkLogos = \App\Models\LibraryNetworkLogo::orderBy('sort_order')->get(); @endphp
+                    @if($networkLogos->count() > 0)
+                        <div class="space-y-0 border border-border rounded overflow-hidden">
+                            @foreach($networkLogos as $logo)
+                                <div class="flex items-center gap-2 p-2.5 bg-card border-b border-border last:border-b-0 hover:bg-muted/50 transition-all group">
+                                    @if($logo->logo_path && file_exists(storage_path('app/public/' . $logo->logo_path)))
+                                        <img src="{{ asset('storage/' . $logo->logo_path) }}" alt="{{ $logo->name }}" class="h-8 w-8 object-contain rounded-sm border border-border bg-background flex-shrink-0">
+                                    @else
+                                        <div class="h-8 w-8 rounded-sm bg-muted flex items-center justify-center flex-shrink-0"><i data-lucide="image" class="w-3 h-3 text-muted-foreground"></i></div>
+                                    @endif
+                                    <div class="flex-1 min-w-0">
+                                        <h5 class="text-xs font-bold text-foreground truncate">{{ $logo->name }}</h5>
+                                        <a href="{{ $logo->url }}" target="_blank" class="text-[9px] text-blue-600 hover:underline truncate block">{{ $logo->url }}</a>
+                                    </div>
+                                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button type="button" @click="editLogo({{ $logo->id }}, '{{ $logo->name }}', '{{ $logo->url }}', '{{ asset('storage/' . $logo->logo_path) }}')" class="p-1.5 rounded-sm bg-blue-500/10 hover:bg-blue-500 text-blue-600 hover:text-white transition-all border border-blue-500/20"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                                        <form action="{{ route('admin.site-nodes.delete-network-logo', $logo->id) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('Xác nhận?') }}')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1.5 rounded-sm bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white transition-all border border-red-500/20"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center justify-center p-4 bg-muted/20 border border-border border-dashed rounded text-center">
+                            <i data-lucide="image" class="w-5 h-5 text-muted-foreground mb-1 opacity-50"></i>
+                            <p class="text-xs text-muted-foreground">{{ __('Chưa có') }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Structure Tab -->
+            <div x-show="activeTab === 'structure'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100">
+                <!-- Stats -->
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div class="bg-muted/50 p-3 border border-border rounded">
+                        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mb-0.5">Tổng số</p>
+                        <p class="text-lg font-black text-foreground">{{ $stats['total'] ?? 0 }}</p>
+                    </div>
+                    <div class="bg-muted/50 p-3 border border-border rounded">
+                        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mb-0.5">Hoạt động</p>
+                        <p class="text-lg font-black text-foreground">{{ $stats['published'] ?? 0 }}</p>
+                    </div>
+                    <div class="bg-muted/50 p-3 border border-border rounded">
+                        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-wide mb-0.5">Bản nháp</p>
+                        <p class="text-lg font-black text-foreground">{{ $stats['draft'] ?? 0 }}</p>
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-2 border-t border-border">
-                    <button type="submit" class="btn-compact-primary">
-                        <i data-lucide="save" class="w-4 h-4 mr-2"></i>{{ __('Lưu cấu hình') }}
-                    </button>
+                <!-- Tree Section Header -->
+                <div class="flex items-center justify-between mb-2.5 pb-2.5 border-b border-border">
+                    <h3 class="text-xs font-bold text-foreground uppercase tracking-wide flex items-center gap-2">
+                        <i data-lucide="sitemap" class="w-4 h-4 text-muted-foreground"></i>
+                        {{ __('Cấu trúc Website') }}
+                    </h3>
+                    <div class="flex items-center gap-1.5">
+                        <button onclick="expandAll()" class="p-1.5 hover:bg-muted rounded-sm text-muted-foreground hover:text-foreground transition-all border border-border" title="Mở hết">
+                            <i data-lucide="expand" class="w-3 h-3"></i>
+                        </button>
+                        <button onclick="collapseAll()" class="p-1.5 hover:bg-muted rounded-sm text-muted-foreground hover:text-foreground transition-all border border-border" title="Thu hết">
+                            <i data-lucide="shrink" class="w-3 h-3"></i>
+                        </button>
+                        <a href="{{ route('admin.site-nodes.create') }}" class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all">
+                            <i data-lucide="plus" class="w-3 h-3"></i>{{ __('Thêm') }}
+                        </a>
+                    </div>
                 </div>
-            </form>
+
+                @if(count($tree) > 0)
+                    <div id="site-tree" class="space-y-0.5">
+                        @include('admin.site-nodes.tree', ['nodes' => $tree, 'level' => 0])
+                    </div>
+                @else
+                    <div class="flex flex-col items-center justify-center py-8 text-center">
+                        <i data-lucide="sitemap" class="w-6 h-6 text-muted-foreground mb-2 opacity-50"></i>
+                        <p class="text-xs text-muted-foreground mb-2">{{ __('Chưa có') }}</p>
+                        <a href="{{ route('admin.site-nodes.create') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i>{{ __('Tạo') }}
+                        </a>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
+</div>
 
-    <!-- Site Structure Tree -->
-    <div class="bg-card border border-border rounded-xl shadow-sm p-5 transition-colors duration-200">
-        <div class="flex items-center gap-3 mb-6">
-            <div class="w-1.5 h-5 bg-primary rounded-full"></div>
-            <h3 class="text-sm font-black text-foreground uppercase tracking-wider">{{ __('Cấu trúc Site (Dạng cây)') }}</h3>
+<!-- Edit Modal -->
+<div id="editLogoModal" style="display: none;" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm" @click.self="document.getElementById('editLogoModal').style.display = 'none'">
+    <div class="bg-card rounded border border-border shadow-2xl max-w-sm w-full" x-data="{ editFileName: '', editPreviewUrl: '' }">
+        <div class="flex items-center justify-between p-3 border-b border-border bg-muted/30">
+            <h3 class="text-xs font-bold text-foreground uppercase tracking-wide">{{ __('Chỉnh sửa') }}</h3>
+            <button type="button" @click="document.getElementById('editLogoModal').style.display = 'none'" class="p-1 hover:bg-muted rounded transition-all">
+                <i data-lucide="x" class="w-4 h-4 text-muted-foreground"></i>
+            </button>
         </div>
-        
-        <div class="relative">
-            @if(count($tree) > 0)
-            <div id="site-tree" class="space-y-1">
-                @include('admin.site-nodes.tree', ['nodes' => $tree, 'level' => 0])
+        <form id="editLogoForm" method="POST" enctype="multipart/form-data" class="p-3 space-y-2.5">
+            @csrf
+            @method('POST')
+            <input type="hidden" id="logoId" name="logo_id">
+            <div class="space-y-1.5">
+                <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Tên') }} *</label>
+                <input type="text" id="editName" name="name" required class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
             </div>
-            @else
-            <div class="flex flex-col items-center py-16">
-                <div class="w-16 h-16 bg-muted rounded-full flex items-center justify-center text-muted-foreground mb-4 border border-border border-dashed">
-                    <i data-lucide="sitemap" class="w-8 h-8 opacity-20"></i>
-                </div>
-                <h3 class="text-sm font-bold text-foreground mb-1">{{ __('Chưa có Node nào') }}</h3>
-                <p class="text-xs text-muted-foreground mb-4">{{ __('Hãy bắt đầu bằng cách tạo trang đầu tiên của bạn.') }}</p>
-                <a href="{{ route('admin.site-nodes.create') }}" class="btn-compact-primary">
-                    <i data-lucide="plus" class="w-4 h-4 mr-2"></i>{{ __('Tạo Node đầu tiên') }}
-                </a>
+            <div class="space-y-1.5">
+                <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('URL') }} *</label>
+                <input type="url" id="editUrl" name="url" required class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
             </div>
-            @endif
-        </div>
+            <div class="space-y-1.5">
+                <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Logo') }}</label>
+                <label class="flex items-center gap-1.5 px-2.5 h-9 bg-background border border-border border-dashed rounded-sm cursor-pointer hover:bg-muted/50 transition-all group">
+                    <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"></i>
+                    <span class="text-xs text-muted-foreground group-hover:text-foreground truncate" x-text="editFileName || 'Chọn...'"></span>
+                    <input type="file" name="logo_path" accept="image/*" class="hidden" @change="editFileName = $event.target.files[0]?.name; editPreviewUrl = URL.createObjectURL($event.target.files[0])">
+                </label>
+            </div>
+            <div id="currentLogoPreview" class="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded border border-border text-[9px] text-muted-foreground">
+                <img id="currentLogoImg" src="" alt="Logo" class="h-6 w-6 object-contain rounded border border-border bg-background">
+                <span>Hiện tại</span>
+            </div>
+            <div id="newLogoPreview" style="display: none;" class="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded border border-border text-[9px] text-muted-foreground" x-data>
+                <img :src="editPreviewUrl" alt="New" class="h-6 w-6 object-contain rounded border border-border bg-background">
+                <span>Mới</span>
+            </div>
+            <div class="flex justify-end gap-1.5 pt-2 border-t border-border">
+                <button type="button" @click="document.getElementById('editLogoModal').style.display = 'none'" class="px-3 py-1.5 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-sm transition-all">{{ __('Hủy') }}</button>
+                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all active:scale-95">
+                    <i data-lucide="save" class="w-3 h-3"></i>{{ __('Lưu') }}
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
 @push('styles')
 <style>
-    .tree-node-content {
-        display: flex;
-        align-items: center;
-        padding: 6px 12px;
-        border-radius: 4px;
-    }
-    
-    .tree-children {
-        display: block;
-    }
-    
-    .hidden {
-        display: none;
-    }
+    .tree-children { display: block; }
+    .hidden { display: none; }
 </style>
 @endpush
 
@@ -191,93 +312,61 @@
 function toggleNode(nodeId) {
     const children = document.getElementById(`children-${nodeId}`);
     const toggle = document.getElementById(`toggle-${nodeId}`);
-    
     if (children) {
         children.classList.toggle('hidden');
-        const icon = toggle.querySelector('svg, i');
-        if (children.classList.contains('hidden')) {
-            icon.style.transform = 'rotate(-90deg)';
-        } else {
-            icon.style.transform = 'rotate(0deg)';
-        }
+        const icon = toggle.querySelector('i');
+        icon.style.transform = children.classList.contains('hidden') ? 'rotate(-90deg)' : 'rotate(0deg)';
     }
 }
-
 function expandAll() {
-    const allChildren = document.querySelectorAll('.tree-children');
-    const allToggles = document.querySelectorAll('.w-5.h-5 i');
-    
-    allChildren.forEach(child => child.classList.remove('hidden'));
-    allToggles.forEach(icon => {
-        icon.style.transform = 'rotate(0deg)';
-    });
+    document.querySelectorAll('.tree-children').forEach(c => c.classList.remove('hidden'));
+    document.querySelectorAll('[id^="toggle-"] i').forEach(i => i.style.transform = 'rotate(0deg)');
 }
-
 function collapseAll() {
-    const allChildren = document.querySelectorAll('.tree-children');
-    const allToggles = document.querySelectorAll('.w-5.h-5 i');
-    
-    allChildren.forEach(child => child.classList.add('hidden'));
-    allToggles.forEach(icon => {
-        icon.style.transform = 'rotate(-90deg)';
-    });
+    document.querySelectorAll('.tree-children').forEach(c => c.classList.add('hidden'));
+    document.querySelectorAll('[id^="toggle-"] i').forEach(i => i.style.transform = 'rotate(-90deg)');
 }
-
-// Re-initialize Lucide icons after content updates
+function editLogo(logoId, logoName, logoUrl, logoPath) {
+    document.getElementById('logoId').value = logoId;
+    document.getElementById('editName').value = logoName;
+    document.getElementById('editUrl').value = logoUrl;
+    document.getElementById('currentLogoImg').src = logoPath;
+    document.getElementById('editLogoForm').action = `/topsecret/site-nodes/network-logo/${logoId}`;
+    document.querySelector('#editLogoForm input[name="logo_path"]').value = '';
+    document.getElementById('newLogoPreview').style.display = 'none';
+    document.getElementById('editLogoModal').style.display = 'flex';
+}
 document.addEventListener('DOMContentLoaded', function() {
-    if (typeof lucide !== 'undefined') {
-        lucide.createIcons();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    const fileInput = document.querySelector('#editLogoForm input[name="logo_path"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const preview = document.getElementById('newLogoPreview');
+            const img = preview.querySelector('img');
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => { img.src = e.target.result; preview.style.display = 'flex'; };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
     }
 });
-
 function toggleStatus(nodeId) {
     fetch(`/topsecret/site-nodes/${nodeId}/toggle-status`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        }
+        headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')}
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+    .then(r => r.json())
+    .then(d => {
+        if (d.success) {
             const badge = document.getElementById(`status-${nodeId}`);
-            badge.className = `status-badge ${data.is_active ? 'status-active' : 'status-inactive'}`;
-            badge.textContent = data.is_active ? 'Hoạt động' : 'Ẩn';
-            
-            // Show success message
-            showNotification(data.message, 'success');
-        } else {
-            showNotification(data.message, 'error');
+            badge.className = `inline-flex items-center px-2 py-1 rounded-sm text-[9px] font-bold text-white ${d.is_active ? 'bg-green-600' : 'bg-slate-400'}`;
+            badge.textContent = d.is_active ? 'Hoạt động' : 'Ẩn';
         }
-    })
-    .catch(error => {
-        showNotification('Lỗi khi cập nhật trạng thái!', 'error');
     });
 }
-
-function showNotification(message, type = 'info') {
-    // Simple notification implementation
-    const notification = document.createElement('div');
-    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-        type === 'success' ? 'bg-green-600 text-white' : 
-        type === 'error' ? 'bg-red-600 text-white' : 
-        'bg-blue-600 text-white'
-    }`;
-    notification.textContent = message;
-    
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
-    }, 3000);
-}
-
-// Drag and drop for reordering
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize drag and drop functionality here
-    console.log('Site management initialized');
-});
 </script>
 @endpush
 @endsection

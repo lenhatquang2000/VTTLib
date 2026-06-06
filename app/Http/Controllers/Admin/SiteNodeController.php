@@ -26,7 +26,14 @@ class SiteNodeController extends Controller
         // Build tree structure
         $tree = $this->buildTree($nodes->toArray());
 
-        return view('admin.site-nodes.index', compact('tree', 'language'));
+        // Calculate statistics
+        $stats = [
+            'total' => SiteNode::count(),
+            'published' => SiteNode::where('is_active', 1)->count(),
+            'draft' => SiteNode::where('is_active', 0)->count(),
+        ];
+
+        return view('admin.site-nodes.index', compact('tree', 'language', 'stats'));
     }
 
     /**
@@ -696,5 +703,108 @@ class SiteNodeController extends Controller
         }
 
         return back()->with('success', __('Layout settings updated successfully.'));
+    }
+
+    /**
+     * Add a new library network logo
+     */
+    public function addNetworkLogo(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'required|url|max:255',
+            'logo_path' => 'required|image|mimes:png,jpg,jpeg,svg,webp,ico|max:2048',
+        ]);
+
+        try {
+            // Store the logo file
+            $logoPath = $request->file('logo_path')->store('network-logos', 'public');
+
+            // Create library network logo record
+            $logo = \App\Models\LibraryNetworkLogo::create([
+                'name' => $validated['name'],
+                'url' => $validated['url'],
+                'logo_path' => $logoPath,
+                'sort_order' => \App\Models\LibraryNetworkLogo::max('sort_order') + 1,
+                'is_active' => true
+            ]);
+
+            // Log activity
+            activity_log('library_network_logo_created', $logo, [
+                'name' => $logo->name,
+                'url' => $logo->url
+            ]);
+
+            return back()->with('success', __('Thêm nhãn hiệu thành công!'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi khi thêm nhãn hiệu: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Edit a library network logo
+     */
+    public function editNetworkLogo(\App\Models\LibraryNetworkLogo $logo)
+    {
+        return response()->json($logo);
+    }
+
+    /**
+     * Update a library network logo
+     */
+    public function updateNetworkLogo(Request $request, \App\Models\LibraryNetworkLogo $logo)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'url' => 'required|url|max:255',
+            'logo_path' => 'nullable|image|mimes:png,jpg,jpeg,svg,webp,ico|max:2048',
+        ]);
+
+        try {
+            // If new logo file is uploaded, delete old one
+            if ($request->hasFile('logo_path')) {
+                if ($logo->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($logo->logo_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($logo->logo_path);
+                }
+                $validated['logo_path'] = $request->file('logo_path')->store('network-logos', 'public');
+            }
+
+            $logo->update($validated);
+
+            // Log activity
+            activity_log('library_network_logo_updated', $logo, [
+                'name' => $logo->name,
+                'url' => $logo->url
+            ]);
+
+            return back()->with('success', __('Cập nhật nhãn hiệu thành công!'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi khi cập nhật nhãn hiệu: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a library network logo
+     */
+    public function deleteNetworkLogo(\App\Models\LibraryNetworkLogo $logo)
+    {
+        try {
+            // Delete the logo file
+            if ($logo->logo_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($logo->logo_path)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($logo->logo_path);
+            }
+
+            // Log activity
+            activity_log('library_network_logo_deleted', null, [
+                'name' => $logo->name,
+                'url' => $logo->url
+            ]);
+
+            $logo->delete();
+
+            return back()->with('success', __('Xóa nhãn hiệu thành công!'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi khi xóa nhãn hiệu: ' . $e->getMessage());
+        }
     }
 }

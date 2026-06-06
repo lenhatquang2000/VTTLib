@@ -439,20 +439,20 @@
                                 <i data-lucide="map-pin" class="w-4 h-4"></i>
                             </div>
                             <span class="text-xs leading-relaxed text-white/60 group-hover:text-white transition-colors font-medium">
-                                Quốc Lộ 1A, Tân Phú Thạnh, Châu Thành A, Hậu Giang
+                                {{ __('Quốc Lộ 1A, Tân Phú Thạnh, Châu Thành A, Hậu Giang') }}
                             </span>
                         </div>
                         <div class="flex items-center gap-3 group">
                             <div class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-vttu-yellow flex-shrink-0 group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-colors border border-white/10 shadow-sm">
                                 <i data-lucide="phone" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-xs text-white/60 group-hover:text-white transition-colors font-medium">0293 3504 345</span>
+                            <span class="text-xs text-white/60 group-hover:text-white transition-colors font-medium">{{ __('0293 3504 345') }}</span>
                         </div>
                         <div class="flex items-center gap-3 group">
                             <div class="w-8 h-8 rounded-sm bg-white/5 flex items-center justify-center text-vttu-yellow flex-shrink-0 group-hover:bg-vttu-yellow group-hover:text-vttu-dark transition-colors border border-white/10 shadow-sm">
                                 <i data-lucide="mail" class="w-4 h-4"></i>
                             </div>
-                            <span class="text-xs text-white/60 group-hover:text-white transition-colors font-medium truncate">Mailthuvien@vttu.edu.vn</span>
+                            <span class="text-xs text-white/60 group-hover:text-white transition-colors font-medium truncate">{{ __('Mail') }}: {{ __('thuvien@vttu.edu.vn') }}</span>
                         </div>
                     </div>
                 </div>
@@ -461,14 +461,13 @@
             <!-- Bottom Footer -->
             <div class="border-t border-white/10 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-[10px] font-medium text-white/40 text-center md:text-left">
-                    &copy; {{ date('Y') }} <span class="font-bold text-vttu-yellow">{{ __('VTTU Library') }}</span>. 
-                    {{ __('Tất cả quyền được bảo lưu.') }}
+                    {{ __('© 2026 VTTU Library. Tất cả quyền được bảo lưu.') }}
                 </p>
                 <div class="flex items-center gap-4">
                     <a href="#" class="text-[10px] font-bold text-white/40 hover:text-vttu-yellow transition-colors">{{ __('Điều khoản') }}</a>
                     <a href="#" class="text-[10px] font-bold text-white/40 hover:text-vttu-yellow transition-colors">{{ __('Bảo mật') }}</a>
                     <div class="w-1.5 h-1.5 rounded-full bg-vttu-yellow animate-pulse"></div>
-                    <span class="text-[10px] font-black text-vttu-yellow/70 tracking-widest uppercase">System Online</span>
+                    <span class="text-[10px] font-black text-vttu-yellow/70 tracking-widest uppercase">{{ __('System Online') }}</span>
                 </div>
             </div>
         </div>

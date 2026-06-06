@@ -136,9 +136,23 @@ class SiteController extends Controller
             ->take(10)
             ->get();
 
+        // Lấy dữ liệu Network Logos cho slide
+        $networkLogos = \App\Models\LibraryNetworkLogo::where('is_active', 1)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Lấy Videos cho sidebar bên phải (tab VIDEO)
+        $sidebarVideos = \App\Models\News::published()
+            ->whereHas('category', function($q) {
+                $q->where('slug', 'video');
+            })
+            ->latest()
+            ->take(5)
+            ->get();
+
         return view('site.pages.home', compact(
             'menuItems', 'footerItems', 'newResources', 'medicalResources',
-            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews', 'bookIntroductionNews'
+            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews', 'bookIntroductionNews', 'networkLogos', 'sidebarVideos'
         ));
     }
 

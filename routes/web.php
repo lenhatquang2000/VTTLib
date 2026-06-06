@@ -149,6 +149,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::post('/layout-settings', [\App\Http\Controllers\Admin\SiteNodeController::class, 'updateLayoutSettings'])->name('layout-settings');
         Route::post('/bulk-action', [\App\Http\Controllers\Admin\SiteNodeController::class, 'bulkAction'])->name('bulk-action');
         
+        // Library Network Logos Routes
+        Route::post('/network-logo/add', [\App\Http\Controllers\Admin\SiteNodeController::class, 'addNetworkLogo'])->name('add-network-logo');
+        Route::get('/network-logo/{logo}/edit', [\App\Http\Controllers\Admin\SiteNodeController::class, 'editNetworkLogo'])->name('edit-network-logo');
+        Route::post('/network-logo/{logo}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'updateNetworkLogo'])->name('update-network-logo');
+        Route::delete('/network-logo/{logo}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'deleteNetworkLogo'])->name('delete-network-logo');
+        
         // Page Builder Routes
         Route::get('/{siteNode}/page-builder', [\App\Http\Controllers\Admin\PageBuilderController::class, 'edit'])->name('page-builder');
         Route::put('/{siteNode}/page-builder', [\App\Http\Controllers\Admin\PageBuilderController::class, 'update'])->name('page-builder.update');

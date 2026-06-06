@@ -522,15 +522,74 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
                         <!-- Video Section -->
                         <div class="bg-white rounded-md shadow-sm border border-slate-100 p-4" data-aos="fade-left">
                             <h3 class="text-sm font-bold text-vttu-dark mb-3 uppercase tracking-tight"><?php echo e(__('VIDEO')); ?></h3>
-                            <div class="aspect-video bg-slate-900 rounded-sm relative overflow-hidden group cursor-pointer shadow-sm">
-                                <div class="absolute inset-0 flex items-center justify-center z-10">
-                                    <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform border border-white/30">
-                                        <i class="fas fa-play text-[10px]"></i>
-                                    </div>
+                            
+                            <!-- Main Video Player -->
+                            <?php if(isset($sidebarVideos) && $sidebarVideos->count() > 0): ?>
+                                <?php $firstVideo = $sidebarVideos->first(); ?>
+                                <div class="aspect-video bg-slate-900 rounded-sm relative overflow-hidden group shadow-sm" id="main-video-container">
+                                    <?php if($firstVideo->video_url): ?>
+                                        <iframe src="<?php echo e($firstVideo->video_url); ?>" 
+                                                class="w-full h-full" 
+                                                frameborder="0" 
+                                                allowfullscreen 
+                                                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                        </iframe>
+                                    <?php else: ?>
+                                        <div class="absolute inset-0 flex items-center justify-center z-10">
+                                            <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform border border-white/30">
+                                                <i class="fas fa-play text-[10px]"></i>
+                                            </div>
+                                        </div>
+                                        <img src="<?php echo e($firstVideo->featured_image ?? 'https://img.freepik.com/free-vector/video-streaming-concept-illustration_114360-10731.jpg'); ?>" 
+                                             class="w-full h-full object-cover opacity-60">
+                                    <?php endif; ?>
                                 </div>
-                                <img src="https://img.freepik.com/free-vector/video-streaming-concept-illustration_114360-10731.jpg" class="w-full h-full object-cover opacity-60">
-                            </div>
-                            <p class="text-[11px] font-medium text-vttu-dark mt-3 leading-snug"><?php echo e(__('Hướng dẫn đăng ký và sử dụng tài khoản thư viện số VTTU')); ?></p>
+                                <p class="text-[11px] font-medium text-vttu-dark mt-3 leading-snug line-clamp-2"><?php echo e($firstVideo->title); ?></p>
+                                
+                                <!-- Video List (5 items) -->
+                                <div class="space-y-2 mt-4 border-t border-slate-100 pt-3">
+                                    <?php $__currentLoopData = $sidebarVideos->take(5); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $video): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="flex gap-2 items-center group cursor-pointer p-2 rounded-sm hover:bg-slate-50 transition-colors video-item" 
+                                             data-video-url="<?php echo e($video->video_url); ?>" 
+                                             data-video-title="<?php echo e($video->title); ?>"
+                                             data-video-image="<?php echo e($video->featured_image ?? 'https://img.freepik.com/free-vector/video-streaming-concept-illustration_114360-10731.jpg'); ?>">
+                                            <div class="w-16 h-10 flex-shrink-0 bg-slate-900 rounded-sm relative overflow-hidden shadow-sm">
+                                                <?php if($video->video_url): ?>
+                                                    <iframe src="<?php echo e($video->video_url); ?>" 
+                                                            class="w-full h-full pointer-events-none" 
+                                                            frameborder="0" 
+                                                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                                                    </iframe>
+                                                <?php else: ?>
+                                                    <div class="absolute inset-0 flex items-center justify-center z-10">
+                                                        <div class="w-6 h-6 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white text-[8px]">
+                                                            <i class="fas fa-play"></i>
+                                                        </div>
+                                                    </div>
+                                                    <img src="<?php echo e($video->featured_image ?? 'https://img.freepik.com/free-vector/video-streaming-concept-illustration_114360-10731.jpg'); ?>" 
+                                                         class="w-full h-full object-cover opacity-60">
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <a href="<?php echo e($video->url); ?>" class="text-[10px] font-bold text-vttu-dark leading-snug line-clamp-2 group-hover:text-vttu-red transition-colors">
+                                                    <?php echo e($video->title); ?>
+
+                                                </a>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="aspect-video bg-slate-900 rounded-sm relative overflow-hidden group cursor-pointer shadow-sm">
+                                    <div class="absolute inset-0 flex items-center justify-center z-10">
+                                        <div class="w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform border border-white/30">
+                                            <i class="fas fa-play text-[10px]"></i>
+                                        </div>
+                                    </div>
+                                    <img src="https://img.freepik.com/free-vector/video-streaming-concept-illustration_114360-10731.jpg" class="w-full h-full object-cover opacity-60">
+                                </div>
+                                <p class="text-[11px] font-medium text-vttu-dark mt-3 leading-snug"><?php echo e(__('Chưa có video nào')); ?></p>
+                            <?php endif; ?>
                         </div>
 
                         <!-- Link Buttons -->
@@ -558,27 +617,48 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
         </div>
     </section>
 
-    <!-- Bottom Slider (4 Items - VTTU Lib) -->
+    <!-- Bottom Slider (Network Logos) -->
     <section class="py-8 bg-white border-t border-slate-100">
         <div class="px-4 md:px-12 lg:px-24">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="text-lg font-bold text-vttu-dark tracking-tight uppercase">VTTU LIB <span class="text-vttu-red">NETWORK</span></h3>
+                <h3 class="text-lg font-bold text-vttu-dark tracking-tight uppercase"><?php echo e(__('VTTU LIB NETWORK')); ?></h3>
                 <div class="flex gap-2">
-                    <button class="w-8 h-8 rounded-sm border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all shadow-sm"><i class="fas fa-chevron-left text-[10px]"></i></button>
-                    <button class="w-8 h-8 rounded-sm border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all shadow-sm"><i class="fas fa-chevron-right text-[10px]"></i></button>
+                    <button onclick="prevSlide()" class="w-8 h-8 rounded-sm border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all shadow-sm"><i class="fas fa-chevron-left text-[10px]"></i></button>
+                    <button onclick="nextSlide()" class="w-8 h-8 rounded-sm border border-slate-200 flex items-center justify-center hover:bg-vttu-red hover:text-white transition-all shadow-sm"><i class="fas fa-chevron-right text-[10px]"></i></button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <?php for($i=1; $i<=4; $i++): ?>
-                <div class="p-6 bg-slate-50 rounded-md border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-white hover:shadow-md transition-all duration-300">
-                    <div class="w-12 h-12 bg-white rounded-sm shadow-sm flex items-center justify-center mb-4 group-hover:bg-vttu-red group-hover:text-white transition-all">
-                        <i class="fas fa-university text-xl"></i>
+
+            <?php if($networkLogos->count() > 0): ?>
+                <div class="relative overflow-hidden">
+                    <div id="networkSlider" class="flex gap-4 transition-transform duration-500 ease-in-out" style="transform: translateX(0)">
+                        <?php $__currentLoopData = $networkLogos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $logo): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <a href="<?php echo e($logo->url); ?>" target="_blank" class="flex-shrink-0 w-1/2 md:w-1/4 min-h-[120px] p-6 bg-slate-50 rounded-md border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-white hover:shadow-md transition-all duration-300">
+                                <?php if($logo->logo_path && file_exists(storage_path('app/public/' . $logo->logo_path))): ?>
+                                    <img src="<?php echo e(asset('storage/' . $logo->logo_path)); ?>" alt="<?php echo e($logo->name); ?>" class="h-12 object-contain mb-4 group-hover:scale-110 transition-transform">
+                                <?php else: ?>
+                                    <div class="w-12 h-12 bg-white rounded-sm shadow-sm flex items-center justify-center mb-4 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                                        <i class="fas fa-university text-xl"></i>
+                                    </div>
+                                <?php endif; ?>
+                                <span class="font-bold text-vttu-dark text-sm uppercase tracking-wider"><?php echo e($logo->name); ?></span>
+                                <p class="text-[9px] font-medium text-slate-400 mt-1 uppercase tracking-widest"><?php echo e(__('Library Information System')); ?></p>
+                            </a>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                     </div>
-                    <span class="font-bold text-vttu-dark text-sm uppercase tracking-wider">VTTU LIB <?php echo e($i); ?></span>
-                    <p class="text-[9px] font-medium text-slate-400 mt-1 uppercase tracking-widest">Library Information System</p>
                 </div>
-                <?php endfor; ?>
-            </div>
+            <?php else: ?>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <?php for($i=1; $i<=4; $i++): ?>
+                    <div class="p-6 bg-slate-50 rounded-md border border-slate-100 flex flex-col items-center justify-center text-center group hover:bg-white hover:shadow-md transition-all duration-300">
+                        <div class="w-12 h-12 bg-white rounded-sm shadow-sm flex items-center justify-center mb-4 group-hover:bg-vttu-red group-hover:text-white transition-all">
+                            <i class="fas fa-university text-xl"></i>
+                        </div>
+                        <span class="font-bold text-vttu-dark text-sm uppercase tracking-wider">VTTU LIB <?php echo e($i); ?></span>
+                        <p class="text-[9px] font-medium text-slate-400 mt-1 uppercase tracking-widest"><?php echo e(__('Library Information System')); ?></p>
+                    </div>
+                    <?php endfor; ?>
+                </div>
+            <?php endif; ?>
         </div>
     </section>
 </div>
@@ -802,6 +882,165 @@ Kiểm tra dịch 'Khai phá': <?php echo e(__('Khai phá')); ?>
             const mockEvent = { currentTarget: firstTab };
             wizard.loadTab('book', 'book-tabs', 'books-content', mockEvent);
         }
+    });
+
+    // Network Logos Slider - Auto-slide liên tục từ trái sang phải
+    let sliderPosition = 0;
+    let autoSlideInterval;
+    let itemsPerPage = 1;
+    let totalItems = 0;
+
+    function initNetworkSlider() {
+        const slider = document.getElementById('networkSlider');
+        if (!slider) return;
+
+        // Tính toán số item trên màn hình
+        const container = slider.parentElement;
+        const containerWidth = container.offsetWidth;
+        const sliderChildren = slider.querySelectorAll('a[href]');
+        totalItems = sliderChildren.length;
+        
+        if (totalItems === 0) return;
+
+        // Lấy width của một item
+        const firstItem = sliderChildren[0];
+        const itemWidth = firstItem.offsetWidth;
+        const gap = 16; // gap-4 = 16px
+        
+        // Tính items per page dựa trên responsive
+        const windowWidth = window.innerWidth;
+        if (windowWidth < 768) {
+            itemsPerPage = 2;
+        } else {
+            itemsPerPage = 4;
+        }
+
+        startAutoSlide();
+    }
+
+    function startAutoSlide() {
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        
+        autoSlideInterval = setInterval(() => {
+            const slider = document.getElementById('networkSlider');
+            if (!slider) return;
+
+            const sliderChildren = slider.querySelectorAll('a[href]');
+            if (sliderChildren.length === 0) return;
+
+            // Lấy width của một item + gap
+            const firstItem = sliderChildren[0];
+            const itemWidth = firstItem.offsetWidth;
+            const gap = 16; // gap-4
+            const shift = itemWidth + gap;
+
+            // Tăng vị trí
+            sliderPosition += shift;
+
+            // Nếu scroll quá hết thì reset về đầu
+            const maxScroll = (sliderChildren.length - itemsPerPage) * shift;
+            if (sliderPosition > maxScroll) {
+                sliderPosition = 0;
+            }
+
+            // Áp dụng transform
+            slider.style.transform = `translateX(-${sliderPosition}px)`;
+        }, 4000); // Slide mỗi 4 giây
+    }
+
+    function nextSlide() {
+        const slider = document.getElementById('networkSlider');
+        if (!slider) return;
+
+        const sliderChildren = slider.querySelectorAll('a[href]');
+        if (sliderChildren.length === 0) return;
+
+        const firstItem = sliderChildren[0];
+        const itemWidth = firstItem.offsetWidth;
+        const gap = 16;
+        const shift = itemWidth + gap;
+
+        sliderPosition += shift;
+        const maxScroll = (sliderChildren.length - itemsPerPage) * shift;
+        if (sliderPosition > maxScroll) {
+            sliderPosition = 0;
+        }
+
+        slider.style.transform = `translateX(-${sliderPosition}px)`;
+        
+        // Reset auto-slide timer
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        startAutoSlide();
+    }
+
+    function prevSlide() {
+        const slider = document.getElementById('networkSlider');
+        if (!slider) return;
+
+        const sliderChildren = slider.querySelectorAll('a[href]');
+        if (sliderChildren.length === 0) return;
+
+        const firstItem = sliderChildren[0];
+        const itemWidth = firstItem.offsetWidth;
+        const gap = 16;
+        const shift = itemWidth + gap;
+
+        sliderPosition -= shift;
+        if (sliderPosition < 0) {
+            sliderPosition = (sliderChildren.length - itemsPerPage) * shift;
+        }
+
+        slider.style.transform = `translateX(-${sliderPosition}px)`;
+        
+        // Reset auto-slide timer
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        startAutoSlide();
+    }
+
+    // Initialize slider khi page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initNetworkSlider();
+        
+        // Re-init khi resize window
+        window.addEventListener('resize', function() {
+            sliderPosition = 0;
+            initNetworkSlider();
+        });
+
+        // Video List Click Handler
+        const videoItems = document.querySelectorAll('.video-item');
+        videoItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const videoUrl = this.dataset.videoUrl;
+                const videoTitle = this.dataset.videoTitle;
+                const videoImage = this.dataset.videoImage;
+                const mainContainer = document.getElementById('main-video-container');
+                
+                if (mainContainer && videoUrl) {
+                    // Không thêm autoplay - user bấm play manually
+                    mainContainer.innerHTML = `
+                        <iframe src="${videoUrl}" 
+                                class="w-full h-full" 
+                                frameborder="0" 
+                                allowfullscreen 
+                                allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                        </iframe>
+                    `;
+                    
+                    // Update title
+                    const titleElement = mainContainer.nextElementSibling;
+                    if (titleElement) {
+                        titleElement.textContent = videoTitle;
+                    }
+                    
+                    // Highlight selected video item
+                    videoItems.forEach(v => v.classList.remove('bg-slate-100'));
+                    this.classList.add('bg-slate-100');
+                }
+            });
+        });
     });
 </script>
 <?php $__env->stopSection(); ?>
