@@ -173,6 +173,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     // OER Management
     Route::prefix('oer-management')->name('admin.oer.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\OERController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\OERController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\OERController::class, 'store'])->name('store');
+        Route::get('/{id}/edit', [\App\Http\Controllers\Admin\OERController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [\App\Http\Controllers\Admin\OERController::class, 'update'])->name('update');
+        Route::delete('/{id}', [\App\Http\Controllers\Admin\OERController::class, 'destroy'])->name('destroy');
         Route::get('/contributions', [\App\Http\Controllers\Admin\OERController::class, 'contributions'])->name('contributions');
         Route::post('/contributions/{id}/approve', [\App\Http\Controllers\Admin\OERController::class, 'approveContribution'])->name('contributions.approve');
         Route::post('/contributions/{id}/reject', [\App\Http\Controllers\Admin\OERController::class, 'rejectContribution'])->name('contributions.reject');
