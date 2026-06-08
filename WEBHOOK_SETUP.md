@@ -61,6 +61,119 @@ Nếu không cấu hình secret, webhook sẽ chấp nhận tất cả request m
    - **Triggers**: Push events
 3. Không cần secret token (hoặc có thể cấu hình tùy chỉnh)
 
+## Logging Webhook
+
+### Log Files
+
+Webhook logs được lưu riêng biệt từ Laravel logs chính:
+
+- **Webhook logs**: `storage/logs/webhook.log` (hoặc `webhook-*.log` cho daily)
+- **Laravel logs**: `storage/logs/laravel.log`
+
+### Cấu trúc Log Webhook
+
+Mỗi webhook request được ghi nhật ký với thông tin chi tiết:
+
+#### Request Log
+```
+[2024-01-15 10:30:45] local.INFO: === Webhook Request Received ===
+{
+  "timestamp": "2024-01-15 10:30:45",
+  "provider": "GitHub",
+  "method": "POST",
+  "url": "https://yourdomain.com/webhook/github",
+  "ip": "192.30.252.0",
+  "headers": {
+    "x-hub-signature-256": "sha256=...",
+    "x-github-delivery": "12345-67890-...",
+    "x-github-event": "push"
+  },
+  "user_agent": "GitHub-Hookshot/...",
+  "content_type": "application/json"
+}
+```
+
+#### Success Log
+```
+[2024-01-15 10:30:50] local.INFO: === Webhook Success ===
+{
+  "timestamp": "2024-01-15 10:30:50",
+  "provider": "GitHub",
+  "message": "Git pull completed successfully",
+  "status": "success"
+}
+```
+
+#### Error Log
+```
+[2024-01-15 10:30:45] local.ERROR: === Webhook Error ===
+{
+  "timestamp": "2024-01-15 10:30:45",
+  "provider": "GitHub",
+  "error": "fatal: not a git repository",
+  "trace": "...",
+  "status": "error"
+}
+```
+
+### Xem Logs
+
+#### Linux/Mac
+```bash
+# Xem logs webhook real-time
+tail -f storage/logs/webhook.log
+
+# Xem logs Laravel real-time
+tail -f storage/logs/laravel.log
+
+# Xem tất cả logs webhook
+cat storage/logs/webhook.log
+
+# Tìm kiếm lỗi trong logs
+grep "ERROR" storage/logs/webhook.log
+
+# Xem logs từ một provider cụ thể
+grep "GitHub" storage/logs/webhook.log
+```
+
+#### Windows PowerShell
+```powershell
+# Xem logs webhook real-time
+Get-Content -Path storage/logs/webhook.log -Wait
+
+# Xem tất cả logs webhook
+Get-Content storage/logs/webhook.log
+
+# Tìm kiếm lỗi
+Select-String -Path "storage/logs/webhook.log" -Pattern "ERROR"
+
+# Xem logs từ một provider
+Select-String -Path "storage/logs/webhook.log" -Pattern "GitHub"
+```
+
+#### Windows CMD
+```cmd
+# Xem logs webhook
+type storage\logs\webhook.log
+
+# Tìm kiếm lỗi
+findstr "ERROR" storage\logs\webhook.log
+```
+
+### Log Rotation
+
+Webhook logs sử dụng daily rotation:
+- Logs được lưu tối đa 30 ngày (có thể thay đổi trong `config/logging.php`)
+- Các file logs được đặt tên: `webhook-YYYY-MM-DD.log`
+
+### Quy Tắc Log
+
+1. **Chi tiết Request**: Tất cả webhook request đều được ghi lại với headers, IP, user agent
+2. **Tracking Provider**: Dễ dàng phân biệt webhook từ GitHub, GitLab, Bitbucket hoặc Generic
+3. **Git Command Output**: Output của git pull được ghi vào Laravel logs
+4. **Error Tracking**: Tất cả lỗi được ghi nhật ký chi tiết với stack trace
+5. **Performance**: Có thể theo dõi thời gian thực thi webhook
+
 ## Các lệnh được thực thi sau khi pull
 
 Sau khi git pull thành công, ứng dụng sẽ tự động chạy:
@@ -112,10 +225,19 @@ curl -X POST http://localhost:8000/webhook/bitbucket \
   -d '{}'
 ```
 
+### Test qua PowerShell
+```powershell
+$uri = "http://localhost:8000/webhook"
+$headers = @{"Content-Type" = "application/json"}
+$body = @{} | ConvertTo-Json
+
+Invoke-WebRequest -Uri $uri -Method Post -Headers $headers -Body $body
+```
+
 ### Kiểm tra logs
-Xem logs để verify webhook đã được thực thi:
 ```bash
-tail -f storage/logs/laravel.log
+# Xem logs để verify webhook đã được thực thi
+tail -f storage/logs/webhook.log
 ```
 
 ## Lưu ý quan trọng
@@ -126,6 +248,7 @@ tail -f storage/logs/laravel.log
 4. **SSH key**: Nếu dùng SSH, cấu hình SSH key cho deployment user
 5. **Permissions**: Đảm bảo file permissions cho git operations
 6. **Middleware CSRF**: Webhook không yêu cầu CSRF token (đã loại trừ)
+7. **Log Monitoring**: Kiểm tra logs thường xuyên để phát hiện lỗi
 
 ## Troubleshooting
 
@@ -148,6 +271,19 @@ $process->setTimeout(600); // 10 minutes
 Kiểm tra file permissions:
 ```bash
 chmod -R 775 storage/logs
+```
+
+### Xem logs ngoài file
+Nếu logs không hiển thị trong file, kiểm tra:
+```bash
+# Kiểm tra permissions
+ls -la storage/logs/
+
+# Kiểm tra disk space
+df -h storage/
+
+# Kiểm tra Laravel logs
+tail -f storage/logs/laravel.log | grep -i webhook
 ```
 
 ## Cấu hình cho các Platform
