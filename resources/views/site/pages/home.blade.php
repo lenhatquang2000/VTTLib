@@ -868,15 +868,50 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
     let autoSlideInterval;
     let itemsPerPage = 1;
     let totalItems = 0;
+    let originalItemCount = 0;
+
+    function duplicateItems() {
+        const slider = document.getElementById('networkSlider');
+        if (!slider) return;
+
+        const sliderChildren = slider.querySelectorAll('a[href]');
+        // Chỉ lấy số lượng items gốc ban đầu để nhân bản, tránh nhân bản đã nhân bản
+        const itemsLength = sliderChildren.length;
+        const itemsToDuplicate = Array.from(sliderChildren).slice(0, originalItemCount);
+        
+        // Nhân bản 3 lần
+        itemsToDuplicate.forEach(item => {
+            slider.appendChild(item.cloneNode(true));
+        });
+        itemsToDuplicate.forEach(item => {
+            slider.appendChild(item.cloneNode(true));
+        });
+        itemsToDuplicate.forEach(item => {
+            slider.appendChild(item.cloneNode(true));
+        });
+        
+        totalItems = slider.querySelectorAll('a[href]').length;
+        console.log(`[Slider] Items duplicated. Original: ${originalItemCount}, Current total: ${totalItems}`);
+    }
 
     function initNetworkSlider() {
         const slider = document.getElementById('networkSlider');
         if (!slider) return;
 
+        // Reset position và clear interval
+        sliderPosition = 0;
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+
         // Tính toán số item trên màn hình
         const container = slider.parentElement;
         const containerWidth = container.offsetWidth;
         const sliderChildren = slider.querySelectorAll('a[href]');
+        
+        // Lần đầu, lưu lại originalItemCount
+        if (originalItemCount === 0) {
+            originalItemCount = sliderChildren.length;
+        }
+        
         totalItems = sliderChildren.length;
         
         if (totalItems === 0) return;
@@ -894,6 +929,11 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
             itemsPerPage = 4;
         }
 
+        // Nhân bản items ban đầu lên 3 lần (chỉ lần đầu)
+        if (sliderChildren.length === originalItemCount) {
+            duplicateItems();
+        }
+        
         startAutoSlide();
     }
 
@@ -916,10 +956,11 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
             // Tăng vị trí
             sliderPosition += shift;
 
-            // Nếu scroll quá hết thì reset về đầu
-            const maxScroll = (sliderChildren.length - itemsPerPage) * shift;
-            if (sliderPosition > maxScroll) {
-                sliderPosition = 0;
+            // Khi trượt đến index = totalItems - 4, nhân bản lại
+            const currentIndex = Math.floor(sliderPosition / shift);
+            if (currentIndex >= totalItems - 4) {
+                console.log(`[Slider] Reached index ${currentIndex} (threshold: ${totalItems - 4}), duplicating items again...`);
+                duplicateItems();
             }
 
             // Áp dụng transform
@@ -940,9 +981,12 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
         const shift = itemWidth + gap;
 
         sliderPosition += shift;
-        const maxScroll = (sliderChildren.length - itemsPerPage) * shift;
-        if (sliderPosition > maxScroll) {
-            sliderPosition = 0;
+        
+        // Khi trượt đến index = totalItems - 4, nhân bản lại
+        const currentIndex = Math.floor(sliderPosition / shift);
+        if (currentIndex >= totalItems - 4) {
+            console.log(`[Slider] nextSlide: Reached index ${currentIndex}, duplicating items...`);
+            duplicateItems();
         }
 
         slider.style.transform = `translateX(-${sliderPosition}px)`;
@@ -966,7 +1010,7 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
 
         sliderPosition -= shift;
         if (sliderPosition < 0) {
-            sliderPosition = (sliderChildren.length - itemsPerPage) * shift;
+            sliderPosition = 0;
         }
 
         slider.style.transform = `translateX(-${sliderPosition}px)`;

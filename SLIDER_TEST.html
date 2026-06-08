@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Logos Slider - Demo Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            padding: 20px;
+            background: #f3f4f6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            color: #dc2626;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .slider-container {
+            position: relative;
+            overflow: hidden;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #991b1b;
+        }
+        
+        button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+        
+        #networkSlider {
+            display: flex;
+            gap: 16px;
+            transition: transform 0.5s ease-in-out;
+            transform: translateX(0);
+        }
+        
+        .logo-item {
+            flex-shrink: 0;
+            width: 25%;
+            min-height: 120px;
+            padding: 16px;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .logo-item:hover {
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            font-size: 24px;
+        }
+        
+        .logo-name {
+            font-weight: bold;
+            color: #1f2937;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .logo-desc {
+            font-size: 10px;
+            color: #9ca3af;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-box {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #dc2626;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: bold;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc2626;
+            margin-top: 5px;
+        }
+        
+        .console {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .console-line {
+            margin-bottom: 5px;
+            line-height: 1.5;
+        }
+        
+        .console-time {
+            color: #6b7280;
+        }
+        
+        @media (max-width: 768px) {
+            .logo-item {
+                width: 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎪 Network Logos Slider - Demo Test</h1>
+        <p class="subtitle">Kiểm tra logic: Nhân bản 3 lần, auto-slide sang trái, trigger nhân bản khi đến index = totalItems - 4</p>
+        
+        <!-- Section 1: Controls -->
+        <div class="section">
+            <div class="section-title">Điều Khiển</div>
+            <div class="controls">
+                <button onclick="prevSlide()">← Slide Trước</button>
+                <button id="toggleAutoSlideBtn" onclick="toggleAutoSlide()">⏸ Dừng Auto-Slide</button>
+                <button onclick="resetSlider()">🔄 Reset</button>
+                <button onclick="duplicateItemsManual()">➕ Nhân Bản Ngay</button>
+            </div>
+        </div>
+        
+        <!-- Section 2: Slider -->
+        <div class="section">
+            <div class="section-title">Slider Container</div>
+            <div class="slider-container">
+                <div id="networkSlider">
+                    <!-- Items sẽ được tạo bằng JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 3: Stats -->
+        <div class="section">
+            <div class="section-title">Thống Kê</div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-label">Original Count</div>
+                    <div class="stat-value" id="originalCount">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Current Total</div>
+                    <div class="stat-value" id="currentTotal">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Current Index</div>
+                    <div class="stat-value" id="currentIndex">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Slider Position</div>
+                    <div class="stat-value" id="sliderPosition">0px</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Trigger Threshold</div>
+                    <div class="stat-value" id="triggerThreshold">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Times Duplicated</div>
+                    <div class="stat-value" id="duplicateCount">0</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Section 4: Console -->
+        <div class="section">
+            <div class="section-title">Console Logs</div>
+            <div class="console" id="console"></div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let sliderPosition = 0;
+        let autoSlideInterval;
+        let itemsPerPage = 4;
+        let totalItems = 0;
+        let originalItemCount = 0;
+        let autoSlideEnabled = true;
+        let duplicateCount = 0;
+
+        // Mock Library logos
+        const libraries = [
+            { name: 'VTTU Library', icon: '📚' },
+            { name: 'Medical Hub', icon: '⚕️' },
+            { name: 'Digital Archive', icon: '💾' },
+        ];
+
+        function log(message) {
+            const console = document.getElementById('console');
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            const time = new Date().toLocaleTimeString();
+            line.innerHTML = `<span class="console-time">[${time}]</span> ${message}`;
+            console.appendChild(line);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        function initSlider() {
+            const slider = document.getElementById('networkSlider');
+            slider.innerHTML = '';
+            
+            libraries.forEach(lib => {
+                const item = document.createElement('a');
+                item.href = '#';
+                item.className = 'logo-item';
+                item.innerHTML = `
+                    <div class="logo-icon">${lib.icon}</div>
+                    <div class="logo-name">${lib.name}</div>
+                    <div class="logo-desc">Library System</div>
+                `;
+                item.addEventListener('click', (e) => e.preventDefault());
+                slider.appendChild(item);
+            });
+            
+            originalItemCount = slider.querySelectorAll('a').length;
+            totalItems = originalItemCount;
+            
+            log(`✅ Slider initialized with ${originalItemCount} items`);
+            updateStats();
+        }
+
+        function duplicateItems() {
+            const slider = document.getElementById('networkSlider');
+            const sliderChildren = slider.querySelectorAll('a');
+            const itemsToDuplicate = Array.from(sliderChildren).slice(0, originalItemCount);
+            
+            itemsToDuplicate.forEach(item => slider.appendChild(item.cloneNode(true)));
+            itemsToDuplicate.forEach(item => slider.appendChild(item.cloneNode(true)));
+            itemsToDuplicate.forEach(item => slider.appendChild(item.cloneNode(true)));
+            
+            totalItems = slider.querySelectorAll('a').length;
+            duplicateCount++;
+            
+            log(`🔄 Items duplicated #${duplicateCount}. Original: ${originalItemCount}, Total: ${totalItems}`);
+            updateStats();
+        }
+
+        function duplicateItemsManual() {
+            duplicateItems();
+        }
+
+        function startAutoSlide() {
+            if (autoSlideInterval) clearInterval(autoSlideInterval);
+            autoSlideEnabled = true;
+            document.getElementById('toggleAutoSlideBtn').textContent = '⏸ Dừng Auto-Slide';
+            
+            autoSlideInterval = setInterval(() => {
+                const slider = document.getElementById('networkSlider');
+                const sliderChildren = slider.querySelectorAll('a');
+                
+                if (sliderChildren.length === 0) return;
+                
+                const firstItem = sliderChildren[0];
+                const itemWidth = firstItem.offsetWidth;
+                const gap = 16;
+                const shift = itemWidth + gap;
+                
+                sliderPosition += shift;
+                
+                const currentIndex = Math.floor(sliderPosition / shift);
+                const triggerThreshold = totalItems - 4;
+                
+                if (currentIndex >= triggerThreshold) {
+                    log(`⚠️ Reached index ${currentIndex} (threshold: ${triggerThreshold}) → Duplicating...`);
+                    duplicateItems();
+                }
+                
+                slider.style.transform = `translateX(-${sliderPosition}px)`;
+                updateStats();
+            }, 2000); // 2 giây cho demo
+        }
+
+        function stopAutoSlide() {
+            if (autoSlideInterval) clearInterval(autoSlideInterval);
+            autoSlideEnabled = false;
+            document.getElementById('toggleAutoSlideBtn').textContent = '▶ Tiếp Tục Auto-Slide';
+            log('⏹ Auto-slide stopped');
+        }
+
+        function toggleAutoSlide() {
+            if (autoSlideEnabled) {
+                stopAutoSlide();
+            } else {
+                startAutoSlide();
+            }
+        }
+
+        function nextSlide() {
+            const slider = document.getElementById('networkSlider');
+            const sliderChildren = slider.querySelectorAll('a');
+            
+            const firstItem = sliderChildren[0];
+            const itemWidth = firstItem.offsetWidth;
+            const gap = 16;
+            const shift = itemWidth + gap;
+            
+            sliderPosition += shift;
+            
+            const currentIndex = Math.floor(sliderPosition / shift);
+            const triggerThreshold = totalItems - 4;
+            
+            if (currentIndex >= triggerThreshold) {
+                log(`⚠️ nextSlide: Reached index ${currentIndex} → Duplicating...`);
+                duplicateItems();
+            }
+            
+            slider.style.transform = `translateX(-${sliderPosition}px)`;
+            updateStats();
+            
+            if (autoSlideEnabled) {
+                stopAutoSlide();
+                startAutoSlide();
+            }
+        }
+
+        function prevSlide() {
+            const slider = document.getElementById('networkSlider');
+            const firstItem = slider.querySelectorAll('a')[0];
+            const itemWidth = firstItem.offsetWidth;
+            const gap = 16;
+            const shift = itemWidth + gap;
+            
+            sliderPosition -= shift;
+            if (sliderPosition < 0) {
+                sliderPosition = 0;
+            }
+            
+            slider.style.transform = `translateX(-${sliderPosition}px)`;
+            updateStats();
+            
+            if (autoSlideEnabled) {
+                stopAutoSlide();
+                startAutoSlide();
+            }
+        }
+
+        function resetSlider() {
+            sliderPosition = 0;
+            duplicateCount = 0;
+            stopAutoSlide();
+            initSlider();
+            duplicateItems();
+            log('🔄 Slider reset');
+            startAutoSlide();
+        }
+
+        function updateStats() {
+            const slider = document.getElementById('networkSlider');
+            const currentIndex = Math.floor(sliderPosition / (slider.querySelectorAll('a')[0].offsetWidth + 16));
+            const triggerThreshold = totalItems - 4;
+            
+            document.getElementById('originalCount').textContent = originalItemCount;
+            document.getElementById('currentTotal').textContent = totalItems;
+            document.getElementById('currentIndex').textContent = currentIndex;
+            document.getElementById('sliderPosition').textContent = sliderPosition + 'px';
+            document.getElementById('triggerThreshold').textContent = triggerThreshold;
+            document.getElementById('duplicateCount').textContent = duplicateCount;
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            initSlider();
+            duplicateItems();
+            log('🚀 Demo initialized. Starting auto-slide...');
+            startAutoSlide();
+        });
+    </script>
+</body>
+</html>
