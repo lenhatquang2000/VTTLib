@@ -122,14 +122,16 @@ class WebhookController extends Controller
     private function gitPull()
     {
         $projectPath = base_path();
+        $branch = config('app.webhook_branch', 'main'); // Default to 'main', configurable via env
         
         Log::channel('webhook')->info("Starting git pull", [
             'project_path' => $projectPath,
+            'branch' => $branch,
             'working_directory' => getcwd(),
         ]);
         
-        // Run git pull command
-        $process = new Process(['git', 'pull'], $projectPath);
+        // Run git pull origin main command (or configured branch)
+        $process = new Process(['git', 'pull', 'origin', $branch], $projectPath);
         $process->setTimeout(300); // 5 minutes timeout
         
         $process->run();
@@ -137,6 +139,7 @@ class WebhookController extends Controller
         // Log output regardless of success/failure
         Log::channel('webhook')->info("Git pull executed", [
             'exit_code' => $process->getExitCode(),
+            'branch' => $branch,
             'output' => $process->getOutput(),
             'error_output' => $process->getErrorOutput(),
         ]);
@@ -144,6 +147,7 @@ class WebhookController extends Controller
         // Also log to Laravel log
         Log::info('Git pull completed', [
             'exit_code' => $process->getExitCode(),
+            'branch' => $branch,
             'output' => $process->getOutput(),
             'error_output' => $process->getErrorOutput(),
         ]);

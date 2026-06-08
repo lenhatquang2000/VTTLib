@@ -136,5 +136,6 @@ return [
 
     'github_webhook_secret' => env('GITHUB_WEBHOOK_SECRET', ''),
     'gitlab_webhook_secret' => env('GITLAB_WEBHOOK_SECRET', ''),
+    'webhook_branch' => env('WEBHOOK_BRANCH', 'main'),
 
 ];

@@ -31,7 +31,15 @@ POST /webhook
 ### Cách 1: Không xác thực (không khuyến khích cho production)
 Nếu không cấu hình secret, webhook sẽ chấp nhận tất cả request mà không xác thực.
 
-### Cách 2: Với xác thực (Khuyến khích)
+### Cách 2: Cấu hình nhánh (Branch)
+Mặc định webhook sẽ pull nhánh `main`. Để thay đổi, cập nhật file `.env`:
+```env
+WEBHOOK_BRANCH=develop
+```
+
+Hoặc bất kỳ nhánh nào bạn muốn pull.
+
+### Cách 3: Với xác thực (Khuyến khích)
 
 #### GitHub
 1. Vào Settings > Webhooks của repository
@@ -42,6 +50,7 @@ Nếu không cấu hình secret, webhook sẽ chấp nhận tất cả request m
 3. Cập nhật file `.env`:
    ```
    GITHUB_WEBHOOK_SECRET=your-secret-key-here
+   WEBHOOK_BRANCH=main
    ```
 
 #### GitLab
@@ -52,6 +61,7 @@ Nếu không cấu hình secret, webhook sẽ chấp nhận tất cả request m
 3. Cập nhật file `.env`:
    ```
    GITLAB_WEBHOOK_SECRET=your-secret-token
+   WEBHOOK_BRANCH=main
    ```
 
 #### Bitbucket
