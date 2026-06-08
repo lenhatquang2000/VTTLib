@@ -125,4 +125,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook Configuration
+    |--------------------------------------------------------------------------
+    |
+    | These configuration options store webhook secrets for git providers.
+    |
+    */
+
+    'github_webhook_secret' => env('GITHUB_WEBHOOK_SECRET', ''),
+    'gitlab_webhook_secret' => env('GITLAB_WEBHOOK_SECRET', ''),
+
 ];

@@ -6,7 +6,15 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Admin\MetadataController;
 use App\Http\Controllers\SecretLoginController;
 use App\Http\Controllers\ClientLoginController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
+
+// Webhook Routes (without CSRF protection)
+Route::post('/webhook/github', [WebhookController::class, 'handleGithubWebhook'])->withoutMiddleware(['web', 'csrf']);
+Route::post('/webhook/gitlab', [WebhookController::class, 'handleGitlabWebhook'])->withoutMiddleware(['web', 'csrf']);
+Route::post('/webhook/bitbucket', [WebhookController::class, 'handleBitbucketWebhook'])->withoutMiddleware(['web', 'csrf']);
+Route::post('/webhook', [WebhookController::class, 'handleWebhook'])->withoutMiddleware(['web', 'csrf']);
+
 // Language Switcher
 Route::get('lang/{locale}', [LanguageController::class, 'switch'])->name('lang.switch');
 
