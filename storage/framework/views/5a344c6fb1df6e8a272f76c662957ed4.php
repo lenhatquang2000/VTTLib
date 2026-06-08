@@ -203,9 +203,27 @@
                                     prose-strong:text-foreground
                                     prose-a:text-vttu-red prose-a:font-bold prose-a:no-underline hover:prose-a:underline
                                     prose-img:rounded-md prose-img:border prose-img:border-border shadow-vttu-red/5">
-                            <?php echo $node->content; ?>
+                            
+                            <?php if($node->node_code === 'noi-quy-thu-vien'): ?>
+                                <?php echo $__env->make('site.pages.noi-quy-thu-vien-header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <?php endif; ?>
+                            
+                            <?php if($node->node_code === 'gioi-thieu-chung'): ?>
+                                <?php echo $__env->make('site.pages.gioi-thieu-chung-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <?php elseif($node->node_code === 'noi-quy-thu-vien'): ?>
+                                <?php echo $__env->make('site.pages.noi-quy-thu-vien-content', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <?php else: ?>
+                                <?php echo $node->content; ?>
 
+                            <?php endif; ?>
                         </div>
+                        
+                        
+                        <?php if($node->node_code === 'gioi-thieu-chung'): ?>
+                            <div class="mt-8 pt-8 border-t border-border">
+                                <?php echo $__env->make('site.partials.library-benefits', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Navigation Footer -->

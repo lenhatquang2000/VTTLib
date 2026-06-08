@@ -211,8 +211,26 @@
                                     prose-strong:text-foreground
                                     prose-a:text-vttu-red prose-a:font-bold prose-a:no-underline hover:prose-a:underline
                                     prose-img:rounded-md prose-img:border prose-img:border-border shadow-vttu-red/5">
-                            {!! $node->content !!}
+                            {{-- Hiển thị header image cho trang nội quy thư viện --}}
+                            @if($node->node_code === 'noi-quy-thu-vien')
+                                @include('site.pages.noi-quy-thu-vien-header')
+                            @endif
+                            
+                            @if($node->node_code === 'gioi-thieu-chung')
+                                @include('site.pages.gioi-thieu-chung-content')
+                            @elseif($node->node_code === 'noi-quy-thu-vien')
+                                @include('site.pages.noi-quy-thu-vien-content')
+                            @else
+                                {!! $node->content !!}
+                            @endif
                         </div>
+                        
+                        {{-- Hiển thị component tiện ích thư viện cho trang giới thiệu chung --}}
+                        @if($node->node_code === 'gioi-thieu-chung')
+                            <div class="mt-8 pt-8 border-t border-border">
+                                @include('site.partials.library-benefits')
+                            </div>
+                        @endif
                     </div>
 
                     <!-- Navigation Footer -->
