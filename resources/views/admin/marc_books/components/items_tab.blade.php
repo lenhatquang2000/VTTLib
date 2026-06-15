@@ -20,19 +20,19 @@
         <div class="p-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50">
             <h3 class="text-sm font-bold text-gray-800 dark:text-slate-100 uppercase tracking-wider flex items-center">
                 <span class="w-2 h-2 bg-indigo-500 rounded-full mr-2" :class="editingIndex !== null ? 'animate-pulse' : ''"></span>
-                <span x-text="editingIndex !== null ? '{{ __('Modify Item') }}' : '{{ __('THÊM BẢN SÁCH MỚI') }}'"></span>
+                <span x-text="editingIndex !== null ? '{{ __('Chỉnh sửa bản sách') }}' : '{{ __('Thêm bản sách mới') }}'"></span>
             </h3>
         </div>
         <div class="p-6 space-y-4">
             <div class="grid grid-cols-1 gap-4">
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('MÃ VẠCH') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Mã vạch') }}</label>
                     <input type="text" x-model="newItem.barcode"
                         class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-indigo-500 transition-all"
                         placeholder="{{ $nextBarcode ?? 'AUTO' }}">
                 </div>
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('SỐ ĐĂNG KÝ CÁ BIỆT') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Số đăng ký cá biệt') }}</label>
                     <input type="text" x-model="newItem.accession_number"
                         class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-indigo-500 transition-all"
                         placeholder="ACC-XXXXXX">
@@ -41,7 +41,7 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('CHI NHÁNH') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Chi nhánh') }}</label>
                     <select x-model="newItem.branch_id"
                         class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
                         <option value="">-- {{ __('Chọn') }} --</option>
@@ -51,7 +51,7 @@
                     </select>
                 </div>
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('KHO LƯU TRỮ') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Kho lưu trữ') }}</label>
                     <select x-model="newItem.storage_location_id" :disabled="!newItem.branch_id"
                         class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none disabled:opacity-50">
                         <option value="">-- {{ __('Chọn') }} --</option>
@@ -64,7 +64,7 @@
 
             <div class="grid grid-cols-2 gap-3">
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('THỂ LOẠI LƯU TRỮ') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Thể loại lưu trữ') }}</label>
                     <select x-model="newItem.storage_type"
                         class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none">
                         <option value="Book">{{ __('Sách') }}</option>
@@ -73,7 +73,7 @@
                     </select>
                 </div>
                 <div class="space-y-1">
-                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('TRẠNG THÁI') }}</label>
+                    <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Trạng thái') }}</label>
                     <select x-model="newItem.status"
                         class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 appearance-none cursor-pointer">
                         <option value="available">{{ __('Sẵn có') }}</option>
@@ -85,15 +85,15 @@
             </div>
 
             <div class="space-y-1">
-                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('GHI CHÚ') }}</label>
+                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Ghi chú') }}</label>
                 <textarea x-model="newItem.notes" rows="2" class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm" placeholder="{{ __('Ghi chú...') }}"></textarea>
             </div>
 
             <div class="space-y-1" x-show="editingIndex === null">
-                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('DISTRIBUTION QUANTITY') }}</label>
+                <label class="block text-[10px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Số lượng phân bổ') }}</label>
                 <input type="number" x-model="batchQuantity" min="1"
                     class="w-full px-4 py-2.5 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-mono focus:ring-2 focus:ring-indigo-500 transition-all">
-                <p class="text-[9px] text-gray-400 mt-1 italic">Auto-generate items based on this quantity</p>
+                <p class="text-[9px] text-gray-400 mt-1 italic">{{ __('Tự động tạo các bản sách dựa trên số lượng này') }}</p>
             </div>
 
             <div class="flex gap-2 pt-2">
@@ -118,17 +118,17 @@
     <!-- RIGHT: List Table -->
     <div class="lg:col-span-8 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
         <div class="p-5 border-b border-gray-100 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-            <h3 class="text-sm font-bold text-gray-800 dark:text-slate-100 uppercase tracking-wider">{{ __('CÁC MỤC TRONG HÀNG ĐỢI') }}</h3>
+            <h3 class="text-sm font-bold text-gray-800 dark:text-slate-100 uppercase tracking-wider">{{ __('Các mục trong hàng đợi') }}</h3>
             <span class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 text-[10px] font-bold px-2.5 py-1 rounded-full" x-text="items.length + ' {{ __('Mục') }}'"></span>
         </div>
         <div class="overflow-x-auto min-h-[400px]">
             <table class="w-full text-left">
                 <thead class="bg-gray-50 dark:bg-slate-800/50 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest border-b border-gray-100 dark:border-slate-800">
                     <tr>
-                        <th class="px-6 py-4">{{ __('THÔNG TIN NHẬN DIỆN') }}</th>
-                        <th class="px-6 py-4">{{ __('LƯU TRỮ') }}</th>
-                        <th class="px-6 py-4">{{ __('TRẠNG THÁI') }}</th>
-                        <th class="px-6 py-4">{{ __('BARCODE IMAGE') }}</th>
+                        <th class="px-6 py-4">{{ __('Thông tin nhận diện') }}</th>
+                        <th class="px-6 py-4">{{ __('Lưu trữ') }}</th>
+                        <th class="px-6 py-4">{{ __('Trạng thái') }}</th>
+                        <th class="px-6 py-4">{{ __('Ảnh mã vạch') }}</th>
                         <th class="px-6 py-4"></th>
                     </tr>
                 </thead>
@@ -149,7 +149,7 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-700 dark:text-slate-300" x-text="item.storage_type"></span>
+                                    <span class="text-sm font-bold text-gray-700 dark:text-slate-300" x-text="item.storage_type === 'Book' ? '{{ __('Sách') }}' : (item.storage_type === 'Daily newspaper' ? '{{ __('Báo hàng ngày') }}' : '{{ __('Tạp chí') }}')"></span>
                                     <div class="flex items-center space-x-1 mt-1">
                                         <span class="text-[10px] font-medium text-gray-400" 
                                             x-text="branches.find(b => b.id == item.branch_id)?.name || '-'"></span>
@@ -166,7 +166,7 @@
                                         'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:border-rose-900/30': item.status === 'lost'
                                     }">
                                     <span class="w-1 h-1 rounded-full bg-current mr-2 animate-pulse"></span>
-                                    <span x-text="item.status"></span>
+                                    <span x-text="item.status === 'available' ? '{{ __('Sẵn có') }}' : (item.status === 'borrowed' ? '{{ __('Đang mượn') }}' : (item.status === 'lost' ? '{{ __('Đã mất') }}' : '{{ __('Hư hỏng') }}'))"></span>
                                 </span>
                             </td>
                             <td class="px-6 py-4">

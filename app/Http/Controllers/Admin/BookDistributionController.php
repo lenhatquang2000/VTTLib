@@ -36,7 +36,7 @@ class BookDistributionController extends Controller
         
         return response()->json([
             'exists' => $exists,
-            'message' => $exists ? __('Barcode already exists') : __('Barcode is available')
+            'message' => $exists ? __('Mã vạch đã tồn tại') : __('Mã vạch hợp lệ')
         ]);
     }
 
@@ -91,6 +91,6 @@ class BookDistributionController extends Controller
 
         $record->items()->create($validated);
 
-        return back()->with('success', __('Book item distributed and barcode generated successfully.'));
+        return back()->with('success', __('Đã phân bổ bản sách và tạo mã vạch thành công.'));
     }
 }

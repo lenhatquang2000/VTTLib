@@ -38,9 +38,9 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 tracking-tight">{{ __('MARC21_Framework_Manager') }}</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100 tracking-tight">{{ __('Quản lý MARC21 Framework') }}</h2>
                     <div class="flex items-center mt-1 text-sm text-gray-500 dark:text-slate-400">
-                        <span class="hover:text-indigo-600 cursor-help" title="MARC Frameworks define which fields and subfields are available during cataloging.">{{ __('Template_Configuration') }}</span>
+                        <span class="hover:text-indigo-600 cursor-help" title="{{ __('MARC Framework xác định trường và trường con nào có sẵn trong biên mục.') }}">{{ __('Cấu hình mẫu biên mục') }}</span>
                     </div>
                 </div>
             </div>
@@ -61,7 +61,7 @@
                 </div>
 
                 <button @click="isNewFrameworkOpen = true" class="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition">
-                    + {{ __('New_Framework') }}
+                    + {{ __('Framework mới') }}
                 </button>
             </div>
         </div>
@@ -69,14 +69,14 @@
         @if($currentFramework)
             <div class="px-6 py-4 bg-gray-50/50 dark:bg-slate-800/30 flex justify-between items-center text-xs">
                 <div class="flex space-x-6 text-gray-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                    <span>Code: <span class="text-indigo-600 dark:text-indigo-400">{{ $currentFramework->code }}</span></span>
-                    <span>Status: <span class="{{ $currentFramework->is_active ? 'text-emerald-500' : 'text-rose-500' }}">{{ $currentFramework->is_active ? 'Active' : 'Disabled' }}</span></span>
+                    <span>{{ __('Mã') }}: <span class="text-indigo-600 dark:text-indigo-400">{{ $currentFramework->code }}</span></span>
+                    <span>{{ __('Trạng thái') }}: <span class="{{ $currentFramework->is_active ? 'text-emerald-500' : 'text-rose-500' }}">{{ $currentFramework->is_active ? __('Hoạt động') : __('Vô hiệu') }}</span></span>
                 </div>
                 <div class="flex space-x-3">
-                    <button @click="editFramework(@js($currentFramework))" class="text-indigo-400 hover:text-indigo-600 transition">{{ __('Edit_Framework') }}</button>
-                    <form action="{{ route('admin.marc.framework.destroy', $currentFramework->id) }}" method="POST" onsubmit="return confirm('Delete this framework and all its definitions?')">
+                    <button @click="editFramework(@js($currentFramework))" class="text-indigo-400 hover:text-indigo-600 transition">{{ __('Sửa Framework') }}</button>
+                    <form action="{{ route('admin.marc.framework.destroy', $currentFramework->id) }}" method="POST" onsubmit="return confirm('{{ __('Xóa framework này và tất cả định nghĩa của nó?') }}')">
                         @csrf @method('DELETE')
-                        <button type="submit" class="text-rose-400 hover:text-rose-600 transition">{{ __('Delete') }}</button>
+                        <button type="submit" class="text-rose-400 hover:text-rose-600 transition">{{ __('Xóa') }}</button>
                     </form>
                 </div>
             </div>
@@ -87,7 +87,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
         <form action="{{ route('admin.marc.index') }}" method="GET" class="relative group w-full sm:w-80">
             <input type="hidden" name="framework_id" value="{{ $frameworkId }}">
-            <input type="text" name="search" value="{{ $search }}" placeholder="{{ __('Search') }} Tag/Label..." 
+            <input type="text" name="search" value="{{ $search }}" placeholder="{{ __('Tìm kiếm Tag/Nhãn...') }}" 
                 class="pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 dark:text-slate-100 transition-all w-full shadow-sm">
             <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400 group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -101,7 +101,7 @@
 
         <button @click="isNewTagOpen = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-bold transition flex items-center shadow-lg shadow-indigo-200 dark:shadow-none whitespace-nowrap">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            {{ __('Register_New_Tag') }}
+            {{ __('Đăng ký Tag mới') }}
         </button>
     </div>
 
@@ -120,9 +120,9 @@
                             <h3 class="font-bold text-gray-800 dark:text-slate-100 uppercase tracking-tight text-base">{{ $tag->label }}</h3>
                             <div class="flex items-center space-x-3 mt-1.5">
                                 <span class="px-2 py-0.5 rounded-md text-[10px] font-bold tracking-widest border {{ $tag->pivot->is_visible ? 'border-emerald-200 bg-emerald-50 text-emerald-600' : 'border-gray-200 bg-gray-50 text-gray-400' }}">
-                                    {{ $tag->pivot->is_visible ? __('VISIBLE') : __('HIDDEN') }}
+                                    {{ $tag->pivot->is_visible ? __('HIỂN THỊ') : __('ẨN') }}
                                 </span>
-                                <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest opacity-70">{{ $tag->subfields->count() }} Subfields</span>
+                                <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest opacity-70">{{ $tag->subfields->count() }} {{ __('Trường con') }}</span>
                             </div>
                         </div>
                     </div>
@@ -132,10 +132,10 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                         </button>
                         <button @click="newSubfield(@js($tag))" class="bg-indigo-50 dark:bg-indigo-900/30 px-3 py-2 rounded-lg text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase hover:bg-indigo-100 transition shadow-sm">
-                            + Subfield
+                            + {{ __('Trường con') }}
                         </button>
                         
-                        <form action="{{ route('admin.marc.tag.destroy', ['tag' => $tag->id, 'framework_id' => $frameworkId]) }}" method="POST" onsubmit="return confirm('{{ __('Remove this Tag from this framework?') }}')">
+                        <form action="{{ route('admin.marc.tag.destroy', ['tag' => $tag->id, 'framework_id' => $frameworkId]) }}" method="POST" onsubmit="return confirm('{{ __('Gỡ Tag này khỏi framework?') }}')">
                             @csrf @method('DELETE')
                             <button type="submit" class="bg-gray-50 dark:bg-slate-800 p-2.5 rounded-lg text-gray-400 hover:text-rose-500 transition shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -160,10 +160,10 @@
                             <table class="w-full text-sm text-left">
                                 <thead class="bg-gray-50 dark:bg-slate-800 text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 tracking-wider font-mono">
                                     <tr>
-                                        <th class="px-6 py-4">Code</th>
-                                        <th class="px-6 py-4">Label</th>
-                                        <th class="px-6 py-4">Constraints</th>
-                                        <th class="px-6 py-4 text-right">Action</th>
+                                        <th class="px-6 py-4">{{ __('Mã') }}</th>
+                                        <th class="px-6 py-4">{{ __('Nhãn') }}</th>
+                                        <th class="px-6 py-4">{{ __('Ràng buộc') }}</th>
+                                        <th class="px-6 py-4 text-right">{{ __('Thao tác') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 dark:divide-slate-800 bg-white dark:bg-slate-900">
@@ -173,13 +173,13 @@
                                             <td class="px-6 py-4 text-gray-700 dark:text-slate-300 font-medium">{{ $sub->label }}</td>
                                             <td class="px-6 py-3 flex flex-wrap gap-2">
                                                 @if($sub->is_mandatory)
-                                                    <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-rose-200">Mandatory</span>
+                                                    <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-rose-200">{{ __('Bắt buộc') }}</span>
                                                 @endif
                                                 @if($sub->is_repeatable)
-                                                    <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-indigo-200">Repeatable</span>
+                                                    <span class="bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-indigo-200">{{ __('Lặp lại') }}</span>
                                                 @endif
                                                 @if(!$sub->is_visible)
-                                                    <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-gray-200">{{ __('HIDDEN') }}</span>
+                                                    <span class="bg-gray-100 text-gray-500 px-2 py-0.5 rounded text-[10px] font-bold uppercase ring-1 ring-gray-200">{{ __('ẨN') }}</span>
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 text-right">
@@ -198,7 +198,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="4" class="px-6 py-10 text-center text-gray-400 italic text-xs bg-gray-50/10">No subfields defined.</td>
+                                            <td colspan="4" class="px-6 py-10 text-center text-gray-400 italic text-xs bg-gray-50/10">{{ __('Chưa có trường con nào được định nghĩa.') }}</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
@@ -212,9 +212,9 @@
                 <div class="bg-indigo-50 dark:bg-slate-800 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
                     <svg class="w-10 h-10 text-indigo-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                 </div>
-                <h3 class="text-gray-900 dark:text-slate-100 font-bold uppercase tracking-widest text-base">No Data Found</h3>
-                <p class="text-gray-500 dark:text-slate-400 text-sm mt-2 font-medium max-w-sm mx-auto">This framework doesn't have any tags registered yet. Start by defining your first MARC tag.</p>
-                <button @click="isNewTagOpen = true" class="mt-6 bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-xs hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 dark:shadow-none font-mono">Register_New_Tag</button>
+                <h3 class="text-gray-900 dark:text-slate-100 font-bold uppercase tracking-widest text-base">{{ __('Không tìm thấy dữ liệu') }}</h3>
+                <p class="text-gray-500 dark:text-slate-400 text-sm mt-2 font-medium max-w-sm mx-auto">{{ __('Framework này chưa có tag nào được đăng ký. Hãy bắt đầu bằng cách định nghĩa tag MARC đầu tiên.') }}</p>
+                <button @click="isNewTagOpen = true" class="mt-6 bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold uppercase text-xs hover:bg-indigo-700 transition shadow-lg shadow-indigo-100 dark:shadow-none font-mono">{{ __('Đăng ký Tag mới') }}</button>
             </div>
         @endforelse
     </div>

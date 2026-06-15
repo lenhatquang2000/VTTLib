@@ -44,7 +44,7 @@ class DocumentTypeController extends Controller
         DocumentType::create($validated);
 
         return redirect()->route('admin.document-types.index')
-            ->with('success', __('Document type created successfully.'));
+            ->with('success', __('Kiểu tài liệu đã được tạo thành công.'));
     }
 
     /**
@@ -70,7 +70,7 @@ class DocumentTypeController extends Controller
         $documentType->update($validated);
 
         return redirect()->route('admin.document-types.index')
-            ->with('success', __('Document type updated successfully.'));
+            ->with('success', __('Kiểu tài liệu đã được cập nhật thành công.'));
     }
 
     /**
@@ -81,13 +81,13 @@ class DocumentTypeController extends Controller
         // Check if document type has associated book items
         if ($documentType->bookItems()->count() > 0) {
             return redirect()->route('admin.document-types.index')
-                ->with('error', __('Cannot delete document type that has associated book items.'));
+                ->with('error', __('Không thể xóa kiểu tài liệu đang có các bản sách liên kết.'));
         }
 
         $documentType->delete();
 
         return redirect()->route('admin.document-types.index')
-            ->with('success', __('Document type deleted successfully.'));
+            ->with('success', __('Kiểu tài liệu đã được xóa thành công.'));
     }
 
     /**

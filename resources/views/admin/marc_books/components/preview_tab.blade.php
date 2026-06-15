@@ -1,8 +1,8 @@
 <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
     <div class="bg-slate-900 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-center space-x-3">
-            <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC PREVIEW</span>
-            <h3 class="text-white font-bold text-sm leading-none">{{ __('MARC21_Cataloging_Form') }}</h3>
+            <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">{{ __('Xem trước MARC') }}</span>
+            <h3 class="text-white font-bold text-sm leading-none">{{ __('Mẫu biên mục MARC21') }}</h3>
         </div>
         <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80" x-text="leader"></span>
     </div>
@@ -11,9 +11,9 @@
         <table class="w-full border-collapse">
             <thead>
                 <tr class="bg-slate-50 dark:bg-slate-800/50 text-left border-b border-slate-100 dark:border-slate-800">
-                    <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Tag') }}</th>
-                    <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Ind') }}</th>
-                    <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Content_Data') }}</th>
+                    <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Nhãn') }}</th>
+                    <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Chỉ thị') }}</th>
+                    <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Dữ liệu nội dung') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-mono text-sm">
@@ -21,7 +21,7 @@
                     <td class="pl-8 py-4 whitespace-nowrap align-top">
                         <div class="flex items-baseline space-x-3">
                             <span class="text-indigo-600 font-bold tracking-tight">000</span>
-                            <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">LEADER</span>
+                            <span class="text-[9px] text-slate-400 uppercase font-sans tracking-tight leading-tight">{{ __('Leader') }}</span>
                         </div>
                     </td>
                     <td class="px-4 py-4 text-center border-x border-slate-50 dark:border-slate-800 align-top">

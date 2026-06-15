@@ -4,22 +4,22 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Cataloged_Records') }}</h2>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Catalog_Instruction_Index') }}</p>
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Bản ghi đã biên mục') }}</h2>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Xem và quản lý các bản ghi biên mục sách, tài liệu theo chuẩn MARC21') }}</p>
         </div>
         <a href="{{ route('admin.marc.book.form') }}"
             class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center shadow-lg shadow-indigo-100 dark:shadow-none">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            {{ __('New_Cataloging') }}
+            {{ __('Biên mục mới') }}
         </a>
     </div>
 
     <!-- Advanced Search Section -->
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
         <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Advanced Search') }}</h3>
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Tìm kiếm nâng cao') }}</h3>
 
             <form method="GET" class="space-y-4">
                 @csrf
@@ -27,26 +27,26 @@
                 <!-- Basic Search -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Search in Title, Author, ISBN, Publisher, Subject, Notes') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Tìm kiếm theo Nhan đề, Tác giả, ISBN, Nhà xuất bản, Chủ đề, Ghi chú') }}</label>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="{{ __('Enter search terms...') }}"
+                            placeholder="{{ __('Nhập từ khóa tìm kiếm...') }}"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Sort By') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Sắp xếp theo') }}</label>
                         <div class="flex space-x-2">
                             <select name="sort_by"
                                 class="flex-[2] min-w-[160px] px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
-                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>{{ __('Created Date') }}</option>
-                                <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
-                                <option value="author" {{ request('sort_by') == 'author' ? 'selected' : '' }}>{{ __('Author') }}</option>
-                                <option value="updated_at" {{ request('sort_by') == 'updated_at' ? 'selected' : '' }}>{{ __('Updated Date') }}</option>
+                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>{{ __('Ngày tạo') }}</option>
+                                <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>{{ __('Nhan đề') }}</option>
+                                <option value="author" {{ request('sort_by') == 'author' ? 'selected' : '' }}>{{ __('Tác giả') }}</option>
+                                <option value="updated_at" {{ request('sort_by') == 'updated_at' ? 'selected' : '' }}>{{ __('Ngày cập nhật') }}</option>
                             </select>
                             <select name="sort_order"
                                 class="flex-1 min-w-[120px] px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
-                                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>{{ __('Desc') }}</option>
-                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>{{ __('Asc') }}</option>
+                                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>{{ __('Giảm dần') }}</option>
+                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>{{ __('Tăng dần') }}</option>
                             </select>
                         </div>
                     </div>
@@ -55,10 +55,10 @@
                 <!-- Filters Row 1 -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Framework') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Khung biên mục') }}</label>
                         <select name="framework"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('All Frameworks') }}</option>
+                            <option value="">{{ __('Tất cả Khung') }}</option>
                             @foreach($frameworks as $code => $name)
                             <option value="{{ $code }}" {{ request('framework') == $code ? 'selected' : '' }}>{{ $code }}</option>
                             @endforeach
@@ -66,10 +66,10 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Record Type') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Loại tài liệu') }}</label>
                         <select name="record_type"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('All Types') }}</option>
+                            <option value="">{{ __('Tất cả loại') }}</option>
                             @foreach($recordTypes as $type)
                             <option value="{{ $type }}" {{ request('record_type') == $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
                             @endforeach
@@ -77,20 +77,20 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Status') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Trạng thái') }}</label>
                         <select name="status"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('All Status') }}</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                            <option value="">{{ __('Tất cả trạng thái') }}</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Đang chờ duyệt') }}</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Đã duyệt') }}</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Subject Category') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Thể loại chủ đề') }}</label>
                         <select name="subject_category"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('All Categories') }}</option>
+                            <option value="">{{ __('Tất cả thể loại') }}</option>
                             @foreach($subjectCategories as $category)
                             <option value="{{ $category }}" {{ request('subject_category') == $category ? 'selected' : '' }}>{{ $category }}</option>
                             @endforeach
@@ -101,22 +101,22 @@
                 <!-- Filters Row 2 -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date From') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Từ ngày') }}</label>
                         <input type="date" name="date_from" value="{{ request('date_from') }}"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Date To') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Đến ngày') }}</label>
                         <input type="date" name="date_to" value="{{ request('date_to') }}"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('MARC Tag') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Trường MARC') }}</label>
                         <select name="marc_tag"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('Select Tag') }}</option>
+                            <option value="">{{ __('Chọn Trường') }}</option>
                             @foreach($commonMarcTags as $tag)
                             <option value="{{ $tag }}" {{ request('marc_tag') == $tag ? 'selected' : '' }}>{{ $tag }}</option>
                             @endforeach
@@ -124,9 +124,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('MARC Value') }}</label>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Giá trị MARC') }}</label>
                         <input type="text" name="marc_value" value="{{ request('marc_value') }}"
-                            placeholder="{{ __('Tag value...') }}"
+                            placeholder="{{ __('Giá trị trường...') }}"
                             class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                     </div>
                 </div>
@@ -136,11 +136,11 @@
                     <button type="submit"
                         class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition">
                         <i class="fas fa-search mr-2"></i>
-                        {{ __('Search') }}
+                        {{ __('Tìm kiếm') }}
                     </button>
                     <a href="{{ route('admin.marc.book') }}"
                         class="px-6 py-2.5 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition">
-                        {{ __('Clear') }}
+                        {{ __('Xóa bộ lọc') }}
                     </a>
                 </div>
             </form>
@@ -153,17 +153,17 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-sm text-blue-800 dark:text-blue-200">
-                    {{ __('Found :count records matching your criteria', ['count' => $records->total()]) }}
+                    {{ __('Tìm thấy :count bản ghi khớp với điều kiện tìm kiếm', ['count' => $records->total()]) }}
                 </p>
                 @if(request()->filled('search'))
                 <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    {{ __('Search term: ":term"', ['term' => request('search')]) }}
+                    {{ __('Từ khóa tìm kiếm: ":term"', ['term' => request('search')]) }}
                 </p>
                 @endif
             </div>
             <a href="{{ route('admin.marc.book') }}"
                 class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                {{ __('Clear filters') }}
+                {{ __('Xóa bộ lọc') }}
             </a>
         </div>
     </div>
@@ -175,11 +175,11 @@
             <thead class="bg-gray-50 dark:bg-slate-800/50 text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 tracking-wider">
                 <tr>
                     <th class="px-6 py-4">ID</th>
-                    <th class="px-6 py-4">{{ __('Leader_Type') }}</th>
-                    <th class="px-6 py-4">{{ __('Main_Content') }}</th>
-                    <th class="px-6 py-4">{{ __('Fields') }}</th>
-                    <th class="px-6 py-4">{{ __('Status') }}</th>
-                    <th class="px-6 py-4 text-right">{{ __('Actions') }}</th>
+                    <th class="px-6 py-4">{{ __('Leader / Kiểu') }}</th>
+                    <th class="px-6 py-4">{{ __('Nội dung chính') }}</th>
+                    <th class="px-6 py-4">{{ __('Số trường') }}</th>
+                    <th class="px-6 py-4">{{ __('Trạng thái') }}</th>
+                    <th class="px-6 py-4 text-right">{{ __('Thao tác') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100 dark:divide-slate-800">
@@ -202,7 +202,7 @@
                 @endphp
                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition cursor-pointer"
                     data-edit-url="{{ route('admin.marc.book.form', $record->id) }}"
-                    title="{{ __('Edit') }}">
+                    title="{{ __('Sửa') }}">
                     <td class="px-6 py-4 font-mono text-gray-400 dark:text-slate-500">#{{ $record->id }}</td>
                     <td class="px-6 py-4">
                         <span class="block font-mono text-[10px] text-gray-500 dark:text-slate-500">{{ $record->leader }}</span>
@@ -210,20 +210,20 @@
                             class="inline-block px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold uppercase mt-1">{{ $record->record_type }}</span>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="font-bold text-gray-800 dark:text-slate-100">{{ $title ?: __('No_Title_Defined') }}</div>
-                        <div class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $author ?: __('Unknown_Author') }}</div>
+                        <div class="font-bold text-gray-800 dark:text-slate-100">{{ $title ?: __('Chưa xác định nhan đề') }}</div>
+                        <div class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $author ?: __('Không rõ tác giả') }}</div>
                     </td>
                     <td class="px-6 py-4 text-gray-500 dark:text-slate-400 text-xs">
-                        {{ __('Tags_Included', ['count' => $record->fields->count()]) }}
+                        {{ __('Bao gồm :count trường', ['count' => $record->fields->count()]) }}
                     </td>
                     <td class="px-6 py-4">
                         @if($record->isApproved())
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400">
-                            {{ __('Approved') }}
+                            {{ __('Đã duyệt') }}
                         </span>
                         @else
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
-                            {{ __('Pending') }}
+                            {{ __('Đang chờ duyệt') }}
                         </span>
                         @endif
                     </td>
@@ -231,29 +231,34 @@
                         <div class="flex items-center justify-end space-x-1">
                             <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=0"
                                 class="inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                title="{{ __('Leader_Info') }}">
+                                title="{{ __('Thông tin Leader') }}">
                                 <i class="fas fa-info-circle text-xs"></i>
                             </a>
                             <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=1"
                                 class="inline-flex items-center px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-                                title="{{ __('Cataloging') }}">
+                                title="{{ __('Biên mục') }}">
                                 <i class="fas fa-book text-xs"></i>
                             </a>
                             <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=2"
                                 class="inline-flex items-center px-2 py-1 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
-                                title="{{ __('Distribution') }}">
+                                title="{{ __('Phân bổ') }}">
                                 <i class="fas fa-share-alt text-xs"></i>
                             </a>
                             <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=3"
                                 class="inline-flex items-center px-2 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded text-xs font-medium hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-                                title="{{ __('Preview') }}">
+                                title="{{ __('Xem trước') }}">
                                 <i class="fas fa-eye text-xs"></i>
+                            </a>
+                            <a href="{{ route('admin.marc.export.download') }}?format=marc&record_id={{ $record->id }}"
+                                class="inline-flex items-center px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded text-xs font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+                                title="{{ __('Xuất MARC') }}">
+                                <i class="fas fa-file-export text-xs"></i>
                             </a>
                             <button type="button"
                                 class="delete-record inline-flex items-center px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
                                 data-id="{{ $record->id }}"
                                 data-title="{{ $title }}"
-                                title="{{ __('Delete') }}">
+                                title="{{ __('Xóa') }}">
                                 <i class="fas fa-trash-alt text-xs"></i>
                             </button>
                         </div>
@@ -262,7 +267,7 @@
                 @empty
                 <tr>
                     <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                        {{ __('No_Records_Found') }}
+                        {{ __('Không tìm thấy bản ghi nào') }}
                     </td>
                 </tr>
                 @endforelse
@@ -286,9 +291,9 @@
         function validateMarcFields() {
             if (marcTag && marcValue) {
                 if (marcTag.value && !marcValue.value) {
-                    marcValue.setCustomValidity("{{ __('Please enter a MARC value when tag is selected') }}");
+                    marcValue.setCustomValidity("{{ __('Vui lòng nhập giá trị MARC khi trường đã được chọn') }}");
                 } else if (!marcTag.value && marcValue.value) {
-                    marcTag.setCustomValidity("{{ __('Please select a MARC tag when value is entered') }}");
+                    marcTag.setCustomValidity("{{ __('Vui lòng chọn trường MARC khi giá trị đã được nhập') }}");
                 } else {
                     marcValue.setCustomValidity('');
                     marcTag.setCustomValidity('');
@@ -309,14 +314,14 @@
                 const title = this.dataset.title;
 
                 Swal.fire({
-                    title: '{{ __("Are you sure?") }}',
-                    text: `{{ __("You are about to delete") }}: ${title}`,
+                    title: '{{ __("Bạn có chắc chắn muốn xóa?") }}',
+                    text: `{{ __("Bạn chuẩn bị xóa bản ghi") }}: ${title}`,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#d33',
                     cancelButtonColor: '#3085d6',
-                    confirmButtonText: '{{ __("Yes, delete it!") }}',
-                    cancelButtonText: '{{ __("Cancel") }}',
+                    confirmButtonText: '{{ __("Đúng, xóa nó!") }}',
+                    cancelButtonText: '{{ __("Hủy bỏ") }}',
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -332,7 +337,7 @@
                             .then(data => {
                                 if (data.success) {
                                     Swal.fire(
-                                        '{{ __("Deleted!") }}',
+                                        '{{ __("Đã xóa!") }}',
                                         data.message,
                                         'success'
                                     ).then(() => {
@@ -340,7 +345,7 @@
                                     });
                                 } else {
                                     Swal.fire(
-                                        '{{ __("Error!") }}',
+                                        '{{ __("Lỗi!") }}',
                                         data.message,
                                         'error'
                                     );
@@ -348,8 +353,8 @@
                             })
                             .catch(error => {
                                 Swal.fire(
-                                    '{{ __("Error!") }}',
-                                    '{{ __("An error occurred while deleting") }}',
+                                    '{{ __("Lỗi!") }}',
+                                    '{{ __("Đã có lỗi xảy ra trong quá trình xóa") }}',
                                     'error'
                                 );
                             });

@@ -11,8 +11,8 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     </a>
                     <div>
-                        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-none">{{ __('Record_Header') }}</h2>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{{ __('Review_Instruction') }}</p>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-none">{{ __('Chi tiết bản ghi biên mục') }}</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 font-medium">{{ __('Xem thông tin chi tiết và định dạng MARC21 của bản ghi') }}</p>
                     </div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                         <!-- Cataloging Framework -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Cataloging_Framework') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Khung biên mục') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="framework" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
@@ -41,12 +41,12 @@
                         <!-- Status -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Status') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Trạng thái') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="status" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-900">
-                                    <option value="pending" {{ $record->status === 'pending' ? 'selected' : '' }}>{{ __('New_Status_Text') }}</option>
-                                    <option value="approved" {{ $record->status === 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
+                                    <option value="pending" {{ $record->status === 'pending' ? 'selected' : '' }}>{{ __('Mới') }}</option>
+                                    <option value="approved" {{ $record->status === 'approved' ? 'selected' : '' }}>{{ __('Đã duyệt') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -54,11 +54,11 @@
                         <!-- Subject Category -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Subject_Category') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Thể loại chủ đề') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="subject_category" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
-                                    <option value="Article" {{ $record->subject_category === 'Article' ? 'selected' : '' }}>{{ __('Selected_Article') }}</option>
+                                    <option value="Article" {{ $record->subject_category === 'Article' ? 'selected' : '' }}>{{ __('Bài trích chọn lọc') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -66,11 +66,11 @@
                         <!-- Record Type -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Record_Type') }}</label>
+                                <label class="font-bold text-slate-400 dark:text-slate-500 text-[10px] uppercase tracking-widest mb-0">{{ __('Loại tài liệu') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="record_type" class="block w-full bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
-                                    <option value="book" {{ $record->record_type === 'book' ? 'selected' : '' }}>{{ __('Language_Material_Text') }}</option>
+                                    <option value="book" {{ $record->record_type === 'book' ? 'selected' : '' }}>{{ __('Tài liệu ngôn ngữ') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -78,11 +78,11 @@
                         <!-- Serial Frequency -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Serial_Frequency') }}</label>
+                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Tần suất ấn phẩm định kỳ') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="serial_frequency" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
-                                    <option value="unknown" {{ $record->serial_frequency === 'unknown' ? 'selected' : '' }}>{{ __('Unknown_Frequency') }}</option>
+                                    <option value="unknown" {{ $record->serial_frequency === 'unknown' ? 'selected' : '' }}>{{ __('Tần suất không xác định') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -90,11 +90,11 @@
                         <!-- Publication Date Type -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Publication_Date_Type') }}</label>
+                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Loại ngày xuất bản') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="date_type" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
-                                    <option value="bc" {{ $record->date_type === 'bc' ? 'selected' : '' }}>{{ __('BC_Date_Involved') }}</option>
+                                    <option value="bc" {{ $record->date_type === 'bc' ? 'selected' : '' }}>{{ __('Có liên quan đến ngày trước CN') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -102,11 +102,11 @@
                         <!-- Serial Acquisition Method -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Serial_Acquisition_Method') }}</label>
+                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Phương thức nhận ấn phẩm') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="acquisition_method" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
-                                    <option value="untraced" {{ $record->acquisition_method === 'untraced' ? 'selected' : '' }}>{{ __('Untraced_Serials_Text') }}</option>
+                                    <option value="untraced" {{ $record->acquisition_method === 'untraced' ? 'selected' : '' }}>{{ __('Ấn phẩm không theo dõi') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -114,11 +114,11 @@
                         <!-- Document Format -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Document_Format') }}</label>
+                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Định dạng tài liệu') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="document_format" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
-                                    <option value="none" {{ $record->document_format === 'none' ? 'selected' : '' }}>{{ __('None_Format') }}</option>
+                                    <option value="none" {{ $record->document_format === 'none' ? 'selected' : '' }}>{{ __('Không có định dạng đặc biệt') }}</option>
                                 </select>
                             </div>
                         </div>
@@ -126,7 +126,7 @@
                         <!-- Cataloging Standard -->
                         <div class="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4 py-1">
                             <div class="sm:col-span-1">
-                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Cataloging_Standard') }}</label>
+                                <label class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-0">{{ __('Chuẩn biên mục') }}</label>
                             </div>
                             <div class="sm:col-span-3">
                                 <select name="cataloging_standard" class="block w-full bg-slate-50 border-transparent rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 transition-all">
@@ -143,14 +143,14 @@
                                 class="inline-flex items-center px-6 py-2.5 bg-indigo-600 border border-transparent rounded-xl font-bold text-xs text-white uppercase tracking-widest hover:bg-indigo-500 active:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all shadow-lg shadow-indigo-100 dark:shadow-none disabled:opacity-50 disabled:cursor-not-allowed">
                             <span x-show="!loading" class="flex items-center">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                {{ __('Save_Changes') }}
+                                {{ __('Lưu thay đổi') }}
                             </span>
                             <span x-show="loading" class="flex items-center" x-cloak>
                                 <svg class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                Processing...
+                                {{ __('Đang xử lý...') }}
                             </span>
                         </button>
                     </div>
@@ -163,7 +163,7 @@
             <div class="bg-slate-900 px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div class="flex items-center space-x-3">
                     <span class="bg-indigo-600 text-[10px] font-bold text-white px-2 py-0.5 rounded uppercase tracking-wider">MARC</span>
-                    <h3 class="text-white font-bold text-sm leading-none">{{ __('Cataloging_Info_Quick_View') }}</h3>
+                    <h3 class="text-white font-bold text-sm leading-none">{{ __('Xem nhanh thông tin biên mục') }}</h3>
                 </div>
                 <span class="font-mono text-indigo-400 text-xs tracking-widest opacity-80">{{ $record->leader }}</span>
             </div>
@@ -172,9 +172,9 @@
                 <table class="w-full border-collapse">
                     <thead>
                         <tr class="bg-slate-50 dark:bg-slate-800/50 text-left border-b border-slate-100 dark:border-slate-800">
-                            <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Tag') }}</th>
-                            <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Ind') }}</th>
-                            <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Content_Data') }}</th>
+                            <th class="pl-8 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] w-64">{{ __('Trường') }}</th>
+                            <th class="px-4 py-4 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-center w-24">{{ __('Chỉ thị') }}</th>
+                            <th class="py-4 pr-8 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Dữ liệu nội dung') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-monospace-custom">
@@ -219,22 +219,22 @@
         <!-- Footnote Metadata -->
         <div class="bg-indigo-50/30 dark:bg-indigo-900/10 rounded-2xl p-8 border border-indigo-50 dark:border-slate-800 relative overflow-hidden">
             <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-950 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
-            <h6 class="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] mb-6 relative">{{ __('Record_Metadata') }}</h6>
+            <h6 class="text-[10px] font-bold text-indigo-400 uppercase tracking-[0.2em] mb-6 relative">{{ __('Dữ liệu mô tả của bản ghi') }}</h6>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 relative">
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Created_At') }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Ngày tạo') }}</span>
                     <span class="text-sm font-bold text-slate-900 dark:text-slate-200 font-mono tracking-tight">{{ $record->created_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Last_Modified') }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Chỉnh sửa lần cuối') }}</span>
                     <span class="text-sm font-bold text-slate-900 dark:text-slate-200 font-mono tracking-tight">{{ $record->updated_at->format('Y-m-d H:i') }}</span>
                 </div>
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Record_Type') }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Loại tài liệu') }}</span>
                     <span class="text-sm font-bold text-slate-900 dark:text-slate-200 uppercase font-mono tracking-tight">{{ $record->record_type }}</span>
                 </div>
                 <div>
-                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Control_Number') }}</span>
+                    <span class="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{{ __('Mã kiểm soát') }}</span>
                     <span class="text-sm font-bold text-indigo-600 dark:text-indigo-400 font-mono">#{{ $record->id }}</span>
                 </div>
             </div>

@@ -88,7 +88,7 @@ class MarcReportController extends Controller
         }
 
         if ($records->isEmpty()) {
-            return back()->with('error', 'Không tìm thấy dữ liệu phù hợp với bộ lọc đã chọn.');
+            return back()->with('error', __('Không tìm thấy dữ liệu phù hợp với bộ lọc đã chọn.'));
         }
 
         // 3. Chuẩn bị dữ liệu theo loại báo cáo đã chọn
@@ -112,7 +112,7 @@ class MarcReportController extends Controller
             );
         }
 
-        return back()->with('error', 'Định dạng xuất này hiện chưa được hỗ trợ.');
+        return back()->with('error', __('Định dạng xuất này hiện chưa được hỗ trợ.'));
     }
 
     /**
@@ -127,9 +127,9 @@ class MarcReportController extends Controller
 
         switch ($type) {
             case 'cataloging_subsystem': // Báo cáo phân hệ biên mục
-                $title = 'BÁO CÁO PHÂN HỆ BIÊN MỤC';
+                $title = __('Báo cáo phân hệ biên mục');
                 $prefix = 'bien_muc';
-                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Tác giả', 'Ngày biên mục', 'Trạng thái'];
+                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Ngày biên mục'), __('Trạng thái')];
                 foreach ($records as $index => $record) {
                     $rows[] = [
                         $index + 1,
@@ -143,9 +143,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'book_stats': // Thống kê số lượng đầu sách
-                $title = 'THỐNG KÊ SỐ LƯỢNG ĐẦU SÁCH';
+                $title = __('Thống kê số lượng đầu sách');
                 $prefix = 'thong_ke_dau_sach';
-                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Số lượng bản ấn (Items)', 'Ngày tạo'];
+                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Số lượng bản ấn'), __('Ngày tạo')];
                 foreach ($records as $index => $record) {
                     $rows[] = [
                         $index + 1,
@@ -158,9 +158,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'accession_book': // Số đăng ký cá biệt
-                $title = 'SỔ ĐĂNG KÝ CÁ BIỆT';
+                $title = __('Sổ đăng ký cá biệt');
                 $prefix = 'so_dkcb';
-                $headers = ['STT', 'Mã ĐKCB (Barcode)', 'Nhan đề', 'Tác giả', 'Năm XB', 'Nơi XB', 'Giá tiền', 'Vị trí'];
+                $headers = [__('STT'), __('Mã ĐKCB (Barcode)'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Nơi XB'), __('Giá tiền'), __('Vị trí')];
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
@@ -181,9 +181,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'spine_label': // In nhãn gáy
-                $title = 'DANH SÁCH DỮ LIỆU IN NHÃN GÁY';
+                $title = __('Danh sách dữ liệu in nhãn gáy');
                 $prefix = 'nhan_gay';
-                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Số phân loại (DDC)', 'Mã tác giả', 'Ký hiệu xếp giá'];
+                $headers = [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Số phân loại (DDC)'), __('Mã tác giả'), __('Ký hiệu xếp giá')];
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
@@ -201,9 +201,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'inventory_report': // Tình hình kho tài liệu
-                $title = 'BÁO CÁO TÌNH HÌNH KHO TÀI LIỆU';
+                $title = __('Báo cáo tình hình kho tài liệu');
                 $prefix = 'kho_tai_lieu';
-                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Vị trí kho', 'Trạng thái', 'Ngày nhập kho'];
+                $headers = [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Vị trí kho'), __('Trạng thái'), __('Ngày nhập kho')];
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
@@ -219,9 +219,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'article_index': // Thư mục bài trích
-                $title = 'THƯ MỤC BÀI TRÍCH TẠP CHÍ';
+                $title = __('Thư mục bài trích tạp chí');
                 $prefix = 'bai_trich';
-                $headers = ['STT', 'Tên bài trích', 'Tác giả bài trích', 'Tên tạp chí/nguồn', 'Tập/Số', 'Trang trích dẫn'];
+                $headers = [__('STT'), __('Tên bài trích'), __('Tác giả bài trích'), __('Tên tạp chí/nguồn'), __('Tập/Số'), __('Trang trích dẫn')];
                 foreach ($records as $index => $record) {
                     $rows[] = [
                         $index + 1,
@@ -235,9 +235,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'barcode_list': // Dữ liệu in mã vạch
-                $title = 'DANH SÁCH DỮ LIỆU IN MÃ VẠCH';
+                $title = __('Danh sách dữ liệu in mã vạch');
                 $prefix = 'ma_vach';
-                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Ký hiệu xếp giá (Call Number)', 'Vị trí'];
+                $headers = [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Ký hiệu xếp giá (Call Number)'), __('Vị trí')];
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
@@ -253,9 +253,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'book_id_list': // Danh sách tài liệu theo mã sách
-                $title = 'DANH SÁCH TÀI LIỆU THEO MÃ SÁCH';
+                $title = __('Danh sách tài liệu theo mã sách');
                 $prefix = 'theo_ma_sach';
-                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Tác giả', 'Số lượng bản ấn', 'Năm XB', 'DDC'];
+                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Số lượng bản ấn'), __('Năm XB'), __('DDC')];
                 foreach ($records as $index => $record) {
                     $rows[] = [
                         $index + 1,
@@ -270,9 +270,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'inventory_status': // Tình hình kho tài liệu (chi tiết)
-                $title = 'BÁO CÁO CHI TIẾT TÌNH HÌNH KHO';
+                $title = __('Báo cáo chi tiết tình hình kho');
                 $prefix = 'tinh_hinh_kho';
-                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Kho/Phòng', 'Loại lưu kho', 'Trạng thái', 'Ngày nhập'];
+                $headers = [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Kho/Phòng'), __('Loại lưu kho'), __('Trạng thái'), __('Ngày nhập')];
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
@@ -289,9 +289,9 @@ class MarcReportController extends Controller
                 break;
 
             case 'generated_barcodes': // In mã vạch phát sinh
-                $title = 'DANH SÁCH MÃ VẠCH PHÁT SINH';
+                $title = __('Danh sách mã vạch phát sinh');
                 $prefix = 'ma_vach_phat_sinh';
-                $headers = ['STT', 'Mã vạch', 'Nhan đề', 'Ngày tạo'];
+                $headers = [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Ngày tạo')];
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
@@ -305,9 +305,9 @@ class MarcReportController extends Controller
                 break;
 
             default:
-                $title = 'BÁO CÁO CHI TIẾT TÀI LIỆU';
+                $title = __('Báo cáo chi tiết tài liệu');
                 $prefix = 'tai_lieu';
-                $headers = ['STT', 'Mã bản ghi', 'Nhan đề', 'Tác giả', 'Năm XB', 'Số lượng bản ấn'];
+                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Số lượng bản ấn')];
                 foreach ($records as $index => $record) {
                     $rows[] = [
                         $index + 1,

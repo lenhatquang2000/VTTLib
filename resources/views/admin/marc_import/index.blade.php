@@ -679,12 +679,13 @@
         }
 
         document.getElementById('createFrameworkBtn').addEventListener('click', async function() {
+            const ts = Date.now().toString().slice(-6);
             const {
                 value: formValues
             } = await Swal.fire({
                 title: '{{ __("Tạo Khung biên mục mới") }}',
-                html: '<input id="swal-input1" class="swal2-input" placeholder="{{ __("Tên khung (VD: Tài liệu số)") }}">' +
-                    '<input id="swal-input2" class="swal2-input" placeholder="{{ __("Mã khung (VD: DIGI)") }}">',
+                html: '<input id="swal-input1" class="swal2-input" value="{{ __("Khung sách giáo trình") }} ' + ts + '" placeholder="{{ __("Tên khung (VD: Tài liệu số)") }}">' +
+                    '<input id="swal-input2" class="swal2-input" value="GIAOTRINH_' + ts + '" placeholder="{{ __("Mã khung (VD: DIGI)") }}">',
                 focusConfirm: false,
                 showCancelButton: true,
                 confirmButtonText: '{{ __("Tạo ngay") }}',
@@ -1042,13 +1043,14 @@
                 return;
             }
 
+            const ts = Date.now().toString().slice(-6);
             const { value: formValues } = await Swal.fire({
                 title: '{{ __("Lưu Khung biên mục") }}',
                 html:
                     '<div style="text-align:left;margin-bottom:8px"><label style="font-size:13px;font-weight:600">{{ __("Tên khung biên mục") }}</label></div>' +
-                    '<input id="swal-fw-name" class="swal2-input" placeholder="{{ __("VD: Sách giáo trình y khoa") }}" style="margin-top:0">' +
+                    '<input id="swal-fw-name" class="swal2-input" value="{{ __("Khung sách giáo trình") }} ' + ts + '" placeholder="{{ __("VD: Sách giáo trình y khoa") }}" style="margin-top:0">' +
                     '<div style="text-align:left;margin-bottom:8px;margin-top:16px"><label style="font-size:13px;font-weight:600">{{ __("Mã khung (viết tắt, không dấu)") }}</label></div>' +
-                    '<input id="swal-fw-code" class="swal2-input" placeholder="{{ __("VD: SGTYKHOA") }}" style="margin-top:0;text-transform:uppercase">' +
+                    '<input id="swal-fw-code" class="swal2-input" value="GIAOTRINH_' + ts + '" placeholder="{{ __("VD: SGTYKHOA") }}" style="margin-top:0;text-transform:uppercase">' +
                     `<div style="text-align:left;margin-top:16px;font-size:12px;color:#666">{{ __("Khung sẽ bao gồm") }} <strong>${extractedFrameworkData.length}</strong> {{ __("trường MARC") }}</div>`,
                 focusConfirm: false,
                 showCancelButton: true,
@@ -1133,13 +1135,14 @@
                     return;
                 }
 
+                const ts = Date.now().toString().slice(-6);
                 const { value: formValues } = await Swal.fire({
                     title: '{{ __("Tạo khung biên mục từ file") }}',
                     html:
                         '<div style="text-align:left;margin-bottom:8px"><label style="font-size:13px;font-weight:600">{{ __("Tên khung biên mục") }}</label></div>' +
-                        '<input id="swalFwName" class="swal2-input" placeholder="{{ __("Ví dụ: Khung sách giáo trình") }}" style="margin:0 0 12px 0;width:100%">' +
+                        '<input id="swalFwName" class="swal2-input" value="{{ __("Khung sách giáo trình") }} ' + ts + '" placeholder="{{ __("Ví dụ: Khung sách giáo trình") }}" style="margin:0 0 12px 0;width:100%">' +
                         '<div style="text-align:left;margin-bottom:8px"><label style="font-size:13px;font-weight:600">{{ __("Mã khung (viết hoa)") }}</label></div>' +
-                        '<input id="swalFwCode" class="swal2-input" placeholder="{{ __("Ví dụ: GIAOTRINH") }}" style="margin:0;width:100%">',
+                        '<input id="swalFwCode" class="swal2-input" value="GIAOTRINH_' + ts + '" placeholder="{{ __("Ví dụ: GIAOTRINH") }}" style="margin:0;width:100%">',
                     focusConfirm: false,
                     showCancelButton: true,
                     confirmButtonText: '{{ __("Tạo & Import") }}',
