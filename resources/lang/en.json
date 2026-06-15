@@ -251,5 +251,6 @@
     "Tạo khung biên mục từ file": "Create cataloging framework from file",
     "Tạo Khung biên mục mới": "Create new cataloging framework",
     "VD: Sách giáo trình y khoa": "e.g., Medical textbook framework",
-    "VD: SGTYKHOA": "e.g., MEDTEXTBOOK"
+    "VD: SGTYKHOA": "e.g., MEDTEXTBOOK",
+    "Xuất MARC": "Export MARC"
 }

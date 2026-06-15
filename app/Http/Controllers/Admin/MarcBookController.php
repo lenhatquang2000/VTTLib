@@ -196,18 +196,18 @@ class MarcBookController extends Controller
                     $q->orderBy('code');
                 }])
                 ->get()
-                ->map(function ($def) use ($recordFields) {
+                ->map(function($def) use ($recordFields) {
                     // Đối với mỗi tag hiện có, chúng ta cũng cần đảm bảo các subfield thực tế đang có dữ liệu được hiển thị
                     $actualField = $recordFields->firstWhere('tag', $def->tag);
                     if ($actualField) {
                         $actualCodes = $actualField->subfields->pluck('code')->unique();
-
+                        
                         // Hợp nhất: lấy định nghĩa chuẩn cộng với bất kỳ subfield nào thực tế đang có
                         // Điều này cho phép hỗ trợ cả các trường tùy chỉnh (custom subfields)
-                        $mergedSubfields = $def->subfields->filter(function ($s) use ($actualCodes) {
+                        $mergedSubfields = $def->subfields->filter(function($s) use ($actualCodes) {
                             return $actualCodes->contains($s->code) || $s->is_visible;
                         });
-
+                        
                         // Nếu có subfield thực tế mà trong định nghĩa chuẩn không có (trường hợp hiếm)
                         $standardCodes = $def->subfields->pluck('code');
                         foreach ($actualCodes as $code) {
@@ -240,7 +240,7 @@ class MarcBookController extends Controller
                         $definitions->push($fTag);
                     }
                 }
-
+                
                 // Đảm bảo không có tag nào bị lặp lại và sắp xếp theo số tag
                 $definitions = $definitions->unique('tag')->sortBy('tag')->values();
             }
@@ -360,10 +360,10 @@ class MarcBookController extends Controller
                     }
 
                     $newItem = BookItem::create($itemPayload);
-
+                    
                     // Save barcode as SVG file
                     $this->barcodeService->saveAsFile(
-                        $newItem->barcode,
+                        $newItem->barcode, 
                         'items/barcodes/' . $newItem->barcode . '.svg'
                     );
                 }
@@ -588,7 +588,7 @@ class MarcBookController extends Controller
 
             $fields = $request->input('fields', []);
             $sequence = 0;
-
+            
             // Track IDs of fields and subfields that should be KEPT
             $keptFieldIds = [];
 
@@ -616,7 +616,7 @@ class MarcBookController extends Controller
                         'sequence' => $sequence++
                     ]
                 );
-
+                
                 $keptFieldIds[] = $marcField->id;
 
                 $keptSubfieldIds = [];
@@ -652,10 +652,10 @@ class MarcBookController extends Controller
 
             foreach ($items as $index => $itemData) {
                 \Log::info("Processing item {$index}: ", $itemData);
-
+                
                 if (!empty($itemData['storage_location_id'])) {
                     \Log::info('Item has storage_location_id, proceeding...');
-
+                    
                     $itemPayload = [
                         'branch_id' => $itemData['branch_id'] ?? null,
                         'storage_location_id' => $itemData['storage_location_id'],
@@ -676,7 +676,7 @@ class MarcBookController extends Controller
                         'location' => $itemData['location'] ?? null,
                         'temporary_location' => $itemData['temporary_location'] ?? null,
                     ];
-
+                    
                     \Log::info('Item payload prepared:', $itemPayload);
 
                     // Update existing
@@ -688,12 +688,12 @@ class MarcBookController extends Controller
                             $bookItem->update($itemPayload);
                             $submittedItemIds[] = $bookItem->id;
                             \Log::info('Item updated successfully, ID: ' . $bookItem->id);
-
+                            
                             // Save barcode as SVG file if barcode changed or is new
                             if (!empty($bookItem->barcode)) {
                                 \Log::info('Saving barcode SVG for: ' . $bookItem->barcode);
                                 $this->barcodeService->saveAsFile(
-                                    $bookItem->barcode,
+                                    $bookItem->barcode, 
                                     'items/barcodes/' . $bookItem->barcode . '.svg'
                                 );
                             }
@@ -704,7 +704,7 @@ class MarcBookController extends Controller
                         \Log::info('Creating new item...');
                         // Create new
                         $itemPayload['bibliographic_record_id'] = $record->id;
-
+                        
                         // Handle barcode - either use provided or generate new
                         if (!empty($itemPayload['barcode'])) {
                             // Check if provided barcode already exists
@@ -720,7 +720,7 @@ class MarcBookController extends Controller
                             $this->barcodeService->incrementCounter('item', $itemPayload['barcode']);
                             \Log::info('Generated barcode: ' . $itemPayload['barcode']);
                         }
-
+                        
                         // Handle accession_number - either use provided or generate new
                         if (!empty($itemPayload['accession_number'])) {
                             // Check if provided accession_number already exists
@@ -737,11 +737,11 @@ class MarcBookController extends Controller
                         $newItem = BookItem::create($itemPayload);
                         $submittedItemIds[] = $newItem->id;
                         \Log::info('New item created successfully, ID: ' . $newItem->id);
-
+                        
                         // Save barcode as SVG file
                         \Log::info('Saving barcode SVG for new item: ' . $newItem->barcode);
                         $this->barcodeService->saveAsFile(
-                            $newItem->barcode,
+                            $newItem->barcode, 
                             'items/barcodes/' . $newItem->barcode . '.svg'
                         );
                     }
@@ -749,7 +749,7 @@ class MarcBookController extends Controller
                     \Log::warning('Item skipped - no storage_location_id. Item data:', $itemData);
                 }
             }
-
+            
             \Log::info('Submitted item IDs: ', $submittedItemIds);
             \Log::info('=== END DISTRIBUTION ITEMS DEBUG ===');
 
@@ -772,7 +772,7 @@ class MarcBookController extends Controller
             return redirect()->route('admin.marc.book.form', ['record' => $record->id, 'tab' => $tab])->with('success', __('Cập nhật bản ghi thành công'));
         } catch (\Exception $e) {
             DB::rollBack();
-
+            
             \Log::error('MARC Book Update Error', [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
@@ -781,7 +781,7 @@ class MarcBookController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'request_data' => $request->all()
             ]);
-
+            
             if ($request->expectsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
@@ -827,7 +827,7 @@ class MarcBookController extends Controller
     {
         $frameworks = MarcFramework::where('is_active', true)->get();
         $documentTypes = DocumentType::active()->ordered()->get();
-
+        
         return view('admin.marc_books.export', compact('frameworks', 'documentTypes'));
     }
 
@@ -837,52 +837,62 @@ class MarcBookController extends Controller
     public function export(Request $request)
     {
         $query = BibliographicRecord::with(['items', 'fields.subfields']);
-
+        
         // Apply filters
+        if ($request->filled('record_id')) {
+            $query->where('id', $request->record_id);
+        }
+        
         if ($request->filled('framework_id')) {
             $query->where('framework_id', $request->framework_id);
         }
-
+        
         if ($request->filled('document_type_id')) {
             $query->where('document_type_id', $request->document_type_id);
         }
-
+        
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
-
+        
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->date_from);
         }
-
+        
         if ($request->filled('date_to')) {
             $query->whereDate('created_at', '<=', $request->date_to);
         }
-
+        
         $records = $query->orderBy('created_at', 'desc')->get();
-
+        
+        if ($request->filled('record_id')) {
+            $filename = 'marc_record_' . $request->record_id . '_' . now()->format('Y-m-d_H-i-s');
+        } else {
+            $filename = 'marc_records_export_' . now()->format('Y-m-d_H-i-s');
+        }
+        
         $includeItems = $request->boolean('include_items', false);
         $format = $request->get('format', 'excel');
-
+        
         switch ($format) {
             case 'csv':
                 return \Maatwebsite\Excel\Facades\Excel::download(
                     new \App\Exports\MarcRecordsExport($records, $includeItems),
-                    'marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.csv'
+                    $filename . '.csv'
                 );
-
+                
             case 'marc':
                 // Generate MARC format file
                 $marcContent = $this->generateMarcFormat($records, $includeItems);
                 return response($marcContent)
                     ->header('Content-Type', 'text/plain')
-                    ->header('Content-Disposition', 'attachment; filename="marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.txt"');
-
+                    ->header('Content-Disposition', 'attachment; filename="' . $filename . '.txt"');
+                
             case 'excel':
             default:
                 return \Maatwebsite\Excel\Facades\Excel::download(
                     new \App\Exports\MarcRecordsExport($records, $includeItems),
-                    'marc_records_export_' . now()->format('Y-m-d_H-i-s') . '.xlsx'
+                    $filename . '.xlsx'
                 );
         }
     }
@@ -893,21 +903,21 @@ class MarcBookController extends Controller
     private function generateMarcFormat($records, $includeItems = false)
     {
         $marcContent = '';
-
+        
         $FT = chr(0x1E); // Field Terminator
         $US = chr(0x1F); // Unit Separator / Subfield Delimiter
         $RT = chr(0x1D); // Record Terminator
-
+        
         foreach ($records as $record) {
             $fields = $record->fields;
-
+            
             // Generate standard control fields if not present in database
             $has001 = $fields->contains('tag', '001');
             $has005 = $fields->contains('tag', '005');
             $has008 = $fields->contains('tag', '008');
-
+            
             $allFields = collect($fields);
-
+            
             if (!$has001) {
                 $allFields->push((object)[
                     'tag' => '001',
@@ -942,7 +952,7 @@ class MarcBookController extends Controller
                     ])
                 ]);
             }
-
+            
             // Include items if requested
             if ($includeItems && $record->items) {
                 foreach ($record->items as $item) {
@@ -956,7 +966,7 @@ class MarcBookController extends Controller
                     if (!empty($item->status)) {
                         $itemSubfields->push((object)['code' => 'c', 'value' => $item->status]);
                     }
-
+                    
                     $allFields->push((object)[
                         'tag' => '952',
                         'indicator1' => ' ',
@@ -965,20 +975,20 @@ class MarcBookController extends Controller
                     ]);
                 }
             }
-
+            
             // Sort fields by tag
             $sortedFields = $allFields->sortBy('tag');
-
+            
             $recordData = '';
             $directory = '';
             $dataOffset = 0;
-
+            
             foreach ($sortedFields as $field) {
                 $tag = $field->tag;
                 $fieldContent = '';
-
+                
                 $isControlField = (intval($tag) < 10);
-
+                
                 if ($isControlField) {
                     // Control fields: no indicators, no subfield codes, just value + FT
                     $value = $field->subfields->first() ? $field->subfields->first()->value : '';
@@ -987,57 +997,57 @@ class MarcBookController extends Controller
                     // Variable data fields: indicator1 + indicator2 + subfields + FT
                     $ind1 = (isset($field->indicator1) && strlen($field->indicator1) === 1) ? $field->indicator1 : ' ';
                     $ind2 = (isset($field->indicator2) && strlen($field->indicator2) === 1) ? $field->indicator2 : ' ';
-
+                    
                     $fieldContent = $ind1 . $ind2;
                     foreach ($field->subfields as $subfield) {
                         $fieldContent .= $US . $subfield->code . $subfield->value;
                     }
                     $fieldContent .= $FT;
                 }
-
+                
                 $fieldLength = strlen($fieldContent);
-
+                
                 // Directory entry: tag (3), length of field (4), starting character position (5)
                 $directory .= sprintf('%03s%04d%05d', $tag, $fieldLength, $dataOffset);
-
+                
                 $recordData .= $fieldContent;
                 $dataOffset += $fieldLength;
             }
-
+            
             // Directory terminator
             $directory .= $FT;
-
+            
             // Base Address and Logical Record Length
             $baseAddress = 24 + strlen($directory);
             $totalLength = $baseAddress + strlen($recordData) + 1; // +1 for RT
-
+            
             // Determine Leader template
             $recordLeader = $record->leader;
             if (strlen($recordLeader) !== 24) {
                 $recordLeader = '00000nam a2200000 a 4500';
             }
-
+            
             $status = $recordLeader[5] ?? 'n';
             $type = $recordLeader[6] ?? 'a';
             $bibLevel = $recordLeader[7] ?? 'm';
             $encoding = $recordLeader[17] ?? ' ';
             $descCataloging = $recordLeader[18] ?? 'a';
             $multipart = $recordLeader[19] ?? ' ';
-
+            
             $leader = sprintf('%05d', $totalLength)
-                . $status
-                . $type
-                . $bibLevel
-                . '  22'
-                . sprintf('%05d', $baseAddress)
-                . $encoding
-                . $descCataloging
-                . $multipart
-                . '4500';
-
+                    . $status
+                    . $type
+                    . $bibLevel
+                    . '  22'
+                    . sprintf('%05d', $baseAddress)
+                    . $encoding
+                    . $descCataloging
+                    . $multipart
+                    . '4500';
+            
             $marcContent .= $leader . $directory . $recordData . $RT . "\n";
         }
-
+        
         return $marcContent;
     }
 }
