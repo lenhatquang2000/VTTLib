@@ -61,9 +61,15 @@
                     <i data-lucide="home" class="w-4 h-4"></i>
                 </a>
                 <i data-lucide="chevron-right" class="w-3 h-3 text-muted-foreground opacity-50"></i>
-                <a href="/page/gioi-thieu" class="text-muted-foreground hover:text-foreground transition-colors">
-                    {{ __('Giới thiệu') }}
-                </a>
+                @if($node->parent)
+                    <a href="{{ $node->parent->getUrl() }}" class="text-muted-foreground hover:text-foreground transition-colors">
+                        {{ $node->parent->display_name }}
+                    </a>
+                @else
+                    <a href="/page/gioi-thieu" class="text-muted-foreground hover:text-foreground transition-colors">
+                        {{ __('Giới thiệu') }}
+                    </a>
+                @endif
                 <i data-lucide="chevron-right" class="w-3 h-3 text-muted-foreground opacity-50"></i>
                 <span class="font-bold text-foreground">{{ $node->display_name }}</span>
             </nav>
@@ -947,16 +953,21 @@
                     </script>
                 @else
                     <article class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden text-gray-500">
-                        <!-- Article Header -->
-                    @php $headerColors = $sidebarIcons[$node->icon] ?? ['from-primary/10 to-primary/5', '']; @endphp
+                        @php 
+                        $hasDarkBg = isset($sidebarIcons[$node->icon]);
+                        $headerColors = $sidebarIcons[$node->icon] ?? ['from-muted/20 to-muted/10', '']; 
+                    @endphp
                     <div class="p-4 border-b border-border bg-gradient-to-r {{ $headerColors[0] }} opacity-90">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-sm">
+                            <div class="w-10 h-10 rounded flex items-center justify-center border shadow-sm
+                                        {{ $hasDarkBg ? 'bg-white/10 text-white border-white/20' : 'bg-vttu-red/10 text-vttu-red border-vttu-red/20' }}">
                                 <i data-lucide="{{ getLucideIcon($node->icon) }}" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] font-bold text-white/70 uppercase tracking-widest">{{ $sectionLabel }}</p>
-                                <h1 class="text-xl md:text-2xl font-black text-white tracking-tight">{{ $node->display_name }}</h1>
+                                <p class="text-[10px] font-bold uppercase tracking-widest
+                                          {{ $hasDarkBg ? 'text-white/70' : 'text-vttu-red/80' }}">{{ $sectionLabel }}</p>
+                                <h1 class="text-xl md:text-2xl font-black tracking-tight
+                                           {{ $hasDarkBg ? 'text-white' : 'text-vttu-red' }}">{{ $node->display_name }}</h1>
                             </div>
                         </div>
                     </div>
@@ -982,6 +993,18 @@
                                 @include('site.pages.cam-nang-hdsd-content')
                             @elseif($node->node_code === 'tai-app-mobile')
                                 @include('site.pages.tai-app-mobile-content')
+                            @elseif($node->node_code === 'dang-nhap-tai-khoan')
+                                @include('site.pages.dang-nhap-tai-khoan-content')
+                            @elseif($node->node_code === 'doi-mat-khau')
+                                @include('site.pages.doi-mat-khau-content')
+                            @elseif($node->node_code === 'tra-cuu-tai-lieu-giay')
+                                @include('site.pages.tra-cuu-tai-lieu-giay-content')
+                            @elseif($node->node_code === 'tra-cuu-tai-lieu-so')
+                                @include('site.pages.tra-cuu-tai-lieu-so-content')
+                            @elseif($node->node_code === 'muon-truoc-gia-han')
+                                @include('site.pages.muon-truoc-gia-han-content')
+                            @elseif($node->node_code === 'de-nghi-bo-sung')
+                                @include('site.pages.de-nghi-bo-sung-content')
                             @else
                                 {!! $node->content !!}
                             @endif

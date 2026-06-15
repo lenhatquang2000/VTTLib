@@ -3,7 +3,7 @@
 @section('title', 'Hồ sơ cá nhân - VTTLib')
 
 @section('content')
-<div class="bg-slate-50 min-h-screen pt-24 pb-12" x-data="{ activeTab: 'info' }">
+<div class="bg-slate-50 min-h-screen pt-24 pb-12" x-data="{ activeTab: '{{ request()->query('tab', $errors->has('current_password') || $errors->has('new_password') ? 'password' : (session('success') ? 'password' : 'info')) }}' }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -21,28 +21,38 @@
                             @endif
                         </div>
                         <h2 class="text-lg font-bold text-vttu-dark uppercase tracking-tight">{{ $user->name }}</h2>
-                        <p class="text-slate-400 font-bold text-[10px] mt-1 uppercase tracking-widest">{{ $patron->patronGroup->name ?? 'Độc giả' }}</p>
+                        <p class="text-slate-400 font-bold text-[10px] mt-1 uppercase tracking-widest">{{ $patron?->patronGroup?->name ?? 'Độc giả' }}</p>
                         
                         <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-slate-50">
                             <div class="p-3 bg-slate-50 rounded-sm">
                                 <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Mã độc giả</p>
-                                <p class="text-xs font-bold text-vttu-dark">{{ $patron->patron_code ?? 'N/A' }}</p>
+                                <p class="text-xs font-bold text-vttu-dark">{{ $patron?->patron_code ?? 'N/A' }}</p>
                             </div>
                             <div class="p-3 bg-slate-50 rounded-sm">
                                 <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mb-1">Trạng thái thẻ</p>
-                                <span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase rounded-sm">Hoạt động</span>
+                                <p class="text-xs font-bold text-vttu-dark">
+                                    @if($patron)
+                                        <span class="px-2 py-0.5 bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase rounded-sm">Hoạt động</span>
+                                    @else
+                                        <span class="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-bold uppercase rounded-sm">N/A</span>
+                                    @endif
+                                </p>
                             </div>
                         </div>
 
                         <!-- Menu Tabs -->
                         <div class="w-full mt-6 space-y-2">
-                            <button @click="activeTab = 'info'" :class="activeTab === 'info' ? 'bg-vttu-red text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest">
+                            <button @click="activeTab = 'info'; window.history.replaceState(null, '', '?tab=info')" :class="activeTab === 'info' ? 'bg-vttu-red text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest">
                                 <i class="fas fa-user-circle"></i>
                                 <span>Thông tin cá nhân</span>
                             </button>
-                            <button @click="activeTab = 'history'" :class="activeTab === 'history' ? 'bg-vttu-red text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest">
+                            <button @click="activeTab = 'history'; window.history.replaceState(null, '', '?tab=history')" :class="activeTab === 'history' ? 'bg-vttu-red text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest">
                                 <i class="fas fa-history"></i>
                                 <span>Lịch sử mượn sách</span>
+                            </button>
+                            <button @click="activeTab = 'password'; window.history.replaceState(null, '', '?tab=password')" :class="activeTab === 'password' ? 'bg-vttu-red text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'" class="w-full flex items-center space-x-3 px-4 py-3 rounded-sm transition-all text-xs font-bold uppercase tracking-widest">
+                                <i class="fas fa-key"></i>
+                                <span>Đổi mật khẩu</span>
                             </button>
                         </div>
                     </div>
@@ -51,6 +61,22 @@
 
             <!-- Main Content -->
             <div class="lg:col-span-8">
+                @if (session('success'))
+                    <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-md p-3 text-xs font-bold flex items-center gap-2">
+                        <i class="fas fa-check-circle"></i>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
+                @if ($errors->any())
+                    <div class="mb-4 bg-rose-50 border border-rose-200 text-rose-600 rounded-md p-3 text-xs font-bold space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>{{ $error }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
                 <!-- Tab: Information -->
                 <div x-show="activeTab === 'info'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
@@ -102,21 +128,21 @@
                                 </div>
                                 <div>
                                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Số điện thoại</label>
-                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron->phone ?? 'Chưa cập nhật' }}</p>
+                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron?->phone ?? 'Chưa cập nhật' }}</p>
                                 </div>
                             </div>
                             <div class="space-y-4">
                                 <div>
                                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Địa chỉ</label>
-                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron->address ?? 'Chưa cập nhật' }}</p>
+                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron?->address ?? 'Chưa cập nhật' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Ngày sinh</label>
-                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron->dob ? \Carbon\Carbon::parse($patron->dob)->format('d/m/Y') : 'Chưa cập nhật' }}</p>
+                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron?->dob ? \Carbon\Carbon::parse($patron->dob)->format('d/m/Y') : 'Chưa cập nhật' }}</p>
                                 </div>
                                 <div>
                                     <label class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Đơn vị/Lớp</label>
-                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron->department ?? 'N/A' }}</p>
+                                    <p class="text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100">{{ $patron?->department ?? 'N/A' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -270,6 +296,45 @@
                             </div>
                             @endforelse
                         </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Change Password -->
+                <div x-show="activeTab === 'password'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
+                    <div class="bg-white rounded-md p-6 shadow-sm border border-slate-100">
+                        <h3 class="flex items-center gap-2 text-xs font-bold text-vttu-dark uppercase tracking-[0.2em] mb-6">
+                            <span class="w-6 h-1 bg-vttu-red rounded-full"></span>
+                            Đổi mật khẩu tài khoản
+                        </h3>
+                        
+                        <form action="{{ route('profile.change-password') }}" method="POST" class="space-y-4 max-w-md">
+                            @csrf
+                            <div>
+                                <label for="current_password" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Mật khẩu hiện tại</label>
+                                <input type="password" name="current_password" id="current_password" required
+                                       class="w-full text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100 focus:outline-none focus:border-vttu-red transition-colors">
+                            </div>
+                            
+                            <div>
+                                <label for="new_password" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Mật khẩu mới</label>
+                                <input type="password" name="new_password" id="new_password" required
+                                       class="w-full text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100 focus:outline-none focus:border-vttu-red transition-colors">
+                            </div>
+                            
+                            <div>
+                                <label for="new_password_confirmation" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5">Xác nhận mật khẩu mới</label>
+                                <input type="password" name="new_password_confirmation" id="new_password_confirmation" required
+                                       class="w-full text-xs font-bold text-vttu-dark bg-slate-50 px-4 py-2.5 rounded-sm border border-slate-100 focus:outline-none focus:border-vttu-red transition-colors">
+                            </div>
+                            
+                            <div class="pt-2">
+                                <button type="submit"
+                                        class="inline-flex items-center justify-center px-4 py-2.5 bg-vttu-red text-white hover:bg-vttu-dark text-xs font-bold rounded shadow-sm transition-all gap-1.5 active:scale-[0.98]">
+                                    <i class="fas fa-save"></i>
+                                    <span>Cập nhật mật khẩu</span>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

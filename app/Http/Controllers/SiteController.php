@@ -187,7 +187,7 @@ class SiteController extends Controller
 
         if ($locationId) {
             $booksQuery->whereHas('items', function($q) use ($locationId) {
-                $q->where('location_id', $locationId);
+                $q->where('storage_location_id', $locationId);
             });
         }
 
@@ -283,6 +283,43 @@ class SiteController extends Controller
     }
 
     /**
+     * Store book proposal from patrons.
+     */
+    public function storeProposal(Request $request)
+    {
+        $request->validate([
+            'fullname' => 'required|string|max:255',
+            'email_phone' => 'required|string|max:255',
+            'book_title' => 'required|string|max:255',
+            'author' => 'nullable|string|max:255',
+            'publisher_year' => 'nullable|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'reason' => 'nullable|string',
+        ], [
+            'fullname.required' => 'Vui lòng nhập họ và tên của bạn.',
+            'email_phone.required' => 'Vui lòng nhập email hoặc số điện thoại liên hệ.',
+            'book_title.required' => 'Vui lòng nhập nhan đề tài liệu đề xuất.',
+            'quantity.required' => 'Vui lòng nhập số lượng đề xuất.',
+            'quantity.integer' => 'Số lượng đề xuất phải là số nguyên.',
+            'quantity.min' => 'Số lượng đề xuất tối thiểu là 1.',
+        ]);
+
+        \App\Models\BookProposal::create([
+            'user_id' => auth()->id(),
+            'fullname' => $request->fullname,
+            'email_phone' => $request->email_phone,
+            'book_title' => $request->book_title,
+            'author' => $request->author,
+            'publisher_year' => $request->publisher_year,
+            'quantity' => $request->quantity,
+            'reason' => $request->reason,
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', 'Đề xuất bổ sung tài liệu của bạn đã được gửi thành công.');
+    }
+
+    /**
      * Display the user profile page.
      */
     public function profile()
@@ -335,6 +372,33 @@ class SiteController extends Controller
             'user', 'patron', 'menuItems', 'footerItems', 
             'stats', 'activeLoans', 'returnedLoans', 'reservations'
         ));
+    }
+
+    /**
+     * Change user password.
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ], [
+            'current_password.required' => 'Vui lòng nhập mật khẩu hiện tại.',
+            'new_password.required' => 'Vui lòng nhập mật khẩu mới.',
+            'new_password.min' => 'Mật khẩu mới phải có ít nhất 8 ký tự.',
+            'new_password.confirmed' => 'Xác nhận mật khẩu mới không khớp.',
+        ]);
+
+        $user = auth()->user();
+
+        if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Mật khẩu hiện tại không chính xác.']);
+        }
+
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->new_password);
+        $user->save();
+
+        return back()->with('success', 'Đổi mật khẩu thành công.');
     }
 
     /**
@@ -504,7 +568,7 @@ class SiteController extends Controller
         }
 
         // Nạp dữ liệu OER nếu truy cập trang tài nguyên giáo dục mở (chỉ load list, không phải landing page)
-        if ($code === 'tai-nguyen-giao-duc-mo' && $siteNode->masterpage === 'oer') {
+        if ($code === 'tai-nguyen-giao-duc-mo' || $siteNode->masterpage === 'oer') {
             $sort = request()->query('sort', 'latest');
             $subject = request()->query('subject');
             $keyword = request()->query('q');

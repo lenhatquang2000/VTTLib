@@ -67,10 +67,12 @@ Route::get('/opac', [\App\Http\Controllers\SiteController::class, 'opac'])->name
 Route::get('/opac/search', [\App\Http\Controllers\SiteController::class, 'opac'])->name('opac.search');
 Route::get('/opac/book/{record}', [\App\Http\Controllers\SiteController::class, 'bookDetail'])->name('opac.book.show');
 Route::post('/opac/book/{record}/reserve', [\App\Http\Controllers\SiteController::class, 'reserveBook'])->name('opac.book.reserve')->middleware('auth');
+Route::post('/de-nghi-bo-sung', [\App\Http\Controllers\SiteController::class, 'storeProposal'])->name('site.proposal.store');
 
 // Profile & My Loans
 Route::middleware(['auth'])->group(function () {
     Route::get('/my-profile', [\App\Http\Controllers\SiteController::class, 'profile'])->name('profile');
+    Route::post('/my-profile/change-password', [\App\Http\Controllers\SiteController::class, 'changePassword'])->name('profile.change-password');
 });
 
 // Admin Panel Redirect
