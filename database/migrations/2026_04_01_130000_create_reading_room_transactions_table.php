@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reading_room_transactions', function (Blueprint $table) {
+        if (!Schema::hasTable('reading_room_transactions')) {
+
+            Schema::create('reading_room_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patron_detail_id')->constrained()->onDelete('cascade');
             $table->foreignId('book_item_id')->constrained()->onDelete('cascade');
@@ -36,7 +38,10 @@ return new class extends Migration
             $table->index(['book_item_id', 'status']);
             $table->index(['checkout_time']);
             $table->index(['due_time']);
-        });
+        })
+
+        }
+
     }
 
     /**

@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('site_nodes', function (Blueprint $table) {
+        if (!Schema::hasTable('site_nodes')) {
+
+            Schema::create('site_nodes', function (Blueprint $table) {
             $table->id();
             $table->string('node_code', 50)->unique(); // Mã node duy nhất
             $table->string('node_name', 100); // Tên node nội bộ
@@ -43,7 +45,10 @@ return new class extends Migration
             $table->index(['sort_order']);
             $table->index(['node_code']);
             $table->index(['access_type']);
-        });
+        })
+
+        }
+
     }
 
     /**

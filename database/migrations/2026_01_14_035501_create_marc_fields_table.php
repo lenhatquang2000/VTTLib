@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('marc_fields', function (Blueprint $blueprint) {
+        if (!Schema::hasTable('marc_fields')) {
+
+            Schema::create('marc_fields', function (Blueprint $blueprint) {
             $blueprint->id();
             $blueprint->foreignId('record_id')->constrained('bibliographic_records')->onDelete('cascade');
             $blueprint->string('tag', 3); // 082, 100, etc.

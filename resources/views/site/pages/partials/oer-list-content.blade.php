@@ -159,7 +159,7 @@
     </div>
 
     <!-- Pagination -->
-    @if($resources->hasPages())
+    @if(method_exists($resources, 'hasPages') && $resources->hasPages())
     <div class="pt-4">
         {{ $resources->links('site.partials.pagination-compact') }}
     </div>

@@ -11,15 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if parent exists, if not insert without parent
+        $parentExists = \DB::table('sidebars')->where('id', 45)->exists();
+        
         \DB::table('sidebars')->insert([
             'name' => 'Announcements',
             'name_vi' => 'Thông báo',
             'name_en' => 'Announcements',
-            'route_name' => 'admin.news.announcements', // Giả sử route này tồn tại hoặc sẽ thêm
+            'route_name' => 'admin.news.announcements',
             'icon' => '<i class="fas fa-bullhorn"></i>',
             'order' => 15,
             'is_active' => 1,
-            'parent_id' => 45,
+            'parent_id' => $parentExists ? 45 : null,
             'created_at' => now(),
             'updated_at' => now(),
         ]);

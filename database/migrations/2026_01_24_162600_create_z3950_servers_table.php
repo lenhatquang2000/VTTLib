@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('z3950_servers', function (Blueprint $table) {
+        if (!Schema::hasTable('z3950_servers')) {
+
+            Schema::create('z3950_servers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('host');

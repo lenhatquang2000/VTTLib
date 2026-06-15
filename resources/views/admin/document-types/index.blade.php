@@ -26,21 +26,44 @@
                 </svg>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Document_Types') }}</h1>
-                <p class="text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Manage_document_types_for_library_materials') }}</p>
+                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Metadata_Management') }}</h1>
+                <p class="text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Manage metadata and classification types') }}</p>
             </div>
         </div>
-        <button @click="$dispatch('open-modal', 'add-doc-type')" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-black rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none text-[10px] uppercase tracking-widest">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-            {{ __('Add_Document_Type') }}
-        </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <!-- Table Column -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'document-types' }">
+        <!-- Tab Navigation -->
         <div class="lg:col-span-12">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div class="overflow-x-auto">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-0 overflow-hidden">
+                <div class="flex border-b border-slate-100 dark:border-slate-800 justify-between items-center">
+                    <div class="flex">
+                        <button @click="activeTab = 'document-types'; window.history.replaceState({}, '', '?tab=document-types')" 
+                            :class="activeTab === 'document-types' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+                            class="flex-1 px-6 py-4 font-bold text-sm uppercase tracking-wider transition-all border-b-2 border-transparent">
+                            {{ __('Document Types') }}
+                        </button>
+                        <button @click="activeTab = 'bibliographic-levels'; window.history.replaceState({}, '', '?tab=bibliographic-levels')" 
+                            :class="activeTab === 'bibliographic-levels' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
+                            class="flex-1 px-6 py-4 font-bold text-sm uppercase tracking-wider transition-all border-b-2 border-transparent">
+                            {{ __('Bibliographic Levels') }}
+                        </button>
+                    </div>
+                    <!-- Add Buttons -->
+                    <div class="px-6 py-4">
+                        <button x-show="activeTab === 'document-types'" @click="$dispatch('open-modal', 'add-doc-type')" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-all text-xs uppercase tracking-widest">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            {{ __('Add') }}
+                        </button>
+                        <a x-show="activeTab === 'bibliographic-levels'" href="{{ route('admin.bibliographic-levels.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-all text-xs uppercase tracking-widest">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            {{ __('Add') }}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Document Types -->
+                <div x-show="activeTab === 'document-types'" class="p-8">
                     <table class="w-full">
                         <thead>
                             <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-left">
@@ -126,42 +149,76 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Tab Content: Bibliographic Levels -->
+                <div x-show="activeTab === 'bibliographic-levels'" class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-left">
+                                <th class="px-6 py-4 w-12 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">#</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Code') }}</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Tên (Anh)') }}</th>
+                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Tên (Việt)') }}</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Thứ tự') }}</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Status') }}</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Actions') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                            @forelse($bibliographicLevels as $level)
+                            <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
+                                <td class="px-6 py-4 text-slate-300 dark:text-slate-700">
+                                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
+                                        {{ $loop->iteration }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <code class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 font-mono inline-block font-bold">
+                                        {{ $level->code }}
+                                    </code>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">{{ $level->name_en }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-slate-600 dark:text-slate-300">{{ $level->name_vi }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ $level->order }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider {{ $level->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' }}">
+                                        {{ $level->is_active ? __('Active') : __('Inactive') }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
+                                    <a href="{{ route('admin.bibliographic-levels.edit', $level) }}" class="p-2 text-slate-400 hover:text-amber-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg inline-block" title="{{ __('Edit') }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                    </a>
+                                    <form action="{{ route('admin.bibliographic-levels.destroy', $level) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Bạn chắc chắn muốn xóa?')))">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Delete') }}">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                                    <div class="flex flex-col items-center">
+                                        <svg class="w-12 h-12 text-slate-200 dark:text-slate-800 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                        <p class="text-sm font-medium">{{ __('No_data_found') }}</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <!-- Info Column -->
-        <div class="lg:col-span-12">
-             <div class="bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-[3rem] border border-indigo-100 dark:border-indigo-500/20">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div class="max-w-2xl">
-                        <h3 class="text-xl font-black text-indigo-900 dark:text-indigo-300 mb-2 uppercase tracking-tight">{{ __('Understanding_Loan_Days') }}</h3>
-                        <p class="text-indigo-600 dark:text-indigo-400/80 text-sm font-medium leading-relaxed">
-                            {{ __('Loan_Days_defined_here_acts_as_the_base_duration_for_circulation') }}. 
-                            {{ __('It_ensures_that_items_of_this_type_have_a_sensible_default_if_no_specific_policy_is_assigned') }}.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="mt-8">
-                    <h4 class="text-[10px] font-black text-indigo-400 dark:text-indigo-500 uppercase tracking-[0.2em] mb-4">{{ __('MARC21_Type_Reference') }} (Leader/06)</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                        @php
-                            $marcCodes = [
-                                'a' => 'Language material', 'c' => 'Notated music', 'e' => 'Cartographic',
-                                'g' => 'Projected medium', 'i' => 'Sound recording', 'j' => 'Musical sound',
-                                'k' => '2D graphic', 'm' => 'Computer file', 'o' => 'Kit',
-                                'p' => 'Mixed materials', 'r' => '3D artifact', 's' => 'Serial'
-                            ];
-                        @endphp
-                        @foreach($marcCodes as $code => $label)
-                            <div class="bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-indigo-100 dark:border-indigo-500/10 flex items-center space-x-2">
-                                <code class="text-xs font-black text-indigo-600 dark:text-indigo-400 font-mono">{{ $code }}</code>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 font-bold tracking-tight">{{ __($label) }}</span>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>

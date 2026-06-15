@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
+        if (!Schema::hasTable('roles')) {
+
+            Schema::create('roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique(); // admin, visitor
             $table->string('display_name');  // Quản trị viên, Khách

@@ -11,17 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('oer_contributions', function (Blueprint $table) {
-            $table->id();
-            $table->string('full_name');
-            $table->string('contact_info');
-            $table->string('license');
-            $table->text('additional_info')->nullable();
-            $table->string('file_path');
-            $table->string('file_name');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('oer_contributions')) {
+            Schema::create('oer_contributions', function (Blueprint $table) {
+                $table->id();
+                $table->string('full_name');
+                $table->string('contact_info');
+                $table->string('license');
+                $table->text('additional_info')->nullable();
+                $table->string('file_path');
+                $table->string('file_name');
+                $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+                $table->timestamps();
+            });
+        }
     }
 
     /**

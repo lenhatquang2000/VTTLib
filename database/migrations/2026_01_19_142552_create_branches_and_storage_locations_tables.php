@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('branches', function (Blueprint $table) {
+        if (!Schema::hasTable('branches')) {
+
+            Schema::create('branches', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Tên chi nhánh
             $table->string('code')->unique(); // Mã chi nhánh

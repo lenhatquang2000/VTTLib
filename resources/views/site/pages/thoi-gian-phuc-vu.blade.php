@@ -9,5 +9,6 @@
         'badgeText'    => 'Thời gian phục vụ',
         'badgeIcon'    => 'fas fa-clock',
         'sectionLabel' => 'Giới thiệu',
+        'customContent' => true,
     ])
 @endsection

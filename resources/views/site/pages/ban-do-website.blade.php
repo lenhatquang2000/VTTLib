@@ -9,5 +9,6 @@
         'badgeText'    => 'Bản đồ Website',
         'badgeIcon'    => 'fas fa-sitemap',
         'sectionLabel' => 'Giới thiệu',
+        'customSitemap' => true,
     ])
 @endsection

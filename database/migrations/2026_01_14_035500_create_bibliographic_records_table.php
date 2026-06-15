@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('bibliographic_records', function (Blueprint $blueprint) {
+        if (!Schema::hasTable('bibliographic_records')) {
+
+            Schema::create('bibliographic_records', function (Blueprint $blueprint) {
             $blueprint->id();
             $blueprint->string('leader', 24)->nullable();
             $blueprint->string('record_type')->default('book'); // book, thesis, etc.

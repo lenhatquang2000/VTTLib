@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role_sidebars', function (Blueprint $table) {
+        if (!Schema::hasTable('role_sidebars')) {
+
+            Schema::create('role_sidebars', function (Blueprint $table) {
             $table->id();
             $table->foreignId('role_id')->constrained()->cascadeOnDelete();
             $table->foreignId('sidebar_id')->constrained()->cascadeOnDelete();

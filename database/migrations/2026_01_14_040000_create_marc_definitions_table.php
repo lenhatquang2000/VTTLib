@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('marc_tag_definitions', function (Blueprint $blueprint) {
+        if (!Schema::hasTable('marc_tag_definitions')) {
+
+            Schema::create('marc_tag_definitions', function (Blueprint $blueprint) {
             $blueprint->id();
             $blueprint->string('tag', 3)->unique(); // 082, 100
             $blueprint->string('label'); // Tên hiển thị: "Mã ngôn ngữ"

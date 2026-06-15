@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Patron Groups (Nhóm độc giả)
-        Schema::create('patron_groups', function (Blueprint $table) {
+        if (!Schema::hasTable('patron_groups')) {
+
+            Schema::create('patron_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Sinh viên, Giảng viên, Khách
             $table->string('code')->unique(); // SV, GV, KHACH

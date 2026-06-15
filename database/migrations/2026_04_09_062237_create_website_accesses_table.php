@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('website_accesses', function (Blueprint $table) {
+        if (!Schema::hasTable('website_accesses')) {
+
+            Schema::create('website_accesses', function (Blueprint $table) {
             $table->id();
             $table->dateTime('access_time');
             $table->string('ip_address', 45)->nullable();
@@ -30,7 +32,10 @@ return new class extends Migration
             $table->index(['user_id']);
             $table->index(['session_id']);
             $table->index(['access_type']);
-        });
+        })
+
+        }
+
     }
 
     /**

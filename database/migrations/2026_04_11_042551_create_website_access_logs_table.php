@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('website_access_logs', function (Blueprint $table) {
+        if (!Schema::hasTable('website_access_logs')) {
+
+            Schema::create('website_access_logs', function (Blueprint $table) {
             $table->id();
             $table->string('ip_address', 45)->nullable();
             $table->string('user_agent')->nullable();

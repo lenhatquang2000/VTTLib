@@ -129,6 +129,22 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </p>
                             </div>
 
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">
+                                    {{ __('Kiểu tài liệu') }} <span class="text-red-500">*</span>
+                                </label>
+                                <select x-model="formData.document_type_id" name="document_type_id"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    <option value="">{{ __('Chọn kiểu tài liệu') }}</option>
+                                    @foreach($documentTypes as $type)
+                                    <option value="{{ $type->id }}" {{ (isset($record) && $record->document_type_id == $type->id) || (!isset($record) && $type->id == (old('document_type_id') ?? null)) ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <p class="mt-2 text-[9px] text-gray-400">{{ __('Quản lý kiểu tài liệu tại') }} <a href="{{ route('admin.document-types.index') }}" target="_blank" class="text-indigo-600 hover:text-indigo-700 font-semibold">{{ __('Document Types') }}</a></p>
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Status') }}</label>
                                 <select x-model="formData.status" name="status"
@@ -173,20 +189,11 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Kiểu biểu ghi') }}</label>
                                 <select x-model="formData.bibliographic_level" name="bibliographic_level"
                                     class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                    <option value="a">Language material - Tài liệu văn bản</option>
-                                    <option value="c">Notated music - Bản nhạc in</option>
-                                    <option value="d">Manuscript notated music - Bản nhạc chép tay</option>
-                                    <option value="e">Cartographic material - Bản đồ in</option>
-                                    <option value="f">Manuscript cartographic material - Bản đồ vẽ tay</option>
-                                    <option value="g">Projected medium - Các tư liệu chiếu</option>
-                                    <option value="i">Nonmusical sound recording - Ghi âm không thuộc âm nhạc</option>
-                                    <option value="j">Musical sound recording - Ghi âm thuộc âm nhạc</option>
-                                    <option value="k">Two-dimensional nonprojectable graphic - Đồ họa phẳng</option>
-                                    <option value="m">Computer file - Tập tin máy tính</option>
-                                    <option value="o">Kit - Bộ tài liệu</option>
-                                    <option value="p">Mixed material - Tài liệu hỗn hợp</option>
-                                    <option value="r">3-D object - Đồ vật 3 chiều</option>
-                                    <option value="t">Manuscript language material - Tài liệu viết tay</option>
+                                    @foreach($bibliographicLevels as $level)
+                                    <option value="{{ $level->code }}" {{ (isset($record) && $record->bibliographic_level == $level->code) || (!isset($record) && $level->code == 'a') ? 'selected' : '' }}>
+                                        {{ $level->name_en }} - {{ $level->name_vi }}
+                                    </option>
+                                    @endforeach
                                 </select>
                             </div>
 
@@ -576,17 +583,18 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                 { title: '{{ __("Preview") }}' }
             ],
             formData: {
-                framework: "{{ $currentFramework->code ?? ($record->framework ?? 'AVMARC21') }}",
-                status: "{{ $record->status ?? 'pending' }}",
-                is_featured: {{ $record->is_featured ? 'true' : 'false' }},
-                subject_category: "{{ $record->subject_category ?? 'Article' }}",
-                record_type: "{{ $record->record_type ?? 'book' }}",
-                bibliographic_level: "{{ $record->bibliographic_level ?? 'a' }}",
-                serial_frequency: "{{ $record->serial_frequency ?? 'unknown' }}",
-                date_type: "{{ $record->date_type ?? 'bc' }}",
-                acquisition_method: "{{ $record->acquisition_method ?? 'untraced' }}",
-                document_format: "{{ $record->document_format ?? 'none' }}",
-                cataloging_standard: "{{ $record->cataloging_standard ?? 'AACR2' }}"
+                framework: "{{ $currentFramework->code ?? ($record?->framework ?? 'AVMARC21') }}",
+                status: "{{ $record?->status ?? 'pending' }}",
+                is_featured: {{ $record && $record->is_featured ? 'true' : 'false' }},
+                subject_category: "{{ $record?->subject_category ?? 'Article' }}",
+                record_type: "{{ $record?->record_type ?? 'book' }}",
+                bibliographic_level: "{{ $record?->bibliographic_level ?? 'a' }}",
+                serial_frequency: "{{ $record?->serial_frequency ?? 'unknown' }}",
+                date_type: "{{ $record?->date_type ?? 'bc' }}",
+                acquisition_method: "{{ $record?->acquisition_method ?? 'untraced' }}",
+                document_format: "{{ $record?->document_format ?? 'none' }}",
+                cataloging_standard: "{{ $record?->cataloging_standard ?? 'AACR2' }}",
+                document_type_id: {{ $record?->document_type_id ?? 'null' }}
             },
             marcFields: @json($initialFields),
             items: @json($initialItemsData),

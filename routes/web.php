@@ -521,6 +521,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::delete('/document-types/{documentType}', [\App\Http\Controllers\Admin\DocumentTypeController::class, 'destroy'])->name('admin.document-types.destroy');
     Route::post('/document-types/order', [\App\Http\Controllers\Admin\DocumentTypeController::class, 'updateOrder'])->name('admin.document-types.order');
 
+    // Bibliographic Levels Management (MARC Bibliographic Level)
+    Route::get('/bibliographic-levels', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'index'])->name('admin.bibliographic-levels.index');
+    Route::get('/bibliographic-levels/create', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'create'])->name('admin.bibliographic-levels.create');
+    Route::post('/bibliographic-levels', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'store'])->name('admin.bibliographic-levels.store');
+    Route::get('/bibliographic-levels/{bibliographicLevel}/edit', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'edit'])->name('admin.bibliographic-levels.edit');
+    Route::put('/bibliographic-levels/{bibliographicLevel}', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'update'])->name('admin.bibliographic-levels.update');
+    Route::delete('/bibliographic-levels/{bibliographicLevel}', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'destroy'])->name('admin.bibliographic-levels.destroy');
+    Route::post('/bibliographic-levels/order', [\App\Http\Controllers\Admin\BibliographicLevelController::class, 'updateOrder'])->name('admin.bibliographic-levels.order');
+
     // External Protocol Integration (Z39.50)
     Route::get('/z3950', [\App\Http\Controllers\Admin\Z3950Controller::class, 'index'])->name('admin.z3950.index');
     Route::post('/z3950', [\App\Http\Controllers\Admin\Z3950Controller::class, 'store'])->name('admin.z3950.store');

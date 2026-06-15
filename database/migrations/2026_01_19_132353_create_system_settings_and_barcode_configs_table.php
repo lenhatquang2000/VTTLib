@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // Table for General System/Library Settings
-        Schema::create('system_settings', function (Blueprint $table) {
+        if (!Schema::hasTable('system_settings')) {
+
+            Schema::create('system_settings', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
             $table->text('value')->nullable();

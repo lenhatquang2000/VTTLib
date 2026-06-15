@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('marc_frameworks', function (Blueprint $table) {
+        if (!Schema::hasTable('marc_frameworks')) {
+
+            Schema::create('marc_frameworks', function (Blueprint $table) {
             $table->id();
             $table->string('code', 20)->unique();
             $table->string('name');

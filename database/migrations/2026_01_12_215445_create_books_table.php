@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('books', function (Blueprint $table) {
+        if (!Schema::hasTable('books')) {
+
+            Schema::create('books', function (Blueprint $table) {
             $table->id();
             $table->string('title');
             $table->string('author')->nullable();

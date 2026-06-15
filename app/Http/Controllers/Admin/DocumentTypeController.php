@@ -16,8 +16,9 @@ class DocumentTypeController extends Controller
     public function index()
     {
         $documentTypes = DocumentType::ordered()->get();
+        $bibliographicLevels = \App\Models\BibliographicLevel::active()->ordered()->get();
         
-        return view('admin.document-types.index', compact('documentTypes'));
+        return view('admin.document-types.index', compact('documentTypes', 'bibliographicLevels'));
     }
 
     /**

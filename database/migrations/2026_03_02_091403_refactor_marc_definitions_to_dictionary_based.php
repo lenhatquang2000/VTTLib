@@ -46,7 +46,12 @@ return new class extends Migration
         // 3. Remove framework_id and is_visible from tag_definitions (making it global)
         if (Schema::hasColumn('marc_tag_definitions', 'framework_id')) {
             Schema::table('marc_tag_definitions', function (Blueprint $table) {
-                // Drop the unique index first
+                // Drop the foreign key first
+                try {
+                    $table->dropForeign('marc_tag_definitions_framework_id_foreign');
+                } catch (\Exception $e) {}
+                
+                // Drop the unique index
                 try {
                     $table->dropUnique('marc_tag_definitions_framework_id_tag_unique');
                 } catch (\Exception $e) {}

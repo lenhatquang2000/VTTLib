@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('user_role_sidebars', function (Blueprint $table) {
+        if (!Schema::hasTable('user_role_sidebars')) {
+
+            Schema::create('user_role_sidebars', function (Blueprint $table) {
             $table->id();
             $table->foreignId('role_user_id')->constrained('role_user')->onDelete('cascade');
             $table->foreignId('sidebar_id')->constrained('sidebars')->onDelete('cascade');

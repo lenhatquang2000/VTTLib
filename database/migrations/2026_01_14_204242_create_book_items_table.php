@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('book_items', function (Blueprint $table) {
+        if (!Schema::hasTable('book_items')) {
+
+            Schema::create('book_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('bibliographic_record_id')->constrained('bibliographic_records')->onDelete('cascade');
             $table->string('barcode')->unique();

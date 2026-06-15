@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('library_entries', function (Blueprint $table) {
+        if (!Schema::hasTable('library_entries')) {
+
+            Schema::create('library_entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('patron_detail_id')->nullable()->constrained()->onDelete('set null');
             $table->dateTime('entry_time');
@@ -25,7 +27,10 @@ return new class extends Migration
             $table->index(['entry_time']);
             $table->index(['patron_detail_id']);
             $table->index(['branch_id']);
-        });
+        })
+
+        }
+
     }
 
     /**

@@ -257,14 +257,17 @@ class MarcBookController extends Controller
         $documentTypes = DocumentType::active()->ordered()->get();
         $locations = StorageLocation::where('is_active', true)->with('branch')->get();
         $branches = \App\Models\Branch::with('storageLocations')->where('is_active', true)->get();
+        $bibliographicLevels = \App\Models\BibliographicLevel::active()->ordered()->get();
         $nextBarcode = $this->barcodeService->previewNextBarcode('item');
 
         if ($record) {
             $record->load('items.branch', 'items.storageLocation');
-            return view('admin.marc_books.form', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
+            return view('admin.marc_books.form', compact('record', 'definitions', 'frameworks', 'documentTypes', 'locations', 'frameworkId', 'branches', 'bibliographicLevels', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
         }
 
-        return view('admin.marc_books.form', compact('definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
+        // Khi không có record, vẫn truyền $record = null để view có thể kiểm tra
+        $record = null;
+        return view('admin.marc_books.form', compact('record', 'definitions', 'documentTypes', 'locations', 'frameworks', 'frameworkId', 'branches', 'bibliographicLevels', 'nextBarcode'))->with('barcodeService', $this->barcodeService);
     }
 
     public function store(Request $request)
@@ -285,6 +288,7 @@ class MarcBookController extends Controller
                 'framework' => $request->input('framework', 'STANDARD'),
                 'status' => $request->input('status', BibliographicRecord::STATUS_PENDING),
                 'is_featured' => $request->boolean('is_featured'),
+                'document_type_id' => $request->input('document_type_id'),
                 'subject_category' => $request->input('subject_category'),
             ], $metadata));
 
@@ -578,6 +582,7 @@ class MarcBookController extends Controller
                 'framework' => $request->input('framework', $record->framework),
                 'status' => $request->input('status', $record->status),
                 'is_featured' => $request->boolean('is_featured'),
+                'document_type_id' => $request->input('document_type_id', $record->document_type_id),
                 'subject_category' => $request->input('subject_category', $record->subject_category),
             ], $metadata));
 

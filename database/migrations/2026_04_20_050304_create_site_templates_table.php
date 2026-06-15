@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('site_templates', function (Blueprint $table) {
+        if (!Schema::hasTable('site_templates')) {
+
+            Schema::create('site_templates', function (Blueprint $table) {
             $table->id();
             $table->string('template_code')->unique(); // ví dụ: home, about, help
             $table->string('template_name'); // ví dụ: Trang chủ hiện đại

@@ -9,7 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Bảng Thư mục tài liệu số
-        Schema::create('digital_folders', function (Blueprint $table) {
+        if (!Schema::hasTable('digital_folders')) {
+
+            Schema::create('digital_folders', function (Blueprint $table) {
             $table->id();
             $table->string('folder_code', 50)->unique(); // Mã thư mục
             $table->string('folder_name', 255);         // Tên thư mục
@@ -60,7 +62,10 @@ return new class extends Migration
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
             $table->softDeletes(); // Xóa mềm theo quy định kiểm soát ràng buộc
-        });
+        })
+
+        }
+
     }
 
     public function down(): void

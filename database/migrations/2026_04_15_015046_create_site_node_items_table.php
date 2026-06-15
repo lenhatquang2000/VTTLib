@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('site_node_items', function (Blueprint $table) {
+        if (!Schema::hasTable('site_node_items')) {
+
+            Schema::create('site_node_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('site_node_id')->constrained()->onDelete('cascade');
             $table->string('item_type'); // hero, features, text, image, button, gallery, etc.

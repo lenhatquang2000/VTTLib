@@ -20,6 +20,7 @@ class BibliographicRecord extends Model
         'status_en',
         'is_featured',
         'framework',
+        'document_type_id',
         'subject_category',
         'bibliographic_level',
         'bibliographic_level_vi',
@@ -51,6 +52,11 @@ class BibliographicRecord extends Model
     public function items()
     {
         return $this->hasMany(BookItem::class, 'bibliographic_record_id');
+    }
+
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentType::class, 'document_type_id');
     }
 
     public function isApproved()

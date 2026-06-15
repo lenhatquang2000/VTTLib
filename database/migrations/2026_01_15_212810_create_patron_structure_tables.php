@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         // 1. Table for Patron Details (linked 1:1 with users)
-        Schema::create('patron_details', function (Blueprint $table) {
+        if (!Schema::hasTable('patron_details')) {
+
+            Schema::create('patron_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             
