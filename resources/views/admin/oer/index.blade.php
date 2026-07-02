@@ -42,17 +42,17 @@
                         <i data-lucide="search" class="w-4 h-4 text-muted-foreground"></i>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}" 
-                        placeholder="Search resources..." 
+                        placeholder="{{ __('Search resources...') }}" 
                         class="block w-full pl-9 pr-3 py-1.5 h-9 text-sm border border-input rounded-sm bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 
                 <!-- Type Filter -->
                 <select name="type" class="h-9 w-full sm:w-40 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     <option value="">{{ __('All Types') }}</option>
-                    <option value="document" {{ request('type') == 'document' ? 'selected' : '' }}>Document</option>
-                    <option value="video" {{ request('type') == 'video' ? 'selected' : '' }}>Video</option>
-                    <option value="audio" {{ request('type') == 'audio' ? 'selected' : '' }}>Audio</option>
-                    <option value="interactive" {{ request('type') == 'interactive' ? 'selected' : '' }}>Interactive</option>
+                    <option value="document" {{ request('type') == 'document' ? 'selected' : '' }}>{{ __('Document') }}</option>
+                    <option value="video" {{ request('type') == 'video' ? 'selected' : '' }}>{{ __('Video') }}</option>
+                    <option value="audio" {{ request('type') == 'audio' ? 'selected' : '' }}>{{ __('Audio') }}</option>
+                    <option value="interactive" {{ request('type') == 'interactive' ? 'selected' : '' }}>{{ __('Interactive') }}</option>
                 </select>
 
                 <!-- Action Buttons -->
@@ -126,8 +126,8 @@
                                         default => 'bg-primary/10 text-primary border-primary/20'
                                     };
                                     $statusLabel = match($resource->status) {
-                                        'published' => 'Published',
-                                        'draft' => 'Draft',
+                                        'published' => __('Published'),
+                                        'draft' => __('Draft'),
                                         default => $resource->status
                                     };
                                 @endphp

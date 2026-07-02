@@ -70,10 +70,7 @@
             <i data-lucide="play-circle" class="w-4 h-4 text-vttu-red"></i> Video hướng dẫn chi tiết
         </h4>
         <div class="relative w-full rounded-md overflow-hidden shadow-sm border border-border bg-black aspect-video">
-            <video class="w-full h-full" controls preload="metadata">
-                <source src="{{ asset('assets/videos/uri_ifs___V_WtI9v9grunrG63xTO58s6aay8QabjwjK0FeNZBktX7I.mp4') }}" type="video/mp4">
-                Trình duyệt của bạn không hỗ trợ thẻ phát video này.
-            </video>
+            <iframe class="w-full h-full" src="https://www.canva.com/design/DAGBQPIAW3U/Eu38iA4z_nMJW8B7Wr5I_A/watch?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
         </div>
     </div>
 </div>

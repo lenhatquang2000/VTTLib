@@ -311,13 +311,20 @@
         }
         
         /* Add proper padding and border-radius */
+        .input-field {
+            width: 100% !important;
+        }
+
         select, .input-field {
             padding: 0.5rem 0.75rem !important;
             border-radius: 0.5rem !important;
             font-size: 0.875rem !important;
             line-height: 1.25rem !important;
-            width: 100% !important;
             transition: all 0.2s ease !important;
+        }
+
+        select {
+            width: 100%;
         }
         
         select {

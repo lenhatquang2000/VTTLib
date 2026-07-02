@@ -398,6 +398,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     // System Logs
     Route::get('/patrons/system-logs', [\App\Http\Controllers\Admin\PatronController::class, 'systemLogs'])->name('admin.patrons.system-logs');
 
+    // Book Proposals
+    Route::get('/book-proposals', [\App\Http\Controllers\Admin\BookProposalController::class, 'index'])->name('admin.book-proposals.index');
+    Route::patch('/book-proposals/{id}/status', [\App\Http\Controllers\Admin\BookProposalController::class, 'updateStatus'])->name('admin.book-proposals.update-status');
+
     // Patron Configuration
     Route::get('/patron-groups', [PatronGroupController::class, 'index'])->name('admin.patrons.groups.index');
     Route::post('/patron-groups', [PatronGroupController::class, 'store'])->name('admin.patrons.groups.store');

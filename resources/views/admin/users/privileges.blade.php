@@ -33,13 +33,13 @@
                         <i data-lucide="search" class="w-4 h-4 text-muted-foreground"></i>
                     </div>
                     <input type="text" name="search" value="{{ $search }}" 
-                        placeholder="Search users..." 
+                        placeholder="{{ __('Search users...') }}" 
                         class="block w-full pl-9 pr-3 py-1.5 h-9 text-sm border border-input rounded-sm bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 
                 <!-- Role Filter -->
                 <select name="role_id" class="h-9 w-full sm:w-40 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
-                    <option value="">All Roles</option>
+                    <option value="">{{ __('All Roles') }}</option>
                     @foreach($roles as $role)
                         <option value="{{ $role->id }}" {{ $roleId == $role->id ? 'selected' : '' }}>{{ $role->display_name }}</option>
                     @endforeach
