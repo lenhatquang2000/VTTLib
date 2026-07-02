@@ -1,67 +1,69 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="max-w-4xl mx-auto space-y-6 animate-in slide-in-from-bottom-4 duration-500">
-        <div class="flex items-center justify-between pb-4">
+    <div class="w-full space-y-4 animate-in slide-in-from-bottom-4 duration-500">
+        <!-- Header -->
+        <div class="flex items-center justify-between gap-3">
             <div>
-                <a href="{{ route('admin.roles.index') }}" class="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors uppercase tracking-wider mb-2">
-                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                <a href="{{ route('admin.roles.index') }}" class="group inline-flex items-center text-xs font-bold text-muted-foreground hover:text-primary transition-colors mb-1.5">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5 mr-1 transform group-hover:-translate-x-1 transition-transform"></i>
                     {{ __('Back_to_Protocol') }}
                 </a>
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{{ __('Modify_Security_Clearance') }}: <span class="text-indigo-600 dark:text-indigo-400">{{ $role->display_name }}</span></h1>
+                <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Modify_Security_Clearance') }}: <span class="text-primary">{{ $role->display_name }}</span></h1>
             </div>
         </div>
 
-        <form action="{{ route('admin.roles.update', $role->id) }}" method="POST" class="space-y-6">
+        <form action="{{ route('admin.roles.update', $role->id) }}" method="POST" class="space-y-4">
             @csrf
             @method('PUT')
             
-            <div class="bg-white dark:bg-slate-800 rounded-2xl p-8 space-y-8 border border-slate-200 dark:border-slate-700 shadow-sm transition-all">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">{{ __('Role_System_Name') }} (Slug)</label>
+            <div class="bg-card rounded-md p-4 space-y-4 border border-border shadow-sm">
+                <!-- Inputs grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Role_System_Name') }} (Slug)</label>
                         <input type="text" name="name" value="{{ old('name', $role->name) }}" required
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all {{ in_array($role->name, ['root', 'admin', 'visitor']) ? 'opacity-60 cursor-not-allowed' : '' }}"
+                            class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-medium {{ in_array($role->name, ['root', 'admin', 'visitor']) ? 'opacity-60 cursor-not-allowed' : '' }}"
                             {{ in_array($role->name, ['root', 'admin', 'visitor']) ? 'readonly' : '' }}>
                         @error('name') <p class="text-xs text-rose-500 mt-1 pl-1">{{ $message }}</p> @enderror
                     </div>
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest pl-1">{{ __('Role_Display_Name') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Role_Display_Name') }}</label>
                         <input type="text" name="display_name" value="{{ old('display_name', $role->display_name) }}" required
-                            class="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl p-3.5 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-medium">
                         @error('display_name') <p class="text-xs text-rose-500 mt-1 pl-1">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-700 pb-3">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">{{ __('Default_Sidebar_Access_Template') }}</h3>
-                        <span class="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500 font-bold uppercase tracking-widest">Configuration</span>
+                <!-- Sidebar Access Template -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between border-b border-border pb-2">
+                        <h3 class="text-xs font-bold text-foreground uppercase tracking-wider">{{ __('Default_Sidebar_Access_Template') }}</h3>
+                        <span class="text-[9px] bg-muted px-2 py-0.5 rounded-sm text-muted-foreground font-bold uppercase tracking-widest">Configuration</span>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 max-h-[600px] overflow-y-auto pr-3 custom-scrollbar">
+                    <div class="space-y-3">
                         @foreach($sidebars as $sidebar)
-                            <div class="space-y-3 col-span-1 md:col-span-2 group">
-                                <label class="flex items-center p-4 bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700 rounded-xl cursor-pointer hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 transition-all shadow-sm">
+                            <div class="space-y-2 group">
+                                <label class="flex items-center p-2.5 bg-muted/20 border border-border rounded hover:border-primary/50 hover:bg-muted/40 transition-all cursor-pointer">
                                     <input type="checkbox" name="sidebars[]" value="{{ $sidebar->id }}"
                                         {{ in_array($sidebar->id, $roleSidebars) ? 'checked' : '' }}
-                                        class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 transition shadow-sm">
-                                    <div class="ml-4">
-                                        <span class="block text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide">{{ __($sidebar->name) }}</span>
-                                        <span class="block text-[10px] text-slate-500 uppercase font-bold tracking-tighter mt-0.5">Parent Category</span>
+                                        class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary transition shadow-sm">
+                                    <div class="ml-3">
+                                        <span class="block text-xs font-bold text-foreground uppercase tracking-wide">{{ __($sidebar->name) }}</span>
                                     </div>
                                 </label>
                                 
                                 @if($sidebar->children->isNotEmpty())
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-8">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-6 border-l border-border ml-4">
                                         @foreach($sidebar->children as $child)
-                                            <label class="flex items-center p-3.5 bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700 rounded-xl cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-400 hover:shadow-md transition-all">
+                                            <label class="flex items-center p-2 bg-card border border-border rounded hover:border-primary/40 hover:bg-muted/20 transition-all cursor-pointer">
                                                 <input type="checkbox" name="sidebars[]" value="{{ $child->id }}"
                                                     {{ in_array($child->id, $roleSidebars) ? 'checked' : '' }}
-                                                    class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500 transition">
-                                                <div class="ml-3">
-                                                    <span class="block text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-tight">{{ __($child->name) }}</span>
-                                                    <span class="block text-[9px] font-mono text-slate-400 mt-1">{{ $child->route_name }}</span>
+                                                    class="w-3.5 h-3.5 rounded-sm border-input bg-background text-primary focus:ring-primary transition">
+                                                <div class="ml-2.5 min-w-0">
+                                                    <span class="block text-[11px] font-bold text-foreground uppercase tracking-tight truncate">{{ __($child->name) }}</span>
+                                                    <span class="block text-[9px] font-mono text-muted-foreground truncate">{{ $child->route_name }}</span>
                                                 </div>
                                             </label>
                                         @endforeach
@@ -72,21 +74,21 @@
                     </div>
                 </div>
 
-                <div class="pt-8 border-t border-slate-100 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-6">
+                <!-- Footer Actions -->
+                <div class="pt-3 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-3 mt-4">
                     <div>
                         <button type="button" onclick="if(confirm('{{ __('Delete_Confirmation') }}')) document.getElementById('delete-role-form').submit();" 
-                            class="inline-flex items-center px-4 py-2 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-lg hover:bg-rose-600 hover:text-white transition shadow-sm">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            class="inline-flex items-center px-3 py-1.5 bg-destructive/10 text-destructive text-xs font-bold rounded-sm hover:bg-destructive hover:text-destructive-foreground transition shadow-sm">
+                            <i data-lucide="trash-2" class="w-4 h-4 mr-1.5"></i>
                             {{ __('Delete_Role') }}
                         </button>
                     </div>
                     
-                    <div class="flex items-center gap-4 w-full md:w-auto">
-                        <a href="{{ route('admin.roles.index') }}" class="flex-1 md:flex-none text-center px-6 py-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-bold uppercase transition hover:bg-slate-200">
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <a href="{{ route('admin.roles.index') }}" class="flex-1 sm:flex-none text-center px-4 py-1.5 btn-compact-secondary">
                             {{ __('Abort') }}
                         </a>
-                        <button type="submit"
-                            class="flex-1 md:flex-none px-10 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-indigo-700 shadow-lg shadow-indigo-100 dark:shadow-none transition transform active:scale-95">
+                        <button type="submit" class="flex-1 sm:flex-none px-4 py-1.5 btn-compact-primary">
                             {{ __('Update_Sequence') }}
                         </button>
                     </div>
@@ -100,12 +102,4 @@
             @method('DELETE')
         </form>
     </div>
-    </div>
-
-    <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-        [data-theme="dark"] .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
-    </style>
 @endsection

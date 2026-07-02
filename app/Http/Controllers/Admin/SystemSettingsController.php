@@ -44,17 +44,12 @@ class SystemSettingsController extends Controller
     public function updatePolicy(Request $request)
     {
         $data = $request->validate([
-            'loan_time_unit' => 'required|string',
-            'opening_time' => 'nullable|string',
-            'closing_time' => 'nullable|string',
-            'fine_notification_time' => 'nullable|string',
-            'debt_notification_time' => 'nullable|string',
-            'grace_period' => 'required|integer|min:0',
-            'fine_period' => 'required|integer|min:0',
-            'default_replacement_cost' => 'required|numeric|min:0',
-            'default_processing_cost' => 'required|numeric|min:0',
-            'urgent_fine_rate' => 'required|numeric|min:0',
-            'normal_fine_rate' => 'required|numeric|min:0',
+            'opening_time_weekday' => 'nullable|string',
+            'closing_time_weekday' => 'nullable|string',
+            'opening_time_sat' => 'nullable|string',
+            'closing_time_sat' => 'nullable|string',
+            'opening_time_sun' => 'nullable|string',
+            'closing_time_sun' => 'nullable|string',
         ]);
 
         foreach ($data as $key => $value) {

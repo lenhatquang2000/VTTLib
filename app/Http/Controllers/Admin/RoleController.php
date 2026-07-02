@@ -77,9 +77,6 @@ class RoleController extends Controller
 
         if (isset($validated['sidebars'])) {
             $role->sidebars()->sync($validated['sidebars']);
-            
-            // Sync new tabs to all users assigned to this role
-            $this->userService->syncAllUsersToRoleSidebars($role->id);
         }
 
         return redirect()->route('admin.roles.index')->with('success', __('Role updated successfully and users synchronized'));

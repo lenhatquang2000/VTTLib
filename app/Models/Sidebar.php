@@ -23,6 +23,11 @@ class Sidebar extends Model
         return $this->hasMany(UserRoleSidebar::class, 'sidebar_id');
     }
 
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_sidebars');
+    }
+
     /**
      * Get display name with localization
      */

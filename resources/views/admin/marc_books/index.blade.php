@@ -1,96 +1,93 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-6">
-    <div class="flex justify-between items-center bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+<div class="w-full space-y-4 animate-in fade-in duration-500 pb-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">{{ __('Bản ghi đã biên mục') }}</h2>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1">{{ __('Xem và quản lý các bản ghi biên mục sách, tài liệu theo chuẩn MARC21') }}</p>
+            <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('Cataloged Records') }}</h1>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ __('View and manage cataloged books and documents in MARC21 standard') }}</p>
         </div>
-        <a href="{{ route('admin.marc.book.form') }}"
-            class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition flex items-center shadow-lg shadow-indigo-100 dark:shadow-none">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            {{ __('Biên mục mới') }}
+        <a href="{{ route('admin.marc.book.form') }}" class="btn-compact-primary">
+            <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+            <span>{{ __('New Catalog Record') }}</span>
         </a>
     </div>
 
     <!-- Advanced Search Section -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
-        <div class="p-6">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100 mb-4">{{ __('Tìm kiếm nâng cao') }}</h3>
-
-            <form method="GET" class="space-y-4">
-                @csrf
-
+    <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
+        <div class="p-3 border-b border-border bg-muted/30">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Advanced Search') }}</h2>
+        </div>
+        <div class="p-3">
+            <form method="GET" class="space-y-3">
                 <!-- Basic Search -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Tìm kiếm theo Nhan đề, Tác giả, ISBN, Nhà xuất bản, Chủ đề, Ghi chú') }}</label>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="md:col-span-2 space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Search by Title, Author, ISBN, Publisher, Subject, Notes') }}</label>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="{{ __('Nhập từ khóa tìm kiếm...') }}"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            placeholder="{{ __('Enter search terms...') }}"
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Sắp xếp theo') }}</label>
-                        <div class="flex space-x-2">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Sort By') }}</label>
+                        <div class="flex gap-2">
                             <select name="sort_by"
-                                class="flex-[2] min-w-[160px] px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
-                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>{{ __('Ngày tạo') }}</option>
-                                <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>{{ __('Nhan đề') }}</option>
-                                <option value="author" {{ request('sort_by') == 'author' ? 'selected' : '' }}>{{ __('Tác giả') }}</option>
-                                <option value="updated_at" {{ request('sort_by') == 'updated_at' ? 'selected' : '' }}>{{ __('Ngày cập nhật') }}</option>
+                                class="flex-[2] h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>{{ __('Created Date') }}</option>
+                                <option value="title" {{ request('sort_by') == 'title' ? 'selected' : '' }}>{{ __('Title') }}</option>
+                                <option value="author" {{ request('sort_by') == 'author' ? 'selected' : '' }}>{{ __('Author') }}</option>
+                                <option value="updated_at" {{ request('sort_by') == 'updated_at' ? 'selected' : '' }}>{{ __('Updated Date') }}</option>
                             </select>
                             <select name="sort_order"
-                                class="flex-1 min-w-[120px] px-3 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm font-bold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
-                                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>{{ __('Giảm dần') }}</option>
-                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>{{ __('Tăng dần') }}</option>
+                                class="flex-1 h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>{{ __('Descending') }}</option>
+                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>{{ __('Ascending') }}</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
                 <!-- Filters Row 1 -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Khung biên mục') }}</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Cataloging Framework') }}</label>
                         <select name="framework"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('Tất cả Khung') }}</option>
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <option value="">{{ __('All Frameworks') }}</option>
                             @foreach($frameworks as $code => $name)
                             <option value="{{ $code }}" {{ request('framework') == $code ? 'selected' : '' }}>{{ $code }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Loại tài liệu') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Document Type') }}</label>
                         <select name="record_type"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('Tất cả loại') }}</option>
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <option value="">{{ __('All Types') }}</option>
                             @foreach($recordTypes as $type)
                             <option value="{{ $type }}" {{ request('record_type') == $type ? 'selected' : '' }}>{{ ucfirst($type) }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Trạng thái') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Status') }}</label>
                         <select name="status"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('Tất cả trạng thái') }}</option>
-                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Đang chờ duyệt') }}</option>
-                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Đã duyệt') }}</option>
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <option value="">{{ __('All Statuses') }}</option>
+                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending Approval') }}</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>{{ __('Approved') }}</option>
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Thể loại chủ đề') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Subject Category') }}</label>
                         <select name="subject_category"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('Tất cả thể loại') }}</option>
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <option value="">{{ __('All Categories') }}</option>
                             @foreach($subjectCategories as $category)
                             <option value="{{ $category }}" {{ request('subject_category') == $category ? 'selected' : '' }}>{{ $category }}</option>
                             @endforeach
@@ -99,48 +96,47 @@
                 </div>
 
                 <!-- Filters Row 2 -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Từ ngày') }}</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('From Date') }}</label>
                         <input type="date" name="date_from" value="{{ request('date_from') }}"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Đến ngày') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('To Date') }}</label>
                         <input type="date" name="date_to" value="{{ request('date_to') }}"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Trường MARC') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('MARC Tag') }}</label>
                         <select name="marc_tag"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                            <option value="">{{ __('Chọn Trường') }}</option>
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <option value="">{{ __('Select Tag') }}</option>
                             @foreach($commonMarcTags as $tag)
                             <option value="{{ $tag }}" {{ request('marc_tag') == $tag ? 'selected' : '' }}>{{ $tag }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-2">{{ __('Giá trị MARC') }}</label>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('MARC Value') }}</label>
                         <input type="text" name="marc_value" value="{{ request('marc_value') }}"
-                            placeholder="{{ __('Giá trị trường...') }}"
-                            class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                            placeholder="{{ __('Tag value...') }}"
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                 </div>
 
                 <!-- Action Buttons -->
-                <div class="flex space-x-3">
-                    <button type="submit"
-                        class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition">
-                        <i class="fas fa-search mr-2"></i>
-                        {{ __('Tìm kiếm') }}
+                <div class="flex gap-2 pt-1.5">
+                    <button type="submit" class="btn-compact-primary">
+                        <i data-lucide="search" class="w-4 h-4 mr-1"></i>
+                        <span>{{ __('Search') }}</span>
                     </button>
-                    <a href="{{ route('admin.marc.book') }}"
-                        class="px-6 py-2.5 bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg text-sm font-semibold transition">
-                        {{ __('Xóa bộ lọc') }}
+                    <a href="{{ route('admin.marc.book') }}" class="btn-compact-secondary">
+                        <i data-lucide="filter-x" class="w-4 h-4 mr-1"></i>
+                        <span>{{ __('Clear Filters') }}</span>
                     </a>
                 </div>
             </form>
@@ -149,134 +145,137 @@
 
     <!-- Results Summary -->
     @if(request()->anyFilled(['search', 'framework', 'record_type', 'status', 'subject_category', 'date_from', 'date_to', 'marc_tag', 'marc_value']))
-    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-blue-800 dark:text-blue-200">
-                    {{ __('Tìm thấy :count bản ghi khớp với điều kiện tìm kiếm', ['count' => $records->total()]) }}
-                </p>
-                @if(request()->filled('search'))
-                <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                    {{ __('Từ khóa tìm kiếm: ":term"', ['term' => request('search')]) }}
-                </p>
-                @endif
-            </div>
-            <a href="{{ route('admin.marc.book') }}"
-                class="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
-                {{ __('Xóa bộ lọc') }}
-            </a>
+    <div class="p-3 bg-primary/10 border border-primary/20 text-primary rounded-sm text-xs flex justify-between items-center">
+        <div>
+            <p class="font-semibold">
+                {{ __('Found :count records matching your search', ['count' => $records->total()]) }}
+            </p>
+            @if(request()->filled('search'))
+            <p class="text-[10px] opacity-80 mt-0.5">
+                {{ __('Search term: ":term"', ['term' => request('search')]) }}
+            </p>
+            @endif
         </div>
+        <a href="{{ route('admin.marc.book') }}" class="font-bold hover:underline">
+            {{ __('Clear Filters') }}
+        </a>
     </div>
     @endif
 
     <!-- Results Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
-        <table class="w-full text-sm text-left">
-            <thead class="bg-gray-50 dark:bg-slate-800/50 text-[10px] uppercase font-bold text-gray-500 dark:text-slate-400 tracking-wider">
-                <tr>
-                    <th class="px-6 py-4">ID</th>
-                    <th class="px-6 py-4">{{ __('Leader / Kiểu') }}</th>
-                    <th class="px-6 py-4">{{ __('Nội dung chính') }}</th>
-                    <th class="px-6 py-4">{{ __('Số trường') }}</th>
-                    <th class="px-6 py-4">{{ __('Trạng thái') }}</th>
-                    <th class="px-6 py-4 text-right">{{ __('Thao tác') }}</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-slate-800">
-                @forelse($records as $record)
-                @php
-                $title = '';
-                $author = '';
-                foreach ($record->fields as $field) {
-                if ($field->tag === '245') {
-                foreach ($field->subfields as $sub) {
-                if ($sub->code === 'a') $title = $sub->value;
-                }
-                }
-                if ($field->tag === '100') {
-                foreach ($field->subfields as $sub) {
-                if ($sub->code === 'a') $author = $sub->value;
-                }
-                }
-                }
-                @endphp
-                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition cursor-pointer"
-                    data-edit-url="{{ route('admin.marc.book.form', $record->id) }}"
-                    title="{{ __('Sửa') }}">
-                    <td class="px-6 py-4 font-mono text-gray-400 dark:text-slate-500">#{{ $record->id }}</td>
-                    <td class="px-6 py-4">
-                        <span class="block font-mono text-[10px] text-gray-500 dark:text-slate-500">{{ $record->leader }}</span>
-                        <span
-                            class="inline-block px-2 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-bold uppercase mt-1">{{ $record->record_type }}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <div class="font-bold text-gray-800 dark:text-slate-100">{{ $title ?: __('Chưa xác định nhan đề') }}</div>
-                        <div class="text-xs text-gray-500 dark:text-slate-400 mt-0.5">{{ $author ?: __('Không rõ tác giả') }}</div>
-                    </td>
-                    <td class="px-6 py-4 text-gray-500 dark:text-slate-400 text-xs">
-                        {{ __('Bao gồm :count trường', ['count' => $record->fields->count()]) }}
-                    </td>
-                    <td class="px-6 py-4">
-                        @if($record->isApproved())
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400">
-                            {{ __('Đã duyệt') }}
-                        </span>
-                        @else
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
-                            {{ __('Đang chờ duyệt') }}
-                        </span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <div class="flex items-center justify-end space-x-1">
-                            <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=0"
-                                class="inline-flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded text-xs font-medium hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                title="{{ __('Thông tin Leader') }}">
-                                <i class="fas fa-info-circle text-xs"></i>
-                            </a>
-                            <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=1"
-                                class="inline-flex items-center px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded text-xs font-medium hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-                                title="{{ __('Biên mục') }}">
-                                <i class="fas fa-book text-xs"></i>
-                            </a>
-                            <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=2"
-                                class="inline-flex items-center px-2 py-1 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded text-xs font-medium hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
-                                title="{{ __('Phân bổ') }}">
-                                <i class="fas fa-share-alt text-xs"></i>
-                            </a>
-                            <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=3"
-                                class="inline-flex items-center px-2 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded text-xs font-medium hover:bg-purple-100 dark:hover:bg-purple-900/50 transition-colors"
-                                title="{{ __('Xem trước') }}">
-                                <i class="fas fa-eye text-xs"></i>
-                            </a>
-                            <a href="{{ route('admin.marc.export.download') }}?format=marc&record_id={{ $record->id }}"
-                                class="inline-flex items-center px-2 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded text-xs font-medium hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
-                                title="{{ __('Xuất MARC') }}">
-                                <i class="fas fa-file-export text-xs"></i>
-                            </a>
-                            <button type="button"
-                                class="delete-record inline-flex items-center px-2 py-1 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded text-xs font-medium hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
-                                data-id="{{ $record->id }}"
-                                data-title="{{ $title }}"
-                                title="{{ __('Xóa') }}">
-                                <i class="fas fa-trash-alt text-xs"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-                        {{ __('Không tìm thấy bản ghi nào') }}
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
+                    <tr>
+                        <th class="py-2 px-3 w-16">ID</th>
+                        <th class="py-2 px-3 w-40">{{ __('Leader / Type') }}</th>
+                        <th class="py-2 px-3">{{ __('Primary Content') }}</th>
+                        <th class="py-2 px-3 w-32">{{ __('Number of Fields') }}</th>
+                        <th class="py-2 px-3 w-28">{{ __('Status') }}</th>
+                        <th class="py-2 px-3 w-56 text-right">{{ __('Actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border">
+                    @forelse($records as $record)
+                    @php
+                    $title = '';
+                    $author = '';
+                    foreach ($record->fields as $field) {
+                        if ($field->tag === '245') {
+                            foreach ($field->subfields as $sub) {
+                                if ($sub->code === 'a') $title = $sub->value;
+                            }
+                        }
+                        if ($field->tag === '100') {
+                            foreach ($field->subfields as $sub) {
+                                if ($sub->code === 'a') $author = $sub->value;
+                            }
+                        }
+                    }
+                    @endphp
+                    <tr class="table-row-hover group cursor-pointer"
+                        data-edit-url="{{ route('admin.marc.book.form', $record->id) }}"
+                        title="{{ __('Edit') }}">
+                        <td class="py-2 px-3 font-mono text-muted-foreground text-xs">#{{ $record->id }}</td>
+                        <td class="py-2 px-3">
+                            <span class="block font-mono text-[9px] text-muted-foreground/80 leading-none">{{ $record->leader }}</span>
+                            <span class="inline-block px-1.5 py-0.5 bg-primary/10 text-primary rounded-sm text-[9px] font-bold uppercase mt-1 border border-primary/20">
+                                {{ $record->record_type }}
+                            </span>
+                        </td>
+                        <td class="py-2 px-3">
+                            <div class="font-bold text-xs">{{ $title ?: __('Title Unknown') }}</div>
+                            <div class="text-[10px] text-muted-foreground mt-0.5 leading-none">{{ $author ?: __('Author Unknown') }}</div>
+                        </td>
+                        <td class="py-2 px-3 text-muted-foreground text-xs">
+                            {{ __('Includes :count fields', ['count' => $record->fields->count()]) }}
+                        </td>
+                        <td class="py-2 px-3">
+                            @if($record->isApproved())
+                            <span class="inline-flex px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                {{ __('Approved') }}
+                            </span>
+                            @else
+                            <span class="inline-flex px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                {{ __('Pending Approval') }}
+                            </span>
+                            @endif
+                        </td>
+                        <td class="py-2 px-3 text-right">
+                            <div class="flex justify-end items-center gap-1">
+                                <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=0"
+                                   class="btn-icon-compact text-blue-500"
+                                   title="{{ __('Leader Information') }}">
+                                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=1"
+                                   class="btn-icon-compact text-primary"
+                                   title="{{ __('Cataloging') }}">
+                                    <i data-lucide="book" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=2"
+                                   class="btn-icon-compact text-green-500"
+                                   title="{{ __('Distribution') }}">
+                                    <i data-lucide="git-branch" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <a href="{{ route('admin.marc.book.form', $record->id) }}?tab=3"
+                                   class="btn-icon-compact text-purple-500"
+                                   title="{{ __('Preview') }}">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <a href="{{ route('admin.marc.export.download') }}?format=marc&record_id={{ $record->id }}"
+                                   class="btn-icon-compact text-emerald-500"
+                                   title="{{ __('Export MARC') }}">
+                                    <i data-lucide="file-output" class="w-3.5 h-3.5"></i>
+                                </a>
+                                <button type="button"
+                                        class="delete-record btn-icon-danger"
+                                        data-id="{{ $record->id }}"
+                                        data-title="{{ $title }}"
+                                        title="{{ __('Delete') }}">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-muted-foreground italic text-xs">
+                            <i data-lucide="database-backup" class="w-8 h-8 text-muted-foreground/35 mx-auto mb-2"></i>
+                            <p>{{ __('No records found') }}</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-        <div class="p-4 border-t border-gray-50 dark:border-slate-800">
+        @if($records->hasPages())
+        <div class="p-3 border-t border-border bg-muted/10">
             {{ $records->links() }}
         </div>
+        @endif
     </div>
 </div>
 @endsection
@@ -291,9 +290,9 @@
         function validateMarcFields() {
             if (marcTag && marcValue) {
                 if (marcTag.value && !marcValue.value) {
-                    marcValue.setCustomValidity("{{ __('Vui lòng nhập giá trị MARC khi trường đã được chọn') }}");
+                    marcValue.setCustomValidity("{{ __('Please enter a MARC value since a tag is selected') }}");
                 } else if (!marcTag.value && marcValue.value) {
-                    marcTag.setCustomValidity("{{ __('Vui lòng chọn trường MARC khi giá trị đã được nhập') }}");
+                    marcTag.setCustomValidity("{{ __('Please select a MARC tag since a value is entered') }}");
                 } else {
                     marcValue.setCustomValidity('');
                     marcTag.setCustomValidity('');
@@ -314,14 +313,22 @@
                 const title = this.dataset.title;
 
                 Swal.fire({
-                    title: '{{ __("Bạn có chắc chắn muốn xóa?") }}',
-                    text: `{{ __("Bạn chuẩn bị xóa bản ghi") }}: ${title}`,
+                    title: '{{ __("Are you sure you want to delete this?") }}',
+                    text: `{{ __("You are about to delete record") }}: ${title}`,
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: '{{ __("Đúng, xóa nó!") }}',
-                    cancelButtonText: '{{ __("Hủy bỏ") }}',
+                    confirmButtonColor: 'hsl(var(--destructive))',
+                    cancelButtonColor: 'hsl(var(--muted))',
+                    confirmButtonText: '{{ __("Yes, delete it!") }}',
+                    cancelButtonText: '{{ __("Cancel") }}',
+                    customClass: {
+                        popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                        title: 'text-foreground font-bold text-sm',
+                        htmlContainer: 'text-muted-foreground text-xs mt-2',
+                        confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                        cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                    },
+                    buttonsStyling: false,
                     reverseButtons: true
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -336,27 +343,51 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    Swal.fire(
-                                        '{{ __("Đã xóa!") }}',
-                                        data.message,
-                                        'success'
-                                    ).then(() => {
+                                    Swal.fire({
+                                        title: '{{ __("Deleted!") }}',
+                                        text: data.message,
+                                        icon: 'success',
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                                            title: 'text-foreground font-bold text-sm',
+                                            htmlContainer: 'text-muted-foreground text-xs mt-2',
+                                            confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider'
+                                        },
+                                        buttonsStyling: false
+                                    }).then(() => {
                                         location.reload();
                                     });
                                 } else {
-                                    Swal.fire(
-                                        '{{ __("Lỗi!") }}',
-                                        data.message,
-                                        'error'
-                                    );
+                                    Swal.fire({
+                                        title: '{{ __("Error!") }}',
+                                        text: data.message,
+                                        icon: 'error',
+                                        confirmButtonText: 'OK',
+                                        customClass: {
+                                            popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                                            title: 'text-foreground font-bold text-sm',
+                                            htmlContainer: 'text-muted-foreground text-xs mt-2',
+                                            confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider'
+                                        },
+                                        buttonsStyling: false
+                                    });
                                 }
                             })
                             .catch(error => {
-                                Swal.fire(
-                                    '{{ __("Lỗi!") }}',
-                                    '{{ __("Đã có lỗi xảy ra trong quá trình xóa") }}',
-                                    'error'
-                                );
+                                Swal.fire({
+                                    title: '{{ __("Error!") }}',
+                                    text: '{{ __("An error occurred during deletion") }}',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK',
+                                    customClass: {
+                                        popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                                        title: 'text-foreground font-bold text-sm',
+                                        htmlContainer: 'text-muted-foreground text-xs mt-2',
+                                        confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider'
+                                    },
+                                    buttonsStyling: false
+                                });
                             });
                     }
                 });

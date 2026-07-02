@@ -289,8 +289,129 @@ class SiteController extends Controller
      */
     public function reserveBook(Request $request, \App\Models\BibliographicRecord $record)
     {
-        // Implementation for book reservation
-        return back()->with('success', 'Yêu cầu mượn sách đã được gửi.');
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            $user = auth()->user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Vui lòng đăng nhập để mượn sách.')
+                ], 401);
+            }
+
+            $patron = \App\Models\PatronDetail::where('user_id', $user->id)->first();
+            if (!$patron) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Tài khoản của bạn chưa kích hoạt thông tin độc giả. Vui lòng liên hệ thủ thư.')
+                ], 400);
+            }
+
+            // Check if patron already has active reservation for this book
+            $existingReservation = \App\Models\Reservation::where('patron_detail_id', $patron->id)
+                ->where('bibliographic_record_id', $record->id)
+                ->whereIn('status', ['pending', 'ready'])
+                ->first();
+
+            if ($existingReservation) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Bạn đã đăng ký mượn tài liệu này rồi.')
+                ], 400);
+            }
+
+            // Check if patron is currently borrowing this book
+            $activeLoan = \App\Models\LoanTransaction::whereHas('bookItem', function($q) use ($record) {
+                    $q->where('bibliographic_record_id', $record->id);
+                })
+                ->where('patron_detail_id', $patron->id)
+                ->where('status', 'borrowed')
+                ->first();
+
+            if ($activeLoan) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Bạn đang mượn tài liệu này, không thể đăng ký mượn thêm.')
+                ], 400);
+            }
+
+            // Check patron's hold policy
+            $policy = $patron->patronGroup?->activePolicy;
+            if (!$policy || !$policy->canPlaceHolds()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Bạn đọc không được phép đặt giữ lại sách.')
+                ], 400);
+            }
+
+            // Check patron's hold limit
+            $activeHolds = \App\Models\Reservation::where('patron_detail_id', $patron->id)
+                ->whereIn('status', ['pending', 'ready'])
+                ->count();
+
+            if ($activeHolds >= $policy->max_holds) {
+                return response()->json([
+                    'success' => false,
+                    'message' => __('Bạn đã đạt giới hạn đặt giữ tối đa (:max)', ['max' => $policy->max_holds])
+                ], 400);
+            }
+
+            // Check if any copy is available
+            $bookItem = \App\Models\BookItem::where('bibliographic_record_id', $record->id)
+                ->where('status', 'available')
+                ->first();
+
+            $reservationStatus = 'pending';
+            $assignedBookItemId = null;
+
+            if ($bookItem) {
+                $reservationStatus = 'ready';
+                $assignedBookItemId = $bookItem->id;
+                
+                // Update book item status
+                $bookItem->update(['status' => 'reserved']);
+            } else {
+                // Get any copy for queue display
+                $anyItem = \App\Models\BookItem::where('bibliographic_record_id', $record->id)->first();
+                $assignedBookItemId = $anyItem ? $anyItem->id : null;
+            }
+
+            // Create reservation
+            $reservation = \App\Models\Reservation::create([
+                'patron_detail_id' => $patron->id,
+                'bibliographic_record_id' => $record->id,
+                'book_item_id' => $assignedBookItemId,
+                'reservation_date' => \Carbon\Carbon::now(),
+                'expiry_date' => $policy->getHoldExpiryDate(),
+                'pickup_branch_id' => $patron->branch_id,
+                'status' => $reservationStatus,
+                'notified' => false,
+                'notes' => __('Đăng ký mượn tự động từ OPAC')
+            ]);
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $statusText = $reservationStatus === 'ready' ? __('Sẵn sàng nhận sách') : __('Trong danh sách chờ');
+
+            return response()->json([
+                'success' => true,
+                'message' => __('Đăng ký mượn sách thành công! Trạng thái: :status', ['status' => $statusText]),
+                'data' => [
+                    'reservation_id' => $reservation->id,
+                    'status' => $reservationStatus,
+                    'status_display' => $statusText,
+                    'expiry_date' => $reservation->expiry_date->format('d/m/Y')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

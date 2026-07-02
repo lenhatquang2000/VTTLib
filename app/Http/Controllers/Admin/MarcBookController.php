@@ -189,6 +189,12 @@ class MarcBookController extends Controller
             // 1. Lấy tất cả các Tags hiện có trong bản ghi này
             $recordFields = $record->fields()->with('subfields')->orderBy('tag')->get();
             $recordTags = $recordFields->pluck('tag')->unique();
+            
+            // Append requested add_tag if present
+            if ($request->filled('add_tag')) {
+                $recordTags->push($request->add_tag);
+                $recordTags = $recordTags->unique();
+            }
 
             // 2. Lấy định nghĩa chuẩn cho các Tags này để lấy nhãn (label) và mô tả
             $definitions = MarcTagDefinition::whereIn('tag', $recordTags)
@@ -252,6 +258,19 @@ class MarcBookController extends Controller
                 }])
                 ->wherePivot('is_visible', true)
                 ->get() : collect();
+
+            // Append requested add_tag if present in create mode
+            if ($request->filled('add_tag')) {
+                $extraTag = MarcTagDefinition::where('tag', $request->add_tag)
+                    ->with(['subfields' => function ($q) {
+                        $q->where('is_visible', true)->orderBy('code');
+                    }])
+                    ->first();
+                if ($extraTag && !$definitions->contains('tag', $request->add_tag)) {
+                    $definitions->push($extraTag);
+                    $definitions = $definitions->sortBy('tag')->values();
+                }
+            }
         }
 
         $documentTypes = DocumentType::active()->ordered()->get();

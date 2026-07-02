@@ -125,10 +125,16 @@ class CirculationController extends Controller
             DB::beginTransaction();
 
             // Find patron
-            $patron = PatronDetail::where('patron_code', $validated['patron_code'])->firstOrFail();
+            $patron = PatronDetail::where('patron_code', $validated['patron_code'])->first();
+            if (!$patron) {
+                throw new \Exception(__('Không tìm thấy bạn đọc với mã đã nhập.'));
+            }
             
             // Find book item
-            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            $bookItem = BookItem::where('barcode', $validated['barcode'])->first();
+            if (!$bookItem) {
+                throw new \Exception(__('Không tìm thấy tài liệu với mã vạch đã nhập.'));
+            }
 
             // Check if patron can borrow
             if (!$patron->canBorrow()) {
@@ -189,16 +195,25 @@ class CirculationController extends Controller
             DB::beginTransaction();
 
             if ($request->filled('loan_id')) {
-                $loan = LoanTransaction::with('bookItem')->findOrFail($validated['loan_id']);
+                $loan = LoanTransaction::with('bookItem')->find($validated['loan_id']);
+                if (!$loan) {
+                    throw new \Exception(__('Không tìm thấy thông tin lượt mượn.'));
+                }
                 $bookItem = $loan->bookItem;
             } else {
                 // Find book item
-                $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+                $bookItem = BookItem::where('barcode', $validated['barcode'])->first();
+                if (!$bookItem) {
+                    throw new \Exception(__('Không tìm thấy tài liệu với mã vạch đã nhập.'));
+                }
 
                 // Find active loan
                 $loan = LoanTransaction::where('book_item_id', $bookItem->id)
                     ->where('status', 'borrowed')
-                    ->firstOrFail();
+                    ->first();
+                if (!$loan) {
+                    throw new \Exception(__('Tài liệu này hiện không ở trạng thái đang được mượn.'));
+                }
             }
 
             // Calculate fine if overdue and not forgiven
@@ -230,6 +245,9 @@ class CirculationController extends Controller
 
             // Update book item status
             $bookItem->update(['status' => 'available']);
+
+            // Tự động xử lý hàng chờ đặt giữ nếu có yêu cầu đang chờ
+            Reservation::processQueue($bookItem->bibliographic_record_id, $bookItem->id);
 
             DB::commit();
 
@@ -1038,10 +1056,16 @@ class CirculationController extends Controller
             DB::beginTransaction();
 
             // Find patron
-            $patron = PatronDetail::where('patron_code', $validated['patron_code'])->firstOrFail();
+            $patron = PatronDetail::where('patron_code', $validated['patron_code'])->first();
+            if (!$patron) {
+                throw new \Exception(__('Không tìm thấy bạn đọc với mã đã nhập.'));
+            }
             
             // Find book item
-            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            $bookItem = BookItem::where('barcode', $validated['barcode'])->first();
+            if (!$bookItem) {
+                throw new \Exception(__('Không tìm thấy tài liệu với mã vạch đã nhập.'));
+            }
 
             // Check if book is available for reading room
             if (!in_array($bookItem->status, ['available', 'in_processing'])) {
@@ -1223,10 +1247,31 @@ class CirculationController extends Controller
             DB::beginTransaction();
 
             // Find patron
-            $patron = PatronDetail::where('patron_code', $validated['patron_code'])->firstOrFail();
+            $patron = PatronDetail::where('patron_code', $validated['patron_code'])->first();
+            if (!$patron) {
+                throw new \Exception(__('Không tìm thấy bạn đọc với mã đã nhập.'));
+            }
             
             // Find book item
-            $bookItem = BookItem::where('barcode', $validated['barcode'])->firstOrFail();
+            $bookItem = BookItem::where('barcode', $validated['barcode'])->first();
+            if (!$bookItem) {
+                throw new \Exception(__('Không tìm thấy tài liệu với mã vạch đã nhập.'));
+            }
+
+            // Chặn đặt giữ sách đang ở trạng thái không thể lưu thông
+            if (in_array($bookItem->status, ['lost', 'damaged', 'maintenance'])) {
+                throw new \Exception(__('Tài liệu này đang ở trạng thái không thể đặt giữ (Đã mất, Hư hỏng hoặc Đang bảo trì).'));
+            }
+
+            // Chặn đặt giữ nếu bạn đọc đang trực tiếp mượn cuốn sách này
+            $activeLoan = LoanTransaction::where('book_item_id', $bookItem->id)
+                ->where('patron_detail_id', $patron->id)
+                ->where('status', 'borrowed')
+                ->first();
+
+            if ($activeLoan) {
+                throw new \Exception(__('Bạn đọc đang mượn tài liệu này, không thể tự đặt giữ lại.'));
+            }
 
             // Check if patron already has active reservation for this book
             $existingReservation = Reservation::where('patron_detail_id', $patron->id)
@@ -1255,11 +1300,10 @@ class CirculationController extends Controller
 
             // Check if book is available
             $reservationStatus = 'pending';
-            $assignedBookItemId = null;
+            $assignedBookItemId = $bookItem->id; // Gán book_item_id từ mã vạch đã quét
 
             if ($bookItem->status === 'available') {
                 $reservationStatus = 'ready';
-                $assignedBookItemId = $bookItem->id;
                 
                 // Update book item status
                 $bookItem->update(['status' => 'reserved']);

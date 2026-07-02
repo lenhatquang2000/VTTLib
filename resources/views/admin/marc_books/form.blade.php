@@ -1,9 +1,6 @@
 @extends('layouts.admin')
 
 @section('content')
-<!-- SweetAlert2 CSS -->
-<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-
 @php
 $initialFields = [];
 foreach($definitions as $tag) {
@@ -52,38 +49,35 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
     : [];
 @endphp
 
-<div class="space-y-6 w-full pb-20" x-data="catalogWizard()" x-init="$nextTick(() => debugSubfieldBindings())">
+<div class="w-full space-y-4 animate-in fade-in duration-500 pb-20" x-data="catalogWizard()">
     <!-- Header Section -->
-    <div class="flex justify-between items-start bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-slate-100">
+            <h1 class="text-lg font-bold text-foreground tracking-tight">
                 {{ isset($record) ? __('Chỉnh sửa bản ghi MARC') : __('Form biên mục MARC21') }}
-            </h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            </h1>
+            <p class="text-xs text-muted-foreground mt-0.5">
                 {{ isset($record) ? __('Cập nhật thông tin chi tiết cho bản ghi biên mục #:id', ['id' => $record->id]) : __('Nhập thông tin thư mục và ấn phẩm theo cấu trúc trường MARC21') }}
             </p>
         </div>
-        <div class="flex space-x-3">
-            <a href="{{ route('admin.marc.book') }}"
-                class="flex items-center px-4 py-2.5 text-sm font-semibold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                {{ __('Quay lại') }}
+        <div class="flex gap-2">
+            <a href="{{ route('admin.marc.book') }}" class="btn-compact-secondary">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+                <span>{{ __('Quay lại') }}</span>
             </a>
         </div>
     </div>
 
     <!-- Tabs Navigation -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
-        <div class="flex border-b border-gray-200 dark:border-slate-700">
+    <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
+        <div class="flex border-b border-border">
             <template x-for="(step, index) in steps" :key="index">
                 <button type="button"
                     @click="goToStep(index)"
-                    class="flex-1 py-4 px-6 text-sm font-semibold transition-all duration-200 focus:outline-none flex items-center justify-center space-x-3"
-                    :class="currentStep === index ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800'">
-                    <span class="flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
-                        :class="currentStep === index ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-slate-400'"
+                    class="flex-1 py-2 px-3 text-xs font-semibold transition-all duration-200 focus:outline-none flex items-center justify-center gap-2 border-r last:border-r-0 border-border"
+                    :class="currentStep === index ? 'bg-primary/10 text-primary border-b-2 border-b-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'">
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-bold"
+                        :class="currentStep === index ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'"
                         x-text="index + 1"></span>
                     <span x-text="step.title"></span>
                 </button>
@@ -91,7 +85,7 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
         </div>
     </div>
 
-    <form id="catalogForm" action="{{ isset($record) ? route('admin.marc.book.update', $record->id) : route('admin.marc.book.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form id="catalogForm" action="{{ isset($record) ? route('admin.marc.book.update', $record->id) : route('admin.marc.book.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
         @csrf
         @if(isset($record))
             @method('PUT')
@@ -99,42 +93,40 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
         <input type="hidden" name="tab" :value="currentStep">
 
         <!-- Step 1: Leader/Metadata -->
-        <div x-show="currentStep === 0" x-cloak class="space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-8">
-                <div class="mb-8">
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-slate-100 mb-2">{{ __('Leader bản ghi') }}</h3>
-                    <p class="text-sm text-gray-500 dark:text-slate-400">{{ __('Leader là 24 ký tự đầu tiên chứa các thông tin trạng thái, loại bản ghi, v.v.') }}</p>
+        <div x-show="currentStep === 0" x-cloak class="space-y-4">
+            <div class="bg-card text-foreground rounded-md border border-border shadow-sm p-4">
+                <div class="mb-4">
+                    <h3 class="text-sm font-bold text-foreground">{{ __('Leader bản ghi') }}</h3>
+                    <p class="text-xs text-muted-foreground mt-0.5">{{ __('Leader là 24 ký tự đầu tiên chứa các thông tin trạng thái, loại bản ghi, v.v.') }}</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-stretch">
-                    <div class="lg:col-span-8 space-y-8">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">
-                                    {{ __('Khung biên mục') }} <span class="text-red-500">*</span>
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+                    <div class="lg:col-span-8 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div class="md:col-span-2 space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                                    {{ __('Khung biên mục') }} <span class="text-destructive">*</span>
                                 </label>
-                                <div class="relative">
-                                    <select x-model="formData.framework" name="framework"
-                                        onchange="const url = new URL(window.location); url.searchParams.set('framework_id', this.options[this.selectedIndex].getAttribute('data-id')); window.location.href = url.toString();"
-                                        class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm font-semibold focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
-                                        @foreach($frameworks as $fw)
-                                        <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
-                                            {{ $fw->name }} ({{ $fw->code }})
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <p class="mt-2 text-[9px] text-gray-400 uppercase tracking-widest font-bold">
+                                <select x-model="formData.framework" name="framework"
+                                    onchange="const url = new URL(window.location); url.searchParams.set('framework_id', this.options[this.selectedIndex].getAttribute('data-id')); window.location.href = url.toString();"
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    @foreach($frameworks as $fw)
+                                    <option value="{{ $fw->code }}" data-id="{{ $fw->id }}" {{ $frameworkId == $fw->id ? 'selected' : '' }}>
+                                        {{ $fw->name }} ({{ $fw->code }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <p class="text-[9px] text-muted-foreground uppercase tracking-widest font-bold mt-0.5">
                                     {{ __('Trang sẽ tải lại khi thay đổi') }}
                                 </p>
                             </div>
 
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">
-                                    {{ __('Kiểu tài liệu') }} <span class="text-red-500">*</span>
+                            <div class="md:col-span-2 space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+                                    {{ __('Kiểu tài liệu') }} <span class="text-destructive">*</span>
                                 </label>
                                 <select x-model="formData.document_type_id" name="document_type_id"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="">{{ __('Chọn kiểu tài liệu') }}</option>
                                     @foreach($documentTypes as $type)
                                     <option value="{{ $type->id }}" {{ (isset($record) && $record->document_type_id == $type->id) || (!isset($record) && $type->id == (old('document_type_id') ?? null)) ? 'selected' : '' }}>
@@ -142,33 +134,32 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                     </option>
                                     @endforeach
                                 </select>
-                                <p class="mt-2 text-[9px] text-gray-400">{{ __('Quản lý kiểu tài liệu tại') }} <a href="{{ route('admin.document-types.index') }}" target="_blank" class="text-indigo-600 hover:text-indigo-700 font-semibold">{{ __('Kiểu tài liệu') }}</a></p>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Trạng thái') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Trạng thái') }}</label>
                                 <select x-model="formData.status" name="status"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="pending">{{ __('Mới') }}</option>
                                     <option value="approved">{{ __('Đã duyệt') }}</option>
                                 </select>
                             </div>
 
-                            <div class="flex items-center space-x-3 p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+                            <div class="flex items-center gap-2 p-3 bg-primary/5 rounded-sm border border-primary/10">
                                 <label class="relative inline-flex items-center cursor-pointer">
                                     <input type="checkbox" name="is_featured" x-model="formData.is_featured" class="sr-only peer">
-                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+                                    <div class="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                                 </label>
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-vttu-dark dark:text-slate-200">{{ __('Sách nổi bật') }}</span>
-                                    <span class="text-[10px] text-vttu-red font-medium italic italic opacity-70">{{ __('Hiển thị ở khu vực nổi bật trên trang chủ') }}</span>
+                                <div class="flex flex-col leading-none">
+                                    <span class="text-xs font-bold text-foreground">{{ __('Sách nổi bật') }}</span>
+                                    <span class="text-[9px] text-destructive font-medium italic mt-0.5">{{ __('Hiển thị ở khu vực nổi bật trên trang chủ') }}</span>
                                 </div>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Thể loại') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Thể loại') }}</label>
                                 <select x-model="formData.record_type" name="record_type"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="book">{{ __('Sách') }}</option>
                                     <option value="article">{{ __('Bài trích') }}</option>
                                     <option value="collection">{{ __('Bộ sưu tập') }}</option>
@@ -185,10 +176,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Kiểu biểu ghi') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Kiểu biểu ghi') }}</label>
                                 <select x-model="formData.bibliographic_level" name="bibliographic_level"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     @foreach($bibliographicLevels as $level)
                                     <option value="{{ $level->code }}" {{ (isset($record) && $record->bibliographic_level == $level->code) || (!isset($record) && $level->code == 'a') ? 'selected' : '' }}>
                                         {{ app()->getLocale() == 'en' ? $level->name_en : $level->name_vi }}
@@ -197,10 +188,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Tần suất xuất bản tạp chí') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Tần suất xuất bản tạp chí') }}</label>
                                 <select x-model="formData.serial_frequency" name="serial_frequency"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="unknown">{{ __('Không xác định') }}</option>
                                     <option value="a">{{ __('Hàng năm') }}</option>
                                     <option value="b">{{ __('Hai tháng/kỳ') }}</option>
@@ -222,10 +213,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Loại ngày xuất bản') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Loại ngày xuất bản') }}</label>
                                 <select x-model="formData.date_type" name="date_type"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="bc">{{ __('Có liên quan đến ngày trước CN') }}</option>
                                     <option value="c">{{ __('Ấn phẩm tiếp diễn đang xuất bản') }}</option>
                                     <option value="d">{{ __('Ấn phẩm tiếp diễn đã ngừng xuất bản') }}</option>
@@ -243,10 +234,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Hình thức nhận (Tạp chí)') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Hình thức nhận (Tạp chí)') }}</label>
                                 <select x-model="formData.acquisition_method" name="acquisition_method"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="vol_date">{{ __('Tập và ngày tháng năm') }}</option>
                                     <option value="untraced">{{ __('Ấn phẩm không theo dõi') }}</option>
                                     <option value="date">{{ __('Ngày tháng năm') }}</option>
@@ -261,10 +252,10 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Định dạng tài liệu') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Định dạng tài liệu') }}</label>
                                 <select x-model="formData.document_format" name="document_format"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="none">{{ __('Không có định dạng đặc biệt') }}</option>
                                     <option value="a">{{ __('Vi phim') }}</option>
                                     <option value="b">{{ __('Vi phiếu') }}</option>
@@ -276,44 +267,40 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Chuẩn biên mục') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Chuẩn biên mục') }}</label>
                                 <select x-model="formData.cataloging_standard" name="cataloging_standard"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="AACR2">AACR-2</option>
                                     <option value="ISBD">ISBD</option>
                                 </select>
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3">{{ __('Chủ đề') }}</label>
+                            <div class="space-y-1">
+                                <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Chủ đề') }}</label>
                                 <select x-model="formData.subject_category" name="subject_category"
-                                    class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors appearance-none cursor-pointer">
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     <option value="Article">{{ __('Bài trích chọn lọc') }}</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-4 flex flex-col h-full">
-                        <label class="block text-sm font-bold text-gray-700 dark:text-slate-300 mb-3 text-center">{{ __('Ảnh bìa') }}</label>
-                        <div class="flex-grow flex flex-col items-center justify-start">
-                            <div class="relative group cursor-pointer w-full max-w-[280px] mx-auto" @click="$refs.coverInput.click()">
-                                <div class="relative w-full aspect-[3/4] rounded-2xl overflow-hidden border-2 border-indigo-100 dark:border-indigo-900/50 shadow-lg bg-gray-50 dark:bg-slate-800 transition-all duration-500 group-hover:shadow-xl group-hover:shadow-indigo-500/10">
-                                    <img :src="coverPreview" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex flex-col items-center justify-end pb-6">
-                                        <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl text-xs font-bold shadow-xl transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                            {{ __('Thay đổi ảnh bìa') }}
-                                        </div>
-                                    </div>
-                                    <button type="button" @click.stop="removeCover()" class="absolute top-3 right-3 bg-rose-500 hover:bg-rose-600 text-white p-2 rounded-full shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-all">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                        </svg>
-                                    </button>
+                    <div class="lg:col-span-4 flex flex-col justify-start space-y-2">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider text-center">{{ __('Ảnh bìa') }}</label>
+                        <div class="relative group cursor-pointer w-full max-w-[200px] mx-auto" @click="$refs.coverInput.click()">
+                            <div class="relative w-full aspect-[3/4] rounded-md overflow-hidden border border-border shadow-sm bg-muted flex items-center justify-center">
+                                <img :src="coverPreview" class="w-full h-full object-contain">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                                    <span class="bg-card text-foreground px-3 py-1.5 rounded-sm text-[10px] font-bold shadow border border-border">
+                                        {{ __('Thay đổi ảnh bìa') }}
+                                    </span>
                                 </div>
-                                <input type="file" name="cover_image" id="cover_image_input" x-ref="coverInput" class="hidden" accept="image/*" @change="previewCover($event)">
+                                <button type="button" @click.stop="removeCover()" class="absolute top-2 right-2 bg-destructive text-destructive-foreground p-1 rounded-sm shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                </button>
                             </div>
+                            <input type="file" name="cover_image" id="cover_image_input" x-ref="coverInput" class="hidden" accept="image/*" @change="previewCover($event)">
                         </div>
                     </div>
                 </div>
@@ -321,42 +308,43 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
         </div>
 
         <!-- Step 2: MARC Fields -->
-        <div x-show="currentStep === 1" x-cloak class="space-y-6">
-            <div class="flex justify-between items-center bg-indigo-50/50 dark:bg-indigo-900/10 p-4 rounded-xl border border-indigo-100 dark:border-indigo-900/30">
-                <div class="text-sm font-bold text-indigo-700 dark:text-indigo-400">
-                    <i class="fas fa-plus-circle mr-2"></i>{{ __('Thêm trường tùy chỉnh cho Snapshot này') }}
+        <div x-show="currentStep === 1" x-cloak class="space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-primary/5 rounded-sm border border-primary/10 gap-3">
+                <div class="text-xs font-bold text-primary flex items-center gap-1.5">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>{{ __('Thêm trường tùy chỉnh cho Snapshot này') }}</span>
                 </div>
                 <div class="flex gap-2">
-                    <select id="quick_add_tag" class="text-xs border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 dark:text-slate-200">
+                    <select id="quick_add_tag" class="h-9 px-3 py-1.5 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none">
                         <option value="">-- {{ __('Chọn Tag để thêm') }} --</option>
                         @foreach(\App\Models\MarcTagDefinition::orderBy('tag')->get() as $t)
                             <option value="{{ $t->tag }}">{{ $t->tag }} - {{ $t->label }}</option>
                         @endforeach
                     </select>
-                    <button type="button" @click="addTagToSnapshot()" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+                    <button type="button" @click="addTagToSnapshot()" class="btn-compact-primary h-9">
                         {{ __('Thêm Tag') }}
                     </button>
                 </div>
             </div>
 
             @foreach($definitions as $tag)
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden"
+            <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden"
                 x-data="{ expanded: {{ $tag->tag == '245' ? 'true' : 'false' }} }">
-                <div class="p-4 bg-gray-50/50 dark:bg-slate-800/50 flex justify-between items-center cursor-pointer border-b border-gray-50 dark:border-slate-800"
+                <div class="p-3 bg-muted/30 flex justify-between items-center cursor-pointer border-b border-border"
                     @click="expanded = !expanded">
-                    <div class="flex items-center space-x-4">
-                        <span class="bg-gray-800 dark:bg-slate-950 text-white px-3 py-1 rounded font-mono font-bold">{{ $tag->tag }}</span>
-                        <h4 class="font-bold text-gray-700 dark:text-slate-200 uppercase text-xs">{{ $tag->label }}</h4>
+                    <div class="flex items-center gap-3">
+                        <span class="bg-primary/10 border border-primary/20 text-primary px-2 py-0.5 rounded-sm font-mono font-bold text-xs">{{ $tag->tag }}</span>
+                        <h4 class="font-bold text-foreground uppercase text-[10px] tracking-wider">{{ $tag->label }}</h4>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="flex items-center gap-3">
                         <div class="flex flex-col items-center">
-                            <span class="text-[8px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-1">Ind</span>
-                            <div class="flex space-x-1">
+                            <span class="text-[8px] text-muted-foreground font-bold uppercase mb-0.5">Ind</span>
+                            <div class="flex gap-1">
                                 <input type="text" name="fields[{{ $tag->tag }}][ind1]" x-model="marcFields['{{ $tag->tag }}'].ind1" placeholder="#" maxlength="1"
-                                    class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                    class="w-6 h-6 p-0 text-center border border-input rounded-sm text-xs font-mono uppercase bg-background text-foreground focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                                     @click.stop>
                                 <input type="text" name="fields[{{ $tag->tag }}][ind2]" x-model="marcFields['{{ $tag->tag }}'].ind2" placeholder="#" maxlength="1"
-                                    class="w-7 h-7 p-0 text-center border border-gray-300 dark:border-slate-600 rounded text-xs font-mono uppercase bg-white dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 transition-all"
+                                    class="w-6 h-6 p-0 text-center border border-input rounded-sm text-xs font-mono uppercase bg-background text-foreground focus:ring-1 focus:ring-primary focus:border-primary transition-all"
                                     @click.stop>
                             </div>
                         </div>
@@ -368,61 +356,65 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                     text: '{{ __('Bạn có chắc chắn muốn xóa Tag này khỏi bản ghi? Hành động này không thể hoàn tác.') }}',
                                     icon: 'warning',
                                     showCancelButton: true,
-                                    confirmButtonColor: '#680102',
-                                    cancelButtonColor: '#94a3b8',
+                                    confirmButtonColor: 'hsl(var(--destructive))',
+                                    cancelButtonColor: 'hsl(var(--muted))',
                                     confirmButtonText: '{{ __('Xóa ngay') }}',
                                     cancelButtonText: '{{ __('Hủy bỏ') }}',
-                                    customClass: { popup: 'rounded-[2rem]' }
+                                    customClass: {
+                                        popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                                        title: 'text-foreground font-bold text-sm',
+                                        htmlContainer: 'text-muted-foreground text-xs mt-2',
+                                        confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                                        cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                                    },
+                                    buttonsStyling: false
                                 }).then((result) => {
                                     if (result.isConfirmed) {
                                         delete marcFields['{{ $tag->tag }}']; 
-                                        $el.closest('.bg-white').remove();
+                                        $el.closest('.bg-card').remove();
                                         isDirty = true;
                                     }
                                 })
                             "
-                            class="p-2 text-gray-400 hover:text-rose-500 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                            </svg>
+                            class="btn-icon-danger">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                         </button>
 
-                        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200"
-                            :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        <button type="button" class="btn-icon-compact text-muted-foreground">
+                            <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" :class="expanded ? 'rotate-180' : ''"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="p-6" x-show="expanded" x-cloak x-collapse>
+                <div class="p-3" x-show="expanded" x-cloak x-collapse>
                     @if(intval($tag->tag) < 10)
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
-                            <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700">
+                            <div class="flex flex-col md:flex-row gap-3 items-start bg-muted/20 p-3 rounded-sm border border-border">
                                 <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'" value="_">
                                 <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][id]'" x-model="row.id">
                                 <div class="w-full flex gap-3 items-center">
-                                    <span class="shrink-0 px-3 py-2 bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-slate-400 rounded-lg text-xs font-mono font-bold">{{ $tag->label }}</span>
+                                    <span class="shrink-0 px-2 py-1 bg-muted text-muted-foreground border border-border rounded-sm text-xs font-mono font-bold">{{ $tag->label }}</span>
                                     <input type="text"
                                         :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'"
                                         x-model="row.value"
                                         placeholder="{{ __('Nhập giá trị') }}"
-                                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors">
+                                        class="flex-1 h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
                                 </div>
                             </div>
                         </template>
                     </div>
                     @else
-                    <div class="space-y-4">
+                    <div class="space-y-3">
                         <template x-for="(row, index) in marcFields['{{ $tag->tag }}'].subfields" :key="index">
-                            <div class="flex flex-col md:flex-row gap-4 items-start bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-lg border border-gray-200 dark:border-slate-700 group hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
+                            <div class="flex flex-col md:flex-row gap-3 items-start bg-muted/20 p-3 rounded-sm border border-border group hover:border-primary/30 transition-colors">
                                 <div class="w-full md:w-1/3">
                                     <div class="relative group/sub">
                                         <select :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][code]'"
                                             x-model="row.code"
                                             x-init="row.code = ((row.code ?? '').toString().trim().replace(/^\$/, ''))"
                                             x-effect="$el.value = ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())"
-                                            class="w-full px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition-colors appearance-none cursor-pointer">
+                                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all appearance-none cursor-pointer">
                                             <option value="">{{ __('Chọn trường con') }}</option>
                                             <template x-for="def in marcFields['{{ $tag->tag }}'].subfieldDefinitions" :key="def.code">
                                                 <option :value="def.code" :selected="def.code === ((row.code ?? '').toString().trim().replace(/^\$/, '').toLowerCase())" x-text="'$' + def.code + ' ' + def.label"></option>
@@ -434,40 +426,41 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                         <button type="button" 
                                             @click="
                                                 Swal.fire({
-                                                    title: `<span class='text-xl font-black uppercase tracking-tight dark:text-white'>Chỉnh sửa Subfield</span>`,
+                                                    title: '<span class=\'text-sm font-bold uppercase tracking-wider\'>Chỉnh sửa Subfield</span>',
                                                     html: `
-                                                        <div class='text-left space-y-4 px-2 pt-4'>
-                                                            <div class='space-y-1.5'>
-                                                                <label class='text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] ml-1'>Mã Subfield (1 ký tự)</label>
+                                                        <div class='text-left space-y-3 pt-3'>
+                                                            <div class='space-y-1'>
+                                                                <label class='text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1'>Mã Subfield (1 ký tự)</label>
                                                                 <div class='relative'>
-                                                                    <span class='absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-mono'>$</span>
+                                                                    <span class='absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 font-mono text-sm'>$</span>
                                                                     <input id='swal-input-code' 
-                                                                        class='w-full pl-8 pr-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-mono focus:ring-2 focus:ring-indigo-500 transition-all outline-none dark:text-white' 
+                                                                        class='w-full h-9 pl-7 pr-3 py-1.5 bg-background border border-input rounded-sm text-sm font-mono focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-foreground' 
                                                                         maxlength='1' 
                                                                         value='${row.code}' 
                                                                         placeholder='a'>
                                                                 </div>
                                                             </div>
-                                                            <div class='space-y-1.5'>
-                                                                <label class='text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] ml-1'>Tên hiển thị / Mô tả</label>
+                                                            <div class='space-y-1'>
+                                                                <label class='text-[10px] font-bold text-muted-foreground uppercase tracking-wider ml-1'>Tên hiển thị / Mô tả</label>
                                                                 <input id='swal-input-label' 
-                                                                    class='w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 transition-all outline-none dark:text-white' 
+                                                                    class='w-full h-9 px-3 py-1.5 bg-background border border-input rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all outline-none text-foreground' 
                                                                     value='${getSubfieldLabel('{{ $tag->tag }}', row.code)}' 
                                                                     placeholder='Nhập tên trường con...'>
                                                             </div>
                                                         </div>
                                                     `,
-                                                    background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
                                                     showCancelButton: true,
                                                     confirmButtonText: 'Cập nhật',
                                                     cancelButtonText: 'Hủy',
-                                                    confirmButtonColor: '#680102',
-                                                    cancelButtonColor: '#64748b',
+                                                    confirmButtonColor: 'hsl(var(--primary))',
+                                                    cancelButtonColor: 'hsl(var(--muted))',
                                                     customClass: {
-                                                        popup: 'rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xl',
-                                                        confirmButton: 'rounded-xl px-8 py-3 text-sm font-bold uppercase tracking-widest',
-                                                        cancelButton: 'rounded-xl px-8 py-3 text-sm font-bold uppercase tracking-widest'
+                                                        popup: 'bg-card text-foreground border border-border rounded-md p-4 w-80',
+                                                        title: 'text-foreground font-bold text-sm border-b border-border pb-2',
+                                                        confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                                                        cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
                                                     },
+                                                    buttonsStyling: false,
                                                     focusConfirm: false,
                                                     preConfirm: () => {
                                                         const newCode = document.getElementById('swal-input-code').value.toLowerCase().replace(/^\$/, '').substring(0, 1);
@@ -493,19 +486,19 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                                     }
                                                 })
                                             "
-                                            class="absolute right-8 top-1/2 -translate-y-1/2 text-[10px] bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-1.5 py-0.5 rounded font-black opacity-0 group-hover/sub:opacity-100 transition-opacity shadow-sm border border-indigo-100 dark:border-indigo-800">
+                                            class="absolute right-7 top-1/2 -translate-y-1/2 text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm font-bold opacity-0 group-hover/sub:opacity-100 transition-opacity border border-primary/20">
                                             Đổi mã
                                         </button>
                                     </div>
                                 </div>
 
-                                <div class="w-full md:w-2/3 flex gap-3">
+                                <div class="w-full md:w-2/3 flex gap-2">
                                     <input type="hidden" :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][id]'" x-model="row.id">
                                     <input type="text"
                                         :name="'fields[' + '{{ $tag->tag }}' + '][subfields][' + index + '][value]'"
                                         x-model="row.value"
                                         placeholder="{{ __('Nhập giá trị') }}"
-                                        class="flex-1 px-4 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                        class="flex-1 h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
 
                                     <button type="button" @click="
                                         Swal.fire({
@@ -513,11 +506,18 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                             text: '{{ __('Xóa trường con này?') }}',
                                             icon: 'question',
                                             showCancelButton: true,
-                                            confirmButtonColor: '#680102',
-                                            cancelButtonColor: '#94a3b8',
+                                            confirmButtonColor: 'hsl(var(--destructive))',
+                                            cancelButtonColor: 'hsl(var(--muted))',
                                             confirmButtonText: '{{ __('Xóa') }}',
                                             cancelButtonText: '{{ __('Hủy') }}',
-                                            customClass: { popup: 'rounded-[1.5rem]' }
+                                            customClass: {
+                                                popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                                                title: 'text-foreground font-bold text-sm',
+                                                htmlContainer: 'text-muted-foreground text-xs mt-2',
+                                                confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                                                cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                                            },
+                                            buttonsStyling: false
                                         }).then((result) => {
                                             if (result.isConfirmed) {
                                                 marcFields['{{ $tag->tag }}'].subfields.splice(index, 1);
@@ -525,10 +525,8 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                                             }
                                         })
                                     "
-                                        class="flex-shrink-0 w-10 h-10 flex items-center justify-center text-gray-400 dark:text-slate-600 hover:text-white hover:bg-rose-500 dark:hover:bg-rose-600 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
+                                        class="btn-icon-danger opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
                             </div>
@@ -536,11 +534,9 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     </div>
 
                     <button type="button" @click="marcFields['{{ $tag->tag }}'].subfields.push({ id: null, code: '', value: '' })"
-                        class="mt-5 inline-flex items-center px-4 py-2.5 text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/20 hover:bg-indigo-100 dark:hover:bg-indigo-900/30 rounded-lg transition-all">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        {{ __('Thêm trường con') }}
+                        class="mt-3 btn-compact-secondary">
+                        <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                        <span>{{ __('Thêm trường con') }}</span>
                     </button>
                     @endif
                 </div>
@@ -549,22 +545,19 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
         </div>
 
         <!-- Step 3: Distribution -->
-        <div x-show="currentStep === 2" x-cloak class="space-y-6">
+        <div x-show="currentStep === 2" x-cloak class="space-y-4">
             @include('admin.marc_books.components.items_tab')
         </div>
 
         <!-- Step 4: Preview -->
-        <div x-show="currentStep === 3" x-cloak class="space-y-6">
+        <div x-show="currentStep === 3" x-cloak class="space-y-4">
             @include('admin.marc_books.components.preview_tab')
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-start bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
-            <button type="button" @click="submitForm()"
-                class="px-8 py-3 rounded-xl text-sm font-bold bg-green-600 hover:bg-green-700 text-white transition shadow-lg shadow-green-100 dark:shadow-none flex items-center space-x-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+        <div class="flex justify-start bg-card text-foreground p-3 rounded-md border border-border shadow-sm">
+            <button type="button" @click="submitForm()" class="btn-compact-primary flex items-center gap-1.5 py-2.5 px-6">
+                <i data-lucide="check" class="w-4 h-4"></i>
                 <span>{{ isset($record) ? __('Cập nhật') : __('Lưu bản ghi mới') }}</span>
             </button>
         </div>
@@ -642,7 +635,16 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             init() {
                 this.$watch('formData', () => this.isDirty = true);
                 this.$watch('marcFields', () => this.isDirty = true);
-                this.$watch('items', () => this.isDirty = true);
+                this.$watch('items', () => {
+                    this.isDirty = true;
+                    this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+                });
+                this.$watch('currentStep', () => {
+                    this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
+                });
+                
+                // Initial load of icons
+                this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
                 
                 // Khởi tạo Toast
                 window.Toast = Swal.mixin({
@@ -669,37 +671,52 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
             },
 
             addTagToSnapshot() {
-                Swal.fire({
-                    title: '<span class="text-xl font-black uppercase tracking-tight dark:text-white">Thêm trường MARC mới</span>',
-                    input: 'text',
-                    inputLabel: 'Nhập số hiệu Tag (ví dụ: 082, 852)',
-                    inputPlaceholder: 'Số hiệu tag...',
-                    showCancelButton: true,
-                    confirmButtonText: 'Thêm ngay',
-                    confirmButtonColor: '#680102',
-                    background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
-                    customClass: {
-                        popup: 'rounded-3xl border border-gray-100 dark:border-slate-800 shadow-2xl',
-                        confirmButton: 'rounded-xl px-8 py-3 text-sm font-bold uppercase tracking-widest',
-                        cancelButton: 'rounded-xl px-8 py-3 text-sm font-bold uppercase tracking-widest'
-                    },
-                    preConfirm: (value) => {
-                        if (!value || isNaN(value)) {
-                            Swal.showValidationMessage('Vui lòng nhập số hiệu tag hợp lệ');
-                            return false;
+                const selectEl = document.getElementById('quick_add_tag');
+                const selectedTag = selectEl ? selectEl.value : '';
+                
+                if (selectedTag) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('add_tag', selectedTag);
+                    url.searchParams.set('tab', 1);
+                    window.location.href = url.toString();
+                } else {
+                    Swal.fire({
+                        title: '<span class="text-xs font-bold uppercase tracking-wider">{{ __("Thêm trường MARC mới") }}</span>',
+                        input: 'text',
+                        inputLabel: '{{ __("Nhập số hiệu Tag (ví dụ: 082, 852)") }}',
+                        inputPlaceholder: 'Số hiệu tag...',
+                        showCancelButton: true,
+                        confirmButtonText: '{{ __("Thêm ngay") }}',
+                        cancelButtonText: '{{ __("Hủy") }}',
+                        confirmButtonColor: 'hsl(var(--primary))',
+                        cancelButtonColor: 'hsl(var(--muted))',
+                        customClass: {
+                            popup: 'bg-card text-foreground border border-border rounded-md p-4 w-80',
+                            title: 'text-foreground font-bold text-sm border-b border-border pb-2',
+                            input: 'w-full !mx-0 h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground mt-2 focus:ring-1 focus:ring-primary focus:border-primary',
+                            inputLabel: 'text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1 mt-2',
+                            confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                            cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                        },
+                        buttonsStyling: false,
+                        preConfirm: (value) => {
+                            if (!value || isNaN(value)) {
+                                Swal.showValidationMessage('Vui lòng nhập số hiệu tag hợp lệ');
+                                return false;
+                            }
+                            return value;
                         }
-                        return value;
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        const newTag = result.value;
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('add_tag', newTag);
-                        url.searchParams.set('tab', 1);
-                        window.location.href = url.toString();
-                        window.Toast.fire({ icon: 'success', title: 'Đã thêm trường MARC mới' });
-                    }
-                });
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            const newTag = result.value;
+                            const url = new URL(window.location.href);
+                            url.searchParams.set('add_tag', newTag);
+                            url.searchParams.set('tab', 1);
+                            window.location.href = url.toString();
+                            window.Toast.fire({ icon: 'success', title: 'Đã thêm trường MARC mới' });
+                        }
+                    });
+                }
             },
 
             removeTag(tag) {
@@ -708,8 +725,18 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     text: '{{ __('Trường MARC') }} ' + tag + ' {{ __('sẽ bị loại bỏ khỏi bản ghi này.') }}',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#680102',
-                    confirmButtonText: '{{ __('Đúng, xóa nó!') }}'
+                    confirmButtonColor: 'hsl(var(--destructive))',
+                    cancelButtonColor: 'hsl(var(--muted))',
+                    confirmButtonText: '{{ __('Đúng, xóa nó!') }}',
+                    cancelButtonText: '{{ __('Hủy') }}',
+                    customClass: {
+                        popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                        title: 'text-foreground font-bold text-sm',
+                        htmlContainer: 'text-muted-foreground text-xs mt-2',
+                        confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                        cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                    },
+                    buttonsStyling: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         delete this.marcFields[tag];
@@ -738,8 +765,18 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                         text: '{{ __('Bạn có muốn tiếp tục mà không lưu không?') }}',
                         icon: 'warning',
                         showCancelButton: true,
+                        confirmButtonColor: 'hsl(var(--destructive))',
+                        cancelButtonColor: 'hsl(var(--muted))',
                         confirmButtonText: '{{ __('Tiếp tục') }}',
-                        cancelButtonText: '{{ __('Ở lại') }}'
+                        cancelButtonText: '{{ __('Ở lại') }}',
+                        customClass: {
+                            popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                            title: 'text-foreground font-bold text-sm',
+                            htmlContainer: 'text-muted-foreground text-xs mt-2',
+                            confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                            cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                        },
+                        buttonsStyling: false
                     }).then((result) => {
                         if (result.isConfirmed) {
                             this.isDirty = false;
@@ -770,7 +807,20 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
 
             addItem() {
                 if (!this.newItem.storage_location_id) {
-                    Swal.fire({ title: 'Cảnh báo', text: 'Vui lòng chọn kho lưu trữ.', icon: 'warning' });
+                    Swal.fire({
+                        title: 'Cảnh báo',
+                        text: 'Vui lòng chọn kho lưu trữ.',
+                        icon: 'warning',
+                        confirmButtonColor: 'hsl(var(--primary))',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                            title: 'text-foreground font-bold text-sm',
+                            htmlContainer: 'text-muted-foreground text-xs mt-2',
+                            confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider'
+                        },
+                        buttonsStyling: false
+                    });
                     return;
                 }
 
@@ -781,7 +831,6 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     const quantity = parseInt(this.batchQuantity) || 1;
                     for (let i = 0; i < quantity; i++) {
                         const itemToAdd = JSON.parse(JSON.stringify(this.newItem));
-                        // Logic auto-increment barcode/accession if needed could go here
                         this.items.push(itemToAdd);
                     }
                 }
@@ -800,8 +849,18 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     text: 'Xóa bản sách này khỏi hàng đợi?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#680102',
-                    confirmButtonText: 'Xóa'
+                    confirmButtonColor: 'hsl(var(--destructive))',
+                    cancelButtonColor: 'hsl(var(--muted))',
+                    confirmButtonText: 'Xóa',
+                    cancelButtonText: 'Hủy',
+                    customClass: {
+                        popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                        title: 'text-foreground font-bold text-sm',
+                        htmlContainer: 'text-muted-foreground text-xs mt-2',
+                        confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                        cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                    },
+                    buttonsStyling: false
                 }).then((result) => {
                     if (result.isConfirmed) {
                         this.items.splice(index, 1);
@@ -842,6 +901,11 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                     title: 'Đang lưu...',
                     text: 'Vui lòng chờ trong giây lát',
                     allowOutsideClick: false,
+                    customClass: {
+                        popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                        title: 'text-foreground font-bold text-sm',
+                        htmlContainer: 'text-muted-foreground text-xs mt-2'
+                    },
                     didOpen: () => {
                         Swal.showLoading();
                     }
@@ -871,7 +935,15 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                             title: 'Thành công!',
                             text: data.message || 'Bản ghi đã được lưu.',
                             icon: 'success',
-                            confirmButtonColor: '#680102'
+                            confirmButtonColor: 'hsl(var(--primary))',
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                                title: 'text-foreground font-bold text-sm',
+                                htmlContainer: 'text-muted-foreground text-xs mt-2',
+                                confirmButton: 'px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-sm text-xs font-bold uppercase tracking-wider'
+                            },
+                            buttonsStyling: false
                         }).then(() => {
                             window.location.href = data.redirect || '{{ route('admin.marc.book') }}';
                         });
@@ -885,7 +957,15 @@ $initialItemsData = (isset($record) && $record->items->count() > 0)
                         title: 'Lỗi hệ thống!',
                         text: error.message || 'Không thể kết nối tới máy chủ.',
                         icon: 'error',
-                        confirmButtonColor: '#680102'
+                        confirmButtonColor: 'hsl(var(--destructive))',
+                        confirmButtonText: 'OK',
+                        customClass: {
+                            popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                            title: 'text-foreground font-bold text-sm',
+                            htmlContainer: 'text-muted-foreground text-xs mt-2',
+                            confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider'
+                        },
+                        buttonsStyling: false
                     });
                 });
             },

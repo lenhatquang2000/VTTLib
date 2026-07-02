@@ -1,58 +1,75 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-8 animate-in fade-in duration-700">
+<div class="w-full space-y-4 animate-in fade-in duration-500">
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">{{ __('Activity Logs') }}</h1>
-            <p class="text-lg font-medium text-slate-500 dark:text-slate-400 mt-1">{{ __('Monitor system actions and user operations.') }}</p>
+            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Activity Logs') }}</h1>
+            <p class="text-xs text-muted-foreground">{{ __('Monitor system actions and user operations.') }}</p>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-800 rounded-[3rem] shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
         <!-- Filter Bar -->
-        <div class="p-8 border-b border-slate-100 dark:border-slate-700/50">
-            <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="relative group">
-                    <select name="user_id" onchange="this.form.submit()" 
-                        class="w-full bg-slate-50 dark:bg-slate-900 border-transparent dark:border-slate-700 px-6 py-4 rounded-[1.25rem] text-sm font-bold text-slate-700 dark:text-slate-200 outline-none transition appearance-none cursor-pointer pr-10">
-                        <option value="">{{ __('All Users') }}</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ request('user_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                        @endforeach
-                    </select>
+        <div class="p-3 bg-muted/30 border-b border-border">
+            <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-2 items-end">
+                <!-- Username search -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('User Identity') }}</label>
+                    <input type="text" name="username" value="{{ request('username') }}" placeholder="{{ __('Search username...') }}" 
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
-                <div class="relative group">
+                <!-- Action input -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Action') }}</label>
                     <input type="text" name="action" value="{{ request('action') }}" placeholder="{{ __('Action (e.g. create)') }}" 
-                        class="w-full bg-slate-50 dark:bg-slate-900 border-transparent dark:border-slate-700 px-6 py-4 rounded-[1.25rem] text-sm font-bold text-slate-700 dark:text-slate-200 outline-none transition duration-300">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
-                <div class="relative group">
-                    <select name="method" onchange="this.form.submit()" 
-                        class="w-full bg-slate-50 dark:bg-slate-900 border-transparent dark:border-slate-700 px-6 py-4 rounded-[1.25rem] text-sm font-bold text-slate-700 dark:text-slate-200 outline-none transition appearance-none cursor-pointer pr-10">
-                        <option value="">{{ __('All Methods') }}</option>
-                        <option value="POST" {{ request('method') == 'POST' ? 'selected' : '' }}>POST</option>
-                        <option value="PUT" {{ request('method') == 'PUT' ? 'selected' : '' }}>PUT</option>
-                        <option value="PATCH" {{ request('method') == 'PATCH' ? 'selected' : '' }}>PATCH</option>
-                        <option value="DELETE" {{ request('method') == 'DELETE' ? 'selected' : '' }}>DELETE</option>
-                        <option value="GET" {{ request('method') == 'GET' ? 'selected' : '' }}>GET</option>
-                    </select>
+                <!-- Method select -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Method') }}</label>
+                    <div class="relative">
+                        <select name="method" onchange="this.form.submit()" 
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all appearance-none cursor-pointer">
+                            <option value="">{{ __('All Methods') }}</option>
+                            <option value="POST" {{ request('method') == 'POST' ? 'selected' : '' }}>POST</option>
+                            <option value="PUT" {{ request('method') == 'PUT' ? 'selected' : '' }}>PUT</option>
+                            <option value="PATCH" {{ request('method') == 'PATCH' ? 'selected' : '' }}>PATCH</option>
+                            <option value="DELETE" {{ request('method') == 'DELETE' ? 'selected' : '' }}>DELETE</option>
+                            <option value="GET" {{ request('method') == 'GET' ? 'selected' : '' }}>GET</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-muted-foreground">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="relative group">
+                <!-- Date from input -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('From Date') }}</label>
                     <input type="date" name="date_from" value="{{ request('date_from') }}" 
-                        class="w-full bg-slate-50 dark:bg-slate-900 border-transparent dark:border-slate-700 px-6 py-4 rounded-[1.25rem] text-sm font-bold text-slate-700 dark:text-slate-200 outline-none transition">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
+                <!-- Date to input -->
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('To Date') }}</label>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" 
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+
+                <!-- Action buttons -->
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 px-6 py-4 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-[1.25rem] transition transform active:scale-95 shadow-lg shadow-indigo-500/20">
+                    <button type="submit" class="btn-compact-primary flex-1 h-9">
+                        <i data-lucide="filter" class="w-4 h-4 mr-1"></i>
                         {{ __('Filter') }}
                     </button>
-                    @if(request()->anyFilled(['user_id', 'action', 'method', 'date_from', 'date_to']))
-                        <a href="{{ route('admin.activity-logs.index') }}" class="px-4 py-4 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-[1.25rem] border border-rose-100 dark:border-rose-900/30">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    @if(request()->anyFilled(['username', 'action', 'method', 'date_from', 'date_to']))
+                        <a href="{{ route('admin.activity-logs.index') }}" class="btn-compact-secondary w-9 h-9 flex items-center justify-center p-0" title="{{ __('Clear') }}">
+                            <i data-lucide="x" class="w-4 h-4"></i>
                         </a>
                     @endif
                 </div>
@@ -60,72 +77,74 @@
         </div>
 
         <!-- Table View -->
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-100 dark:divide-slate-700/50">
-                <thead class="bg-slate-50/50 dark:bg-slate-900/50">
+        <div class="overflow-x-auto min-h-[250px]">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
                     <tr>
-                        <th scope="col" class="px-10 py-6 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('User') }}</th>
-                        <th scope="col" class="px-6 py-6 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Action') }}</th>
-                        <th scope="col" class="px-6 py-6 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Method / Status') }}</th>
-                        <th scope="col" class="px-6 py-6 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('URL') }}</th>
-                        <th scope="col" class="px-6 py-6 text-left text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Time') }}</th>
-                        <th scope="col" class="px-10 py-6 text-right text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Details') }}</th>
+                        <th class="py-2 px-3">{{ __('User') }}</th>
+                        <th class="py-2 px-3 w-32">{{ __('Action') }}</th>
+                        <th class="py-2 px-3 w-40">{{ __('Method / Status') }}</th>
+                        <th class="py-2 px-3">{{ __('URL') }}</th>
+                        <th class="py-2 px-3 w-40">{{ __('Time') }}</th>
+                        <th class="py-2 px-3 w-24 text-right">{{ __('Details') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50 dark:divide-slate-700/50">
+                <tbody class="divide-y divide-border">
                     @forelse($logs as $log)
-                    <tr class="group hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-all duration-200">
-                        <td class="px-10 py-7 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <span class="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-extrabold text-xs mr-4">
+                    <tr class="table-row-hover group">
+                        <td class="py-2 px-3 whitespace-nowrap">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-7 h-7 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                                     {{ substr($log->user?->name ?? '?', 0, 1) }}
                                 </span>
-                                <div>
-                                    <div class="text-sm font-black text-slate-900 dark:text-white">{{ $log->user?->name ?? 'Guest' }}</div>
-                                    <div class="text-[10px] text-slate-500 dark:text-slate-400 font-bold">{{ $log->ip_address }}</div>
+                                <div class="min-w-0">
+                                    <div class="text-sm font-semibold text-foreground leading-tight truncate">{{ $log->user?->name ?? 'Guest' }}</div>
+                                    <div class="text-[10px] text-muted-foreground font-mono leading-none mt-0.5">{{ $log->ip_address }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-7">
-                            <span class="inline-flex items-center px-3 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                        <td class="py-2 px-3 whitespace-nowrap">
+                            <span class="inline-flex items-center px-1.5 py-0.5 bg-muted text-muted-foreground text-[10px] font-bold uppercase rounded-sm border border-border">
                                 {{ $log->action }}
                             </span>
                         </td>
-                        <td class="px-6 py-7">
-                            <div class="flex items-center space-x-2">
-                                <span class="px-2 py-1 text-[9px] font-black uppercase rounded {{ 
-                                    $log->method == 'DELETE' ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400' : 
-                                    ($log->method == 'POST' ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400') 
+                        <td class="py-2 px-3 whitespace-nowrap">
+                            <div class="flex items-center gap-1.5">
+                                <span class="px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-sm {{ 
+                                    $log->method == 'DELETE' ? 'bg-destructive/10 text-destructive border border-destructive/20' : 
+                                    ($log->method == 'POST' ? 'bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20' : 'bg-primary/10 text-primary border border-primary/20') 
                                 }}">
                                     {{ $log->method }}
                                 </span>
                                 @if($log->status_code)
-                                    <span class="text-[10px] font-bold {{ $log->status_code >= 400 ? 'text-rose-500' : 'text-emerald-500' }}">
+                                    <span class="text-[10px] font-bold {{ $log->status_code >= 400 ? 'text-destructive' : 'text-green-500' }}">
                                         {{ $log->status_code }}
                                     </span>
                                 @endif
                             </div>
                         </td>
-                        <td class="px-6 py-7">
-                            <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono truncate max-w-[200px]" title="{{ $log->url }}">
+                        <td class="py-2 px-3">
+                            <div class="text-[11px] text-muted-foreground font-mono truncate max-w-[250px]" title="{{ $log->url }}">
                                 {{ $log->url }}
                             </div>
                         </td>
-                        <td class="px-6 py-7 whitespace-nowrap text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                        <td class="py-2 px-3 whitespace-nowrap text-xs text-muted-foreground">
                             {{ $log->created_at->diffForHumans() }}
                         </td>
-                        <td class="px-10 py-7 text-right">
-                            <button onclick="openLogModal({{ $log->id }})" class="p-3 bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-xl transition-all border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/30">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <td class="py-2 px-3 text-right">
+                            <button onclick="openLogModal({{ $log->id }})" class="btn-icon-compact" title="{{ __('Details') }}">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
                             </button>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-10 py-20 text-center">
-                            <div class="flex flex-col items-center">
-                                <svg class="w-16 h-16 text-slate-100 dark:text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                <p class="text-slate-400 dark:text-slate-500 text-sm font-bold">{{ __('No activities found in the signal stream.') }}</p>
+                        <td colspan="6" class="py-12 text-center">
+                            <div class="flex flex-col items-center max-w-sm mx-auto">
+                                <div class="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4 border border-border">
+                                    <i data-lucide="search-x" class="w-6 h-6 text-muted-foreground"></i>
+                                </div>
+                                <p class="text-muted-foreground text-sm font-bold">{{ __('No activities found in the signal stream.') }}</p>
                             </div>
                         </td>
                     </tr>
@@ -135,7 +154,7 @@
         </div>
 
         @if($logs->hasPages())
-        <div class="px-10 py-8 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-700/50">
+        <div class="px-4 py-3 bg-muted/30 border-t border-border">
             {{ $logs->links() }}
         </div>
         @endif
@@ -146,16 +165,16 @@
 <div id="logModal" class="hidden fixed inset-0 z-[100] overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 transition-opacity bg-slate-950/80 backdrop-blur-sm" onclick="closeLogModal()"></div>
-        <div class="inline-block w-full max-w-4xl my-8 overflow-hidden text-left align-middle transition-all transform bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl">
-            <div class="p-10">
-                <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{{ __('Activity Payload Analysis') }}</h3>
-                    <button onclick="closeLogModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        <div class="inline-block w-full max-w-2xl my-8 overflow-hidden text-left align-middle transition-all transform bg-card border border-border rounded-md shadow-2xl">
+            <div class="p-4">
+                <div class="flex items-center justify-between pb-3 border-b border-border mb-4">
+                    <h3 class="text-sm font-bold text-foreground uppercase tracking-wider">{{ __('Activity Payload Analysis') }}</h3>
+                    <button onclick="closeLogModal()" class="text-muted-foreground hover:text-foreground transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
                     </button>
                 </div>
                 
-                <div id="logDetailContent" class="space-y-8">
+                <div id="logDetailContent" class="space-y-4">
                     <!-- Dynamic content will flow here -->
                 </div>
             </div>
@@ -168,7 +187,7 @@
         const modal = document.getElementById('logModal');
         const content = document.getElementById('logDetailContent');
         modal.classList.remove('hidden');
-        content.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent"></div></div>';
+        content.innerHTML = '<div class="flex justify-center py-12"><div class="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div></div>';
 
         fetch(`{{ route('admin.activity-logs.show', ['log' => ':id']) }}`.replace(':id', logId))
             .then(response => response.text())
@@ -177,6 +196,7 @@
                 const doc = parser.parseFromString(html, 'text/html');
                 const detailHtml = doc.getElementById('log-detail-snippet').innerHTML;
                 content.innerHTML = detailHtml;
+                lucide.createIcons({ parent: content });
             });
     }
 

@@ -271,21 +271,8 @@ class UserService
      */
     public function syncRoleSidebars(int $userId, int $roleId): void
     {
-        $roleUser = \App\Models\RoleUser::where('user_id', $userId)
-            ->where('role_id', $roleId)
-            ->first();
-        
-        if (!$roleUser) return;
-
-        $role = Role::with('sidebars')->find($roleId);
-        if (!$role) return;
-
-        // Clear existing custom sidebars for this assignment to avoid duplicates
-        $roleUser->sidebars()->delete();
-
-        foreach ($role->sidebars as $sidebar) {
-            $roleUser->sidebars()->create(['sidebar_id' => $sidebar->id]);
-        }
+        // No-op: permissions are now resolved directly from roles in real-time
+        return;
     }
 
     /**

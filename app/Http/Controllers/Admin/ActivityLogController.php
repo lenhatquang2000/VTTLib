@@ -14,8 +14,11 @@ class ActivityLogController extends Controller
         $query = ActivityLog::with('user')->latest();
 
         // Filters
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
+        if ($request->filled('username')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('username', 'like', '%' . $request->username . '%')
+                  ->orWhere('name', 'like', '%' . $request->username . '%');
+            });
         }
 
         if ($request->filled('action')) {
@@ -35,9 +38,8 @@ class ActivityLogController extends Controller
         }
 
         $logs = $query->paginate(20)->withQueryString();
-        $users = User::orderBy('name')->get();
 
-        return view('admin.activity_logs.index', compact('logs', 'users'));
+        return view('admin.activity_logs.index', compact('logs'));
     }
 
     public function show(ActivityLog $log)

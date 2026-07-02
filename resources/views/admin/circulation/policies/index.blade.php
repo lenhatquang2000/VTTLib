@@ -1,152 +1,154 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-8">
+<div class="w-full space-y-4 animate-in fade-in duration-500 pb-8">
     @if(session('success'))
-        <div class="bg-green-900/20 border border-green-500 text-green-400 p-4 text-xs font-mono rounded">
+        <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-mono rounded-sm">
             [OK] {{ session('success') }}
         </div>
     @endif
     @if(session('error'))
-        <div class="bg-red-900/20 border border-red-500 text-red-400 p-4 text-xs font-mono rounded">
+        <div class="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs font-mono rounded-sm">
             [ERROR] {{ session('error') }}
         </div>
     @endif
 
     <!-- Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h1 class="text-2xl font-bold">{{ __('Chính sách lưu thông') }}</h1>
-            <p class="text-sm text-gray-400 mt-1">{{ __('Quản lý chính sách mượn, trả, mượn đọc và giữ lại sách') }}</p>
+            <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('Circulation Policies') }}</h1>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ __('Manage borrow, return, reading room and holds policies') }}</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('admin.circulation.policies.create') }}" class="btn-primary">
-                <i class="fas fa-plus mr-2"></i>{{ __('Thêm chính sách') }}
+            <a href="{{ route('admin.circulation.policies.create') }}" class="btn-compact-primary">
+                <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                <span>{{ __('Add Policy') }}</span>
             </a>
         </div>
     </div>
 
     <!-- Policies Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
+    <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 dark:bg-slate-800 text-xs uppercase">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
                     <tr>
-                        <th class="p-4 text-left">{{ __('Tên chính sách') }}</th>
-                        <th class="p-4 text-left">{{ __('Nhóm bạn đọc') }}</th>
-                        <th class="p-4 text-center">{{ __('Mượn') }}</th>
-                        <th class="p-4 text-center">{{ __('Mượn đọc') }}</th>
-                        <th class="p-4 text-center">{{ __('Giữ lại') }}</th>
-                        <th class="p-4 text-center">{{ __('Trạng thái') }}</th>
-                        <th class="p-4 text-center">{{ __('Thao tác') }}</th>
+                        <th class="py-2 px-3">{{ __('Policy Name') }}</th>
+                        <th class="py-2 px-3 w-40">{{ __('Patron Group') }}</th>
+                        <th class="py-2 px-3 w-28 text-center">{{ __('Borrow') }}</th>
+                        <th class="py-2 px-3 w-28 text-center">{{ __('Reading Room') }}</th>
+                        <th class="py-2 px-3 w-28 text-center">{{ __('Holds') }}</th>
+                        <th class="py-2 px-3 w-28 text-center">{{ __('Status') }}</th>
+                        <th class="py-2 px-3 w-44 text-right">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+                <tbody class="divide-y divide-border">
                     @forelse($policies as $policy)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50">
-                        <td class="p-4">
-                            <div class="font-medium">{{ $policy->name }}</div>
+                    <tr class="table-row-hover group">
+                        <td class="py-2 px-3">
+                            <div class="font-bold text-xs">{{ $policy->name }}</div>
                             @if($policy->notes)
-                                <div class="text-xs text-gray-500 mt-1">{{ Str::limit($policy->notes, 50) }}</div>
+                                <div class="text-[10px] text-muted-foreground truncate max-w-xs mt-0.5">{{ Str::limit($policy->notes, 50) }}</div>
                             @endif
                             @if(str_contains($policy->notes ?? '', '[ĐÁNH DẤU XÓA:'))
-                                <div class="text-xs text-red-500 mt-1">
-                                    <i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Đã đánh dấu xóa') }}
+                                <div class="inline-flex items-center gap-1 text-[10px] text-destructive font-semibold mt-1">
+                                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                                    <span>{{ __('Marked for deletion') }}</span>
                                 </div>
                             @endif
                         </td>
-                        <td class="p-4">
-                            <span class="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs">
+                        <td class="py-2 px-3">
+                            <span class="px-1.5 py-0.5 bg-primary/10 text-primary text-xs font-semibold rounded-sm border border-primary/20">
                                 {{ $policy->patronGroup->name ?? 'N/A' }}
                             </span>
                         </td>
-                        <td class="p-4 text-center">
-                            <div class="text-xs space-y-1">
-                                <div>{{ $policy->max_items }} {{ __('sách') }}</div>
-                                <div class="text-gray-500">{{ $policy->max_loan_days }} {{ __('ngày') }}</div>
+                        <td class="py-2 px-3 text-center">
+                            <div class="text-[11px] font-medium leading-tight">
+                                <div>{{ $policy->max_items }} {{ __('books') }}</div>
+                                <div class="text-muted-foreground mt-0.5">{{ $policy->max_loan_days }} {{ __('days') }}</div>
                             </div>
                         </td>
-                        <td class="p-4 text-center">
+                        <td class="py-2 px-3 text-center">
                             @if($policy->can_use_reading_room)
-                                <div class="text-xs space-y-1">
-                                    <div class="text-green-600">{{ __('Cho phép') }}</div>
-                                    <div class="text-gray-500">{{ $policy->max_reading_room_items }} {{ __('tài liệu') }}</div>
+                                <div class="text-[11px] font-medium leading-tight">
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ __('Yes') }}</span>
+                                    <div class="text-muted-foreground mt-0.5">{{ $policy->max_reading_room_items }} {{ __('documents') }}</div>
                                 </div>
                             @else
-                                <span class="text-red-600 text-xs">{{ __('Không') }}</span>
+                                <span class="text-destructive font-semibold text-xs">{{ __('No') }}</span>
                             @endif
                         </td>
-                        <td class="p-4 text-center">
+                        <td class="py-2 px-3 text-center">
                             @if($policy->can_place_hold)
-                                <div class="text-xs space-y-1">
-                                    <div class="text-green-600">{{ __('Cho phép') }}</div>
-                                    <div class="text-gray-500">{{ $policy->max_holds }} {{ __('giữ lại') }}</div>
+                                <div class="text-[11px] font-medium leading-tight">
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ __('Yes') }}</span>
+                                    <div class="text-muted-foreground mt-0.5">{{ $policy->max_holds }} {{ __('giữ lại') }}</div>
                                 </div>
                             @else
-                                <span class="text-red-600 text-xs">{{ __('Không') }}</span>
+                                <span class="text-destructive font-semibold text-xs">{{ __('No') }}</span>
                             @endif
                         </td>
-                        <td class="p-4 text-center">
+                        <td class="py-2 px-3 text-center">
                             @if($policy->is_active)
-                                <span class="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded text-xs">
-                                    {{ __('Kích hoạt') }}
+                                <span class="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold rounded-sm border border-emerald-500/20">
+                                    {{ __('Active') }}
                                 </span>
                             @else
-                                <span class="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300 rounded text-xs">
-                                    {{ __('Vô hiệu') }}
+                                <span class="px-1.5 py-0.5 bg-muted text-muted-foreground text-[10px] font-bold rounded-sm border border-border">
+                                    {{ __('Disabled') }}
                                 </span>
                             @endif
                         </td>
-                        <td class="p-4">
-                            <div class="flex justify-center gap-1">
+                        <td class="py-2 px-3 text-right">
+                            <div class="flex justify-end items-center gap-1">
                                 <a href="{{ route('admin.circulation.policies.show', $policy) }}" 
-                                   class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" 
-                                   title="{{ __('Xem') }}">
-                                    <i class="fas fa-eye"></i>
+                                   class="btn-icon-compact text-primary" 
+                                   title="{{ __('View') }}">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                 </a>
                                 <a href="{{ route('admin.circulation.policies.edit', $policy) }}" 
-                                   class="text-amber-600 hover:text-amber-800 dark:text-amber-400 dark:hover:text-amber-300" 
-                                   title="{{ __('Sửa') }}">
-                                    <i class="fas fa-edit"></i>
+                                   class="btn-icon-compact text-amber-500" 
+                                   title="{{ __('Edit') }}">
+                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
                                 </a>
                                 <form action="{{ route('admin.circulation.policies.toggle', $policy) }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit" 
-                                            class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300" 
-                                            title="{{ $policy->is_active ? __('Vô hiệu hóa') : __('Kích hoạt') }}">
-                                        <i class="fas fa-{{ $policy->is_active ? 'pause' : 'play' }}"></i>
+                                            class="btn-icon-compact text-purple-500" 
+                                            title="{{ $policy->is_active ? __('Disable') : __('Active') }}">
+                                        <i data-lucide="{{ $policy->is_active ? 'pause' : 'play' }}" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </form>
                                 <form action="{{ route('admin.circulation.policies.duplicate', $policy) }}" method="POST" class="inline">
                                     @csrf
                                     <button type="submit" 
-                                            class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300" 
-                                            title="{{ __('Sao chép') }}">
-                                        <i class="fas fa-copy"></i>
+                                            class="btn-icon-compact text-emerald-500" 
+                                            title="{{ __('Duplicate') }}">
+                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </form>
                                 @if(str_contains($policy->notes ?? '', '[ĐÁNH DẤU XÓA:'))
                                     <!-- Force delete for marked policies -->
-                                    <form action="{{ route('admin.circulation.policies.force-delete', $policy) }}" method="POST" 
-                                          onsubmit="return confirm('{{ __('CẢNH BÁO: Xóa hoàn toàn chính sách này sẽ xóa tất cả dữ liệu liên quan! Bạn có chắc chắn?') }}')" class="inline">
+                                    <form action="{{ route('admin.circulation.policies.force-delete', $policy) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
-                                                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" 
-                                                title="{{ __('Xóa hoàn toàn') }}">
-                                            <i class="fas fa-trash-alt"></i>
+                                        <button type="button" 
+                                                class="btn-icon-danger submit-delete-btn" 
+                                                data-message="{{ __('WARNING: Force deleting this policy will permanently delete all related data! Are you sure?') }}"
+                                                title="{{ __('Force Delete') }}">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </form>
-                                @elseif(!$policy->loanTransactions()->exists() && (!$policy->patronGroup || !$policy->patronGroup->patrons()->exists()))
-                                    <!-- Regular delete for unused policies -->
-                                    <form action="{{ route('admin.circulation.policies.destroy', $policy) }}" method="POST" 
-                                          onsubmit="return confirm('{{ __('Bạn có chắc chắn muốn xóa chính sách này?') }}')" class="inline">
+                                @else
+                                    <!-- Regular delete for policies -->
+                                    <form action="{{ route('admin.circulation.policies.destroy', $policy) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" 
-                                                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" 
-                                                title="{{ __('Xóa') }}">
-                                            <i class="fas fa-trash"></i>
+                                        <button type="button" 
+                                                class="btn-icon-danger submit-delete-btn" 
+                                                data-message="{{ __('Are you sure you want to delete this policy?') }}"
+                                                title="{{ __('Delete') }}">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                         </button>
                                     </form>
                                 @endif
@@ -155,13 +157,11 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="p-8 text-center text-gray-500">
-                            <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <p class="text-sm">{{ __('Chưa có chính sách nào') }}</p>
-                            <a href="{{ route('admin.circulation.policies.create') }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mt-2 inline-block">
-                                {{ __('Thêm chính sách mới') }}
+                        <td colspan="7" class="py-8 text-center text-muted-foreground italic text-xs">
+                            <i data-lucide="file-x" class="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50"></i>
+                            <p>{{ __('No policies found.') }}</p>
+                            <a href="{{ route('admin.circulation.policies.create') }}" class="text-primary hover:underline mt-2 inline-block font-bold">
+                                {{ __('Add a new policy') }}
                             </a>
                         </td>
                     </tr>
@@ -171,10 +171,45 @@
         </div>
 
         @if($policies->hasPages())
-        <div class="p-4 border-t border-gray-200 dark:border-slate-700">
+        <div class="p-3 border-t border-border bg-muted/10">
             {{ $policies->links() }}
         </div>
         @endif
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.submit-delete-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const form = this.closest('form');
+            const message = this.getAttribute('data-message');
+            
+            Swal.fire({
+                title: '{{ __("Confirm Delete") }}',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'hsl(var(--destructive))',
+                cancelButtonColor: 'hsl(var(--muted))',
+                confirmButtonText: '{{ __("Delete") }}',
+                cancelButtonText: '{{ __("Cancel") }}',
+                customClass: {
+                    popup: 'bg-card text-foreground border border-border rounded-md p-4',
+                    title: 'text-foreground font-bold text-sm',
+                    htmlContainer: 'text-muted-foreground text-xs mt-2',
+                    confirmButton: 'px-4 py-2 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-sm text-xs font-bold uppercase tracking-wider mx-1',
+                    cancelButton: 'px-4 py-2 bg-muted text-foreground hover:bg-muted/80 rounded-sm text-xs font-bold uppercase tracking-wider border border-border mx-1'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
 @endsection

@@ -476,11 +476,21 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                             <div class="space-y-2 relative z-10">
                                 <div class="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-sm border border-white/10 hover:bg-white/20 transition-all">
                                     <span class="font-medium text-white/90 text-[11px] uppercase tracking-widest">{{ __('Thứ 2 - Thứ 6') }}</span>
-                                    <span class="font-bold text-vttu-yellow text-sm">7:30 - 20:00</span>
+                                    <span class="font-bold text-vttu-yellow text-sm">
+                                        {{ date('H:i', strtotime(\App\Models\SystemSetting::get('opening_time_weekday', '07:30'))) }} - {{ date('H:i', strtotime(\App\Models\SystemSetting::get('closing_time_weekday', '20:00'))) }}
+                                    </span>
                                 </div>
                                 <div class="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-sm border border-white/10 hover:bg-white/20 transition-all">
-                                    <span class="font-medium text-white/90 text-[11px] uppercase tracking-widest">{{ __('Thứ 7 - CN') }}</span>
-                                    <span class="font-bold text-vttu-yellow text-sm">8:00 - 17:00</span>
+                                    <span class="font-medium text-white/90 text-[11px] uppercase tracking-widest">{{ __('Thứ 7') }}</span>
+                                    <span class="font-bold text-vttu-yellow text-sm">
+                                        {{ date('H:i', strtotime(\App\Models\SystemSetting::get('opening_time_sat', '08:00'))) }} - {{ date('H:i', strtotime(\App\Models\SystemSetting::get('closing_time_sat', '17:00'))) }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-white/10 backdrop-blur-sm rounded-sm border border-white/10 hover:bg-white/20 transition-all">
+                                    <span class="font-medium text-white/90 text-[11px] uppercase tracking-widest">{{ __('Chủ Nhật') }}</span>
+                                    <span class="font-bold text-vttu-yellow text-sm">
+                                        {{ date('H:i', strtotime(\App\Models\SystemSetting::get('opening_time_sun', '08:00'))) }} - {{ date('H:i', strtotime(\App\Models\SystemSetting::get('closing_time_sun', '17:00'))) }}
+                                    </span>
                                 </div>
                             </div>
                         </div>

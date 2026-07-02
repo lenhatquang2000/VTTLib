@@ -1,128 +1,137 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-8 animate-in fade-in duration-700">
+<div class="w-full space-y-4 animate-in fade-in duration-500 pb-8">
     <!-- Notifications -->
     @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-4 rounded-xl text-sm font-bold flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-mono rounded-sm flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-500"></i>
             <span>{{ session('success') }}</span>
         </div>
     @endif
     
     @if(session('error'))
-        <div class="bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-xl text-sm font-bold flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs font-mono rounded-sm flex items-center gap-2">
+            <i data-lucide="x-circle" class="w-4 h-4 text-destructive"></i>
             <span>{{ session('error') }}</span>
         </div>
     @endif
 
     @if(!$hasYaz)
-    <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 text-amber-600 dark:text-amber-400 p-4 rounded-xl text-sm">
-        <div class="flex items-center space-x-3 mb-1">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    <div class="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded-sm text-xs space-y-1">
+        <div class="flex items-center gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500"></i>
             <strong class="font-bold">{{ __('YAZ_Extension_Not_Installed') }}</strong>
         </div>
-        <p class="font-medium opacity-90">{{ __('YAZ_extension_required_for_full_Z3950_functionality') }} <code class="bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded text-xs font-mono ml-1">php-yaz</code></p>
+        <p class="font-medium opacity-90">{{ __('YAZ_extension_required_for_full_Z3950_functionality') }} <code class="bg-amber-500/20 px-1.5 py-0.5 rounded text-[10px] font-mono">php-yaz</code></p>
     </div>
     @endif
 
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6" x-data="{ showAddModal: false }">
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
-                </svg>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3" x-data="{ showAddModal: false }">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <i data-lucide="server" class="w-5 h-5"></i>
             </div>
             <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Z3950_Servers') }}</h1>
-                <p class="text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Manage_Z3950_database_connections_for_cataloging') }}</p>
+                <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('Z3950_Servers') }}</h1>
+                <p class="text-xs text-muted-foreground mt-0.5">{{ __('Manage_Z3950_database_connections_for_cataloging') }}</p>
             </div>
         </div>
-        <div class="flex items-center space-x-3">
-            <a href="{{ route('admin.z3950.search') }}" class="inline-flex items-center px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all text-sm">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                {{ __('Search_Catalog') }}
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.z3950.search') }}" class="btn-compact-secondary">
+                <i data-lucide="search" class="w-4 h-4 mr-1"></i>
+                <span>{{ __('Search_Catalog') }}</span>
             </a>
-            <button @click="$dispatch('open-modal', 'add-server')" class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200 dark:shadow-none text-sm">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                {{ __('Add_Server') }}
+            <button @click="$dispatch('open-modal', 'add-server')" class="btn-compact-primary">
+                <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                <span>{{ __('Add_Server') }}</span>
             </button>
         </div>
     </div>
 
     <!-- Servers Table -->
-    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
+    <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-left">
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Server') }}</th>
-                        <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Connection') }}</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Status') }}</th>
-                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Last_Test') }}</th>
-                        <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Actions') }}</th>
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
+                    <tr>
+                        <th class="py-2 px-3">{{ __('Server') }}</th>
+                        <th class="py-2 px-3 w-64">{{ __('Connection') }}</th>
+                        <th class="py-2 px-3 w-28 text-center">{{ __('Status') }}</th>
+                        <th class="py-2 px-3 w-32 text-center">{{ __('Last_Test') }}</th>
+                        <th class="py-2 px-3 w-32 text-right">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
+                <tbody class="divide-y divide-border">
                     @forelse($servers as $server)
-                    <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
-                        <td class="px-6 py-4">
-                            <div class="flex items-center space-x-3">
-                                <span class="w-2.5 h-2.5 rounded-full {{ $server->is_active ? 'bg-emerald-500 shadow-sm shadow-emerald-200' : 'bg-slate-300' }}"></span>
+                    <tr class="table-row-hover group">
+                        <td class="py-2 px-3">
+                            <div class="flex items-center gap-2.5">
+                                <span class="relative flex h-2 w-2">
+                                    @if($server->is_active)
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    @else
+                                        <span class="relative inline-flex rounded-full h-2 w-2 bg-muted-foreground/30"></span>
+                                    @endif
+                                </span>
                                 <div>
-                                    <div class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ $server->name }}</div>
-                                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 max-w-[200px]">{{ $server->description }}</div>
+                                    <div class="text-xs font-bold text-foreground leading-tight">{{ $server->name }}</div>
+                                    @if($server->description)
+                                        <div class="text-[10px] text-muted-foreground truncate max-w-xs mt-0.5">{{ $server->description }}</div>
+                                    @endif
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-col space-y-1">
-                                <code class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300 font-mono inline-block w-fit">
+                        <td class="py-2 px-3">
+                            <div class="flex flex-col space-y-0.5">
+                                <code class="text-[10px] bg-muted px-1.5 py-0.5 rounded text-foreground font-mono inline-block w-fit">
                                     {{ $server->host }}:{{ $server->port }}/{{ $server->database_name }}
                                 </code>
-                                <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                                <div class="text-[9px] text-muted-foreground/75 font-bold uppercase tracking-wider">
                                     {{ $server->record_syntax }} | {{ $server->charset }}
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="py-2 px-3 text-center">
                             @php
                                 $statusClasses = match($server->last_status) {
-                                    'success' => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
-                                    'failed' => 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400',
-                                    default => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                    'success' => 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20',
+                                    'failed' => 'bg-destructive/10 text-destructive border border-destructive/20',
+                                    default => 'bg-muted text-muted-foreground border border-border'
                                 };
                             @endphp
-                            <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider {{ $statusClasses }}" id="status-{{ $server->id }}">
+                            <span class="inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider {{ $statusClasses }}" id="status-{{ $server->id }}">
                                 {{ __(ucfirst($server->last_status ?: 'Unknown')) }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-center text-xs text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">
+                        <td class="py-2 px-3 text-center text-xs text-muted-foreground font-medium whitespace-nowrap">
                             {{ $server->last_connected_at ? $server->last_connected_at->diffForHumans() : '-' }}
                         </td>
-                        <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                            <button onclick="testConnection({{ $server->id }})" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Test Connection') }}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                            </button>
-                            <button @click="$dispatch('open-modal', 'edit-server'); $dispatch('set-edit-server', @js($server))" class="p-2 text-slate-400 hover:text-amber-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Edit') }}">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            </button>
-                            <form action="{{ route('admin.z3950.destroy', $server) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Delete_this_server?')))">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Delete') }}">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <td class="py-2 px-3 text-right">
+                            <div class="flex justify-end items-center gap-1.5">
+                                <button onclick="testConnection({{ $server->id }})" class="btn-icon-compact text-primary" title="{{ __('Test Connection') }}">
+                                    <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                                 </button>
-                            </form>
+                                <button @click="$dispatch('open-modal', 'edit-server'); $dispatch('set-edit-server', @js($server))" class="btn-icon-compact text-amber-500" title="{{ __('Edit') }}">
+                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <form action="{{ route('admin.z3950.destroy', $server) }}" method="POST" class="inline" onsubmit="return confirm(@js(__('Delete_this_server?')))">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-icon-danger" title="{{ __('Delete') }}">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
+                        <td colspan="5" class="py-8 text-center text-muted-foreground italic text-xs">
                              <div class="flex flex-col items-center">
-                                <svg class="w-12 h-12 text-slate-200 dark:text-slate-800 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                <p class="text-sm font-medium">{{ __('No_Z3950_servers_configured') }}</p>
+                                <i data-lucide="server-off" class="w-8 h-8 text-muted-foreground/35 mb-2"></i>
+                                <p>{{ __('No_Z3950_servers_configured') }}</p>
                              </div>
                         </td>
                     </tr>
@@ -133,34 +142,34 @@
     </div>
 
     <!-- Recommended Servers Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-1 flex flex-col justify-center bg-indigo-50 dark:bg-indigo-900/20 p-8 rounded-3xl border border-indigo-100 dark:border-indigo-500/20">
-            <h3 class="text-xl font-black text-indigo-900 dark:text-indigo-300 mb-2 uppercase tracking-tight">{{ __('Integration Nodes') }}</h3>
-            <p class="text-indigo-600 dark:text-indigo-400/80 text-sm font-medium leading-relaxed">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div class="lg:col-span-1 flex flex-col justify-center bg-primary/10 border border-primary/20 p-4 rounded-md text-primary">
+            <h3 class="text-sm font-extrabold uppercase tracking-wider mb-1">{{ __('Integration Nodes') }}</h3>
+            <p class="opacity-80 text-xs font-medium leading-relaxed">
                 {{ __('Z3950_is_a_standard_protocol_for_searching_bibliographic_databases') }}
             </p>
         </div>
-        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl group hover:border-indigo-500 transition-all duration-300">
-                <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                    <strong class="text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black">Library of Congress</strong>
+        <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="p-3 bg-card border border-border rounded-md group hover:border-primary/40 transition-all duration-300">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                    <strong class="text-xs text-foreground uppercase tracking-wider font-extrabold">Library of Congress</strong>
                 </div>
-                <code class="text-[10px] text-slate-400 font-mono bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg block">z3950.loc.gov:7090/VOYAGER</code>
+                <code class="text-[10px] text-muted-foreground font-mono bg-muted/65 px-2 py-1 rounded block">z3950.loc.gov:7090/VOYAGER</code>
             </div>
-            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl group hover:border-indigo-500 transition-all duration-300">
-                <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                    <strong class="text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black">NLV (Việt Nam)</strong>
+            <div class="p-3 bg-card border border-border rounded-md group hover:border-primary/40 transition-all duration-300">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <strong class="text-xs text-foreground uppercase tracking-wider font-extrabold">NLV (Việt Nam)</strong>
                 </div>
-                <code class="text-[10px] text-slate-400 font-mono bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg block">z3950.nlv.gov.vn:210/INNOPAC</code>
+                <code class="text-[10px] text-muted-foreground font-mono bg-muted/65 px-2 py-1 rounded block">z3950.nlv.gov.vn:210/INNOPAC</code>
             </div>
-            <div class="p-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl group hover:border-indigo-500 transition-all duration-300 md:col-span-2">
-                <div class="flex items-center space-x-3 mb-3">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                    <strong class="text-sm text-slate-800 dark:text-slate-200 uppercase tracking-wider font-black">OCLC WorldCat</strong>
+            <div class="p-3 bg-card border border-border rounded-md group hover:border-primary/40 transition-all duration-300 md:col-span-2">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                    <strong class="text-xs text-foreground uppercase tracking-wider font-extrabold">OCLC WorldCat</strong>
                 </div>
-                <code class="text-[10px] text-slate-400 font-mono bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 rounded-lg block">zcat.oclc.org:210/OLUCWorldCat</code>
+                <code class="text-[10px] text-muted-foreground font-mono bg-muted/65 px-2 py-1 rounded block">zcat.oclc.org:210/OLUCWorldCat</code>
             </div>
         </div>
     </div>
@@ -186,53 +195,57 @@
     <!-- Add Modal -->
     <template x-if="showAdd">
         <div class="fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center animate-in fade-in duration-300">
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" @click="showAdd = false"></div>
+            <div class="fixed inset-0 transition-opacity bg-slate-950/60 backdrop-blur-sm" @click="showAdd = false"></div>
             
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden w-full max-w-2xl relative">
-                <form action="{{ route('admin.z3950.store') }}" method="POST" class="p-8 md:p-10">
+            <div class="bg-card text-foreground rounded-md shadow-2xl border border-border overflow-hidden w-full max-w-lg relative z-10">
+                <form action="{{ route('admin.z3950.store') }}" method="POST">
                     @csrf
-                    <div class="flex justify-between items-center mb-8">
+                    <div class="px-4 py-3 bg-muted/30 border-b border-border flex justify-between items-center">
                         <div>
-                            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ __('Expand Registry') }}</h3>
-                            <p class="text-slate-500 text-xs font-bold">{{ __('Initialize new Z39.50 connection terminal') }}</p>
+                            <h3 class="text-xs font-bold uppercase tracking-wider">{{ __('Expand Registry') }}</h3>
+                            <p class="text-[10px] text-muted-foreground font-medium mt-0.5">{{ __('Initialize new Z39.50 connection terminal') }}</p>
                         </div>
-                        <button type="button" @click="showAdd = false" class="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors rounded-2xl">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button type="button" @click="showAdd = false" class="text-muted-foreground hover:text-foreground">
+                            <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2 space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Server Identity') }} (Name)</label>
-                             <input type="text" name="name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="e.g. British Library">
+                    <div class="p-4 space-y-3">
+                        <div class="space-y-1">
+                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Server Identity') }} (Name)</label>
+                             <input type="text" name="name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="e.g. British Library">
                         </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Endpoint Host') }}</label>
-                             <input type="text" name="host" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="z3950.bl.uk">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Endpoint Host') }}</label>
+                                 <input type="text" name="host" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all" placeholder="z3950.bl.uk">
+                            </div>
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Communication Port') }}</label>
+                                 <input type="number" name="port" value="210" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Communication Port') }}</label>
-                             <input type="number" name="port" value="210" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Internal DB Path') }}</label>
-                             <input type="text" name="database_name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="Main">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Dialect') }} (Record Syntax)</label>
-                             <select name="record_syntax" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm appearance-none">
-                                <option value="MARC21">MARC21</option>
-                                <option value="USMARC">USMARC</option>
-                                <option value="UNIMARC">UNIMARC</option>
-                             </select>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Internal DB Path') }}</label>
+                                 <input type="text" name="database_name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Main">
+                            </div>
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Dialect') }} (Record Syntax)</label>
+                                 <select name="record_syntax" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    <option value="MARC21">MARC21</option>
+                                    <option value="USMARC">USMARC</option>
+                                    <option value="UNIMARC">UNIMARC</option>
+                                 </select>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mt-10 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800 pt-8">
-                        <button type="button" @click="showAdd = false" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
+                    <div class="px-4 py-3 border-t border-border flex justify-end gap-2 bg-muted/10">
+                        <button type="button" @click="showAdd = false" class="btn-compact-secondary h-9">
                             {{ __('Abort') }}
                         </button>
-                        <button type="submit" class="px-10 py-4 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all uppercase tracking-widest text-[10px]">
+                        <button type="submit" class="btn-compact-primary h-9">
                             {{ __('Deploy Server') }}
                         </button>
                     </div>
@@ -244,44 +257,48 @@
     <!-- Edit Modal -->
     <template x-if="showEdit">
         <div class="fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center animate-in fade-in duration-300">
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" @click="showEdit = false"></div>
+            <div class="fixed inset-0 transition-opacity bg-slate-950/60 backdrop-blur-sm" @click="showEdit = false"></div>
             
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden w-full max-w-2xl relative">
-                <form :action="'{{ url('topsecret/z3950') }}/' + server.id" method="POST" class="p-8 md:p-10">
+            <div class="bg-card text-foreground rounded-md shadow-2xl border border-border overflow-hidden w-full max-w-lg relative z-10">
+                <form :action="'{{ url('topsecret/z3950') }}/' + server.id" method="POST">
                     @csrf @method('PUT')
-                    <div class="flex justify-between items-center mb-8">
+                    <div class="px-4 py-3 bg-muted/30 border-b border-border flex justify-between items-center">
                         <div>
-                            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ __('Modify Node') }}</h3>
-                            <p class="text-slate-500 text-xs font-bold">{{ __('Updating parameters for') }} <span class="text-indigo-500" x-text="server.name"></span></p>
+                            <h3 class="text-xs font-bold uppercase tracking-wider">{{ __('Modify Node') }}</h3>
+                            <p class="text-[10px] text-muted-foreground font-medium mt-0.5">{{ __('Updating parameters for') }} <span class="text-primary font-bold" x-text="server.name"></span></p>
                         </div>
-                        <button type="button" @click="showEdit = false" class="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors rounded-2xl">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button type="button" @click="showEdit = false" class="text-muted-foreground hover:text-foreground">
+                            <i data-lucide="x" class="w-5 h-5"></i>
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="md:col-span-2 space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Server Identity') }}</label>
-                             <input type="text" name="name" x-model="server.name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                    <div class="p-4 space-y-3">
+                        <div class="space-y-1">
+                             <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Server Identity') }}</label>
+                             <input type="text" name="name" x-model="server.name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                         </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Endpoint Host') }}</label>
-                             <input type="text" name="host" x-model="server.host" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Endpoint Host') }}</label>
+                                 <input type="text" name="host" x-model="server.host" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Communication Port') }}</label>
+                                 <input type="number" name="port" x-model="server.port" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Communication Port') }}</label>
-                             <input type="number" name="port" x-model="server.port" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Internal DB Path') }}</label>
-                             <input type="text" name="database_name" x-model="server.database_name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Status') }}</label>
-                             <div class="flex items-center space-x-3 h-[54px] px-5 bg-slate-50 dark:bg-slate-950 rounded-2xl">
-                                <input type="checkbox" name="is_active" x-model="server.is_active" value="1" id="edit_is_active_check" class="rounded border-slate-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <label for="edit_is_active_check" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">{{ __('Online') }}</label>
-                             </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Internal DB Path') }}</label>
+                                 <input type="text" name="database_name" x-model="server.database_name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            </div>
+                            <div class="space-y-1">
+                                 <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Status') }}</label>
+                                 <label class="flex items-center gap-2 cursor-pointer h-9 group">
+                                    <input type="checkbox" name="is_active" x-model="server.is_active" value="1" id="edit_is_active_check" class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary">
+                                    <span class="text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">{{ __('Online') }}</span>
+                                 </label>
+                            </div>
                         </div>
                     </div>
 
@@ -291,11 +308,11 @@
                     <input type="hidden" name="timeout" x-model="server.timeout">
                     <input type="hidden" name="max_records" x-model="server.max_records">
 
-                    <div class="mt-10 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800 pt-8">
-                        <button type="button" @click="showEdit = false" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
+                    <div class="px-4 py-3 border-t border-border flex justify-end gap-2 bg-muted/10">
+                        <button type="button" @click="showEdit = false" class="btn-compact-secondary h-9">
                             {{ __('Abort') }}
                         </button>
-                        <button type="submit" class="px-10 py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-3xl shadow-xl shadow-amber-200 dark:shadow-none transition-all uppercase tracking-widest text-[10px]">
+                        <button type="submit" class="btn-compact-primary h-9">
                             {{ __('Commit Changes') }}
                         </button>
                     </div>
@@ -313,7 +330,7 @@
         const originalClass = statusEl.className;
         
         statusEl.textContent = '{{ __("Testing") }}...';
-        statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400 animate-pulse';
+        statusEl.className = 'inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20 animate-pulse';
 
         fetch(`{{ route('admin.z3950.test', ['server' => ':id']) }}`.replace(':id', serverId), {
             method: 'POST',
@@ -326,14 +343,14 @@
         .then(data => {
             if (data.success) {
                 statusEl.textContent = '{{ __("Success") }}';
-                statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400';
+                statusEl.className = 'inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20';
                 
                 window.dispatchEvent(new CustomEvent('toast', {
                     detail: { message: '{{ __("Connection established successfully") }}', type: 'success' }
                 }));
             } else {
                 statusEl.textContent = '{{ __("Failed") }}';
-                statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400';
+                statusEl.className = 'inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider bg-destructive/10 text-destructive border border-destructive/20';
                 
                 window.dispatchEvent(new CustomEvent('toast', {
                     detail: { message: data.message || '{{ __("Connection failed") }}', type: 'error' }
@@ -342,7 +359,7 @@
         })
         .catch(err => {
             statusEl.textContent = '{{ __("Error") }}';
-            statusEl.className = 'inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400';
+            statusEl.className = 'inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider bg-destructive/10 text-destructive border border-destructive/20';
         });
     }
 </script>

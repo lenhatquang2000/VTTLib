@@ -1082,7 +1082,7 @@ function clearSelection() {
 
 function openBulkEditModal() {
     if (selectedPatrons.length === 0) {
-        alert('Please select at least one patron to edit.');
+        alert('{{ __("Vui lòng chọn ít nhất một bạn đọc để chỉnh sửa.") }}');
         return;
     }
     
@@ -1097,11 +1097,11 @@ function openBulkEditModal() {
 
 function confirmBulkDelete() {
     if (selectedPatrons.length === 0) {
-        alert('Please select at least one patron to delete.');
+        alert('{{ __("Vui lòng chọn ít nhất một bạn đọc để xóa.") }}');
         return;
     }
     
-    if (confirm(`Are you sure you want to delete ${selectedPatrons.length} patron(s)? This action cannot be undone.`)) {
+    if (confirm(`{{ __("Bạn có chắc chắn muốn xóa") }} ${selectedPatrons.length} {{ __("bạn đọc không? Hành động này không thể hoàn tác!") }}`)) {
         // Create form for bulk delete
         const form = document.createElement('form');
         form.method = 'POST';
@@ -1157,14 +1157,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // SweetAlert2 Delete Confirmation
 function confirmDelete(patronId, patronName) {
     Swal.fire({
-        title: 'Xác nhận xóa?',
-        html: `Bạn có chắc chắn muốn xóa độc giả <strong>${patronName}</strong> không?<br><br><small class="text-red-500">Hành động này không thể hoàn tác!</small>`,
+        title: '{{ __("Xác nhận xóa?") }}',
+        html: `{{ __("Bạn có chắc chắn muốn xóa độc giả") }} <strong>${patronName}</strong> {{ __("không?") }}<br><br><small class="text-red-500">{{ __("Hành động này không thể hoàn tác!") }}</small>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
         cancelButtonColor: '#6b7280',
-        confirmButtonText: 'Xóa',
-        cancelButtonText: 'Hủy',
+        confirmButtonText: '{{ __("Xóa") }}',
+        cancelButtonText: '{{ __("Hủy") }}',
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {

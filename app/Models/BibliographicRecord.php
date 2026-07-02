@@ -73,6 +73,28 @@ class BibliographicRecord extends Model
     }
 
     /**
+     * Get Record Author from MARC 100 or 700
+     */
+    public function getAuthorAttribute()
+    {
+        return $this->getMarcValue('100', 'a') ?: ($this->getMarcValue('700', 'a') ?: __('N/A'));
+    }
+
+    /**
+     * Get Record Call Number from MARC 082 or 090
+     */
+    public function getCallNumberAttribute()
+    {
+        $class = $this->getMarcValue('082', 'a') ?: $this->getMarcValue('090', 'a');
+        $item = $this->getMarcValue('090', 'b') ?: ($this->getMarcValue('100', 'a') ? substr($this->getMarcValue('100', 'a'), 0, 3) : '');
+        if (!$class && !$item) {
+            return __('N/A');
+        }
+        return trim($class . ' ' . $item);
+    }
+
+
+    /**
      * Helper to get a MARC field value by tag and subfield code
      */
     public function getMarcValue($tag, $subfieldCode = 'a')

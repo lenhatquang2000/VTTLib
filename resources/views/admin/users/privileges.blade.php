@@ -70,7 +70,6 @@
                         <th class="py-2 px-3">{{ __('Identity') }}</th>
                         <th class="py-2 px-3">{{ __('Username') }}</th>
                         <th class="py-2 px-3">{{ __('Clearance Level') }}</th>
-                        <th class="py-2 px-3">{{ __('Status / Permissions') }}</th>
                         <th class="py-2 px-3 w-32 text-right">{{ __('Operations') }}</th>
                     </tr>
                 </thead>
@@ -104,14 +103,6 @@
                                     {{ $ru->role->display_name }}
                                 </span>
                             </td>
-                            <td class="py-2 px-3">
-                                <button
-                                    onclick="openSidebarSettings('{{ $ru->id }}', '{{ $ru->user->name }}', '{{ $ru->role->name }}', {{ $ru->sidebars->pluck('sidebar_id') }})"
-                                    class="btn-compact-primary text-[10px] px-3 py-1.5">
-                                    <i data-lucide="settings-2" class="w-3.5 h-3.5 mr-1"></i>
-                                    {{ __('Modify Tabs') }} <span class="ml-1 px-1.5 py-0.5 bg-background rounded-sm text-[9px]">{{ $ru->sidebars->count() }}</span>
-                                </button>
-                            </td>
                             <td class="py-2 px-3 text-right">
                                 <div class="flex justify-end items-center gap-1.5">
                                     <a href="{{ route('admin.users.edit', $ru->user_id) }}" class="btn-icon-compact" title="{{ __('Edit') }}">
@@ -122,7 +113,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="py-12 text-center">
+                            <td colspan="4" class="py-12 text-center">
                                 <div class="flex flex-col items-center max-w-sm mx-auto">
                                     <div class="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4 border border-border">
                                         <i data-lucide="search-x" class="w-6 h-6 text-muted-foreground"></i>

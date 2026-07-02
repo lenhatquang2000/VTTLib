@@ -1,51 +1,51 @@
 <!-- CREATE BARCODE MODAL -->
 <div id="createBarcodeModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeModal('createBarcodeModal')"></div>
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('createBarcodeModal')"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all">
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Initialize Barcode Rule') }}</h3>
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Initialize Barcode Rule') }}</h3>
             </div>
-            <form action="{{ route('admin.settings.barcode.store') }}" method="POST" class="p-8 space-y-5">
+            <form action="{{ route('admin.settings.barcode.store') }}" method="POST" class="p-4 space-y-3">
                 @csrf
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Rule Label') }}</label>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Rule Label') }}</label>
                     <input type="text" name="name" required placeholder="{{ __('e.g. Sách tiếng Việt') }}"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Prefix ID') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Prefix ID') }}</label>
                         <input type="text" name="prefix" placeholder="VTTU"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono uppercase transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Sequence Width') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Sequence Width') }}</label>
                         <input type="number" name="length" value="6" required min="1" max="20"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Start From') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Start From') }}</label>
                         <input type="number" name="start_number" value="1" required min="0"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Target Node') }}</label>
-                        <select name="target_type" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none appearance-none transition-all">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Target Node') }}</label>
+                        <select name="target_type" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                             <option value="item">{{ __('Book Item') }}</option>
                             <option value="patron">{{ __('Patron ID') }}</option>
                         </select>
                     </div>
                 </div>
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="is_active" value="1" checked class="w-5 h-5 rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500/20 transition-all">
-                    <span class="text-xs text-slate-600 dark:text-slate-400 font-bold group-hover:text-indigo-600 transition-colors">{{ __('Set As Primary Rule') }}</span>
+                <label class="flex items-center gap-2 cursor-pointer group mt-1">
+                    <input type="checkbox" name="is_active" value="1" checked class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary">
+                    <span class="text-xs text-muted-foreground font-semibold group-hover:text-primary transition-colors">{{ __('Set As Primary Rule') }}</span>
                 </label>
-                <div class="flex space-x-4 pt-4 border-t border-slate-50 dark:border-slate-800 transition-colors">
-                    <button type="button" onclick="closeModal('createBarcodeModal')" class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 py-3 rounded-xl uppercase text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all transition-colors">{{ __('Abort') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-xs font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-500 transition-all">{{ __('Execute') }}</button>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('createBarcodeModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Execute') }}</button>
                 </div>
             </form>
         </div>
@@ -54,41 +54,41 @@
 
 <!-- EDIT BARCODE MODAL -->
 <div id="editBarcodeModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeModal('editBarcodeModal')"></div>
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('editBarcodeModal')"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all">
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Modify Barcode Rule') }}</h3>
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Modify Barcode Rule') }}</h3>
             </div>
-            <form id="editBarcodeForm" method="POST" class="p-8 space-y-5">
+            <form id="editBarcodeForm" method="POST" class="p-4 space-y-3">
                 @csrf @method('PUT')
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Rule Label') }}</label>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Rule Label') }}</label>
                     <input type="text" name="name" id="edit_name" required
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Prefix ID') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Prefix ID') }}</label>
                         <input type="text" name="prefix" id="edit_prefix"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono uppercase transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Sequence Width') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Sequence Width') }}</label>
                         <input type="number" name="length" id="edit_length" required min="1" max="20"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono transition-all">
                     </div>
                 </div>
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="is_active" id="edit_is_active" value="1" class="w-5 h-5 rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500/20 transition-all">
-                    <span class="text-xs text-slate-600 dark:text-slate-400 font-bold group-hover:text-indigo-600 transition-colors">{{ __('Set As Primary Rule') }}</span>
+                <label class="flex items-center gap-2 cursor-pointer group mt-1">
+                    <input type="checkbox" name="is_active" id="edit_is_active" value="1" class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary">
+                    <span class="text-xs text-muted-foreground font-semibold group-hover:text-primary transition-colors">{{ __('Set As Primary Rule') }}</span>
                 </label>
-                <div class="m-0 p-3 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-100 dark:border-amber-500/20 text-[10px] text-amber-600 dark:text-amber-400 italic leading-relaxed transition-colors">
+                <div class="p-2 bg-amber-500/5 rounded border border-amber-500/10 text-[10px] text-amber-600 dark:text-amber-400 italic leading-relaxed">
                     * {{ __('Changing the prefix only affects new barcodes. Existing ones remain unchanged.') }}
                 </div>
-                <div class="flex space-x-4 pt-4 border-t border-slate-50 dark:border-slate-800 transition-colors">
-                    <button type="button" onclick="closeModal('editBarcodeModal')" class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 py-3 rounded-xl uppercase text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all transition-colors">{{ __('Abort') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-xs font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-500 transition-all">{{ __('Update') }}</button>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('editBarcodeModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Update') }}</button>
                 </div>
             </form>
         </div>
@@ -97,35 +97,35 @@
 
 <!-- CREATE BRANCH MODAL -->
 <div id="createBranchModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeModal('createBranchModal')"></div>
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('createBranchModal')"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all">
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Initialize New Branch') }}</h3>
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Initialize New Branch') }}</h3>
             </div>
-            <form action="{{ route('admin.settings.branches.store') }}" method="POST" class="p-8 space-y-5">
+            <form action="{{ route('admin.settings.branches.store') }}" method="POST" class="p-4 space-y-3">
                 @csrf
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Branch Name') }}</label>
-                    <input type="text" name="name" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Branch Name') }}</label>
+                    <input type="text" name="name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Branch Code') }}</label>
-                    <input type="text" name="code" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono uppercase tracking-[0.1em] transition-all">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Branch Code') }}</label>
+                    <input type="text" name="code" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase tracking-[0.1em] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Phone') }}</label>
-                        <input type="text" name="phone" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Phone') }}</label>
+                        <input type="text" name="phone" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Address') }}</label>
-                        <input type="text" name="address" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Address') }}</label>
+                        <input type="text" name="address" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                 </div>
-                <div class="flex space-x-4 pt-4 border-t border-slate-50 dark:border-slate-800 transition-colors">
-                    <button type="button" onclick="closeModal('createBranchModal')" class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 py-3 rounded-xl uppercase text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all transition-colors">{{ __('Abort') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-xs font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-500 transition-all">{{ __('Execute') }}</button>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('createBranchModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Execute') }}</button>
                 </div>
             </form>
         </div>
@@ -134,33 +134,33 @@
 
 <!-- CREATE LOCATION MODAL -->
 <div id="createLocationModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeModal('createLocationModal')"></div>
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('createLocationModal')"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all">
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Initialize Storage Location') }}</h3>
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Initialize Storage Location') }}</h3>
             </div>
-            <form action="{{ route('admin.settings.locations.store') }}" method="POST" class="p-8 space-y-5">
+            <form action="{{ route('admin.settings.locations.store') }}" method="POST" class="p-4 space-y-3">
                 @csrf
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Parent Branch') }}</label>
-                    <select name="branch_id" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none appearance-none transition-all transition-colors leading-[1.25rem]">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Parent Branch') }}</label>
+                    <select name="branch_id" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                         @foreach($branches as $branch)
                             <option value="{{ $branch->id }}">{{ $branch->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Location Name') }}</label>
-                    <input type="text" name="name" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Location Name') }}</label>
+                    <input type="text" name="name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Location Code') }}</label>
-                    <input type="text" name="code" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono uppercase tracking-[0.1em] transition-all transition-colors">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Location Code') }}</label>
+                    <input type="text" name="code" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase tracking-[0.1em] transition-all">
                 </div>
-                <div class="flex space-x-4 pt-4 border-t border-slate-50 dark:border-slate-800 transition-colors">
-                    <button type="button" onclick="closeModal('createLocationModal')" class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 py-3 rounded-xl uppercase text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all transition-colors">{{ __('Abort') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-xs font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-500 transition-all">{{ __('Execute') }}</button>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('createLocationModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Execute') }}</button>
                 </div>
             </form>
         </div>
@@ -169,39 +169,39 @@
 
 <!-- CREATE SUPPLIER MODAL -->
 <div id="createSupplierModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeModal('createSupplierModal')"></div>
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('createSupplierModal')"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all">
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Register New Supplier') }}</h3>
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Register New Supplier') }}</h3>
             </div>
-            <form action="{{ route('admin.settings.suppliers.store') }}" method="POST" class="p-8 space-y-5">
+            <form action="{{ route('admin.settings.suppliers.store') }}" method="POST" class="p-4 space-y-3">
                 @csrf
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Name') }}</label>
-                    <input type="text" name="name" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Name') }}</label>
+                    <input type="text" name="name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Code') }}</label>
-                    <input type="text" name="code" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono uppercase tracking-[0.1em] transition-all">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Code') }}</label>
+                    <input type="text" name="code" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase tracking-[0.1em] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Contact Person') }}</label>
-                        <input type="text" name="contact_name" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Contact Person') }}</label>
+                        <input type="text" name="contact_name" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Phone Number') }}</label>
-                        <input type="text" name="phone" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Phone Number') }}</label>
+                        <input type="text" name="phone" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Email') }}</label>
-                    <input type="email" name="email" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Email') }}</label>
+                    <input type="email" name="email" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
-                <div class="flex space-x-4 pt-4 border-t border-slate-50 dark:border-slate-800 transition-colors">
-                    <button type="button" onclick="closeModal('createSupplierModal')" class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 py-3 rounded-xl uppercase text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all transition-colors">{{ __('Abort') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-xs font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-500 transition-all">{{ __('Execute') }}</button>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('createSupplierModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Execute') }}</button>
                 </div>
             </form>
         </div>
@@ -210,48 +210,124 @@
 
 <!-- EDIT SUPPLIER MODAL -->
 <div id="editSupplierModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" onclick="closeModal('editSupplierModal')"></div>
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('editSupplierModal')"></div>
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
-        <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden transform transition-all">
-            <div class="px-8 py-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-800 transition-colors">
-                <h3 class="text-xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Modify Supplier Info') }}</h3>
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Modify Supplier Info') }}</h3>
             </div>
-            <form id="editSupplierForm" method="POST" class="p-8 space-y-5">
+            <form id="editSupplierForm" method="POST" class="p-4 space-y-3">
                 @csrf @method('PUT')
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Name') }}</label>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Name') }}</label>
                     <input type="text" name="name" id="edit_sup_name" required
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Code') }}</label>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Supplier Code') }}</label>
                     <input type="text" name="code" id="edit_sup_code" required
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none font-mono uppercase tracking-[0.1em] transition-all">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase tracking-[0.1em] transition-all">
                 </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Contact Person') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Contact Person') }}</label>
                         <input type="text" name="contact_name" id="edit_sup_contact"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                     <div>
-                        <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Phone Number') }}</label>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Phone Number') }}</label>
                         <input type="text" name="phone" id="edit_sup_phone"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1 tracking-widest">{{ __('Email') }}</label>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Email') }}</label>
                     <input type="email" name="email" id="edit_sup_email"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
-                <label class="flex items-center space-x-3 cursor-pointer group">
-                    <input type="checkbox" name="is_active" id="edit_sup_is_active" value="1" class="w-5 h-5 rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500/20 transition-all">
-                    <span class="text-xs text-slate-600 dark:text-slate-400 font-bold group-hover:text-indigo-600 transition-colors">{{ __('Active Status') }}</span>
+                <label class="flex items-center gap-2 cursor-pointer group mt-1">
+                    <input type="checkbox" name="is_active" id="edit_sup_is_active" value="1" class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary">
+                    <span class="text-xs text-muted-foreground font-semibold group-hover:text-primary transition-colors">{{ __('Active Status') }}</span>
                 </label>
-                <div class="flex space-x-4 pt-4 border-t border-slate-50 dark:border-slate-800 transition-colors">
-                    <button type="button" onclick="closeModal('editSupplierModal')" class="flex-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500 py-3 rounded-xl uppercase text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all transition-colors">{{ __('Abort') }}</button>
-                    <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-xs font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-500 transition-all">{{ __('Update') }}</button>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('editSupplierModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Update') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT BRANCH MODAL -->
+<div id="editBranchModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('editBranchModal')"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Modify Branch Info') }}</h3>
+            </div>
+            <form id="editBranchForm" method="POST" class="p-4 space-y-3">
+                @csrf @method('PUT')
+                <div>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Branch Name') }}</label>
+                    <input type="text" name="name" id="edit_branch_name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Branch Code') }}</label>
+                    <input type="text" name="code" id="edit_branch_code" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase tracking-[0.1em] transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Phone') }}</label>
+                        <input type="text" name="phone" id="edit_branch_phone" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Address') }}</label>
+                        <input type="text" name="address" id="edit_branch_address" class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                    </div>
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer group mt-1">
+                    <input type="checkbox" name="is_active" id="edit_branch_is_active" value="1" class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary">
+                    <span class="text-xs text-muted-foreground font-semibold group-hover:text-primary transition-colors">{{ __('Active Status') }}</span>
+                </label>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('editBranchModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Update') }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT LOCATION MODAL -->
+<div id="editLocationModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-slate-950/60 backdrop-blur-sm" onclick="closeModal('editLocationModal')"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-4">
+        <div class="bg-card text-foreground rounded-md border border-border shadow-2xl overflow-hidden transform transition-all">
+            <div class="px-4 py-3 bg-muted/30 border-b border-border">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-foreground">{{ __('Modify Storage Location') }}</h3>
+            </div>
+            <form id="editLocationForm" method="POST" class="p-4 space-y-3">
+                @csrf @method('PUT')
+                <div>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Location Name') }}</label>
+                    <input type="text" name="name" id="edit_location_name" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Location Code') }}</label>
+                    <input type="text" name="code" id="edit_location_code" required class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono uppercase tracking-[0.1em] transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-muted-foreground uppercase font-bold mb-1 tracking-widest">{{ __('Description') }}</label>
+                    <textarea name="description" id="edit_location_description" rows="3" class="w-full px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"></textarea>
+                </div>
+                <label class="flex items-center gap-2 cursor-pointer group mt-1">
+                    <input type="checkbox" name="is_active" id="edit_location_is_active" value="1" class="w-4 h-4 rounded-sm border-input bg-background text-primary focus:ring-primary">
+                    <span class="text-xs text-muted-foreground font-semibold group-hover:text-primary transition-colors">{{ __('Active Status') }}</span>
+                </label>
+                <div class="flex gap-2 pt-3 border-t border-border mt-4">
+                    <button type="button" onclick="closeModal('editLocationModal')" class="btn-compact-secondary flex-1 h-9 justify-center">{{ __('Abort') }}</button>
+                    <button type="submit" class="btn-compact-primary flex-1 h-9 justify-center">{{ __('Update') }}</button>
                 </div>
             </form>
         </div>

@@ -112,7 +112,7 @@
     <style>
         @import url('https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700');
     </style>
-    <style>
+    <style type="text/tailwindcss">
         [x-cloak] {
             display: none !important;
         }
@@ -179,93 +179,72 @@
             @apply w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-400 dark:focus:border-indigo-400 transition-colors duration-200;
         }
 
-        .text-blue-400 {
-            @apply text-blue-500 dark:text-blue-400;
-        }
+        /* Overrides to make light mode utility colors more readable */
+        .text-blue-400 { color: #3b82f6 !important; }
+        .dark .text-blue-400 { color: #60a5fa !important; }
 
-        .text-green-400 {
-            @apply text-green-500 dark:text-green-400;
-        }
+        .text-green-400 { color: #10b981 !important; }
+        .dark .text-green-400 { color: #34d399 !important; }
 
-        .text-gray-400 {
-            @apply text-slate-500 dark:text-slate-400;
-        }
+        .text-gray-400 { color: #64748b !important; }
+        .dark .text-gray-400 { color: #94a3b8 !important; }
 
-        .text-red-400 {
-            @apply text-red-500 dark:text-red-400;
-        }
+        .text-red-400 { color: #ef4444 !important; }
+        .dark .text-red-400 { color: #f87171 !important; }
 
-        .text-yellow-400 {
-            @apply text-yellow-500 dark:text-yellow-400;
-        }
+        .text-yellow-400 { color: #f59e0b !important; }
+        .dark .text-yellow-400 { color: #fbbf24 !important; }
 
-        .text-purple-400 {
-            @apply text-purple-500 dark:text-purple-400;
-        }
+        .text-purple-400 { color: #8b5cf6 !important; }
+        .dark .text-purple-400 { color: #a78bfa !important; }
 
-        .bg-blue-400 {
-            @apply bg-blue-500 dark:bg-blue-400;
-        }
+        .bg-blue-400 { background-color: #3b82f6 !important; }
+        .dark .bg-blue-400 { background-color: #60a5fa !important; }
 
-        .bg-green-400 {
-            @apply bg-green-500 dark:bg-green-400;
-        }
+        .bg-green-400 { background-color: #10b981 !important; }
+        .dark .bg-green-400 { background-color: #34d399 !important; }
 
-        .bg-gray-400 {
-            @apply bg-slate-500 dark:bg-slate-400;
-        }
+        .bg-gray-400 { background-color: #64748b !important; }
+        .dark .bg-gray-400 { background-color: #94a3b8 !important; }
 
-        .bg-red-400 {
-            @apply bg-red-500 dark:bg-red-400;
-        }
+        .bg-red-400 { background-color: #ef4444 !important; }
+        .dark .bg-red-400 { background-color: #f87171 !important; }
 
-        .bg-yellow-400 {
-            @apply bg-yellow-500 dark:bg-yellow-400;
-        }
+        .bg-yellow-400 { background-color: #f59e0b !important; }
+        .dark .bg-yellow-400 { background-color: #fbbf24 !important; }
 
-        .bg-purple-400 {
-            @apply bg-purple-500 dark:bg-purple-400;
-        }
+        .bg-purple-400 { background-color: #8b5cf6 !important; }
+        .dark .bg-purple-400 { background-color: #a78bfa !important; }
 
-        .bg-blue-900\/30 {
-            @apply bg-blue-900 dark:bg-blue-900/30;
-        }
+        .bg-blue-900\/30 { background-color: #1e3a8a !important; }
+        .dark .bg-blue-900\/30 { background-color: rgba(30, 58, 138, 0.3) !important; }
 
-        .bg-green-900\/30 {
-            @apply bg-green-900 dark:bg-green-900/30;
-        }
+        .bg-green-900\/30 { background-color: #064e3b !important; }
+        .dark .bg-green-900\/30 { background-color: rgba(6, 78, 59, 0.3) !important; }
 
-        .bg-gray-900\/30 {
-            @apply bg-slate-900 dark:bg-slate-900/30;
-        }
+        .bg-gray-900\/30 { background-color: #0f172a !important; }
+        .dark .bg-gray-900\/30 { background-color: rgba(15, 23, 42, 0.3) !important; }
 
-        .bg-red-900\/30 {
-            @apply bg-red-900 dark:bg-red-900/30;
-        }
+        .bg-red-900\/30 { background-color: #7f1d1d !important; }
+        .dark .bg-red-900\/30 { background-color: rgba(127, 29, 29, 0.3) !important; }
 
-        .bg-yellow-900\/30 {
-            @apply bg-yellow-900 dark:bg-yellow-900/30;
-        }
+        .bg-yellow-900\/30 { background-color: #713f12 !important; }
+        .dark .bg-yellow-900\/30 { background-color: rgba(113, 63, 18, 0.3) !important; }
 
-        .bg-purple-900\/30 {
-            @apply bg-purple-900 dark:bg-purple-900/30;
-        }
+        .bg-purple-900\/30 { background-color: #581c87 !important; }
+        .dark .bg-purple-900\/30 { background-color: rgba(88, 28, 135, 0.3) !important; }
 
-        .border-gray-700 {
-            @apply border-slate-700 dark:border-slate-700;
-        }
+        .border-gray-700 { border-color: #334155 !important; }
+        .dark .border-gray-700 { border-color: #334155 !important; }
 
-        .border-gray-800 {
-            @apply border-slate-800 dark:border-slate-800;
-        }
+        .border-gray-800 { border-color: #1e293b !important; }
+        .dark .border-gray-800 { border-color: #1e293b !important; }
 
-        .hover\:bg-gray-800\/50:hover {
-            @apply hover:bg-slate-800/50 dark:hover:bg-slate-800/50;
-        }
+        .hover\:bg-gray-800\/50:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
+        .dark .hover\:bg-gray-800\/50:hover { background-color: rgba(30, 41, 59, 0.5) !important; }
 
-        .bg-gray-900\/50 {
-            @apply bg-slate-900/50 dark:bg-slate-900/50;
-        }
+        .bg-gray-900\/50 { background-color: rgba(15, 23, 42, 0.5) !important; }
+        .dark .bg-gray-900\/50 { background-color: rgba(15, 23, 42, 0.5) !important; }
 
         /* Dark mode select dropdown styling - Stronger rules */
         select, .input-field {
@@ -396,15 +375,15 @@
 
         <nav class="flex-1 px-4 py-8 space-y-2.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
             @php
-            $roleUserIds = Auth::user()->roles->map(fn($role) => $role->pivot->id);
+            $roleIds = Auth::user()->roles->pluck('id')->toArray();
             @endphp
             @foreach(Auth::user()->getSidebarTabs() as $tab)
             @php
             // Using direct query to avoid unknown method lint if model is not inferred
             $assignedChildren = \App\Models\Sidebar::where('parent_id', $tab->id)
             ->where('is_active', true)
-            ->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
-            $q->whereIn('role_user_id', $roleUserIds);
+            ->whereHas('roles', function ($q) use ($roleIds) {
+                $q->whereIn('role_id', $roleIds);
             })->orderBy('order')->get();
 
             $hasChildren = $assignedChildren->isNotEmpty();

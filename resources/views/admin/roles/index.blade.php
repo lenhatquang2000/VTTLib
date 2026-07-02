@@ -25,9 +25,6 @@
         <a href="{{ route('admin.users.index') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.users.index') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Users List') }}
         </a>
-        <a href="{{ route('admin.users.privileges') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.users.privileges') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
-            {{ __('Privilege Controller') }}
-        </a>
         <a href="{{ route('admin.roles.index') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.roles.index') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Role Management') }}
         </a>
@@ -64,7 +61,7 @@
                                     <span class="inline-flex items-center px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-sm border border-primary/20">
                                         {{ $role->users_count }}
                                     </span>
-                                    <span class="text-[10px] text-muted-foreground font-medium">subjects</span>
+                                    <span class="text-[10px] text-muted-foreground font-medium">{{ __('subjects') }}</span>
                                 </div>
                             </td>
                             <td class="py-2 px-3">
@@ -78,7 +75,7 @@
                                         <span class="text-[10px] text-muted-foreground font-medium self-center">+{{ $role->sidebars->count() - 5 }}</span>
                                     @endif
                                     @if($role->sidebars->count() == 0)
-                                        <span class="text-[10px] text-muted-foreground italic font-medium">No default tabs</span>
+                                        <span class="text-[10px] text-muted-foreground italic font-medium">{{ __('No default tabs') }}</span>
                                     @endif
                                 </div>
                             </td>

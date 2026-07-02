@@ -21,9 +21,6 @@
         <a href="{{ route('admin.users.index') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.users.index') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Users List') }}
         </a>
-        <a href="{{ route('admin.users.privileges') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.users.privileges') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
-            {{ __('Privilege Controller') }}
-        </a>
         <a href="{{ route('admin.roles.index') }}" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all {{ Route::is('admin.roles.index') ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
             {{ __('Role Management') }}
         </a>
@@ -69,7 +66,7 @@
         </div>
 
         <!-- Table View -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto min-h-[250px]">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
                     <tr>
@@ -140,13 +137,10 @@
                         </td>
                         <td class="py-2 px-3 text-right">
                             <div class="flex justify-end items-center gap-1.5">
-                                <button onclick="openSidebarSettings('{{ $user->roles->first()?->pivot->id }}', '{{ $user->name }}', '{{ $user->roles->first()?->name }}', {{ $user->getSidebarTabs()->pluck('id') }})"
-                                    class="btn-icon-compact" title="{{ __('Privileges') }}">
-                                    <i data-lucide="settings-2" class="w-4 h-4"></i>
-                                </button>
+
 
                                 <!-- Role Assign Dropdown (using Alpine for compactness) -->
-                                <div x-data="{ open: false }" class="relative">
+                                <div x-data="{ open: false }" class="relative" :class="open ? 'z-50' : 'z-10'">
                                     <button @click="open = !open" @click.away="open = false" 
                                         class="btn-icon-compact" title="{{ __('Assign Role') }}">
                                         <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -265,8 +259,18 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Password') }}</label>
-                            <input type="password" name="password" id="password_input" required 
-                                class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <div class="relative">
+                                <input type="password" name="password" id="password_input" required 
+                                    class="w-full h-9 pl-3 pr-9 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                <button type="button" id="toggle-password-visibility" class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground">
+                                    <i data-lucide="eye" class="w-4 h-4 eye-icon"></i>
+                                    <i data-lucide="eye-off" class="w-4 h-4 eye-off-icon hidden"></i>
+                                </button>
+                            </div>
+                            <button type="button" id="generate-password-btn" class="btn-compact-secondary text-[10px] w-full mt-1.5 py-1">
+                                <i data-lucide="key" class="w-3.5 h-3.5 mr-1"></i>
+                                {{ __('Auto Generate Password') }}
+                            </button>
                         </div>
                         <div class="space-y-1">
                             <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Initial Role') }}</label>
@@ -279,9 +283,52 @@
                         </div>
                     </div>
 
+                    <!-- Password Requirements Checklist -->
+                    <div class="mt-2 space-y-1 text-[11px] bg-muted/30 p-2.5 rounded border border-border" id="password-requirements">
+                        <div class="font-bold text-muted-foreground uppercase tracking-wide text-[9px] mb-1">{{ __('Requirements:') }}</div>
+                        <div id="req-length" class="flex items-center gap-1.5 text-muted-foreground transition-all duration-200">
+                            <i data-lucide="circle" class="w-3 h-3 text-slate-400 circle-icon"></i>
+                            <i data-lucide="check-circle" class="w-3 h-3 text-green-500 check-icon hidden"></i>
+                            <span>{{ __('At least 8 characters') }}</span>
+                        </div>
+                        <div id="req-mixed" class="flex items-center gap-1.5 text-muted-foreground transition-all duration-200">
+                            <i data-lucide="circle" class="w-3 h-3 text-slate-400 circle-icon"></i>
+                            <i data-lucide="check-circle" class="w-3 h-3 text-green-500 check-icon hidden"></i>
+                            <span>{{ __('At least one uppercase and one lowercase letter') }}</span>
+                        </div>
+                        <div id="req-numbers" class="flex items-center gap-1.5 text-muted-foreground transition-all duration-200">
+                            <i data-lucide="circle" class="w-3 h-3 text-slate-400 circle-icon"></i>
+                            <i data-lucide="check-circle" class="w-3 h-3 text-green-500 check-icon hidden"></i>
+                            <span>{{ __('At least one number') }}</span>
+                        </div>
+                        <div id="req-symbols" class="flex items-center gap-1.5 text-muted-foreground transition-all duration-200">
+                            <i data-lucide="circle" class="w-3 h-3 text-slate-400 circle-icon"></i>
+                            <i data-lucide="check-circle" class="w-3 h-3 text-green-500 check-icon hidden"></i>
+                            <span>{{ __('At least one symbol') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Password Copy Area -->
+                    <div id="copy-container" class="mt-2 space-y-1 hidden">
+                        <div class="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/10 border border-emerald-200 dark:border-emerald-900/30 rounded">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-wider">{{ __('Generated Password:') }}</p>
+                                <p id="password-display" class="font-mono text-sm text-foreground select-all break-all"></p>
+                            </div>
+                            <button type="button" id="copy-password-btn" class="btn-compact-primary text-[10px] whitespace-nowrap px-3 py-1.5 flex items-center gap-1">
+                                <i data-lucide="copy" class="w-3.5 h-3.5 copy-btn-icon"></i>
+                                <i data-lucide="check" class="w-3.5 h-3.5 check-btn-icon hidden"></i>
+                                <span class="copy-btn-text">{{ __('Copy') }}</span>
+                            </button>
+                        </div>
+                        <p id="copy-helper-text" class="text-[9px] text-amber-600 dark:text-amber-400 font-bold mt-1">
+                            {{ __('Please copy the password before submitting.') }}
+                        </p>
+                    </div>
+
                     <div class="flex gap-2 pt-4">
                         <button type="button" onclick="closeModal('createUserModal')" class="btn-compact-secondary flex-1">{{ __('Discard') }}</button>
-                        <button type="submit" class="btn-compact-primary flex-1">{{ __('Enroll Subject') }}</button>
+                        <button type="submit" id="submit-create-user-btn" class="btn-compact-primary flex-1">{{ __('Enroll Subject') }}</button>
                     </div>
                 </form>
             </div>
@@ -434,11 +481,11 @@
             const data = await response.json();
             if (usernameStatus) {
                 usernameStatus.classList.remove('hidden');
-                if (data.available) {
-                    usernameStatus.innerText = '✓ Available';
+                if (!data.exists) {
+                    usernameStatus.innerText = '✓ ' + '{{ __("Available") }}';
                     usernameStatus.className = 'text-[9px] font-bold mt-1 text-green-600 uppercase';
                 } else {
-                    usernameStatus.innerText = '✕ Taken';
+                    usernameStatus.innerText = '✕ ' + '{{ __("Taken") }}';
                     usernameStatus.className = 'text-[9px] font-bold mt-1 text-destructive uppercase';
                 }
             }
@@ -446,6 +493,167 @@
             console.error('Error checking username:', error);
         }
     }
+
+    // Password Live Validation & Generation Logic
+    const passwordInput = document.getElementById('password_input');
+    const toggleVisibilityBtn = document.getElementById('toggle-password-visibility');
+    const generateBtn = document.getElementById('generate-password-btn');
+    const copyContainer = document.getElementById('copy-container');
+    const passwordDisplay = document.getElementById('password-display');
+    const copyBtn = document.getElementById('copy-password-btn');
+    const submitBtn = document.getElementById('submit-create-user-btn');
+
+    // Requirements indicators
+    const reqLength = document.getElementById('req-length');
+    const reqMixed = document.getElementById('req-mixed');
+    const reqNumbers = document.getElementById('req-numbers');
+    const reqSymbols = document.getElementById('req-symbols');
+
+    let hasCopied = false;
+
+    // Toggle password visibility
+    toggleVisibilityBtn?.addEventListener('click', function() {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+        
+        const eyeIcon = this.querySelector('.eye-icon');
+        const eyeOffIcon = this.querySelector('.eye-off-icon');
+        
+        if (isPassword) {
+            eyeIcon?.classList.add('hidden');
+            eyeOffIcon?.classList.remove('hidden');
+        } else {
+            eyeIcon?.classList.remove('hidden');
+            eyeOffIcon?.classList.add('hidden');
+        }
+    });
+
+    function generateStrongPassword() {
+        const length = 12;
+        const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const lowercase = "abcdefghijklmnopqrstuvwxyz";
+        const numbers = "0123456789";
+        const symbols = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+        
+        let password = '';
+        password += uppercase[Math.floor(Math.random() * uppercase.length)];
+        password += lowercase[Math.floor(Math.random() * lowercase.length)];
+        password += numbers[Math.floor(Math.random() * numbers.length)];
+        password += symbols[Math.floor(Math.random() * symbols.length)];
+        
+        const allChars = uppercase + lowercase + numbers + symbols;
+        for (let i = password.length; i < length; i++) {
+            password += allChars[Math.floor(Math.random() * allChars.length)];
+        }
+        
+        return password.split('').sort(() => 0.5 - Math.random()).join('');
+    }
+
+    function validatePassword(val) {
+        const meetsLength = val.length >= 8;
+        const meetsMixed = /[a-z]/.test(val) && /[A-Z]/.test(val);
+        const meetsNumbers = /[0-9]/.test(val);
+        const meetsSymbols = /[^a-zA-Z0-9]/.test(val);
+
+        updateRequirementUI(reqLength, meetsLength);
+        updateRequirementUI(reqMixed, meetsMixed);
+        updateRequirementUI(reqNumbers, meetsNumbers);
+        updateRequirementUI(reqSymbols, meetsSymbols);
+
+        return meetsLength && meetsMixed && meetsNumbers && meetsSymbols;
+    }
+
+    function updateRequirementUI(element, isMet) {
+        if (!element) return;
+        const circleIcon = element.querySelector('.circle-icon');
+        const checkIcon = element.querySelector('.check-icon');
+
+        if (isMet) {
+            element.classList.remove('text-muted-foreground');
+            element.classList.add('text-green-500');
+            circleIcon?.classList.add('hidden');
+            checkIcon?.classList.remove('hidden');
+        } else {
+            element.classList.remove('text-green-500');
+            element.classList.add('text-muted-foreground');
+            circleIcon?.classList.remove('hidden');
+            checkIcon?.classList.add('hidden');
+        }
+    }
+
+    function checkSubmitState() {
+        const val = passwordInput ? passwordInput.value : '';
+        const isValid = validatePassword(val);
+
+        if (val && isValid && hasCopied) {
+            submitBtn.removeAttribute('disabled');
+            submitBtn.classList.remove('opacity-50', 'pointer-events-none');
+        } else {
+            submitBtn.setAttribute('disabled', 'true');
+            submitBtn.classList.add('opacity-50', 'pointer-events-none');
+        }
+    }
+
+    function resetCopyButton() {
+        const copyIcon = copyBtn?.querySelector('.copy-btn-icon');
+        const checkIcon = copyBtn?.querySelector('.check-btn-icon');
+        const textSpan = copyBtn?.querySelector('.copy-btn-text');
+
+        copyIcon?.classList.remove('hidden');
+        checkIcon?.classList.add('hidden');
+        if (textSpan) textSpan.textContent = '{{ __("Copy") }}';
+    }
+
+    passwordInput?.addEventListener('input', function() {
+        const val = this.value;
+        hasCopied = false; // Reset copy flag when password changes
+
+        if (val) {
+            copyContainer.classList.remove('hidden');
+            passwordDisplay.textContent = val;
+        } else {
+            copyContainer.classList.add('hidden');
+        }
+
+        resetCopyButton();
+        checkSubmitState();
+    });
+
+    generateBtn?.addEventListener('click', function() {
+        const newPassword = generateStrongPassword();
+        passwordInput.value = newPassword;
+        hasCopied = false;
+
+        copyContainer.classList.remove('hidden');
+        passwordDisplay.textContent = newPassword;
+
+        resetCopyButton();
+        checkSubmitState();
+    });
+
+    copyBtn?.addEventListener('click', function() {
+        const val = passwordInput.value;
+        if (!val) return;
+
+        navigator.clipboard.writeText(val).then(() => {
+            hasCopied = true;
+            
+            const copyIcon = this.querySelector('.copy-btn-icon');
+            const checkIcon = this.querySelector('.check-btn-icon');
+            const textSpan = this.querySelector('.copy-btn-text');
+
+            copyIcon?.classList.add('hidden');
+            checkIcon?.classList.remove('hidden');
+            if (textSpan) textSpan.textContent = '{{ __("Copied!") }}';
+
+            checkSubmitState();
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    });
+
+    // Initial check
+    checkSubmitState();
 
     document.addEventListener('DOMContentLoaded', () => {
         lucide.createIcons();

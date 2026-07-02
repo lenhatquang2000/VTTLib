@@ -34,14 +34,14 @@ class StoreUserRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Full name is required',
-            'email.required' => 'Email address is required',
-            'email.email' => 'Please provide a valid email address',
-            'email.unique' => 'This email address is already registered',
-            'password.required' => 'Password is required',
-            'password.min' => 'Password must be at least 8 characters',
-            'role_id.required' => 'Please select a role for this user',
-            'role_id.exists' => 'Selected role is invalid',
+            'name.required' => __('Full name is required'),
+            'email.required' => __('Email address is required'),
+            'email.email' => __('Please provide a valid email address'),
+            'email.unique' => __('This email address is already registered'),
+            'password.required' => __('Password is required'),
+            'password.min' => __('Password must be at least 8 characters'),
+            'role_id.required' => __('Please select a role for this user'),
+            'role_id.exists' => __('Selected role is invalid'),
         ];
     }
 }

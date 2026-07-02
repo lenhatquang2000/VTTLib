@@ -1,23 +1,19 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="space-y-8 pb-12">
-        <div class="flex items-center space-x-4 mb-6">
-            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
+    <div class="w-full space-y-4 animate-in fade-in duration-500 pb-8">
+        <!-- Header Section -->
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-9 h-9 rounded-sm bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                <i data-lucide="settings" class="w-5 h-5"></i>
             </div>
             <div class="flex-1">
-                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight transition-colors">{{ __('System Settings') }}</h1>
-                <p class="text-slate-500 dark:text-slate-400 font-medium transition-colors">{{ __('Configure library information and system rules.') }}</p>
+                <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('System Settings') }}</h1>
+                <p class="text-xs text-muted-foreground">{{ __('Configure library information and system rules.') }}</p>
             </div>
-            <div class="flex items-center space-x-3">
-                <a href="{{ route('admin.users.index') }}" class="flex items-center space-x-2 px-6 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-2xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-none">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    </svg>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.users.index') }}" class="btn-compact-secondary">
+                    <i data-lucide="settings-2" class="w-4 h-4 mr-1"></i>
                     <span>{{ __('Advanced Settings') }}</span>
                 </a>
             </div>
@@ -31,165 +27,166 @@
                 url.searchParams.set('tab', tab);
                 window.history.pushState({}, '', url);
             }
-        }" class="space-y-8">
+        }" class="space-y-4">
             <!-- TABS NAVIGATION -->
-            <div class="flex flex-wrap gap-2 p-1.5 bg-slate-100 dark:bg-slate-800/50 rounded-2xl w-fit transition-colors">
+            <div class="flex flex-wrap gap-1 p-1 bg-muted border border-border rounded-md w-fit">
                 <button @click="updateTab('general')" 
-                        :class="activeTab === 'general' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-                        class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200">
+                        :class="activeTab === 'general' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'"
+                        class="px-4 py-1.5 text-xs font-semibold rounded-sm transition-all duration-200">
                     {{ __('General Settings') }}
                 </button>
                 <button @click="updateTab('policies')" 
-                        :class="activeTab === 'policies' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-                        class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200">
+                        :class="activeTab === 'policies' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'"
+                        class="px-4 py-1.5 text-xs font-semibold rounded-sm transition-all duration-200">
                     {{ __('Library Policies') }}
                 </button>
                 <button @click="updateTab('infrastructure')" 
-                        :class="activeTab === 'infrastructure' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-                        class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200">
+                        :class="activeTab === 'infrastructure' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'"
+                        class="px-4 py-1.5 text-xs font-semibold rounded-sm transition-all duration-200">
                     {{ __('Infrastructure') }}
                 </button>
                 <button @click="updateTab('suppliers')" 
-                        :class="activeTab === 'suppliers' ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'"
-                        class="px-6 py-2.5 text-[10px] font-extrabold uppercase tracking-widest rounded-xl transition-all duration-200">
+                        :class="activeTab === 'suppliers' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'"
+                        class="px-4 py-1.5 text-xs font-semibold rounded-sm transition-all duration-200">
                     {{ __('Suppliers') }}
                 </button>
             </div>
 
             <!-- GENERAL TAB CONTENT -->
-            <div x-show="activeTab === 'general'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div x-show="activeTab === 'general'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
 
-            <!-- LIBRARY INFORMATION SECTION -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
-                <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center space-x-3 bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
-                    <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                    </svg>
-                    <h2 class="text-sm font-extrabold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-colors">{{ __('Library Information') }}</h2>
-                </div>
-
-                <div class="p-6">
-                    <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-4">
-                        @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{{ __('Library Name (VI)') }}</label>
-                                <input type="text" name="library_name_vi" value="{{ \App\Models\SystemSetting::get('library_name_vi') }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{{ __('Library Name (EN)') }}</label>
-                                <input type="text" name="library_name_en" value="{{ \App\Models\SystemSetting::get('library_name_en') }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                            </div>
-                        </div>
-
-                        <div class="space-y-1">
-                            <label class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{{ __('Official Address') }}</label>
-                            <input type="text" name="address" value="{{ \App\Models\SystemSetting::get('address') }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{{ __('Phone') }}</label>
-                                <input type="text" name="phone" value="{{ \App\Models\SystemSetting::get('phone') }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                            </div>
-                            <div class="space-y-1">
-                                <label class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{{ __('Email') }}</label>
-                                <input type="email" name="email" value="{{ \App\Models\SystemSetting::get('email') }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                            </div>
-                        </div>
-
-                        <div class="space-y-1">
-                            <label class="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold tracking-wider">{{ __('Website') }}</label>
-                            <input type="url" name="website" value="{{ \App\Models\SystemSetting::get('website') }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                        </div>
-
-                        <div class="pt-4">
-                            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl text-sm font-bold uppercase hover:bg-indigo-500 shadow-lg shadow-indigo-100 transition-all active:scale-[0.98]">
-                                {{ __('Update Information') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- BARCODE CONFIGURATION SECTION -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
-                <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
-                        </svg>
-                        <h2 class="text-sm font-extrabold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-colors">{{ __('Barcode Rules') }}</h2>
+                <!-- LIBRARY INFORMATION SECTION -->
+                <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
+                    <div class="p-3 border-b border-border flex items-center gap-2 bg-muted/30">
+                        <i data-lucide="building-2" class="w-4 h-4 text-primary"></i>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Library Information') }}</h2>
                     </div>
-                    <button onclick="openModal('createBarcodeModal')" class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-indigo-600 hover:text-white transition-all transition-colors">
-                        {{ __('New Rule') }}
-                    </button>
+
+                    <div class="p-3">
+                        <form action="{{ route('admin.settings.update') }}" method="POST" class="space-y-3">
+                            @csrf
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Library Name (VI)') }}</label>
+                                    <input type="text" name="library_name_vi" value="{{ \App\Models\SystemSetting::get('library_name_vi') }}"
+                                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Library Name (EN)') }}</label>
+                                    <input type="text" name="library_name_en" value="{{ \App\Models\SystemSetting::get('library_name_en') }}"
+                                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Official Address') }}</label>
+                                <input type="text" name="address" value="{{ \App\Models\SystemSetting::get('address') }}"
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Phone') }}</label>
+                                    <input type="text" name="phone" value="{{ \App\Models\SystemSetting::get('phone') }}"
+                                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                </div>
+                                <div class="space-y-1">
+                                    <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Email') }}</label>
+                                    <input type="email" name="email" value="{{ \App\Models\SystemSetting::get('email') }}"
+                                        class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Website') }}</label>
+                                <input type="url" name="website" value="{{ \App\Models\SystemSetting::get('website') }}"
+                                    class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="submit" class="btn-compact-primary w-full h-9 justify-center">
+                                    {{ __('Update Information') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-slate-400 dark:text-slate-500 border-b border-slate-50 dark:border-slate-800 uppercase font-bold text-[10px] tracking-wider transition-colors">
-                            <tr>
-                                <th class="p-4">{{ __('Rule Name') }}</th>
-                                <th class="p-4">{{ __('Pattern') }}</th>
-                                <th class="p-4">{{ __('Current') }}</th>
-                                <th class="p-4">{{ __('Status') }}</th>
-                                <th class="p-4 text-right">{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50">
-                            @foreach($barcodeConfigs as $config)
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td class="p-4 text-slate-900 dark:text-slate-100 font-bold">{{ $config->name }}</td>
-                                    <td class="p-4 font-mono text-xs">
-                                        <span class="text-indigo-600 dark:text-indigo-400 font-bold">{{ $config->prefix }}</span>
-                                        <span class="text-slate-300 dark:text-slate-600">{{ str_repeat('0', $config->length) }}</span>
-                                    </td>
-                                    <td class="p-4 font-mono text-xs text-slate-600 dark:text-slate-400">{{ $config->current_number }}</td>
-                                    <td class="p-4">
-                                        @if($config->is_active)
-                                            <span class="px-2 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] uppercase font-bold rounded-lg border border-emerald-100 dark:border-emerald-500/20">{{ __('ACTIVE') }}</span>
-                                        @else
-                                            <span class="px-2 py-1 bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 text-[9px] uppercase font-bold rounded-lg">{{ __('STDBY') }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="p-4 text-right space-x-3">
-                                        <button onclick="openEditBarcodeModal({{ $config }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-bold text-xs uppercase px-2 py-1 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-all">{{ __('Edit') }}</button>
-                                        <form action="{{ route('admin.settings.barcode.destroy', $config->id) }}" method="POST" class="inline">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold text-xs uppercase px-2 py-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" onclick="return confirm('{{ __('Terminate this rule?') }}')">{{ __('Del') }}</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            @if($barcodeConfigs->isEmpty())
+                <!-- BARCODE CONFIGURATION SECTION -->
+                <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
+                    <div class="p-3 border-b border-border flex items-center justify-between bg-muted/30">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="barcode" class="w-4 h-4 text-primary"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Barcode Rules') }}</h2>
+                        </div>
+                        <button onclick="openModal('createBarcodeModal')" class="btn-compact-secondary text-xs uppercase">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i>
+                            {{ __('New Rule') }}
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto min-h-[150px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-600 italic text-xs">{{ __('No rules defined yet.') }}</td>
+                                    <th class="py-2 px-3">{{ __('Rule Name') }}</th>
+                                    <th class="py-2 px-3 w-28">{{ __('Pattern') }}</th>
+                                    <th class="py-2 px-3 w-20">{{ __('Current') }}</th>
+                                    <th class="py-2 px-3 w-20">{{ __('Status') }}</th>
+                                    <th class="py-2 px-3 w-24 text-right">{{ __('Actions') }}</th>
                                 </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                @foreach($barcodeConfigs as $config)
+                                    <tr class="table-row-hover group">
+                                        <td class="py-2 px-3 text-xs font-bold text-foreground">{{ $config->name }}</td>
+                                        <td class="py-2 px-3 font-mono text-[11px]">
+                                            <span class="text-primary font-bold">{{ $config->prefix }}</span>
+                                            <span class="text-muted-foreground/50">{{ str_repeat('0', $config->length) }}</span>
+                                        </td>
+                                        <td class="py-2 px-3 font-mono text-xs text-muted-foreground">{{ $config->current_number }}</td>
+                                        <td class="py-2 px-3">
+                                            @if($config->is_active)
+                                                <span class="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] uppercase font-bold rounded-sm border border-emerald-500/20">{{ __('ACTIVE') }}</span>
+                                            @else
+                                                <span class="px-1.5 py-0.5 bg-muted text-muted-foreground text-[9px] uppercase font-bold rounded-sm border border-border">{{ __('STDBY') }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="py-2 px-3 text-right">
+                                            <div class="flex justify-end items-center gap-1">
+                                                <button onclick="openEditBarcodeModal({{ $config }})" class="btn-icon-compact text-primary" title="{{ __('Edit') }}">
+                                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                                <form action="{{ route('admin.settings.barcode.destroy', $config->id) }}" method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn-icon-danger" title="{{ __('Del') }}" onclick="return confirm('{{ __('Terminate this rule?') }}')">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                @if($barcodeConfigs->isEmpty())
+                                    <tr>
+                                        <td colspan="5" class="py-8 text-center text-muted-foreground italic text-xs">{{ __('No rules defined yet.') }}</td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="m-3 p-2 bg-amber-500/5 rounded border border-amber-500/10 flex items-start gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-amber-500 shrink-0 mt-0.5"></i>
+                        <p class="text-[10px] text-amber-600 dark:text-amber-400 leading-relaxed font-medium">
+                            {{ __('Only one rule per target type (Book Item / Patron) can be active at once. Activating a new rule will suspend the previous one.') }}
+                        </p>
+                    </div>
                 </div>
-                <div class="m-6 p-4 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-100 dark:border-amber-500/20 flex items-start space-x-3 transition-colors">
-                    <svg class="w-4 h-4 text-amber-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                    <p class="text-[10px] text-amber-700 dark:text-amber-400 italic leading-relaxed transition-colors">
-                        {{ __('Only one rule per target type (Book Item / Patron) can be active at once. Activating a new rule will suspend the previous one.') }}
-                    </p>
-                </div>
-            </div>
             </div>
 
             <!-- LIBRARY POLICIES TAB -->
-            <div x-show="activeTab === 'policies'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
+            <div x-show="activeTab === 'policies'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
                     <div x-data="{ 
                         subTab: new URLSearchParams(window.location.search).get('sub') || 'general',
                         updateSubTab(sub) {
@@ -200,91 +197,74 @@
                         }
                     }">
                         <!-- Sub-tabs Navigation -->
-                        <div class="px-6 py-4 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex flex-wrap gap-4 transition-colors">
-                            <button @click="updateSubTab('general')" :class="subTab === 'general' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-slate-400 border-b-2 border-transparent hover:text-slate-600'" class="pb-2 text-xs font-bold uppercase tracking-wider transition-all">{{ __('General Policy') }}</button>
-                            <button @click="updateSubTab('holidays')" :class="subTab === 'holidays' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-slate-400 border-b-2 border-transparent hover:text-slate-600'" class="pb-2 text-xs font-bold uppercase tracking-wider transition-all">{{ __('Holidays') }}</button>
-                            <button @click="updateSubTab('services')" :class="subTab === 'services' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-slate-400 border-b-2 border-transparent hover:text-slate-600'" class="pb-2 text-xs font-bold uppercase tracking-wider transition-all">{{ __('Services') }}</button>
-                            <button @click="updateSubTab('books')" :class="subTab === 'books' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-slate-400 border-b-2 border-transparent hover:text-slate-600'" class="pb-2 text-xs font-bold uppercase tracking-wider transition-all">{{ __('Books') }}</button>
+                        <div class="px-3 py-2 border-b border-border bg-muted/20 flex flex-wrap gap-2">
+                            <button @click="updateSubTab('general')" :class="subTab === 'general' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('General Policy') }}</button>
+                            <button @click="updateSubTab('holidays')" :class="subTab === 'holidays' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Holidays') }}</button>
+                            <button @click="updateSubTab('services')" :class="subTab === 'services' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Services') }}</button>
+                            <button @click="updateSubTab('books')" :class="subTab === 'books' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Books') }}</button>
                         </div>
 
-                        <div class="p-8">
+                        <div class="p-3">
                             <!-- Policy: General Tab -->
                             <div x-show="subTab === 'general'">
                                 <form action="{{ route('admin.settings.policy.update') }}" method="POST">
                                     @csrf
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                                        <!-- Column 1 -->
-                                        <div class="space-y-6">
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Loan Time Unit') }}</label>
-                                                <select name="loan_time_unit" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                                    <option value="day" {{ \App\Models\SystemSetting::get('loan_time_unit') == 'day' ? 'selected' : '' }}>{{ __('By Day') }}</option>
-                                                    <option value="hour" {{ \App\Models\SystemSetting::get('loan_time_unit') == 'hour' ? 'selected' : '' }}>{{ __('By Hour') }}</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Opening Time') }}</label>
-                                                <input type="time" name="opening_time" value="{{ \App\Models\SystemSetting::get('opening_time', '07:30') }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Fine Notification Time') }}</label>
-                                                <input type="time" name="fine_notification_time" value="{{ \App\Models\SystemSetting::get('fine_notification_time', '17:00') }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Grace Period (Days)') }}</label>
-                                                <input type="number" name="grace_period" value="{{ \App\Models\SystemSetting::get('grace_period', 1) }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Default Replacement Cost') }}</label>
-                                                <input type="number" name="default_replacement_cost" value="{{ \App\Models\SystemSetting::get('default_replacement_cost', 0) }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Fine Rate (Urgent)') }}</label>
-                                                <input type="number" name="urgent_fine_rate" value="{{ \App\Models\SystemSetting::get('urgent_fine_rate', 2000) }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                                    <div class="space-y-3 max-w-xl">
+                                        <!-- Thứ 2 - Thứ 6 -->
+                                        <div class="bg-muted/10 rounded border border-border p-3">
+                                            <h4 class="text-xs font-bold uppercase tracking-wider mb-2 text-primary">{{ __('Thứ 2 - Thứ 6') }}</h4>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="space-y-1">
+                                                    <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Opening Time') }}</label>
+                                                    <input type="time" name="opening_time_weekday" value="{{ \App\Models\SystemSetting::get('opening_time_weekday', '07:30') }}" 
+                                                        class="w-full h-8 bg-background border border-border rounded px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Closing Time') }}</label>
+                                                    <input type="time" name="closing_time_weekday" value="{{ \App\Models\SystemSetting::get('closing_time_weekday', '20:00') }}" 
+                                                        class="w-full h-8 bg-background border border-border rounded px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Column 2 -->
-                                        <div class="space-y-6">
-                                            <div class="flex items-center justify-between group invisible">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">-</label>
-                                                <div class="w-1/2"></div>
+                                        <!-- Thứ 7 -->
+                                        <div class="bg-muted/10 rounded border border-border p-3">
+                                            <h4 class="text-xs font-bold uppercase tracking-wider mb-2 text-primary">{{ __('Thứ 7') }}</h4>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="space-y-1">
+                                                    <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Opening Time') }}</label>
+                                                    <input type="time" name="opening_time_sat" value="{{ \App\Models\SystemSetting::get('opening_time_sat', '08:00') }}" 
+                                                        class="w-full h-8 bg-background border border-border rounded px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Closing Time') }}</label>
+                                                    <input type="time" name="closing_time_sat" value="{{ \App\Models\SystemSetting::get('closing_time_sat', '17:00') }}" 
+                                                        class="w-full h-8 bg-background border border-border rounded px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                                </div>
                                             </div>
+                                        </div>
 
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Closing Time') }}</label>
-                                                <input type="time" name="closing_time" value="{{ \App\Models\SystemSetting::get('closing_time', '17:00') }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Debt Notification Time') }}</label>
-                                                <input type="time" name="debt_notification_time" value="{{ \App\Models\SystemSetting::get('debt_notification_time', '17:00') }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Fine Period (Days)') }}</label>
-                                                <input type="number" name="fine_period" value="{{ \App\Models\SystemSetting::get('fine_period', 2) }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Default Processing Cost') }}</label>
-                                                <input type="number" name="default_processing_cost" value="{{ \App\Models\SystemSetting::get('default_processing_cost', 0) }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
-                                            </div>
-
-                                            <div class="flex items-center justify-between group">
-                                                <label class="text-xs font-bold text-slate-600 dark:text-slate-400">{{ __('Fine Rate (Normal)') }}</label>
-                                                <input type="number" name="normal_fine_rate" value="{{ \App\Models\SystemSetting::get('normal_fine_rate', 1000) }}" class="w-1/2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                                        <!-- Chủ Nhật -->
+                                        <div class="bg-muted/10 rounded border border-border p-3">
+                                            <h4 class="text-xs font-bold uppercase tracking-wider mb-2 text-primary">{{ __('Chủ Nhật') }}</h4>
+                                            <div class="grid grid-cols-2 gap-3">
+                                                <div class="space-y-1">
+                                                    <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Opening Time') }}</label>
+                                                    <input type="time" name="opening_time_sun" value="{{ \App\Models\SystemSetting::get('opening_time_sun', '08:00') }}" 
+                                                        class="w-full h-8 bg-background border border-border rounded px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                                </div>
+                                                <div class="space-y-1">
+                                                    <label class="block text-[10px] text-muted-foreground uppercase font-bold tracking-wider">{{ __('Closing Time') }}</label>
+                                                    <input type="time" name="closing_time_sun" value="{{ \App\Models\SystemSetting::get('closing_time_sun', '17:00') }}" 
+                                                        class="w-full h-8 bg-background border border-border rounded px-2.5 text-xs text-foreground focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div class="mt-8 pt-8 border-t border-slate-50 dark:border-slate-800">
-                                        <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-xl text-sm font-extrabold uppercase tracking-widest hover:bg-indigo-500 shadow-xl shadow-indigo-100 dark:shadow-none transition-all active:scale-95">
+                                    <div class="mt-4 pt-3 border-t border-border flex justify-end">
+                                        <button type="submit" class="btn-compact-primary">
+                                            <i data-lucide="save" class="w-4 h-4 mr-1"></i>
                                             {{ __('Save Policy') }}
                                         </button>
                                     </div>
@@ -295,7 +275,7 @@
                             <div x-show="subTab === 'books'">
                                 <form action="{{ route('admin.settings.policy.update_digital') }}" method="POST">
                                     @csrf
-                                    <div class="space-y-4">
+                                    <div class="space-y-3">
                                         <!-- Digital Download Policy Section -->
                                         <div class="bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden">
                                             <div class="p-3 border-b border-border flex items-center gap-3 bg-muted/30">
@@ -303,13 +283,13 @@
                                                     <i data-lucide="download-cloud" class="w-4 h-4"></i>
                                                 </div>
                                                 <div>
-                                                    <h3 class="text-xs font-bold uppercase tracking-wider">{{ __('Quyền tải tài liệu số') }}</h3>
-                                                    <p class="text-[10px] text-muted-foreground font-medium">{{ __('Cấu hình nhóm đối tượng được phép tải tệp tin PDF.') }}</p>
+                                                    <h3 class="text-xs font-bold uppercase tracking-wider">{{ __('Digital Download Permission') }}</h3>
+                                                    <p class="text-[10px] text-muted-foreground font-medium">{{ __('Configure patron groups allowed to download PDF files.') }}</p>
                                                 </div>
                                             </div>
 
-                                            <div class="p-4">
-                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            <div class="p-3">
+                                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                                     @php
                                                         $allowedGroups = json_decode(\App\Models\SystemSetting::get('digital_download_allowed_groups', '[]'), true) ?: [];
                                                         $viewLimits = json_decode(\App\Models\SystemSetting::get('digital_view_page_limits', '[]'), true) ?: [];
@@ -338,7 +318,7 @@
                                                         </div>
                                                         
                                                         <div class="mt-auto pt-2 border-t border-border/50 space-y-1">
-                                                            <label class="text-[9px] text-muted-foreground uppercase font-black tracking-widest">{{ __('Số trang xem thử') }}</label>
+                                                            <label class="text-[9px] text-muted-foreground uppercase font-black tracking-widest">{{ __('Preview Page Limit') }}</label>
                                                             <div class="relative">
                                                                 <input type="number" name="digital_view_page_limits[{{ $group->id }}]" 
                                                                        value="{{ $viewLimits[$group->id] ?? 0 }}"
@@ -348,7 +328,7 @@
                                                                     <i data-lucide="file-text" class="w-3 h-3"></i>
                                                                 </div>
                                                             </div>
-                                                            <p class="text-[8px] text-muted-foreground italic">{{ __('0 = Không giới hạn') }}</p>
+                                                            <p class="text-[8px] text-muted-foreground italic">{{ __('0 = Unlimited') }}</p>
                                                         </div>
                                                     </div>
                                                     @endforeach
@@ -356,7 +336,7 @@
 
                                                 @if($patronGroups->isEmpty())
                                                 <div class="text-center py-6 text-muted-foreground italic text-xs border border-dashed border-border rounded">
-                                                    {{ __('Chưa có nhóm đối tượng nào được định nghĩa.') }}
+                                                    {{ __('No patron groups defined yet.') }}
                                                 </div>
                                                 @endif
                                             </div>
@@ -369,23 +349,23 @@
                                                     <i data-lucide="user-minus" class="w-4 h-4"></i>
                                                 </div>
                                                 <div>
-                                                    <h3 class="text-xs font-bold uppercase tracking-wider">{{ __('Cấu hình cho Khách') }}</h3>
-                                                    <p class="text-[10px] text-muted-foreground font-medium">{{ __('Quyền hạn dành cho người dùng chưa phân nhóm.') }}</p>
+                                                    <h3 class="text-xs font-bold uppercase tracking-wider">{{ __('Guest Configuration') }}</h3>
+                                                    <p class="text-[10px] text-muted-foreground font-medium">{{ __('Permissions for unassigned users.') }}</p>
                                                 </div>
                                             </div>
                                             
-                                            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="p-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 <div class="flex items-center gap-3 p-3 bg-muted/10 rounded border border-border border-dashed">
                                                     <div class="p-2 bg-muted rounded-full">
                                                         <i data-lucide="lock" class="w-3.5 h-3.5 text-muted-foreground"></i>
                                                     </div>
                                                     <div>
-                                                        <span class="block text-xs font-bold">{{ __('Tải tài liệu') }}</span>
+                                                        <span class="block text-xs font-bold">{{ __('Download Document') }}</span>
                                                         <span class="block text-[9px] text-muted-foreground uppercase tracking-widest">{{ __('Locked by Default') }}</span>
                                                     </div>
                                                 </div>
                                                 <div class="p-3 bg-muted/10 rounded border border-border border-dashed space-y-1.5">
-                                                    <label class="text-[9px] text-muted-foreground uppercase font-black tracking-widest">{{ __('Số trang xem thử') }}</label>
+                                                    <label class="text-[9px] text-muted-foreground uppercase font-black tracking-widest">{{ __('Preview Page Limit') }}</label>
                                                     <div class="relative">
                                                         <input type="number" name="digital_view_page_limits[guest]" 
                                                                value="{{ $viewLimits['guest'] ?? 10 }}"
@@ -400,17 +380,17 @@
                                         </div>
 
                                         <!-- Note Info -->
-                                        <div class="p-3 bg-accent/30 rounded-md border border-border flex items-start gap-3">
-                                            <i data-lucide="info" class="w-4 h-4 text-primary mt-0.5"></i>
+                                        <div class="p-3 bg-accent/10 rounded-md border border-border flex items-start gap-3">
+                                            <i data-lucide="info" class="w-4 h-4 text-primary shrink-0 mt-0.5"></i>
                                             <p class="text-[10px] text-muted-foreground leading-relaxed font-medium">
-                                                {{ __('Lưu ý: Chỉ những nhóm được chọn mới thấy nút "Tải". Các nhóm khác (bao gồm Khách) chỉ được xem trực tuyến giới hạn theo số trang cấu hình.') }}
+                                                {{ __('Note: Only selected groups will see the "Download" button. Other groups (including Guests) are restricted to online viewing with the configured preview page limit.') }}
                                             </p>
                                         </div>
 
                                         <div class="flex items-center justify-end pt-2">
-                                            <button type="submit" class="inline-flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-sm text-xs font-bold uppercase tracking-widest hover:bg-primary/90 active:scale-95 transition-all shadow-sm">
-                                                <i data-lucide="save" class="w-4 h-4"></i>
-                                                {{ __('Lưu chính sách Sách') }}
+                                            <button type="submit" class="btn-compact-primary">
+                                                <i data-lucide="save" class="w-4 h-4 mr-1"></i>
+                                                {{ __('Save Book Policy') }}
                                             </button>
                                         </div>
                                     </div>
@@ -422,154 +402,172 @@
             </div>
 
             <!-- INFRASTRUCTURE TAB CONTENT -->
-            <div x-show="activeTab === 'infrastructure'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- BRANCH MANAGEMENT SECTION -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
-                <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <h2 class="text-sm font-extrabold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-colors">{{ __('Branch Management') }}</h2>
-                    </div>
-                    <button onclick="openModal('createBranchModal')" class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-indigo-600 hover:text-white transition-all transition-colors">
-                        {{ __('New Branch') }}
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-slate-400 dark:text-slate-500 border-b border-slate-50 dark:border-slate-800 uppercase font-bold text-[10px] tracking-wider transition-colors">
-                            <tr>
-                                <th class="p-4">{{ __('Name') }}</th>
-                                <th class="p-4">{{ __('Code') }}</th>
-                                <th class="p-4 text-right">{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-300">
-                            @foreach($branches as $branch)
-                                <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                    <td class="p-4 font-bold text-slate-900 dark:text-slate-100">{{ $branch->name }}</td>
-                                    <td class="p-4 font-mono text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-wider">{{ $branch->code }}</td>
-                                    <td class="p-4 text-right space-x-2">
-                                        <form action="{{ route('admin.settings.branches.destroy', $branch->id) }}" method="POST" class="inline">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold text-xs uppercase px-2 py-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" onclick="return confirm('{{ __('Delete this branch?') }}')">{{ __('Del') }}</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- STORAGE LOCATION MANAGEMENT SECTION -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
-                <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path>
-                        </svg>
-                        <h2 class="text-sm font-extrabold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-colors">{{ __('Storage Locations') }}</h2>
-                    </div>
-                    @if($branches->isNotEmpty())
-                        <button onclick="openModal('createLocationModal')" class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-indigo-600 hover:text-white transition-all transition-colors">
-                            {{ __('New Location') }}
+            <div x-show="activeTab === 'infrastructure'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                <!-- BRANCH MANAGEMENT SECTION -->
+                <div class="bg-card text-foreground rounded-md border border-border overflow-hidden transition-colors shadow-sm">
+                    <div class="p-3 border-b border-border flex items-center justify-between bg-muted/30 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-primary"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Branch Management') }}</h2>
+                        </div>
+                        <button onclick="openModal('createBranchModal')" class="btn-compact-secondary text-xs uppercase">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i>
+                            {{ __('New Branch') }}
                         </button>
-                    @endif
-                </div>
+                    </div>
 
-                <div class="overflow-x-auto max-h-[400px] overflow-y-auto custom-scrollbar">
-                    <table class="w-full text-sm text-left">
-                        <thead class="text-slate-400 dark:text-slate-500 border-b border-slate-50 dark:border-slate-800 uppercase font-bold text-[10px] tracking-wider sticky top-0 bg-white dark:bg-slate-900 shadow-sm z-10 transition-colors">
-                            <tr>
-                                <th class="p-4">{{ __('Name') }}</th>
-                                <th class="p-4">{{ __('Branch') }}</th>
-                                <th class="p-4 text-right">{{ __('Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-300">
-                            @foreach($branches as $branch)
-                                @foreach($branch->storageLocations as $location)
-                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                        <td class="p-4">
-                                            <div class="font-bold text-slate-900 dark:text-slate-100">{{ $location->name }}</div>
-                                            <div class="text-[10px] font-mono text-slate-400 dark:text-slate-500 font-bold uppercase">{{ $location->code }}</div>
-                                        </td>
-                                        <td class="p-4">
-                                            <span class="px-2 py-0.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold rounded-lg">{{ $branch->name }}</span>
-                                        </td>
-                                        <td class="p-4 text-right">
-                                            <form action="{{ route('admin.settings.locations.destroy', $location->id) }}" method="POST" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-300 font-bold text-xs uppercase px-2 py-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" onclick="return confirm('{{ __('Delete this location?') }}')">{{ __('Del') }}</button>
-                                            </form>
+                    <div class="overflow-x-auto min-h-[150px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
+                                <tr>
+                                    <th class="py-2 px-3">{{ __('Name') }}</th>
+                                    <th class="py-2 px-3 w-32">{{ __('Code') }}</th>
+                                    <th class="py-2 px-3 w-20 text-right">{{ __('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                @foreach($branches as $branch)
+                                    <tr class="table-row-hover group">
+                                        <td class="py-2 px-3 font-bold text-xs">{{ $branch->name }}</td>
+                                        <td class="py-2 px-3 font-mono text-[11px] text-primary font-bold uppercase tracking-wider">{{ $branch->code }}</td>
+                                        <td class="py-2 px-3 text-right">
+                                            <div class="flex justify-end items-center gap-1">
+                                                <button onclick="openEditBranchModal({{ $branch }})" class="btn-icon-compact text-primary" title="{{ __('Edit') }}">
+                                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                                <form action="{{ route('admin.settings.branches.destroy', $branch->id) }}" method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn-icon-danger" title="{{ __('Del') }}" onclick="return confirm('{{ __('Delete this branch?') }}')">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- STORAGE LOCATION MANAGEMENT SECTION -->
+                <div class="bg-card text-foreground rounded-md border border-border overflow-hidden transition-colors shadow-sm">
+                    <div class="p-3 border-b border-border flex items-center justify-between bg-muted/30 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="database" class="w-4 h-4 text-primary"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Storage Locations') }}</h2>
+                        </div>
+                        @if($branches->isNotEmpty())
+                            <button onclick="openModal('createLocationModal')" class="btn-compact-secondary text-xs uppercase">
+                                <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i>
+                                {{ __('New Location') }}
+                            </button>
+                        @endif
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[300px] min-h-[150px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider sticky top-0 bg-card z-10">
+                                <tr>
+                                    <th class="py-2 px-3">{{ __('Name') }}</th>
+                                    <th class="py-2 px-3 w-32">{{ __('Branch') }}</th>
+                                    <th class="py-2 px-3 w-20 text-right">{{ __('Actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-border">
+                                @foreach($branches as $branch)
+                                    @foreach($branch->storageLocations as $location)
+                                        <tr class="table-row-hover group">
+                                            <td class="py-2 px-3">
+                                                <div class="font-bold text-xs">{{ $location->name }}</div>
+                                                <div class="text-[10px] font-mono text-muted-foreground uppercase mt-0.5">{{ $location->code }}</div>
+                                            </td>
+                                            <td class="py-2 px-3">
+                                                <span class="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-sm border border-primary/20">{{ $branch->name }}</span>
+                                            </td>
+                                            <td class="py-2 px-3 text-right">
+                                                <div class="flex justify-end items-center gap-1">
+                                                    <button onclick="openEditLocationModal({{ $location }})" class="btn-icon-compact text-primary" title="{{ __('Edit') }}">
+                                                        <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                    <form action="{{ route('admin.settings.locations.destroy', $location->id) }}" method="POST" class="inline">
+                                                        @csrf @method('DELETE')
+                                                        <button type="submit" class="btn-icon-danger" title="{{ __('Del') }}" onclick="return confirm('{{ __('Delete this location?') }}')">
+                                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
-            </div>
+
             <!-- SUPPLIERS TAB CONTENT -->
-            <div x-show="activeTab === 'suppliers'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
-                    <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/50 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
-                            <h2 class="text-sm font-extrabold uppercase tracking-widest text-slate-700 dark:text-slate-300 transition-colors">{{ __('Supplier Management') }}</h2>
+            <div x-show="activeTab === 'suppliers'" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="bg-card text-foreground rounded-md border border-border overflow-hidden transition-colors shadow-sm">
+                    <div class="p-3 border-b border-border flex items-center justify-between bg-muted/30 transition-colors">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="truck" class="w-4 h-4 text-primary"></i>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Supplier Management') }}</h2>
                         </div>
-                        <button onclick="openModal('createSupplierModal')" class="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-4 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-indigo-600 hover:text-white transition-all">
+                        <button onclick="openModal('createSupplierModal')" class="btn-compact-secondary text-xs uppercase">
+                            <i data-lucide="plus" class="w-3.5 h-3.5 mr-1"></i>
                             {{ __('New Supplier') }}
                         </button>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm text-left">
-                            <thead class="text-slate-400 dark:text-slate-500 border-b border-slate-50 dark:border-slate-800 uppercase font-bold text-[10px] tracking-wider transition-colors">
+                    <div class="overflow-x-auto min-h-[150px]">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-muted/50 border-b border-border text-muted-foreground uppercase font-bold text-[10px] tracking-wider">
                                 <tr>
-                                    <th class="p-4">{{ __('Supplier') }}</th>
-                                    <th class="p-4">{{ __('Contact') }}</th>
-                                    <th class="p-4">{{ __('Email/Phone') }}</th>
-                                    <th class="p-4">{{ __('Status') }}</th>
-                                    <th class="p-4 text-right">{{ __('Actions') }}</th>
+                                    <th class="py-2 px-3">{{ __('Supplier') }}</th>
+                                    <th class="py-2 px-3 w-40">{{ __('Contact') }}</th>
+                                    <th class="py-2 px-3 w-48">{{ __('Email/Phone') }}</th>
+                                    <th class="py-2 px-3 w-24">{{ __('Status') }}</th>
+                                    <th class="py-2 px-3 w-28 text-right">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-50 dark:divide-slate-800/50 text-slate-700 dark:text-slate-300">
+                            <tbody class="divide-y divide-border">
                                 @forelse($suppliers as $supplier)
-                                    <tr class="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                        <td class="p-4">
-                                            <div class="font-bold text-slate-900 dark:text-slate-100">{{ $supplier->name }}</div>
-                                            <div class="text-[10px] font-mono text-slate-400 dark:text-slate-500 font-bold uppercase">{{ $supplier->code }}</div>
+                                    <tr class="table-row-hover group">
+                                        <td class="py-2 px-3">
+                                            <div class="font-bold text-xs">{{ $supplier->name }}</div>
+                                            <div class="text-[10px] font-mono text-muted-foreground uppercase mt-0.5">{{ $supplier->code }}</div>
                                         </td>
-                                        <td class="p-4 text-xs">{{ $supplier->contact_name ?? '-' }}</td>
-                                        <td class="p-4 text-xs">
-                                            <div>{{ $supplier->email ?? '-' }}</div>
-                                            <div class="text-slate-400">{{ $supplier->phone ?? '-' }}</div>
+                                        <td class="py-2 px-3 text-xs">{{ $supplier->contact_name ?? '-' }}</td>
+                                        <td class="py-2 px-3 text-xs">
+                                            <div class="font-semibold">{{ $supplier->email ?? '-' }}</div>
+                                            <div class="text-muted-foreground mt-0.5">{{ $supplier->phone ?? '-' }}</div>
                                         </td>
-                                        <td class="p-4">
-                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider {{ $supplier->is_active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-500' }}">
-                                                {{ $supplier->is_active ? __('Active') : __('Inactive') }}
-                                            </span>
+                                        <td class="py-2 px-3">
+                                            @if($supplier->is_active)
+                                                <span class="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[9px] uppercase font-bold rounded-sm border border-emerald-500/20">{{ __('Active') }}</span>
+                                            @else
+                                                <span class="px-1.5 py-0.5 bg-muted text-muted-foreground text-[9px] uppercase font-bold rounded-sm border border-border">{{ __('Inactive') }}</span>
+                                            @endif
                                         </td>
-                                        <td class="p-4 text-right space-x-2">
-                                            <button onclick="openEditSupplierModal({{ $supplier }})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold text-xs uppercase px-2 py-1 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-all">{{ __('Edit') }}</button>
-                                            <form action="{{ route('admin.settings.suppliers.destroy', $supplier->id) }}" method="POST" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-rose-600 dark:text-rose-400 hover:text-rose-800 font-bold text-xs uppercase px-2 py-1 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-all" onclick="return confirm('{{ __('Delete this supplier?') }}')">{{ __('Del') }}</button>
-                                            </form>
+                                        <td class="py-2 px-3 text-right">
+                                            <div class="flex justify-end items-center gap-1">
+                                                <button onclick="openEditSupplierModal({{ $supplier }})" class="btn-icon-compact text-primary" title="{{ __('Edit') }}">
+                                                    <i data-lucide="edit-2" class="w-3.5 h-3.5"></i>
+                                                </button>
+                                                <form action="{{ route('admin.settings.suppliers.destroy', $supplier->id) }}" method="POST" class="inline">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit" class="btn-icon-danger" title="{{ __('Del') }}" onclick="return confirm('{{ __('Delete this supplier?') }}')">
+                                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="p-8 text-center text-slate-400 dark:text-slate-600 italic text-xs">{{ __('No suppliers defined yet.') }}</td>
+                                        <td colspan="5" class="py-8 text-center text-muted-foreground italic text-xs">{{ __('No suppliers defined yet.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -609,6 +607,23 @@
             document.getElementById('edit_sup_email').value = supplier.email || '';
             document.getElementById('edit_sup_is_active').checked = supplier.is_active;
             openModal('editSupplierModal');
+        }
+        function openEditBranchModal(branch) {
+            document.getElementById('editBranchForm').action = `{{ route('admin.settings.branches.update', ['branch' => ':id']) }}`.replace(':id', branch.id);
+            document.getElementById('edit_branch_name').value = branch.name;
+            document.getElementById('edit_branch_code').value = branch.code;
+            document.getElementById('edit_branch_phone').value = branch.phone || '';
+            document.getElementById('edit_branch_address').value = branch.address || '';
+            document.getElementById('edit_branch_is_active').checked = branch.is_active;
+            openModal('editBranchModal');
+        }
+        function openEditLocationModal(location) {
+            document.getElementById('editLocationForm').action = `{{ route('admin.settings.locations.update', ['location' => ':id']) }}`.replace(':id', location.id);
+            document.getElementById('edit_location_name').value = location.name;
+            document.getElementById('edit_location_code').value = location.code;
+            document.getElementById('edit_location_description').value = location.description || '';
+            document.getElementById('edit_location_is_active').checked = location.is_active;
+            openModal('editLocationModal');
         }
     </script>
 @endsection

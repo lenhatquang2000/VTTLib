@@ -21,19 +21,19 @@ class User extends Authenticatable
 
     public function getSidebarTabs()
     {
-        $roleUserIds = $this->roles->map(fn($role) => $role->pivot->id);
+        $roleIds = $this->roles->pluck('id')->toArray();
 
         return Sidebar::whereNull('parent_id')
             ->where('is_active', true)
-            ->where(function ($query) use ($roleUserIds) {
-                // Return parent if it is directly assigned
-                $query->whereHas('userRoleSidebars', function ($q) use ($roleUserIds) {
-                    $q->whereIn('role_user_id', $roleUserIds);
+            ->where(function ($query) use ($roleIds) {
+                // Return parent if it is directly assigned to the role
+                $query->whereHas('roles', function ($q) use ($roleIds) {
+                    $q->whereIn('role_id', $roleIds);
                 })
-                    // OR if any of its children are assigned
-                    ->orWhereHas('children', function ($q) use ($roleUserIds) {
-                    $q->whereHas('userRoleSidebars', function ($sq) use ($roleUserIds) {
-                        $sq->whereIn('role_user_id', $roleUserIds);
+                    // OR if any of its children are assigned to the role
+                    ->orWhereHas('children', function ($q) use ($roleIds) {
+                    $q->whereHas('roles', function ($sq) use ($roleIds) {
+                        $sq->whereIn('role_id', $roleIds);
                     });
                 });
             })
