@@ -150,9 +150,20 @@ class SiteController extends Controller
             ->take(5)
             ->get();
 
+        // Lấy Banners cho Hero Section (lấy cả banner có position = 'home_hero' hoặc position = null)
+        $banners = \App\Models\Banner::currentlyActive()
+            ->byLanguage(session('locale', app()->getLocale()))
+            ->where(function($q) {
+                $q->where('position', 'home_hero')
+                  ->orWhereNull('position');
+            })
+            ->orderBy('sort_order')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('site.pages.home', compact(
             'menuItems', 'footerItems', 'newResources', 'medicalResources',
-            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews', 'bookIntroductionNews', 'networkLogos', 'sidebarVideos'
+            'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews', 'bookIntroductionNews', 'networkLogos', 'sidebarVideos', 'banners'
         ));
     }
 

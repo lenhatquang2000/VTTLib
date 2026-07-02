@@ -11,189 +11,192 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
 @include('site.partials.book-loader')
 <div class="bg-slate-50 min-h-screen">
     <!-- 1. Hero Slider Section -->
-    <section class="relative min-h-[70vh] bg-white overflow-hidden" data-aos="fade">
-        <div class="swiper heroSwiper h-full min-h-[70vh]">
+    <section class="relative bg-white overflow-hidden w-full pt-[68px]" data-aos="fade">
+        <div class="swiper heroSwiper w-full h-auto">
             <div class="swiper-wrapper">
-                <!-- Slide 1 -->
-                <div class="swiper-slide flex flex-col">
-                    <!-- Body (75%) -->
-                    <div class="flex-grow flex items-center pt-32 md:pt-40 pb-12">
-                        <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                                <div class="space-y-8">
-                                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-bold uppercase tracking-[0.3em]">
-                                        <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
-                                        VTTU Digital Repository
-                                    </div>
-                                    <h1 class="text-5xl md:text-7xl font-bold text-vttu-dark leading-tight tracking-tighter">
-                                        {{ __('Khai phá') }} <span class="text-vttu-red">{{ __('Tri thức') }}</span> <br>{{ __('trong tầm tay.') }}
-                                    </h1>
-                                    <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
-                                        {{ __('Hệ thống thư viện số hiện đại cung cấp hàng ngàn tài liệu điện tử, giáo trình và bài giảng phục vụ học tập và nghiên cứu đỉnh cao.') }}
-                                    </p>
-                                    <div class="flex flex-wrap gap-4">
-                                        <a href="#explore" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-bold rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all hover:-translate-y-1 flex items-center group">
-                                            {{ __('Bắt đầu khám phá') }}
-                                            <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="relative hidden lg:block">
-                                    <div class="absolute inset-0 bg-vttu-dark blur-[100px] opacity-40"></div>
-                                    <img src="https://img.freepik.com/free-vector/digital-library-concept-illustration_114360-8451.jpg" alt="Library" class="relative z-10 rounded-[3rem] shadow-2xl border border-white/10 max-h-[400px] w-full object-cover">
-                                </div>
-                            </div>
+                @if(isset($banners) && $banners->count() > 0)
+                    @foreach($banners as $banner)
+                        <div class="swiper-slide w-full h-auto relative">
+                            @if($banner->link_url)
+                                <a href="{{ $banner->link_url }}" class="block w-full h-auto">
+                            @endif
+                                <img src="{{ asset('storage/' . $banner->image_url) }}" 
+                                     alt="{{ $banner->title }}" 
+                                     class="w-full h-auto block">
+                            @if($banner->link_url)
+                                </a>
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <!-- Fallback if no banners are added -->
+                    <div class="swiper-slide w-full h-[400px] flex items-center justify-center bg-slate-100">
+                        <div class="text-center p-8">
+                            <i class="fas fa-image text-slate-300 text-5xl mb-3"></i>
+                            <p class="text-slate-400 font-medium">Vui lòng thêm banner trong trang quản trị.</p>
                         </div>
                     </div>
-                    <!-- Footer Hero (25%) -->
-                    <div class="h-[25%] bg-vttu-red py-8">
-                        <div class=" mx-auto px-4 md:px-12 lg:px-24">
-                            <div class="flex flex-wrap items-center justify-start gap-16">
-                                <div class="flex items-center gap-4 group">
-                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
-                                        <i class="fas fa-book-reader"></i>
-                                    </div>
-                                    <div class="text-left">
-                                        <p class="text-2xl font-bold text-white">25k+</p>
-                                        <p class="text-[10px] font-bold text-vttu-yellow uppercase tracking-widest">{{ __('Tài liệu số') }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-4 group">
-                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div class="text-left">
-                                        <p class="text-2xl font-bold text-white">15k+</p>
-                                        <p class="text-[10px] font-bold text-vttu-yellow uppercase tracking-widest">{{ __('Bạn đọc') }}</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-4 group">
-                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
-                                        <i class="fas fa-globe"></i>
-                                    </div>
-                                    <div class="text-left">
-                                        <p class="text-2xl font-bold text-white">24/7</p>
-                                        <p class="text-[10px] font-bold text-vttu-yellow uppercase tracking-widest">{{ __('Truy cập') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slide 2 -->
-                <div class="swiper-slide flex flex-col">
-                    <!-- Body (75%) -->
-                    <div class="flex-grow flex items-center pt-32 md:pt-40 pb-12">
-                        <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                                <div class="space-y-8">
-                                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-bold uppercase tracking-[0.3em]">
-                                        <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
-                                        VTTU Medical Collection
-                                    </div>
-                                    <h1 class="text-5xl md:text-7xl font-bold text-vttu-dark leading-tight tracking-tighter">
-                                        {{ __('Kệ sách') }} <span class="text-vttu-red">{{ __('Y khoa') }}</span> <br>{{ __('Chuyên sâu.') }}
-                                    </h1>
-                                    <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
-                                        {{ __('Truy cập kho giáo trình, Atlas giải phẫu và công trình nghiên cứu y học dành riêng cho khối ngành sức khỏe tại VTTU.') }}
-                                    </p>
-                                    <div class="flex flex-wrap gap-4">
-                                        <a href="#explore" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-bold rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all hover:-translate-y-1 flex items-center group">
-                                            {{ __('Xem tài liệu y khoa') }}
-                                            <i class="fas fa-stethoscope ml-3 group-hover:rotate-12 transition-transform"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="relative hidden lg:block">
-                                    <div class="absolute inset-0 bg-vttu-red/10 blur-[100px] opacity-40"></div>
-                                    <img src="https://img.freepik.com/free-vector/medical-video-call-consultation-illustration_52683-61434.jpg" alt="Medical" class="relative z-10 rounded-[3rem] shadow-2xl border border-slate-100 max-h-[400px] w-full object-cover">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Footer Hero (25%) -->
-                    <div class="h-[25%] bg-vttu-red py-8">
-                        <div class=" mx-auto px-4 md:px-12 lg:px-24">
-                            <div class="flex flex-wrap items-center justify-start gap-16">
-                                <div class="flex items-center gap-4 group">
-                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
-                                        <i class="fas fa-microscope"></i>
-                                    </div>
-                                    <span class="text-sm font-black text-white uppercase tracking-wider">{{ __('Nghiên cứu chuyên sâu') }}</span>
-                                </div>
-                                <div class="flex items-center gap-4 group">
-                                    <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-vttu-yellow group-hover:bg-vttu-yellow group-hover:text-vttu-red transition-all">
-                                        <i class="fas fa-dna"></i>
-                                    </div>
-                                    <span class="text-sm font-black text-white uppercase tracking-wider">{{ __('Atlas Giải phẫu số') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Slide 3 -->
-                <div class="swiper-slide flex flex-col">
-                    <!-- Body (75%) -->
-                    <div class="flex-grow flex items-center pt-32 md:pt-40 pb-12">
-                        <div class="w-full px-4 md:px-12 lg:px-24 relative z-20">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                                <div class="space-y-8">
-                                    <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-vttu-red/5 border border-vttu-red/20 text-vttu-red text-xs font-black uppercase tracking-[0.3em]">
-                                        <span class="flex h-2 w-2 rounded-full bg-vttu-red mr-2 animate-ping"></span>
-                                        Learning Resources
-                                    </div>
-                                    <h1 class="text-5xl md:text-7xl font-black text-vttu-dark leading-tight tracking-tighter">
-                                        {{ __('Kết nối') }} <span class="text-vttu-red">{{ __('Không không gian') }}</span> <br>{{ __('Học thuật mới.') }}
-                                    </h1>
-                                    <p class="text-xl text-slate-600 leading-relaxed max-w-xl">
-                                        {{ __('Môi trường học tập hiện đại với trang thiết bị tối tân, phục vụ nhu cầu nghiên cứu và sáng tạo không ngừng của sinh viên VTTU.') }}
-                                    </p>
-                                    <div class="flex flex-wrap gap-4">
-                                        <a href="/login" class="px-10 py-5 bg-vttu-red hover:bg-vttu-dark text-white font-black rounded-[2rem] shadow-2xl shadow-vttu-red/20 transition-all flex items-center group">
-                                            {{ __('Đăng nhập ngay') }}
-                                            <i class="fas fa-sign-in-alt ml-3 group-hover:translate-x-1 transition-transform"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="relative hidden lg:block">
-                                    <div class="absolute inset-0 bg-vttu-red/10 blur-[100px] opacity-40"></div>
-                                    <img src="https://img.freepik.com/free-vector/study-concept-illustration_114360-1111.jpg" alt="Study" class="relative z-10 rounded-[3rem] shadow-2xl border border-slate-100 max-h-[400px] w-full object-cover">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Footer Hero (25%) -->
-                    <div class="h-[25%] bg-vttu-red py-8">
-                        <div class=" mx-auto px-4 md:px-12 lg:px-24">
-                            <div class="flex flex-wrap items-center justify-start gap-16">
-                                <div class="flex items-center gap-3 text-vttu-yellow group">
-                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
-                                    <span class="text-xs font-black uppercase tracking-wider text-white">{{ __('Wifi miễn phí') }}</span>
-                                </div>
-                                <div class="flex items-center gap-3 text-vttu-yellow group">
-                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
-                                    <span class="text-xs font-black uppercase tracking-wider text-white">{{ __('Phòng học nhóm') }}</span>
-                                </div>
-                                <div class="flex items-center gap-3 text-vttu-yellow group">
-                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
-                                    <span class="text-xs font-black uppercase tracking-wider text-white">{{ __('Smart Tech') }}</span>
-                                </div>
-                                <div class="flex items-center gap-3 text-vttu-yellow group">
-                                    <i class="fas fa-check-circle group-hover:scale-125 transition-transform"></i>
-                                    <span class="text-xs font-black uppercase tracking-wider text-white">{{ __('Không gian yên tĩnh') }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endif
             </div>
             <!-- Slider Controls -->
-            <div class="swiper-pagination !bottom-12"></div>
+            <div class="swiper-pagination !bottom-4"></div>
             <div class="swiper-button-next !right-8 !text-vttu-red/30 hover:!text-vttu-red transition-colors after:!text-2xl hidden md:flex"></div>
             <div class="swiper-button-prev !left-8 !text-vttu-red/30 hover:!text-vttu-red transition-colors after:!text-2xl hidden md:flex"></div>
         </div>
+
+        <!-- Floating Sparkling Books Overlay -->
+        <div class="absolute inset-0 pointer-events-none z-10 overflow-hidden" id="heroFloatingBooks">
+            <!-- Book 1 -->
+            <div class="floating-book" style="left:6%;top:18%;animation-delay:0s;animation-duration:6s;">
+                <i class="fas fa-book text-white/60 text-lg drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 2 -->
+            <div class="floating-book" style="left:14%;top:60%;animation-delay:1.2s;animation-duration:7.5s;">
+                <i class="fas fa-book-open text-yellow-300/70 text-sm drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 3 -->
+            <div class="floating-book" style="left:82%;top:15%;animation-delay:0.5s;animation-duration:8s;">
+                <i class="fas fa-book text-white/50 text-base drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 4 -->
+            <div class="floating-book" style="left:90%;top:65%;animation-delay:2s;animation-duration:6.5s;">
+                <i class="fas fa-book-open text-yellow-200/60 text-xs drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 5 -->
+            <div class="floating-book" style="left:48%;top:8%;animation-delay:0.8s;animation-duration:9s;">
+                <i class="fas fa-book text-white/40 text-sm drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 6 -->
+            <div class="floating-book" style="left:72%;top:75%;animation-delay:3s;animation-duration:7s;">
+                <i class="fas fa-bookmark text-yellow-300/60 text-base drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 7 -->
+            <div class="floating-book" style="left:28%;top:78%;animation-delay:1.8s;animation-duration:8.5s;">
+                <i class="fas fa-book text-white/50 text-xs drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 8 -->
+            <div class="floating-book" style="left:35%;top:40%;animation-delay:2.4s;animation-duration:7.2s;">
+                <i class="fas fa-book-open text-white/45 text-base drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 9 -->
+            <div class="floating-book" style="left:58%;top:55%;animation-delay:0.4s;animation-duration:6.8s;">
+                <i class="fas fa-book text-yellow-100/50 text-sm drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 10 -->
+            <div class="floating-book" style="left:3%;top:72%;animation-delay:3.5s;animation-duration:9.5s;">
+                <i class="fas fa-bookmark text-white/55 text-xs drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 11 -->
+            <div class="floating-book" style="left:95%;top:35%;animation-delay:1.6s;animation-duration:7.8s;">
+                <i class="fas fa-book text-yellow-200/55 text-base drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 12 -->
+            <div class="floating-book" style="left:42%;top:85%;animation-delay:2.8s;animation-duration:8.2s;">
+                <i class="fas fa-book-open text-white/40 text-sm drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 13 -->
+            <div class="floating-book" style="left:67%;top:5%;animation-delay:1.4s;animation-duration:6.2s;">
+                <i class="fas fa-book text-white/55 text-lg drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 14 -->
+            <div class="floating-book" style="left:20%;top:22%;animation-delay:4s;animation-duration:8.8s;">
+                <i class="fas fa-bookmark text-yellow-300/50 text-sm drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 15 -->
+            <div class="floating-book" style="left:52%;top:30%;animation-delay:3.2s;animation-duration:7.4s;">
+                <i class="fas fa-book-open text-white/35 text-xs drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 16 -->
+            <div class="floating-book" style="left:78%;top:90%;animation-delay:0.9s;animation-duration:10s;">
+                <i class="fas fa-book text-yellow-100/60 text-base drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 17 -->
+            <div class="floating-book" style="left:8%;top:88%;animation-delay:2.6s;animation-duration:6.3s;">
+                <i class="fas fa-book text-white/45 text-xs drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+            <!-- Book 18 -->
+            <div class="floating-book" style="left:62%;top:48%;animation-delay:1.1s;animation-duration:9.2s;">
+                <i class="fas fa-bookmark text-yellow-200/65 text-sm drop-shadow-lg"></i>
+                <span class="sparkle-ring"></span>
+            </div>
+
+            <!-- Sparkle dots -->
+            <div class="sparkle-dot" style="left:22%;top:30%;animation-delay:0.3s;"></div>
+            <div class="sparkle-dot" style="left:65%;top:20%;animation-delay:1s;"></div>
+            <div class="sparkle-dot" style="left:55%;top:70%;animation-delay:2.2s;"></div>
+            <div class="sparkle-dot" style="left:38%;top:15%;animation-delay:0.7s;"></div>
+            <div class="sparkle-dot" style="left:78%;top:45%;animation-delay:1.5s;"></div>
+            <div class="sparkle-dot" style="left:10%;top:42%;animation-delay:3.1s;"></div>
+            <div class="sparkle-dot" style="left:45%;top:58%;animation-delay:0.5s;"></div>
+            <div class="sparkle-dot" style="left:30%;top:90%;animation-delay:2.7s;"></div>
+            <div class="sparkle-dot" style="left:86%;top:28%;animation-delay:1.9s;"></div>
+            <div class="sparkle-dot" style="left:18%;top:50%;animation-delay:3.6s;"></div>
+            <div class="sparkle-dot" style="left:70%;top:88%;animation-delay:0.9s;"></div>
+            <div class="sparkle-dot" style="left:50%;top:5%;animation-delay:2.4s;"></div>
+            <div class="sparkle-dot" style="left:92%;top:55%;animation-delay:1.2s;"></div>
+            <div class="sparkle-dot" style="left:5%;top:10%;animation-delay:4.1s;"></div>
+        </div>
+
+        <style>
+            .floating-book {
+                position: absolute;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: floatBook var(--dur, 7s) ease-in-out infinite;
+            }
+            @keyframes floatBook {
+                0%   { transform: translateY(0px) rotate(-5deg) scale(1);   opacity: 0.5; }
+                25%  { transform: translateY(-14px) rotate(4deg) scale(1.1); opacity: 1;   }
+                50%  { transform: translateY(-6px) rotate(-3deg) scale(0.95); opacity: 0.7; }
+                75%  { transform: translateY(-18px) rotate(6deg) scale(1.05); opacity: 1;  }
+                100% { transform: translateY(0px) rotate(-5deg) scale(1);   opacity: 0.5; }
+            }
+            .sparkle-ring {
+                position: absolute;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                border: 1.5px solid rgba(255,255,255,0.5);
+                animation: sparkleRing 2.5s ease-out infinite;
+                pointer-events: none;
+            }
+            @keyframes sparkleRing {
+                0%   { transform: scale(0.6); opacity: 0.9; }
+                60%  { transform: scale(1.6); opacity: 0.3; }
+                100% { transform: scale(2.2); opacity: 0; }
+            }
+            .sparkle-dot {
+                position: absolute;
+                width: 4px;
+                height: 4px;
+                border-radius: 50%;
+                background: rgba(255,220,80,0.85);
+                animation: sparkleDot 3s ease-in-out infinite;
+                box-shadow: 0 0 5px 2px rgba(255,220,80,0.4);
+            }
+            @keyframes sparkleDot {
+                0%,100% { transform: scale(0.5); opacity: 0.2; }
+                50%      { transform: scale(1.8); opacity: 1;   }
+            }
+        </style>
     </section>
 
     <!-- Main Content Grid -->
@@ -829,9 +832,25 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
     document.addEventListener('DOMContentLoaded', function() {
         const heroSwiper = new Swiper('.heroSwiper', {
             loop: true,
+            autoHeight: true,
             autoplay: {
-                delay: 5000,
+                delay: 10000,
                 disableOnInteraction: false,
+            },
+            on: {
+                init: function() {
+                    setTimeout(() => {
+                        AOS.refresh();
+                    }, 300);
+                },
+                imagesReady: function() {
+                    AOS.refresh();
+                },
+                slideChange: function() {
+                    setTimeout(() => {
+                        AOS.refresh();
+                    }, 300);
+                }
             },
             pagination: {
                 el: '.swiper-pagination',
@@ -849,6 +868,13 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                 crossFade: true
             },
             speed: 1000,
+        });
+
+        // Đảm bảo AOS được tính toán lại sau khi toàn bộ ảnh trang web tải xong
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                AOS.refresh();
+            }, 200);
         });
         // Initialize Books Swiper on load
         const wizard = catalogWizard();

@@ -807,4 +807,67 @@ class SiteNodeController extends Controller
             return back()->with('error', 'Lỗi khi xóa nhãn hiệu: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Add a new banner
+     */
+    public function addBanner(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'link_url' => 'required|url|max:255',
+            'image_path' => 'required|image|mimes:png,jpg,jpeg,svg,webp,gif|max:5120',
+        ]);
+
+        try {
+            // Store the banner image file
+            $imagePath = $request->file('image_path')->store('banners', 'public');
+
+            // Create banner record
+            $banner = \App\Models\Banner::create([
+                'title' => $validated['title'],
+                'link_url' => $validated['link_url'],
+                'image_url' => $imagePath,
+                'status' => 'active',
+                'position' => 'home_hero',
+                'language' => session('locale', app()->getLocale()),
+                'sort_order' => \App\Models\Banner::max('sort_order') + 1,
+            ]);
+
+            // Log activity
+            activity_log('banner_created', $banner, [
+                'title' => $banner->title,
+                'link_url' => $banner->link_url
+            ]);
+
+            return back()->with('success', __('Thêm banner thành công!'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi khi thêm banner: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a banner
+     */
+    public function deleteBanner(\App\Models\Banner $banner)
+    {
+        try {
+            // Delete the image file
+            if ($banner->image_url && \Illuminate\Support\Facades\Storage::disk('public')->exists($banner->image_url)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($banner->image_url);
+            }
+
+            // Log activity
+            activity_log('banner_deleted', null, [
+                'title' => $banner->title,
+                'link_url' => $banner->link_url
+            ]);
+
+            $banner->delete();
+
+            return back()->with('success', __('Xóa banner thành công!'));
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi khi xóa banner: ' . $e->getMessage());
+        }
+    }
 }

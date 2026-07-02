@@ -16,7 +16,7 @@
     </div>
 
     <!-- Tabs -->
-    <div x-data="{ activeTab: 'layout' }" class="bg-card border border-border rounded overflow-hidden">
+    <div x-data="{ activeTab: 'layout', zoomImageUrl: null }" class="bg-card border border-border rounded overflow-hidden">
         <!-- Tab Navigation -->
         <div class="flex border-b border-border bg-muted/30">
             <button @click="activeTab = 'layout'" 
@@ -36,10 +36,10 @@
         <!-- Tab Content -->
         <div class="p-4">
             <!-- Layout Tab -->
-            <div x-show="activeTab === 'layout'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="space-y-3">
+            <div x-show="activeTab === 'layout'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="space-y-6">
                 <!-- Logo & Name Section -->
-                <div class="border-b border-border pb-3">
-                    <h3 class="text-xs font-bold text-foreground uppercase tracking-wide mb-3 flex items-center gap-2">
+                <div class="bg-slate-50/70 dark:bg-slate-900/10 border border-slate-300 dark:border-slate-700 rounded-lg p-5 shadow-sm space-y-4">
+                    <h3 class="text-xs font-bold text-foreground uppercase tracking-wide pb-2.5 border-b border-slate-300 dark:border-slate-700 flex items-center gap-2">
                         <i data-lucide="settings" class="w-4 h-4 text-muted-foreground"></i>
                         {{ __('Logo & Tên') }}
                     </h3>
@@ -110,10 +110,97 @@
                         </div>
                     </form>
                 </div>
+                <!-- Banners Section -->
+                <div class="bg-white dark:bg-slate-950/20 border border-slate-300 dark:border-slate-700 rounded-lg p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-2.5 border-b border-slate-300 dark:border-slate-700">
+                        <h3 class="text-xs font-bold text-foreground uppercase tracking-wide flex items-center gap-2">
+                            <i data-lucide="image" class="w-4 h-4 text-muted-foreground"></i>
+                            {{ __('Quản lý Banners') }}
+                        </h3>
+                        <button type="button" 
+                                @click="document.getElementById('bannerForm').style.display = document.getElementById('bannerForm').style.display === 'none' ? 'block' : 'none'"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all">
+                            <i data-lucide="plus" class="w-3 h-3"></i>{{ __('Thêm Banner') }}
+                        </button>
+                    </div>
+
+                    <!-- Add Form -->
+                    <div id="bannerForm" style="display: none;" class="mb-2.5 p-2.5 bg-muted/20 border border-border border-dashed rounded space-y-2.5" x-data="{ fileName: '', previewUrl: '' }">
+                        <form action="{{ route('admin.site-nodes.add-banner') }}" method="POST" enctype="multipart/form-data" class="space-y-2.5">
+                            @csrf
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Tên Banner') }} *</label>
+                                    <input type="text" name="title" required placeholder="Tên Banner" class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Link URL Redirect') }} *</label>
+                                    <input type="url" name="link_url" required placeholder="https://..." class="w-full h-9 bg-background border border-border rounded-sm px-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:ring-1 focus:ring-primary outline-none transition-all">
+                                </div>
+                                <div class="space-y-1.5 sm:col-span-2">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Ảnh Banner') }} *</label>
+                                    <label class="flex items-center gap-1.5 px-2.5 h-9 bg-background border border-border border-dashed rounded-sm cursor-pointer hover:bg-muted/50 transition-all group">
+                                        <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"></i>
+                                        <span class="text-xs text-muted-foreground group-hover:text-foreground truncate" x-text="fileName || 'Chọn ảnh...'"></span>
+                                        <input type="file" name="image_path" accept="image/*" required class="hidden" @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0])">
+                                    </label>
+                                    <template x-if="previewUrl">
+                                        <div class="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded border border-border text-[9px] text-muted-foreground">
+                                            <img :src="previewUrl" @click="zoomImageUrl = previewUrl" class="h-10 w-20 object-contain rounded border border-border bg-background cursor-zoom-in hover:opacity-95 transition-all" title="Bấm để phóng to">
+                                            <span class="cursor-pointer font-bold" @click="zoomImageUrl = previewUrl">Xem trước (Click để phóng to)</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-1.5 pt-2 border-t border-border">
+                                <button type="button" @click="document.getElementById('bannerForm').style.display = 'none'" class="px-3 py-1.5 bg-muted hover:bg-muted/80 text-muted-foreground text-xs font-bold rounded-sm transition-all">{{ __('Hủy') }}</button>
+                                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold rounded-sm transition-all active:scale-95">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>{{ __('Thêm') }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- List Banners -->
+                    @php $banners = \App\Models\Banner::orderBy('sort_order')->orderBy('created_at', 'desc')->get(); @endphp
+                    @if($banners->count() > 0)
+                        <div class="space-y-0 border border-border rounded overflow-hidden">
+                            @foreach($banners as $banner)
+                                <div class="flex items-center gap-2 p-2.5 bg-card border-b border-border last:border-b-0 hover:bg-muted/50 transition-all group">
+                                    @if($banner->image_url && file_exists(storage_path('app/public/' . $banner->image_url)))
+                                        <img src="{{ asset('storage/' . $banner->image_url) }}" 
+                                             @click="zoomImageUrl = '{{ asset('storage/' . $banner->image_url) }}'"
+                                             alt="{{ $banner->title }}" 
+                                             class="h-12 w-24 object-contain rounded-sm border border-border bg-background flex-shrink-0 cursor-zoom-in hover:opacity-95 transition-all" 
+                                             title="Bấm để phóng to">
+                                    @else
+                                        <div class="h-12 w-24 rounded-sm bg-muted flex items-center justify-center flex-shrink-0"><i data-lucide="image" class="w-4 h-4 text-muted-foreground"></i></div>
+                                    @endif
+                                    <div class="flex-1 min-w-0">
+                                        <h5 class="text-xs font-bold text-foreground truncate">{{ $banner->title }}</h5>
+                                        <a href="{{ $banner->link_url }}" target="_blank" class="text-[9px] text-blue-600 hover:underline truncate block">{{ $banner->link_url }}</a>
+                                    </div>
+                                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <form action="{{ route('admin.site-nodes.delete-banner', $banner->id) }}" method="POST" class="inline" onsubmit="return confirm('{{ __('Xác nhận xóa banner này?') }}')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1.5 rounded-sm bg-red-500/10 hover:bg-red-500 text-red-600 hover:text-white transition-all border border-red-500/20"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
+                                        </form>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="flex flex-col items-center justify-center p-4 bg-muted/20 border border-border border-dashed rounded text-center">
+                            <i data-lucide="image" class="w-5 h-5 text-muted-foreground mb-1 opacity-50"></i>
+                            <p class="text-xs text-muted-foreground">{{ __('Chưa có banner nào') }}</p>
+                        </div>
+                    @endif
+                </div>
 
                 <!-- Network Logos Section -->
-                <div>
-                    <div class="flex items-center justify-between mb-2.5">
+                <div class="bg-slate-50/70 dark:bg-slate-900/10 border border-slate-300 dark:border-slate-700 rounded-lg p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-2.5 border-b border-slate-300 dark:border-slate-700">
                         <h3 class="text-xs font-bold text-foreground uppercase tracking-wide flex items-center gap-2">
                             <i data-lucide="network" class="w-4 h-4 text-muted-foreground"></i>
                             {{ __('Nhãn hiệu liên kết') }}
@@ -247,6 +334,25 @@
                         </a>
                     </div>
                 @endif
+            </div>
+        </div>
+
+        <!-- Zoom Image Modal -->
+        <div x-show="zoomImageUrl" 
+             class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="zoomImageUrl = null"
+             style="display: none;">
+            <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center justify-center" @click.stop>
+                <button type="button" @click="zoomImageUrl = null" class="absolute -top-10 right-0 p-2 text-white/70 hover:text-white transition-all">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+                <img :src="zoomImageUrl" class="max-w-full max-h-[85vh] object-contain rounded border border-border bg-card shadow-2xl">
             </div>
         </div>
     </div>

@@ -76,11 +76,11 @@ class Banner extends Model
         return $query->active()
             ->where(function ($q) {
                 $q->whereNull('start_date')
-                  ->orWhere('start_date', '<=', now());
+                    ->orWhere('start_date', '<=', now());
             })
             ->where(function ($q) {
                 $q->whereNull('end_date')
-                  ->orWhere('end_date', '>=', now());
+                    ->orWhere('end_date', '>=', now());
             });
     }
 
@@ -88,7 +88,7 @@ class Banner extends Model
     {
         return $query->where(function ($q) use ($search) {
             $q->where('title', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
+                ->orWhere('description', 'like', "%{$search}%");
         });
     }
 
@@ -97,7 +97,7 @@ class Banner extends Model
      */
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'Hoạt động',
             'inactive' => 'Không hoạt động',
             'expired' => 'Hết hạn',
@@ -107,7 +107,7 @@ class Banner extends Model
 
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'green',
             'inactive' => 'gray',
             'expired' => 'red',
@@ -117,8 +117,8 @@ class Banner extends Model
 
     public function getIsActiveAttribute()
     {
-        return $this->status === 'active' && 
-               $this->isWithinDateRange();
+        return $this->status === 'active' &&
+            $this->isWithinDateRange();
     }
 
     public function getFormattedStartDateAttribute()
@@ -137,15 +137,15 @@ class Banner extends Model
     public function isWithinDateRange()
     {
         $now = now();
-        
+
         if ($this->start_date && $this->start_date->isAfter($now)) {
             return false;
         }
-        
+
         if ($this->end_date && $this->end_date->isBefore($now)) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -264,7 +264,7 @@ class Banner extends Model
         static::addGlobalScope('not_expired', function (Builder $builder) {
             $builder->where(function ($query) {
                 $query->whereNull('end_date')
-                      ->orWhere('end_date', '>', now());
+                    ->orWhere('end_date', '>', now());
             });
         });
     }

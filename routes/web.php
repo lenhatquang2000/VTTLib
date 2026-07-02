@@ -168,6 +168,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::post('/network-logo/{logo}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'updateNetworkLogo'])->name('update-network-logo');
         Route::delete('/network-logo/{logo}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'deleteNetworkLogo'])->name('delete-network-logo');
         
+        // Banner Routes
+        Route::post('/banner/add', [\App\Http\Controllers\Admin\SiteNodeController::class, 'addBanner'])->name('add-banner');
+        Route::delete('/banner/{banner}', [\App\Http\Controllers\Admin\SiteNodeController::class, 'deleteBanner'])->name('delete-banner');
+        
         // Page Builder Routes
         Route::get('/{siteNode}/page-builder', [\App\Http\Controllers\Admin\PageBuilderController::class, 'edit'])->name('page-builder');
         Route::put('/{siteNode}/page-builder', [\App\Http\Controllers\Admin\PageBuilderController::class, 'update'])->name('page-builder.update');
