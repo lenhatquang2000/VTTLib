@@ -100,10 +100,9 @@ class SiteController extends Controller
         // 4. Lấy dữ liệu Tin tức & Thông báo
         $homeNews = \App\Models\News::published()
             ->whereHas('category', function($q) {
-                $q->where('slug', 'tin-tuc');
+                $q->where('slug', 'tin-tuc-su-kien');
             })
-            ->featured()
-            ->latest()
+            ->latest('published_at')
             ->take(5)
             ->get();
 
@@ -121,10 +120,12 @@ class SiteController extends Controller
             ->take(6)
             ->get();
 
-        // Dữ liệu cho section Giới Thiệu Sách Hàng Tháng (category_id == 7)
+        // Dữ liệu cho section Giới Thiệu Sách Hàng Tháng
         $bookIntroductionNews = \App\Models\News::published()
-            ->where('category_id', 7)
-            ->latest()
+            ->whereHas('category', function($q) {
+                $q->where('slug', 'gioi-thieu-sach');
+            })
+            ->latest('published_at')
             ->take(2)
             ->get();
 

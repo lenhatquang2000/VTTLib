@@ -266,20 +266,20 @@
                                 <td class="px-3 py-2 text-right" onclick="event.stopPropagation()">
                                     <div class="flex items-center justify-end gap-1">
                                         <a href="{{ route('admin.news.edit', $item) }}" 
-                                           class="w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90" title="{{ __('Edit') }}">
+                                           class="w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90" title="Sửa">
                                             <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                         </a>
                                         <button onclick="toggleFeatured({{ $item->id }})" 
-                                                class="w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90 {{ $item->is_featured ? 'text-purple-500 bg-purple-500/10 border-purple-500/20' : '' }}" title="{{ __('Featured') }}">
+                                                class="w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-muted text-muted-foreground border border-border transition-all active:scale-90 {{ $item->is_featured ? 'text-purple-500 bg-purple-500/10 border-purple-500/20' : '' }}" title="Nổi bật">
                                             <i data-lucide="star" class="w-3.5 h-3.5 {{ $item->is_featured ? 'fill-current' : '' }}"></i>
                                         </button>
                                         <form action="{{ route('admin.news.destroy', $item) }}" 
                                               method="POST" 
-                                              onsubmit="return confirm('{{ __("News_Delete_Confirm") }}')"
+                                              onsubmit="return confirm('Bạn có chắc muốn xóa bài viết này?')"
                                               class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-destructive hover:text-destructive-foreground text-muted-foreground border border-border transition-all active:scale-90 cursor-pointer" title="{{ __('Delete') }}">
+                                            <button type="submit" class="w-7 h-7 flex items-center justify-center rounded bg-background hover:bg-destructive hover:text-destructive-foreground text-muted-foreground border border-border transition-all active:scale-90 cursor-pointer" title="Xóa">
                                                 <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                             </button>
                                         </form>
@@ -339,19 +339,19 @@ function updateSelection(checkbox) {
 function performBulkAction() {
     const action = document.getElementById('bulkAction').value;
     if (!action || selectedNews.size === 0) {
-        if (action) Swal.fire('{{ __("News_Notice") }}', '{{ __("News_Select_At_Least_One") }}', 'info');
+        if (action) Swal.fire('Thông báo', 'Vui lòng chọn ít nhất một bài viết', 'info');
         return;
     }
     
     if (action === 'delete') {
         Swal.fire({
-            title: '{{ __("News_Confirm_Delete_Title") }}',
-            text: `{{ __("News_Confirm_Delete_Text_Start") }} ${selectedNews.size} {{ __("News_Confirm_Delete_Text_End") }}`,
+            title: 'Xác nhận xóa?',
+            text: `Bạn có chắc muốn xóa ${selectedNews.size} bài viết đã chọn?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: 'hsl(var(--destructive))',
-            confirmButtonText: '{{ __("News_Delete_Now") }}',
-            cancelButtonText: '{{ __("Hủy") }}'
+            confirmButtonText: 'Xóa ngay',
+            cancelButtonText: 'Hủy'
         }).then((result) => {
             if (result.isConfirmed) executeBulkAction(action);
         });
@@ -373,9 +373,9 @@ function executeBulkAction(action) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            Swal.fire('{{ __("News_Success") }}', data.message, 'success').then(() => location.reload());
+            Swal.fire('Thành công', data.message, 'success').then(() => location.reload());
         } else {
-            Swal.fire('{{ __("News_Error") }}', data.message, 'error');
+            Swal.fire('Lỗi', data.message, 'error');
         }
     });
 }
@@ -395,13 +395,13 @@ function toggleFeatured(newsId) {
 
 function autoGenerateNews() {
     Swal.fire({
-        title: '{{ __("News_Auto_Generate_Title") }}',
-        text: '{{ __("News_Auto_Generate_Text") }}',
+        title: 'Tự động tạo tin tức?',
+        text: "Hệ thống sẽ tự động tạo một bài viết mẫu cho bạn.",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: 'hsl(var(--primary))',
-        confirmButtonText: '{{ __("News_Generate_Now") }}',
-        cancelButtonText: '{{ __("Hủy") }}',
+        confirmButtonText: 'Tạo ngay',
+        cancelButtonText: 'Hủy',
         showLoaderOnConfirm: true,
         preConfirm: () => {
             return fetch('{{ route("admin.news.auto-generate") }}', {
@@ -416,13 +416,13 @@ function autoGenerateNews() {
                 return response.json();
             })
             .catch(error => {
-                Swal.showValidationMessage(`{{ __("News_Request_Failed") }}: ${error}`);
+                Swal.showValidationMessage(`Request failed: ${error}`);
             });
         },
         allowOutsideClick: () => !Swal.isLoading()
     }).then((result) => {
         if (result.isConfirmed && result.value.success) {
-            Swal.fire('{{ __("News_Success") }}', result.value.message, 'success').then(() => {
+            Swal.fire('Thành công', result.value.message, 'success').then(() => {
                 window.location.href = result.value.redirect;
             });
         }
@@ -464,7 +464,7 @@ function updateOrder(ids) {
         if (data.success) {
             console.log('Order updated');
         } else {
-            Swal.fire('{{ __("News_Error") }}', data.message, 'error');
+            Swal.fire('Lỗi', data.message, 'error');
         }
     });
 }
