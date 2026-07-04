@@ -987,6 +987,8 @@
                             
                             @if($node->node_code === 'gioi-thieu-chung')
                                 @include('site.pages.gioi-thieu-chung-content')
+                            @elseif($node->node_code === 'co-so-du-lieu')
+                                @include('site.pages.co-so-du-lieu-content')
                             @elseif($node->node_code === 'noi-quy-thu-vien')
                                 @include('site.pages.noi-quy-thu-vien-content')
                             @elseif($node->node_code === 'cam-nang-hdsd')

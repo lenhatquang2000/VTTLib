@@ -69,6 +69,7 @@ class SidebarTranslationsSeeder extends Seeder
             'Create News' => ['vi' => 'Tạo tin tức', 'en' => 'Create News'],
             'Categories' => ['vi' => 'Danh mục', 'en' => 'Categories'],
             'Tags' => ['vi' => 'Thẻ tag', 'en' => 'Tags'],
+            'Online Databases' => ['vi' => 'Quản lý CSDL trực tuyến', 'en' => 'Manage Online Databases'],
         ];
 
         $updated = 0;

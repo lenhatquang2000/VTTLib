@@ -226,6 +226,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
         Route::post('/reorder', [\App\Http\Controllers\Admin\NewsController::class, 'reorder'])->name('reorder');
     });
 
+    // Online Database Management
+    Route::resource('online-databases', \App\Http\Controllers\Admin\OnlineDatabaseController::class)->names('admin.online-databases');
+
     // Announcement Management (Independent from News)
     Route::prefix('announcements')->name('admin.announcements.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\AnnouncementController::class, 'index'])->name('index');

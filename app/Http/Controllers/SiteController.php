@@ -743,6 +743,13 @@ class SiteController extends Controller
             $extraData['keyword'] = $keyword;
         }
 
+        // Nạp dữ liệu CSDL trực tuyến nếu truy cập trang cơ sở dữ liệu
+        if ($code === 'co-so-du-lieu') {
+            $extraData['onlineDatabases'] = \App\Models\OnlineDatabase::where('is_active', true)
+                ->orderBy('sort_order')
+                ->get();
+        }
+
         // 1. Kiểm tra template preview qua query param
         $previewTemplate = request()->query('preview_template');
         if ($previewTemplate && view()->exists("site.pages.{$previewTemplate}")) {
