@@ -1,224 +1,209 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-8 animate-in fade-in duration-700">
+<div class="space-y-4 animate-in fade-in duration-500">
     <!-- Notifications -->
     @if(session('success'))
-        <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-4 rounded-xl text-sm font-bold flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-3 rounded-md text-xs font-bold flex items-center gap-2">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
             <span>{{ session('success') }}</span>
         </div>
     @endif
     
     @if(session('error'))
-        <div class="bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-rose-600 dark:text-rose-400 p-4 rounded-xl text-sm font-bold flex items-center space-x-3">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="bg-destructive/10 border border-destructive/20 text-destructive p-3 rounded-md text-xs font-bold flex items-center gap-2">
+            <i data-lucide="alert-circle" class="w-4 h-4"></i>
             <span>{{ session('error') }}</span>
         </div>
     @endif
 
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-none">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                </svg>
-            </div>
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Quản lý siêu dữ liệu') }}</h1>
-                <p class="text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Quản lý siêu dữ liệu và các loại phân loại') }}</p>
-            </div>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Quản lý siêu dữ liệu') }}</h1>
+            <p class="text-xs text-muted-foreground">{{ __('Quản lý siêu dữ liệu và các loại phân loại') }}</p>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8" x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'document-types' }">
-        <!-- Tab Navigation -->
-        <div class="lg:col-span-12">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-0 overflow-hidden">
-                <div class="flex border-b border-slate-100 dark:border-slate-800 justify-between items-center">
-                    <div class="flex">
-                        <button @click="activeTab = 'document-types'; window.history.replaceState({}, '', '?tab=document-types')" 
-                            :class="activeTab === 'document-types' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
-                            class="flex-1 px-6 py-4 font-bold text-sm uppercase tracking-wider transition-all border-b-2 border-transparent">
-                            {{ __('Kiểu tài liệu') }}
-                        </button>
-                        <button @click="activeTab = 'bibliographic-levels'; window.history.replaceState({}, '', '?tab=bibliographic-levels')" 
-                            :class="activeTab === 'bibliographic-levels' ? 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'"
-                            class="flex-1 px-6 py-4 font-bold text-sm uppercase tracking-wider transition-all border-b-2 border-transparent">
-                            {{ __('Cấp độ thư mục') }}
-                        </button>
-                    </div>
-                    <!-- Add Buttons -->
-                    <div class="px-6 py-4">
-                        <button x-show="activeTab === 'document-types'" @click="$dispatch('open-modal', 'add-doc-type')" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-all text-xs uppercase tracking-widest">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            {{ __('Thêm mới') }}
-                        </button>
-                        <a x-show="activeTab === 'bibliographic-levels'" href="{{ route('admin.bibliographic-levels.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-all text-xs uppercase tracking-widest">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                            {{ __('Thêm mới') }}
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Tab Content: Document Types -->
-                <div x-show="activeTab === 'document-types'" class="p-8">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-left">
-                                <th class="px-6 py-4 w-12 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">#</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Kiểu tài liệu') }}</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Mã') }}</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Kiểu MARC') }}</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Số ngày mượn') }}</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Cho phép mượn') }}</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Trạng thái') }}</th>
-                                <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Hành động') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800" id="sortable-doc-types">
-                            @forelse($documentTypes as $type)
-                            <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group" data-id="{{ $type->id }}">
-                                <td class="px-6 py-4 cursor-move text-slate-300 dark:text-slate-700 hover:text-indigo-500 drag-handle">
-                                    <svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/></svg>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-500/10 group-hover:text-indigo-600 transition-all">
-                                            @if($type->icon)
-                                                <i data-lucide="{{ $type->icon }}" class="w-5 h-5"></i>
-                                            @else
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                            @endif
-                                        </div>
-                                        <div>
-                                            <div class="text-sm font-bold text-slate-900 dark:text-slate-100">{{ $type->name }}</div>
-                                            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 max-w-[200px]">{{ $type->description }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <code class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-600 dark:text-slate-300 font-mono inline-block font-bold">
-                                        {{ $type->code }}
-                                    </code>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 whitespace-nowrap">
-                                        {{ $type->marc_type ?: __('Chưa xác định') }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="inline-flex flex-col items-center">
-                                        <span class="text-sm font-black text-slate-800 dark:text-slate-200">{{ $type->default_loan_days }}</span>
-                                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">{{ __('Ngày') }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider {{ $type->is_loanable ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400' : 'bg-slate-50 text-slate-400 dark:bg-slate-800 dark:text-slate-500' }}">
-                                        {{ $type->is_loanable ? __('Có') : __('Không') }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider {{ $type->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' }}">
-                                        {{ $type->is_active ? __('Hoạt động') : __('Không hoạt động') }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                    <button @click="$dispatch('open-modal', 'edit-doc-type'); $dispatch('set-edit-doc-type', @js($type))" class="p-2 text-slate-400 hover:text-amber-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Chỉnh sửa') }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <form action="{{ route('admin.document-types.destroy', $type) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Xóa kiểu tài liệu này?')))">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Xóa') }}">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="8" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-12 h-12 text-slate-200 dark:text-slate-800 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                        <p class="text-sm font-medium">{{ __('Không tìm thấy kiểu tài liệu nào') }}</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Tab Content: Bibliographic Levels -->
-                <div x-show="activeTab === 'bibliographic-levels'" class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead>
-                            <tr class="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-left">
-                                <th class="px-6 py-4 w-12 text-xs font-bold text-slate-400 uppercase tracking-widest text-center">#</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Mã') }}</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Tên (Anh)') }}</th>
-                                <th class="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Tên (Việt)') }}</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Thứ tự') }}</th>
-                                <th class="px-6 py-4 text-center text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Trạng thái') }}</th>
-                                <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Hành động') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
-                            @forelse($bibliographicLevels as $level)
-                            <tr class="hover:bg-slate-50/30 dark:hover:bg-slate-800/30 transition-colors group">
-                                <td class="px-6 py-4 text-slate-300 dark:text-slate-700">
-                                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
-                                        {{ $loop->iteration }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <code class="text-[10px] bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md text-slate-600 dark:text-slate-300 font-mono inline-block font-bold">
-                                        {{ $level->code }}
-                                    </code>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">{{ $level->name_en }}</span>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <span class="text-sm text-slate-600 dark:text-slate-300">{{ $level->name_vi }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ $level->order }}</span>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    <span class="inline-flex px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider {{ $level->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400' }}">
-                                        {{ $level->is_active ? __('Hoạt động') : __('Không hoạt động') }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                    <a href="{{ route('admin.bibliographic-levels.edit', $level) }}" class="p-2 text-slate-400 hover:text-amber-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg inline-block" title="{{ __('Chỉnh sửa') }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </a>
-                                    <form action="{{ route('admin.bibliographic-levels.destroy', $level) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Bạn chắc chắn muốn xóa?')))">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 transition-colors bg-slate-50 dark:bg-slate-800 rounded-lg" title="{{ __('Xóa') }}">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500">
-                                    <div class="flex flex-col items-center">
-                                        <svg class="w-12 h-12 text-slate-200 dark:text-slate-800 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0 v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
-                                        <p class="text-sm font-medium">{{ __('Không tìm thấy dữ liệu') }}</p>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+    <div x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'document-types' }" class="space-y-4">
+        <!-- Navigation Tabs & Actions -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-card p-2 rounded-md border border-border">
+            <!-- Tabs -->
+            <div class="flex items-center gap-1 p-0.5 bg-muted rounded-md w-fit border border-border/50">
+                <button @click="activeTab = 'document-types'; window.history.replaceState({}, '', '?tab=document-types')" 
+                    :class="activeTab === 'document-types' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+                    class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all">
+                    {{ __('Kiểu tài liệu') }}
+                </button>
+                <button @click="activeTab = 'bibliographic-levels'; window.history.replaceState({}, '', '?tab=bibliographic-levels')" 
+                    :class="activeTab === 'bibliographic-levels' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+                    class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all">
+                    {{ __('Cấp độ thư mục') }}
+                </button>
+            </div>
+            <!-- Actions -->
+            <div class="flex items-center">
+                <button x-show="activeTab === 'document-types'" @click="$dispatch('open-modal', 'add-doc-type')" class="btn-compact-primary">
+                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i>
+                    {{ __('Thêm mới') }}
+                </button>
+                <a x-show="activeTab === 'bibliographic-levels'" href="{{ route('admin.bibliographic-levels.create') }}" class="btn-compact-primary inline-flex items-center gap-1">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    {{ __('Thêm mới') }}
+                </a>
             </div>
         </div>
 
+        <!-- Card Container -->
+        <div class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
+            <!-- Tab Content: Document Types -->
+            <div x-show="activeTab === 'document-types'" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-muted/50 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border">
+                            <th class="py-2 px-3 w-10 text-center">#</th>
+                            <th class="py-2 px-3">{{ __('Kiểu tài liệu') }}</th>
+                            <th class="py-2 px-3 w-24">{{ __('Mã') }}</th>
+                            <th class="py-2 px-3 w-28">{{ __('Kiểu MARC') }}</th>
+                            <th class="py-2 px-3 w-28 text-center">{{ __('Số ngày mượn') }}</th>
+                            <th class="py-2 px-3 w-32 text-center">{{ __('Cho phép mượn') }}</th>
+                            <th class="py-2 px-3 w-32 text-center">{{ __('Trạng thái') }}</th>
+                            <th class="py-2 px-3 w-32 text-right">{{ __('Hành động') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border" id="sortable-doc-types">
+                        @forelse($documentTypes as $type)
+                        <tr class="table-row-hover group" data-id="{{ $type->id }}">
+                            <td class="py-2 px-3 text-center cursor-move drag-handle text-muted-foreground/40 hover:text-primary transition-colors">
+                                <i data-lucide="grip-vertical" class="w-4 h-4 mx-auto"></i>
+                            </td>
+                            <td class="py-2 px-3">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-sm bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors shrink-0">
+                                        @if($type->icon)
+                                            <i data-lucide="{{ $type->icon }}" class="w-4 h-4"></i>
+                                        @else
+                                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                                        @endif
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="text-xs font-semibold text-foreground leading-tight">{{ $type->name }}</div>
+                                        @if($type->description)
+                                            <div class="text-[10px] text-muted-foreground truncate max-w-[220px] mt-0.5" title="{{ $type->description }}">{{ $type->description }}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-2 px-3">
+                                <code class="font-mono text-[10px] bg-muted border border-border px-1.5 py-0.5 rounded text-foreground font-semibold">{{ $type->code }}</code>
+                            </td>
+                            <td class="py-2 px-3">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                                    {{ $type->marc_type ?: __('Chưa xác định') }}
+                                </span>
+                            </td>
+                            <td class="py-2 px-3 text-center">
+                                <span class="text-xs font-bold text-foreground">{{ $type->default_loan_days }}</span>
+                                <span class="text-[9px] text-muted-foreground lowercase block">{{ __('ngày') }}</span>
+                            </td>
+                            <td class="py-2 px-3 text-center">
+                                <span class="inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider {{ $type->is_loanable ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20' : 'bg-muted text-muted-foreground border border-border' }}">
+                                    {{ $type->is_loanable ? __('Có') : __('Không') }}
+                                </span>
+                            </td>
+                            <td class="py-2 px-3 text-center">
+                                <span class="inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider {{ $type->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-destructive/10 text-destructive border border-destructive/20' }}">
+                                    {{ $type->is_active ? __('Hoạt động') : __('Không hoạt động') }}
+                                </span>
+                            </td>
+                            <td class="py-2 px-3 text-right space-x-1 whitespace-nowrap">
+                                <button @click="$dispatch('open-modal', 'edit-doc-type'); $dispatch('set-edit-doc-type', @js($type))" class="p-1 bg-muted hover:bg-accent border border-border rounded-sm text-muted-foreground hover:text-foreground transition-all" title="{{ __('Chỉnh sửa') }}">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </button>
+                                <form action="{{ route('admin.document-types.destroy', $type) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Xóa kiểu tài liệu này?')))">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="p-1 bg-muted hover:bg-destructive/10 border border-border hover:border-destructive/20 rounded-sm text-muted-foreground hover:text-destructive transition-all" title="{{ __('Xóa') }}">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="8" class="py-8 text-center text-muted-foreground">
+                                <div class="flex flex-col items-center justify-center gap-1.5">
+                                    <i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50"></i>
+                                    <p class="text-xs font-semibold">{{ __('Không tìm thấy kiểu tài liệu nào') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab Content: Bibliographic Levels -->
+            <div x-show="activeTab === 'bibliographic-levels'" class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-muted/50 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border">
+                            <th class="py-2 px-3 w-10 text-center">#</th>
+                            <th class="py-2 px-3 w-20 text-center">{{ __('Mã') }}</th>
+                            <th class="py-2 px-3">{{ __('Tên (Anh)') }}</th>
+                            <th class="py-2 px-3">{{ __('Tên (Việt)') }}</th>
+                            <th class="py-2 px-3 w-20 text-center">{{ __('Thứ tự') }}</th>
+                            <th class="py-2 px-3 w-32 text-center">{{ __('Trạng thái') }}</th>
+                            <th class="py-2 px-3 w-32 text-right">{{ __('Hành động') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        @forelse($bibliographicLevels as $level)
+                        <tr class="table-row-hover group">
+                            <td class="py-2 px-3 text-center text-muted-foreground text-xs font-semibold">
+                                {{ $loop->iteration }}
+                            </td>
+                            <td class="py-2 px-3 text-center">
+                                <code class="font-mono text-[10px] bg-muted border border-border px-2 py-0.5 rounded text-foreground font-semibold">{{ $level->code }}</code>
+                            </td>
+                            <td class="py-2 px-3 text-xs text-foreground font-medium">
+                                {{ $level->name_en }}
+                            </td>
+                            <td class="py-2 px-3 text-xs text-foreground font-medium">
+                                {{ $level->name_vi }}
+                            </td>
+                            <td class="py-2 px-3 text-center text-xs font-bold text-foreground">
+                                {{ $level->order }}
+                            </td>
+                            <td class="py-2 px-3 text-center">
+                                <span class="inline-flex px-1.5 py-0.5 rounded-sm text-[9px] font-bold uppercase tracking-wider {{ $level->is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20' : 'bg-destructive/10 text-destructive border border-destructive/20' }}">
+                                    {{ $level->is_active ? __('Hoạt động') : __('Không hoạt động') }}
+                                </span>
+                            </td>
+                            <td class="py-2 px-3 text-right space-x-1 whitespace-nowrap">
+                                <a href="{{ route('admin.bibliographic-levels.edit', $level) }}" class="p-1 bg-muted hover:bg-accent border border-border rounded-sm text-muted-foreground hover:text-foreground inline-block transition-all" title="{{ __('Chỉnh sửa') }}">
+                                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                                </a>
+                                <form action="{{ route('admin.bibliographic-levels.destroy', $level) }}" method="POST" class="inline-block" onsubmit="return confirm(@js(__('Bạn chắc chắn muốn xóa?')))">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="p-1 bg-muted hover:bg-destructive/10 border border-border hover:border-destructive/20 rounded-sm text-muted-foreground hover:text-destructive transition-all" title="{{ __('Xóa') }}">
+                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="py-8 text-center text-muted-foreground">
+                                <div class="flex flex-col items-center justify-center gap-1.5">
+                                    <i data-lucide="inbox" class="w-8 h-8 text-muted-foreground/50"></i>
+                                    <p class="text-xs font-semibold">{{ __('Không tìm thấy dữ liệu') }}</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -242,70 +227,78 @@
 }">
     <!-- Add Modal -->
     <template x-if="showAdd">
-        <div class="fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center animate-in fade-in duration-300">
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" @click="showAdd = false"></div>
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity animate-in fade-in duration-250" @click="showAdd = false"></div>
             
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden w-full max-w-xl relative">
-                <form action="{{ route('admin.document-types.store') }}" method="POST" class="p-8 md:p-10">
+            <!-- Content container -->
+            <div class="bg-card rounded-md shadow-lg border border-border overflow-hidden w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-200">
+                <!-- Modal Header -->
+                <div class="p-4 border-b border-border flex justify-between items-center">
+                    <div>
+                        <h3 class="text-base font-bold text-foreground leading-tight">{{ __('Thêm kiểu tài liệu') }}</h3>
+                        <p class="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">{{ __('Định nghĩa một loại tài liệu thư viện mới') }}</p>
+                    </div>
+                    <button type="button" @click="showAdd = false" class="btn-icon-compact">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <!-- Modal Body/Form -->
+                <form action="{{ route('admin.document-types.store') }}" method="POST" class="p-4 space-y-3">
                     @csrf
-                    <div class="flex justify-between items-center mb-8">
-                        <div>
-                            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ __('Thêm kiểu tài liệu') }}</h3>
-                            <p class="text-slate-500 text-xs font-bold">{{ __('Định nghĩa một loại tài liệu thư viện mới') }}</p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Tên phân loại') }} *</label>
+                            <input type="text" name="name" required class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                         </div>
-                        <button type="button" @click="showAdd = false" class="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors rounded-2xl">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Tên phân loại') }} *</label>
-                             <input type="text" name="name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="e.g. Rare Manuscript">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Mã hệ thống') }} *</label>
-                             <input type="text" name="code" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-mono font-bold transition-all text-sm" placeholder="RMAN" maxlength="20">
-                        </div>
-                        <div class="space-y-2 text-left">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Bộ chọn MARC') }} (L/06)</label>
-                             <input type="text" name="marc_type" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="a">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Định danh biểu tượng') }} (Icon)</label>
-                             <input type="text" name="icon" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm" placeholder="scroll">
-                        </div>
-                        <div class="md:col-span-2 space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Mô tả kiểu tài liệu') }}</label>
-                             <textarea name="description" rows="2" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm"></textarea>
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Thời hạn mượn cơ bản') }} ({{ __('Ngày') }})</label>
-                             <input type="number" name="default_loan_days" value="14" required min="0" max="365" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Thứ tự sắp xếp') }}</label>
-                             <input type="number" name="order" value="0" min="0" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="md:col-span-2 flex items-center space-x-6 px-2">
-                            <label class="flex items-center space-x-3 cursor-pointer group">
-                                <input type="checkbox" name="is_loanable" value="1" checked class="rounded-lg border-slate-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <span class="text-xs font-black text-slate-500 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">{{ __('Cho phép lưu thông') }}</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer group">
-                                <input type="checkbox" name="is_active" value="1" checked class="rounded-lg border-slate-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <span class="text-xs font-black text-slate-500 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">{{ __('Hoạt động') }}</span>
-                            </label>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Mã hệ thống') }} *</label>
+                            <input type="text" name="code" required class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-mono" maxlength="20">
                         </div>
                     </div>
-
-                    <div class="mt-10 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800 pt-8">
-                        <button type="button" @click="showAdd = false" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
-                            {{ __('Hủy bỏ') }}
-                        </button>
-                        <button type="submit" class="px-10 py-4 bg-indigo-600 text-white font-black rounded-3xl shadow-xl shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 transition-all uppercase tracking-widest text-[10px]">
-                            {{ __('Lưu định nghĩa') }}
-                        </button>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Bộ chọn MARC') }} (L/06)</label>
+                            <input type="text" name="marc_type" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Biểu tượng (Icon)') }}</label>
+                            <input type="text" name="icon" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Mô tả') }}</label>
+                        <textarea name="description" rows="2" class="w-full px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Thời hạn mượn') }} ({{ __('Ngày') }})</label>
+                            <input type="number" name="default_loan_days" value="14" required min="0" max="365" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Thứ tự') }}</label>
+                            <input type="number" name="order" value="0" min="0" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-6 px-1 py-1">
+                        <label class="flex items-center space-x-2 cursor-pointer group">
+                            <input type="checkbox" name="is_loanable" value="1" checked class="rounded-sm border-input text-primary shadow-sm focus:ring-primary focus:ring-offset-background">
+                            <span class="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ __('Cho phép lưu thông') }}</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer group">
+                            <input type="checkbox" name="is_active" value="1" checked class="rounded-sm border-input text-primary shadow-sm focus:ring-primary focus:ring-offset-background">
+                            <span class="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ __('Hoạt động') }}</span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex gap-2 pt-4">
+                        <button type="button" @click="showAdd = false" class="btn-compact-secondary flex-1">{{ __('Hủy bỏ') }}</button>
+                        <button type="submit" class="btn-compact-primary flex-1">{{ __('Lưu định nghĩa') }}</button>
                     </div>
                 </form>
             </div>
@@ -314,70 +307,78 @@
 
     <!-- Edit Modal -->
     <template x-if="showEdit">
-        <div class="fixed inset-0 z-[100] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center animate-in fade-in duration-300">
-            <div class="fixed inset-0 transition-opacity bg-slate-900/60 backdrop-blur-sm" @click="showEdit = false"></div>
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <!-- Backdrop -->
+            <div class="fixed inset-0 bg-background/80 backdrop-blur-sm transition-opacity animate-in fade-in duration-250" @click="showEdit = false"></div>
             
-            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-800 overflow-hidden w-full max-w-xl relative">
-                <form :action="'{{ url('topsecret/document-types') }}/' + docType.id" method="POST" class="p-8 md:p-10">
+            <!-- Content container -->
+            <div class="bg-card rounded-md shadow-lg border border-border overflow-hidden w-full max-w-md relative z-10 animate-in fade-in zoom-in-95 duration-200">
+                <!-- Modal Header -->
+                <div class="p-4 border-b border-border flex justify-between items-center">
+                    <div>
+                        <h3 class="text-base font-bold text-foreground leading-tight">{{ __('Chỉnh sửa kiểu tài liệu') }}</h3>
+                        <p class="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">{{ __('Cập nhật định nghĩa cho') }} <span class="text-primary" x-text="docType.name"></span></p>
+                    </div>
+                    <button type="button" @click="showEdit = false" class="btn-icon-compact">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                
+                <!-- Modal Body/Form -->
+                <form :action="'{{ url('topsecret/document-types') }}/' + docType.id" method="POST" class="p-4 space-y-3">
                     @csrf @method('PUT')
-                    <div class="flex justify-between items-center mb-8">
-                        <div>
-                            <h3 class="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase">{{ __('Chỉnh sửa kiểu tài liệu') }}</h3>
-                            <p class="text-slate-500 text-xs font-bold">{{ __('Cập nhật định nghĩa cho') }} <span class="text-indigo-600" x-text="docType.name"></span></p>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Tên phân loại') }} *</label>
+                            <input type="text" name="name" x-model="docType.name" required class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                         </div>
-                        <button type="button" @click="showEdit = false" class="p-2.5 bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors rounded-2xl">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Tên phân loại') }} *</label>
-                             <input type="text" name="name" x-model="docType.name" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Mã hệ thống') }} *</label>
-                             <input type="text" name="code" x-model="docType.code" required class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-mono font-bold transition-all text-sm" maxlength="20">
-                        </div>
-                        <div class="space-y-2 text-left">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Bộ chọn MARC') }} (L/06)</label>
-                             <input type="text" name="marc_type" x-model="docType.marc_type" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Định danh biểu tượng') }} (Icon)</label>
-                             <input type="text" name="icon" x-model="docType.icon" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="md:col-span-2 space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Mô tả kiểu tài liệu') }}</label>
-                             <textarea name="description" x-model="docType.description" rows="2" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm"></textarea>
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Thời hạn mượn cơ bản') }} ({{ __('Ngày') }})</label>
-                             <input type="number" name="default_loan_days" x-model="docType.default_loan_days" required min="0" max="365" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="space-y-2">
-                             <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] pl-1">{{ __('Thứ tự sắp xếp') }}</label>
-                             <input type="number" name="order" x-model="docType.order" min="0" class="w-full px-5 py-4 bg-slate-50 dark:bg-slate-950 border-2 border-transparent rounded-2xl focus:bg-white dark:focus:bg-slate-800 focus:border-indigo-500 font-bold transition-all text-sm">
-                        </div>
-                        <div class="md:col-span-2 flex items-center space-x-6 px-2">
-                            <label class="flex items-center space-x-3 cursor-pointer group">
-                                <input type="checkbox" name="is_loanable" x-model="docType.is_loanable" value="1" class="rounded-lg border-slate-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <span class="text-xs font-black text-slate-500 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">{{ __('Cho phép lưu thông') }}</span>
-                            </label>
-                            <label class="flex items-center space-x-3 cursor-pointer group">
-                                <input type="checkbox" name="is_active" x-model="docType.is_active" value="1" class="rounded-lg border-slate-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <span class="text-xs font-black text-slate-500 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">{{ __('Hoạt động') }}</span>
-                            </label>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Mã hệ thống') }} *</label>
+                            <input type="text" name="code" x-model="docType.code" required class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all font-mono" maxlength="20">
                         </div>
                     </div>
-
-                    <div class="mt-10 flex items-center justify-between gap-4 border-t border-slate-50 dark:border-slate-800 pt-8">
-                        <button type="button" @click="showEdit = false" class="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors">
-                            {{ __('Hủy bỏ') }}
-                        </button>
-                        <button type="submit" class="px-10 py-4 bg-amber-500 hover:bg-amber-600 text-white font-black rounded-3xl shadow-xl shadow-amber-200 dark:shadow-none transition-all uppercase tracking-widest text-[10px]">
-                            {{ __('Lưu thay đổi') }}
-                        </button>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Bộ chọn MARC') }} (L/06)</label>
+                            <input type="text" name="marc_type" x-model="docType.marc_type" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Biểu tượng (Icon)') }}</label>
+                            <input type="text" name="icon" x-model="docType.icon" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Mô tả') }}</label>
+                        <textarea name="description" x-model="docType.description" rows="2" class="w-full px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"></textarea>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Thời hạn mượn') }} ({{ __('Ngày') }})</label>
+                            <input type="number" name="default_loan_days" x-model="docType.default_loan_days" required min="0" max="365" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">{{ __('Thứ tự') }}</label>
+                            <input type="number" name="order" x-model="docType.order" min="0" class="w-full h-9 px-3 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-6 px-1 py-1">
+                        <label class="flex items-center space-x-2 cursor-pointer group">
+                            <input type="checkbox" name="is_loanable" x-model="docType.is_loanable" value="1" class="rounded-sm border-input text-primary shadow-sm focus:ring-primary focus:ring-offset-background">
+                            <span class="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ __('Cho phép lưu thông') }}</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer group">
+                            <input type="checkbox" name="is_active" x-model="docType.is_active" value="1" class="rounded-sm border-input text-primary shadow-sm focus:ring-primary focus:ring-offset-background">
+                            <span class="text-xs font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{{ __('Hoạt động') }}</span>
+                        </label>
+                    </div>
+                    
+                    <div class="flex gap-2 pt-4">
+                        <button type="button" @click="showEdit = false" class="btn-compact-secondary flex-1">{{ __('Hủy bỏ') }}</button>
+                        <button type="submit" class="btn-compact-primary flex-1">{{ __('Lưu thay đổi') }}</button>
                     </div>
                 </form>
             </div>
@@ -397,7 +398,7 @@
             Sortable.create(el, {
                 handle: '.drag-handle',
                 animation: 150,
-                ghostClass: 'bg-indigo-50',
+                ghostClass: 'bg-muted/50',
                 onEnd: function() {
                     let orders = [];
                     el.querySelectorAll('tr').forEach((row, index) => {

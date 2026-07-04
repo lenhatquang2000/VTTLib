@@ -24,12 +24,6 @@ class ClientLoginController extends Controller
         ]);
 
         if (Auth::attempt($credentials)) {
-            if (!$request->user()->hasRole('visitor')) {
-                Auth::logout();
-                throw ValidationException::withMessages([
-                    'username' => 'Access denied. You do not have permission to access the client area.',
-                ]);
-            }
             $request->session()->regenerate();
 
             return redirect()->intended('/');

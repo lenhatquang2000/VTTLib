@@ -41,13 +41,6 @@ class SiteController extends Controller
             ->take(8)
             ->get();
 
-        $medicalResources = \App\Models\DigitalResource::whereHas('folder', function($q) {
-                $q->where('folder_name', 'LIKE', '%Y khoa%');
-            })
-            ->where('status', 'published')
-            ->take(4)
-            ->get();
-
         // Xử lý lọc cho Section 1 tabs
         $type = $request->query('type', 'book');
         $query = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
@@ -88,13 +81,25 @@ class SiteController extends Controller
         // Kiểm tra AJAX cho Section 5 tabs (Sản khoa | Nhi khoa | Nội khoa)
         if ($request->ajax() && $request->has('medical_type')) {
             $medicalType = $request->query('medical_type', 'Sản khoa');
-            $medicalResources = \App\Models\DigitalResource::whereHas('folder', function($q) use ($medicalType) {
-                    $q->where('folder_name', 'LIKE', '%' . $medicalType . '%');
-                })
-                ->where('status', 'published')
-                ->take(4)
-                ->get();
-            return view('site.pages.partials.home-medical', compact('medicalResources'));
+            
+            // Tìm level tương ứng với medical_type (ví dụ: 'Sản khoa', 'Nhi khoa', 'Nội khoa')
+            $level = \App\Models\BibliographicLevel::where('name_vi', 'LIKE', '%' . $medicalType . '%')
+                ->orWhere('name_en', 'LIKE', '%' . $medicalType . '%')
+                ->orWhere('code', $medicalType)
+                ->first();
+
+            if ($level) {
+                $newBooks = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
+                    ->where('status', \App\Models\BibliographicRecord::STATUS_APPROVED)
+                    ->where('bibliographic_level', $level->code)
+                    ->latest()
+                    ->take(4)
+                    ->get();
+            } else {
+                $newBooks = collect();
+            }
+
+            return view('site.pages.partials.home-medical', compact('newBooks'));
         }
 
         // 4. Lấy dữ liệu Tin tức & Thông báo
@@ -163,7 +168,7 @@ class SiteController extends Controller
             ->get();
 
         return view('site.pages.home', compact(
-            'menuItems', 'footerItems', 'newResources', 'medicalResources',
+            'menuItems', 'footerItems', 'newResources',
             'newBooks', 'homeNews', 'sidebarBooks', 'homeAnnouncements', 'tabNews', 'bookIntroductionNews', 'networkLogos', 'sidebarVideos', 'banners'
         ));
     }

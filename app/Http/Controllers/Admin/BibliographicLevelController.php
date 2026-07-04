@@ -16,7 +16,8 @@ class BibliographicLevelController extends Controller
 
     public function create()
     {
-        return view('admin.bibliographic_levels.create');
+        $takenCodes = BibliographicLevel::pluck('code')->toArray();
+        return view('admin.bibliographic_levels.create', compact('takenCodes'));
     }
 
     public function store(Request $request)
@@ -41,7 +42,8 @@ class BibliographicLevelController extends Controller
 
     public function edit(BibliographicLevel $bibliographicLevel)
     {
-        return view('admin.bibliographic_levels.edit', compact('bibliographicLevel'));
+        $takenCodes = BibliographicLevel::where('id', '!=', $bibliographicLevel->id)->pluck('code')->toArray();
+        return view('admin.bibliographic_levels.edit', compact('bibliographicLevel', 'takenCodes'));
     }
 
     public function update(Request $request, BibliographicLevel $bibliographicLevel)

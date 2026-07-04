@@ -453,8 +453,8 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                                 <button @click="loadMedicalTab('Nội khoa', 'medical-tabs', 'medical-content')"
                                     class="tab-btn text-xs font-bold text-slate-400 hover:text-vttu-red px-4 py-1.5 rounded-sm whitespace-nowrap transition-all uppercase">{{ __('NỘI KHOA') }}</button>
                             </div>
-                            <div id="medical-content" class="min-h-[200px]">
-                                @include('site.pages.partials.home-medical', ['medicalResources' => $medicalResources])
+                            <div id="medical-content" class="min-h-[200px] flex items-center justify-center">
+                                <span class="text-xs text-slate-400"><i class="fas fa-spinner fa-spin mr-1"></i> {{ __('Đang tải dữ liệu...') }}</span>
                             </div>
                         </div>
                     </div>
@@ -1059,6 +1059,12 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
     // Initialize slider khi page load
     document.addEventListener('DOMContentLoaded', function() {
         initNetworkSlider();
+        
+        // Tự động kích hoạt tab y khoa đầu tiên (Sản khoa)
+        const firstMedicalTab = document.querySelector('#medical-tabs .tab-btn');
+        if (firstMedicalTab) {
+            firstMedicalTab.click();
+        }
         
         // Re-init khi resize window
         window.addEventListener('resize', function() {
