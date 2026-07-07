@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+
     /**
      * A basic test example.
      */
@@ -15,5 +15,17 @@ class ExampleTest extends TestCase
         $response = $this->get('/');
 
         $response->assertStatus(200);
+    }
+
+    /**
+     * Test the new online database detail endpoint.
+     */
+    public function test_online_database_detail_endpoint(): void
+    {
+        $response = $this->get('/tai-nguyen/co-so-du-lieu-chi-tiet?CSDLId=1&CSDLName=SpringerLink');
+
+        $response->assertStatus(200);
+        $response->assertSee('SpringerLink');
+        $response->assertSee('#1');
     }
 }

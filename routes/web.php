@@ -86,6 +86,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     // ... (các route admin khác)
 });
 
+// Detail of Online Database (under Resources)
+Route::get('/tai-nguyen/co-so-du-lieu-chi-tiet/{id?}', [\App\Http\Controllers\SiteController::class, 'onlineDatabaseDetail'])->name('site.online-database.detail');
+
 Route::get('/{code}', [\App\Http\Controllers\SiteController::class, 'page'])->name('site.page');
 Route::get('/sitemap', [\App\Http\Controllers\SiteController::class, 'sitemap'])->name('site.sitemap');
 Route::get('/sitemap.xml', [\App\Http\Controllers\SiteController::class, 'xmlSitemap'])->name('site.sitemap.xml');

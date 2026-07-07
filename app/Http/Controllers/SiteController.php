@@ -830,4 +830,76 @@ class SiteController extends Controller
         return response($xml, 200)
             ->header('Content-Type', 'text/xml');
     }
+
+    /**
+     * Display details of an online database without site node in DB.
+     */
+    public function onlineDatabaseDetail(Request $request, $id = null)
+    {
+        $CSDLId = $id ?: $request->query('CSDLId');
+        $CSDLName = $request->query('CSDLName') ?: $request->query('name') ?: 'Cơ sở dữ liệu';
+
+        // Search in OnlineDatabase model
+        $database = null;
+        $parent = null;
+        $sidebarItems = collect();
+        $sectionLabel = 'Tài nguyên';
+        try {
+            if ($CSDLId) {
+                $database = \App\Models\OnlineDatabase::where('is_active', true)->find($CSDLId);
+                if ($database) {
+                    $CSDLName = $database->title;
+                }
+            }
+            $parent = SiteNode::where('node_code', 'tai-nguyen')->first();
+            if ($parent) {
+                $sidebarItems = $parent->activeChildren()->orderBy('sort_order')->get();
+                $sectionLabel = $parent->display_name;
+            }
+        } catch (\Exception $e) {
+            // Fail silently and fallback
+        }
+        
+        $node = new SiteNode();
+        $node->id = 9999;
+        $node->display_name = $CSDLName;
+        $node->node_code = 'co-so-du-lieu-detail';
+        $node->icon = 'fas fa-database';
+        
+        if ($parent) {
+            $node->parent = $parent;
+            $node->parent_id = $parent->id;
+        }
+
+        // Menu and footer items for layouts.site
+        $menuItems = collect();
+        $footerItems = collect();
+        $breadcrumb = [];
+        try {
+            $menuItems = SiteNode::getMenuItems('menu');
+            $footerItems = SiteNode::getMenuItems('footer');
+            if ($parent) {
+                $breadcrumb = $parent->getBreadcrumb();
+            }
+        } catch (\Exception $e) {
+            // Fail silently
+        }
+        $breadcrumb[] = [
+            'name' => $CSDLName,
+            'url' => ''
+        ];
+
+        return view('site.pages.online-database-detail', compact(
+            'CSDLId',
+            'CSDLName',
+            'database',
+            'node',
+            'menuItems',
+            'footerItems',
+            'breadcrumb',
+            'parent',
+            'sidebarItems',
+            'sectionLabel'
+        ));
+    }
 }
