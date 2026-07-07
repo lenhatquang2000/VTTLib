@@ -174,10 +174,19 @@
                             
                             <div>
                                 <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">{{ __('Custom URL') }}</label>
-                                <input type="text" name="custom_url" 
+                                <input type="text" name="url" 
                                        class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
                                        placeholder="https://example.com"
-                                       value="{{ old('custom_url') }}">
+                                       value="{{ old('url') }}">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-slate-700 dark:text-slate-300">{{ __('Redirect URL / Page') }}</label>
+                                <input type="text" name="redirect_to" 
+                                       class="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
+                                       placeholder="/tin-tuc, https://example.com"
+                                       value="{{ old('redirect_to') }}">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ __('If set, clicking this node will redirect to this URL/page') }}</p>
                             </div>
                             
                             <div>

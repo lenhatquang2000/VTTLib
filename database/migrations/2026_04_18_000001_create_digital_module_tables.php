@@ -64,9 +64,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes(); // Xóa mềm theo quy định kiểm soát ràng buộc
         });
-
-        }
-
     }
 
     public function down(): void

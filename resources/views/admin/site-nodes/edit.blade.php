@@ -213,6 +213,15 @@
                                        placeholder="https://example.com"
                                        value="{{ old('url', $siteNode->url) }}">
                             </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-1">{{ __('Redirect URL / Page') }}</label>
+                                <input type="text" name="redirect_to" id="redirect_to"
+                                       class="input-field w-full" 
+                                       placeholder="/tin-tuc, https://example.com"
+                                       value="{{ old('redirect_to', $siteNode->redirect_to) }}">
+                                <p class="text-xs text-gray-400 mt-1">{{ __('If set, clicking this node will redirect to this URL/page') }}</p>
+                            </div>
                             
                             @include('admin.site-nodes.partials.content-options', ['siteNode' => $siteNode])
                         </div>

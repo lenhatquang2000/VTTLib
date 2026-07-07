@@ -26,25 +26,41 @@
         $sidebarItems = collect([$node]);
     }
 
-    // Client view colors based on Rule.txt
-    $sidebarIcons = [
-        'fas fa-circle-info'    => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
-        'fas fa-bullseye'       => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
-        'fas fa-scale-balanced' => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
-        'fas fa-clock'          => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
-        'fas fa-sitemap'        => ['from-vttu-red to-vttu-dark',    'shadow-vttu-red/25'],
-    ];
-
     // Lucide icon mapping from FA if possible, or fallback to database icon
     function getLucideIcon($faIcon) {
         $map = [
             'fas fa-circle-info'    => 'info',
+            'fas fa-info-circle'    => 'info',
             'fas fa-bullseye'       => 'target',
             'fas fa-scale-balanced' => 'scale',
             'fas fa-clock'          => 'clock',
             'fas fa-sitemap'        => 'sitemap',
+            'fas fa-compass'        => 'compass',
             'fas fa-home'           => 'home',
             'fas fa-search'         => 'search',
+            'fas fa-phone'          => 'phone',
+            'fas fa-university'     => 'landmark',
+            'fas fa-concierge-bell' => 'bell',
+            'fas fa-headset'        => 'headset',
+            'fas fa-cloud'          => 'cloud',
+            'fas fa-book-open-reader' => 'book-open',
+            'fas fa-mobile-screen'  => 'smartphone',
+            'fas fa-sign-in-alt'    => 'log-in',
+            'fas fa-key'            => 'key',
+            'fas fa-book-journal-whills' => 'book-open',
+            'fas fa-file-pdf'       => 'file-text',
+            'fas fa-calendar-check' => 'calendar-check',
+            'fas fa-plus-circle'    => 'plus-circle',
+            'fas fa-layer-group'    => 'layers',
+            'fas fa-book'           => 'book',
+            'fas fa-database'       => 'database',
+            'fas fa-globe'          => 'globe',
+            'fas fa-newspaper'      => 'newspaper',
+            'fas fa-tablet-alt'     => 'tablet',
+            'fas fa-graduation-cap' => 'graduation-cap',
+            'fas fa-video'          => 'video',
+            'fas fa-poll'           => 'bar-chart-3',
+            'fas fa-map-marker-alt' => 'map-pin',
             'fas fa-arrow-left'     => 'arrow-left',
             'fas fa-arrow-right'    => 'arrow-right',
         ];
@@ -52,29 +68,7 @@
     }
 @endphp
 
-<div class="min-h-screen bg-background text-foreground animate-fade-in" x-data="{ sidebarOpen: true }">
-    <!-- Header / Breadcrumb -->
-    <header class="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div class="container flex h-14 items-center px-4 md:px-6">
-            <nav class="flex items-center space-x-2 text-sm font-medium">
-                <a href="/" class="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
-                    <i data-lucide="home" class="w-4 h-4"></i>
-                </a>
-                <i data-lucide="chevron-right" class="w-3 h-3 text-muted-foreground opacity-50"></i>
-                @if($node->parent)
-                    <a href="{{ $node->parent->getUrl() }}" class="text-muted-foreground hover:text-foreground transition-colors">
-                        {{ $node->parent->display_name }}
-                    </a>
-                @else
-                    <a href="/page/gioi-thieu" class="text-muted-foreground hover:text-foreground transition-colors">
-                        {{ __('Giới thiệu') }}
-                    </a>
-                @endif
-                <i data-lucide="chevron-right" class="w-3 h-3 text-muted-foreground opacity-50"></i>
-                <span class="font-bold text-foreground">{{ $node->display_name }}</span>
-            </nav>
-        </div>
-    </header>
+<div class="min-h-screen bg-background text-foreground animate-fade-in pt-16" x-data="{ sidebarOpen: true }">
 
     <div class="w-full px-4 py-4 mt-[6px] md:px-6 md:py-6">
         <div class="flex flex-col lg:flex-row gap-4">
@@ -101,7 +95,6 @@
                         @foreach($sidebarItems as $item)
                             @php 
                                 $active = $item->id === $node->id;
-                                $colorClasses = $sidebarIcons[$item->icon] ?? null;
                             @endphp
                             <a href="{{ $item->getUrl() }}"
                                class="flex items-center gap-3 px-3 py-2 rounded text-sm transition-all relative group
@@ -109,13 +102,13 @@
                                          ? 'bg-vttu-red text-white font-bold shadow-md shadow-vttu-red/20' 
                                          : 'text-muted-foreground hover:bg-vttu-red/10 hover:text-vttu-red active:bg-vttu-red active:text-white active:scale-[0.98]' }}">
                                 
-                                @if(!$active && $colorClasses)
-                                    <div class="w-8 h-8 rounded-sm bg-gradient-to-br {{ $colorClasses[0] }} {{ $colorClasses[1] }} flex items-center justify-center text-white flex-shrink-0 transition-all group-hover:scale-110 group-active:scale-95 group-active:bg-none group-active:text-vttu-yellow">
+                                @if(!$active)
+                                    <div class="w-8 h-8 rounded-sm bg-gradient-to-br from-vttu-red to-vttu-dark shadow-vttu-red/25 flex items-center justify-center text-white flex-shrink-0 transition-all group-hover:scale-110 group-active:scale-95 group-active:bg-none group-active:text-vttu-yellow">
                                         <i data-lucide="{{ getLucideIcon($item->icon) }}" class="w-4 h-4"></i>
                                     </div>
                                 @else
                                     <div class="w-8 h-8 flex items-center justify-center flex-shrink-0 transition-transform group-hover:scale-110 group-active:scale-95">
-                                        <i data-lucide="{{ getLucideIcon($item->icon) }}" class="w-4 h-4 {{ $active ? 'text-vttu-yellow' : 'opacity-70' }}"></i>
+                                        <i data-lucide="{{ getLucideIcon($item->icon) }}" class="w-4 h-4 text-vttu-yellow"></i>
                                     </div>
                                 @endif
                                 
@@ -957,6 +950,7 @@
                         $hasDarkBg = isset($sidebarIcons[$node->icon]);
                         $headerColors = $sidebarIcons[$node->icon] ?? ['from-muted/20 to-muted/10', '']; 
                     @endphp
+                    @if($node->node_code !== 'huong-dan' && $node->node_code !== 'gioi-thieu')
                     <div class="p-4 border-b border-border bg-gradient-to-r {{ $headerColors[0] }} opacity-90">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded flex items-center justify-center border shadow-sm
@@ -971,6 +965,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Article Body -->
                     <div class="p-4 md:p-6">
@@ -985,7 +980,9 @@
                                 @include('site.pages.noi-quy-thu-vien-header')
                             @endif
                             
-                            @if($node->node_code === 'gioi-thieu-chung')
+                            @if($node->node_code === 'huong-dan')
+                                @include('site.pages.huong-dan-content')
+                            @elseif($node->node_code === 'gioi-thieu-chung')
                                 @include('site.pages.gioi-thieu-chung-content')
                             @elseif($node->node_code === 'co-so-du-lieu')
                                 @include('site.pages.co-so-du-lieu-content')

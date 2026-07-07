@@ -556,6 +556,11 @@ class SiteController extends Controller
             abort(404);
         }
 
+        // Tự động chuyển hướng nếu có thiết lập redirect_to
+        if (!empty($siteNode->redirect_to)) {
+            return redirect($siteNode->getUrl());
+        }
+
         // Check access permissions
         if (!$siteNode->canAccess(auth()->user())) {
             if (auth()->guest()) {

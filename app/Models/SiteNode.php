@@ -32,7 +32,8 @@ class SiteNode extends Model
         'language',
         'meta_title',
         'meta_description',
-        'meta_keywords'
+        'meta_keywords',
+        'redirect_to'
     ];
 
     /**
@@ -134,6 +135,14 @@ class SiteNode extends Model
      */
     public function getUrl()
     {
+        if ($this->redirect_to) {
+            $url = $this->redirect_to;
+            if (str_starts_with(strtolower($url), 'http://') || str_starts_with(strtolower($url), 'https://')) {
+                return $url;
+            }
+            return url('/' . ltrim($url, '/'));
+        }
+
         if ($this->route_name) {
             return route($this->route_name);
         }

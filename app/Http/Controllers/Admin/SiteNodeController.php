@@ -94,8 +94,9 @@ class SiteNodeController extends Controller
             'items_data' => 'nullable|string',
             'route_name' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:255',
+            'redirect_to' => 'nullable|string|max:255',
             'sort_order' => 'integer|min:0',
-            'language' => 'required|string|max:5',
+            'language' => 'nullable|string|max:5',
             'display_name_en' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -111,6 +112,7 @@ class SiteNodeController extends Controller
         $validated['is_active'] = $validated['is_active'] ?? true;
         $validated['allow_guest'] = $validated['allow_guest'] ?? true;
         $validated['sort_order'] = $validated['sort_order'] ?? 0;
+        $validated['language'] = $validated['language'] ?? session('locale', app()->getLocale());
 
         // Handle allowed_roles for role-based access
         if ($validated['access_type'] === 'roles' && !empty($validated['allowed_roles'])) {
@@ -212,8 +214,9 @@ class SiteNodeController extends Controller
             'items_data' => 'nullable|string',
             'route_name' => 'nullable|string|max:100',
             'url' => 'nullable|string|max:255',
+            'redirect_to' => 'nullable|string|max:255',
             'sort_order' => 'integer|min:0',
-            'language' => 'required|string|max:5',
+            'language' => 'nullable|string|max:5',
             'display_name_en' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -223,6 +226,7 @@ class SiteNodeController extends Controller
         // Convert checkbox values to boolean
         $validated['is_active'] = in_array($validated['is_active'] ?? null, ['on', '1', 'yes'], true);
         $validated['allow_guest'] = in_array($validated['allow_guest'] ?? null, ['on', '1', 'yes'], true);
+        $validated['language'] = $validated['language'] ?? $siteNode->language ?? session('locale', app()->getLocale());
 
         // Prevent self-parenting
         if ($validated['parent_id'] == $siteNode->id) {

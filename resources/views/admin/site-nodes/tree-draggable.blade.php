@@ -79,10 +79,12 @@
 
         <!-- Actions -->
         <div class="node-actions">
-            @if(!empty($node['content']) || !empty($node['route_name']) || !empty($node['url']))
+            @if(!empty($node['content']) || !empty($node['route_name']) || !empty($node['url']) || !empty($node['redirect_to']))
             @php
                 $previewUrl = '#';
-                if (!empty($node['route_name'])) {
+                if (!empty($node['redirect_to'])) {
+                    $previewUrl = $node['redirect_to'];
+                } elseif (!empty($node['route_name'])) {
                     $previewUrl = Route::has($node['route_name']) ? route($node['route_name']) : '#';
                 } elseif (!empty($node['url'])) {
                     $previewUrl = $node['url'];
