@@ -76,7 +76,17 @@
     <!-- Actions -->
     <div class="flex items-center gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity flex-shrink-0">
         @if($node['has_content'])
-        <a href="/page/{{ $node['node_code'] }}"
+        @php
+            $previewUrl = '#';
+            if (!empty($node['route_name'])) {
+                $previewUrl = Route::has($node['route_name']) ? route($node['route_name']) : '#';
+            } elseif (!empty($node['url'])) {
+                $previewUrl = $node['url'];
+            } else {
+                $previewUrl = '/' . $node['node_code'];
+            }
+        @endphp
+        <a href="{{ $previewUrl }}"
             target="_blank"
             class="w-6 h-6 flex items-center justify-center rounded-sm bg-muted hover:bg-primary text-muted-foreground hover:text-primary-foreground border border-border transition-all active:scale-90"
             title="Xem trang">

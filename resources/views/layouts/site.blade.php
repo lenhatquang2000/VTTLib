@@ -165,10 +165,10 @@
                             @if($item->activeChildren && $item->activeChildren->count() > 0)
                                 <!-- Dropdown Node -->
                                 <div class="relative group h-full flex items-center" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
-                                    <button class="text-white/80 group-hover:text-white font-black text-xs uppercase tracking-[0.1em] transition-all py-5 flex items-center space-x-1 outline-none">
+                                    <a href="{{ $item->getUrl() }}" class="text-white/80 group-hover:text-white font-black text-xs uppercase tracking-[0.1em] transition-all py-5 flex items-center space-x-1 outline-none">
                                         <span>{{ __($item->display_name) }}</span>
                                         <i class="fas fa-chevron-down text-[8px] opacity-50 transition-transform duration-300" :class="open ? 'rotate-180' : ''"></i>
-                                    </button>
+                                    </a>
                                     <div class="absolute -bottom-1 left-0 w-0 h-0.5 bg-vttu-yellow transition-all group-hover:w-full"></div>
 
                                     <!-- Dropdown Menu -->
@@ -307,6 +307,15 @@
                                      x-collapse
                                      class="pl-4 pb-2 space-y-2"
                                      style="display: none;">
+                                    @if($item->getUrl() !== '#')
+                                        <a href="{{ $item->getUrl() }}" 
+                                           class="block py-2 text-vttu-yellow hover:text-white text-[11px] font-black uppercase tracking-widest transition-all">
+                                            @if($item->icon)
+                                                <i class="{{ $item->icon }} mr-2 text-[10px] opacity-50"></i>
+                                            @endif
+                                            {{ __('TẤT CẢ') }} {{ __($item->display_name) }}
+                                        </a>
+                                    @endif
                                     @foreach($item->activeChildren as $child)
                                         <a href="{{ $child->getUrl() }}" 
                                            class="block py-2 text-white/50 hover:text-vttu-yellow text-[11px] font-black uppercase tracking-widest transition-all">

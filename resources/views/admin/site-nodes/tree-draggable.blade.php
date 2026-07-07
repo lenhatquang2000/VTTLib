@@ -79,8 +79,18 @@
 
         <!-- Actions -->
         <div class="node-actions">
-            @if(!empty($node['content']))
-            <a href="/page/{{ $node['node_code'] }}"
+            @if(!empty($node['content']) || !empty($node['route_name']) || !empty($node['url']))
+            @php
+                $previewUrl = '#';
+                if (!empty($node['route_name'])) {
+                    $previewUrl = Route::has($node['route_name']) ? route($node['route_name']) : '#';
+                } elseif (!empty($node['url'])) {
+                    $previewUrl = $node['url'];
+                } else {
+                    $previewUrl = '/' . $node['node_code'];
+                }
+            @endphp
+            <a href="{{ $previewUrl }}"
                 target="_blank"
                 class="action-btn text-green-400 hover:text-green-300"
                 title="Xem trang">
