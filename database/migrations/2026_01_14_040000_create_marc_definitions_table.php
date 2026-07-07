@@ -27,6 +27,7 @@ return new class extends Migration {
 
             $blueprint->unique(['tag', 'code']);
         });
+        }
     }
 
     public function down(): void

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
+        }
 
         Schema::create('storage_locations', function (Blueprint $table) {
             $table->id();

@@ -15,6 +15,7 @@ return new class extends Migration {
             $blueprint->string('record_type')->default('book'); // book, thesis, etc.
             $blueprint->timestamps();
         });
+        }
     }
 
     public function down(): void

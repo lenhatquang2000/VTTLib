@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('language', 5)->default('vi');
             $table->timestamps();
         });
+        }
 
         // 2. Bảng Tài liệu số (Chứa 23 trường Metadata)
         Schema::create('digital_resources', function (Blueprint $table) {
@@ -62,7 +63,7 @@ return new class extends Migration
             $table->foreignId('updated_by')->nullable()->constrained('users');
             $table->timestamps();
             $table->softDeletes(); // Xóa mềm theo quy định kiểm soát ràng buộc
-        })
+        });
 
         }
 

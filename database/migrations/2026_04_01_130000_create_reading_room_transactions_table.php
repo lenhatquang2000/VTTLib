@@ -38,7 +38,7 @@ return new class extends Migration
             $table->index(['book_item_id', 'status']);
             $table->index(['checkout_time']);
             $table->index(['due_time']);
-        })
+        });
 
         }
 

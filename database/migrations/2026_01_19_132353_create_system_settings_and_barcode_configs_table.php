@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('group')->default('general'); // general, library, email, etc.
             $table->timestamps();
         });
+        }
 
         // Table for Barcode Generation Rules
         Schema::create('barcode_configs', function (Blueprint $table) {

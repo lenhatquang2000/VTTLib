@@ -32,7 +32,7 @@ return new class extends Migration
             $table->index(['user_id']);
             $table->index(['session_id']);
             $table->index(['access_type']);
-        })
+        });
 
         }
 

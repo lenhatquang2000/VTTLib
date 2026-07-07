@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('shelf_position')->nullable(); // Vị trí xếp giá
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

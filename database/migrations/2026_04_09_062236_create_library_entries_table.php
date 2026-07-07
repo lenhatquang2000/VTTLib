@@ -27,7 +27,7 @@ return new class extends Migration
             $table->index(['entry_time']);
             $table->index(['patron_detail_id']);
             $table->index(['branch_id']);
-        })
+        });
 
         }
 

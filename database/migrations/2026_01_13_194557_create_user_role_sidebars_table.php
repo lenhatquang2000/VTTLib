@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignId('sidebar_id')->constrained('sidebars')->onDelete('cascade');
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

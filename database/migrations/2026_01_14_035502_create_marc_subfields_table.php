@@ -16,6 +16,7 @@ return new class extends Migration {
             $blueprint->text('value')->nullable();
             $blueprint->timestamps();
         });
+        }
     }
 
     public function down(): void

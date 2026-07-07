@@ -36,6 +36,7 @@ return new class extends Migration
              // No, TagDefinition itself is framework-specific now.
              // So we just need to ensure subfields are unique for the tag.
         });
+        }
     }
 
     public function down(): void

@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('display_name');  // Quản trị viên, Khách
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

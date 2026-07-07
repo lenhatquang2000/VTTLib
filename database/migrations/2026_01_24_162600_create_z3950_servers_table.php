@@ -34,6 +34,7 @@ return new class extends Migration
             $table->text('last_error')->nullable();
             $table->timestamps();
         });
+        }
 
         // Seed default Z39.50 servers
         $this->seedDefaultServers();

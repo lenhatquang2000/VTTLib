@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->unique(['user_id', 'role_id']);
             $table->timestamps();
         });
+        }
     }
 
     public function down(): void

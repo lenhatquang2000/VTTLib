@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('order')->default(0);
             $table->timestamps();
         });
+        }
 
         // 2. Circulation Policies (Chính sách lưu thông)
         Schema::create('circulation_policies', function (Blueprint $table) {

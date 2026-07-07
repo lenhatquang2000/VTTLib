@@ -10,14 +10,15 @@ return new class extends Migration {
         if (!Schema::hasTable('books')) {
 
             Schema::create('books', function (Blueprint $table) {
-            $table->id();
-            $table->string('title');
-            $table->string('author')->nullable();
-            $table->string('publisher')->nullable();
-            $table->string('year_publish')->nullable();
-            $table->string('isbn')->unique()->nullable();
-            $table->timestamps();
-        });
+                $table->id();
+                $table->string('title');
+                $table->string('author')->nullable();
+                $table->string('publisher')->nullable();
+                $table->string('year_publish')->nullable();
+                $table->string('isbn')->unique()->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void

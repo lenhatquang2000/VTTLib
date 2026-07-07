@@ -18,6 +18,7 @@ return new class extends Migration {
             $blueprint->integer('sequence')->default(0);
             $blueprint->timestamps();
         });
+        }
     }
 
     public function down(): void

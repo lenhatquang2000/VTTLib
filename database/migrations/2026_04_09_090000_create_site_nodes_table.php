@@ -45,7 +45,7 @@ return new class extends Migration
             $table->index(['sort_order']);
             $table->index(['node_code']);
             $table->index(['access_type']);
-        })
+        });
 
         }
 

@@ -25,6 +25,7 @@ return new class extends Migration
             $table->index(['site_node_id', 'sort_order']);
             $table->index('item_type');
         });
+        }
     }
 
     /**

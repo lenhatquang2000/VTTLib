@@ -59,6 +59,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
         });
+        }
 
         // 2. Table for multiple addresses
         Schema::create('patron_addresses', function (Blueprint $table) {

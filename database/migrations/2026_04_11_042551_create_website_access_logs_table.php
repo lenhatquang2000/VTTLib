@@ -31,6 +31,7 @@ return new class extends Migration
             $table->index(['created_at']);
             $table->index(['ip_address']);
         });
+        }
     }
 
     /**
