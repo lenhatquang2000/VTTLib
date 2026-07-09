@@ -310,6 +310,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     // Activity Monitoring
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('/activity-logs/{log}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
+    Route::post('/activity-logs/clear-laravel-logs', [ActivityLogController::class, 'clearLaravelLogs'])->name('admin.activity-logs.clear-laravel-logs');
 
     // System Monitoring
     Route::get('/monitoring', [\App\Http\Controllers\Admin\SystemMonitoringController::class, 'index'])->name('admin.monitoring.index');

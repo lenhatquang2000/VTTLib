@@ -5,30 +5,38 @@
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Activity Logs') }}</h1>
-            <p class="text-xs text-muted-foreground">{{ __('Monitor system actions and user operations.') }}</p>
+            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Nhật ký hoạt động') }}</h1>
+            <p class="text-xs text-muted-foreground">{{ __('Giám sát các thao tác người dùng trên cơ sở dữ liệu và luồng ghi nhận hệ thống.') }}</p>
         </div>
     </div>
 
-    <div class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
+    <!-- Tab Selector -->
+    <div class="flex items-center gap-1 p-1 bg-muted/50 rounded-md w-fit border border-border">
+        <button type="button" onclick="switchTab('db-logs')" id="tab-db-logs-btn" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all bg-card text-primary shadow-sm">
+            Nhật ký hoạt động (Database)
+        </button>
+        <button type="button" onclick="switchTab('file-logs')" id="tab-file-logs-btn" class="px-4 py-1.5 rounded-sm text-xs font-semibold transition-all text-muted-foreground hover:text-foreground">
+            Laravel Logs (laravel.log)
+        </button>
+    </div>
+
+    <!-- Tab 1: Database Logs Container -->
+    <div id="db-logs-container" class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
         <!-- Filter Bar -->
         <div class="p-3 bg-muted/30 border-b border-border">
             <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-2 items-end">
-                <!-- Username search -->
                 <div class="space-y-1">
                     <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('User Identity') }}</label>
                     <input type="text" name="username" value="{{ request('username') }}" placeholder="{{ __('Search username...') }}" 
                         class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
-                <!-- Action input -->
                 <div class="space-y-1">
                     <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Action') }}</label>
                     <input type="text" name="action" value="{{ request('action') }}" placeholder="{{ __('Action (e.g. create)') }}" 
                         class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
-                <!-- Method select -->
                 <div class="space-y-1">
                     <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Method') }}</label>
                     <div class="relative">
@@ -47,21 +55,18 @@
                     </div>
                 </div>
 
-                <!-- Date from input -->
                 <div class="space-y-1">
                     <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('From Date') }}</label>
                     <input type="date" name="date_from" value="{{ request('date_from') }}" 
                         class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
-                <!-- Date to input -->
                 <div class="space-y-1">
                     <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('To Date') }}</label>
                     <input type="date" name="date_to" value="{{ request('date_to') }}" 
                         class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
-                <!-- Action buttons -->
                 <div class="flex gap-2">
                     <button type="submit" class="btn-compact-primary flex-1 h-9">
                         <i data-lucide="filter" class="w-4 h-4 mr-1"></i>
@@ -159,6 +164,98 @@
         </div>
         @endif
     </div>
+
+    <!-- Tab 2: Laravel Logs File Container -->
+    <div id="file-logs-container" class="hidden bg-card rounded-md shadow-sm border border-border overflow-hidden">
+        <!-- Actions & Cleaning Form -->
+        <div class="p-3 bg-muted/30 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div>
+                <h3 class="text-xs font-bold text-foreground uppercase tracking-wider">{{ __('Luồng thông tin ghi nhận từ file (laravel.log)') }}</h3>
+                <p class="text-[10px] text-muted-foreground mt-0.5">{{ __('Hiển thị tối đa 200 bản ghi lỗi và hoạt động gần nhất lưu trữ trên ổ cứng.') }}</p>
+            </div>
+            
+            <form action="{{ route('admin.activity-logs.clear-laravel-logs') }}?tab=file-logs" method="POST" class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto shrink-0 justify-end">
+                @csrf
+                <!-- Button Xóa INFO -->
+                <button type="submit" name="clear_type" value="info" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs INFO?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-all flex items-center gap-1">
+                    <i data-lucide="info" class="w-3.5 h-3.5"></i> Xoá INFO
+                </button>
+                
+                <!-- Button Xóa WARNING -->
+                <button type="submit" name="clear_type" value="warning" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs WARNING?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all flex items-center gap-1">
+                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Xoá WARNING
+                </button>
+                
+                <!-- Button Xóa ERROR -->
+                <button type="submit" name="clear_type" value="error" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs ERROR?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all flex items-center gap-1">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Xoá ERROR
+                </button>
+
+                <!-- Button Xóa toàn bộ -->
+                <button type="submit" name="clear_type" value="all" onclick="return confirm('Xác nhận xóa TOÀN BỘ logs? Hành động này không thể hoàn tác.')" class="h-8 px-3 text-[10px] font-bold uppercase rounded-sm bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-1.5 shadow-sm">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-white"></i> Xoá Toàn Bộ
+                </button>
+            </form>
+        </div>
+
+        <!-- Table View -->
+        <div class="overflow-x-auto min-h-[250px]">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-muted/50 text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b border-border">
+                    <tr>
+                        <th class="py-2 px-3 w-40">Mức độ / Env</th>
+                        <th class="py-2 px-3 w-48">Thời gian</th>
+                        <th class="py-2 px-3">Nội dung thông điệp</th>
+                        <th class="py-2 px-3 w-24 text-right">Chi tiết</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-border font-mono text-[11px]">
+                    @forelse($laravelLogs as $index => $l)
+                        <tr class="table-row-hover">
+                            <td class="py-2 px-3 whitespace-nowrap">
+                                <span class="inline-flex items-center px-1.5 py-0.5 text-[9px] font-bold uppercase rounded-sm {{
+                                    $l['level'] === 'ERROR' ? 'bg-destructive/10 text-destructive border border-destructive/20' :
+                                    ($l['level'] === 'WARNING' ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20' :
+                                    ($l['level'] === 'INFO' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20' : 'bg-muted text-muted-foreground border border-border'))
+                                }}">
+                                    {{ $l['level'] }}
+                                </span>
+                                <span class="text-muted-foreground/60 ml-1">[{{ $l['env'] }}]</span>
+                            </td>
+                            <td class="py-2 px-3 text-muted-foreground whitespace-nowrap">
+                                {{ $l['timestamp'] }}
+                            </td>
+                            <td class="py-2 px-3 text-foreground break-all">
+                                {{ $l['message'] }}
+                            </td>
+                            <td class="py-2 px-3 text-right">
+                                @if(!empty($l['stack_trace']))
+                                    <button type="button" onclick="toggleStackTrace({{ $index }})" class="btn-icon-compact" title="Xem chi tiết Exception / Stack trace">
+                                        <i data-lucide="chevron-down" id="trace-chevron-{{ $index }}" class="w-4 h-4 transition-transform duration-200"></i>
+                                    </button>
+                                @else
+                                    <span class="text-muted-foreground/40 text-[9px] italic">Không có</span>
+                                @endif
+                            </td>
+                        </tr>
+                        @if(!empty($l['stack_trace']))
+                            <tr id="trace-row-{{ $index }}" class="hidden bg-muted/20">
+                                <td colspan="4" class="p-3">
+                                    <pre class="bg-card border border-border p-3 rounded-sm text-muted-foreground max-h-96 overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words text-[10px] leading-relaxed">{{ $l['stack_trace'] }}</pre>
+                                </td>
+                            </tr>
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="4" class="py-12 text-center text-muted-foreground italic">
+                                Không có log hệ thống nào được ghi nhận trong file.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Log Details Modal -->
@@ -182,7 +279,70 @@
     </div>
 </div>
 
+@push('styles')
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 2px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+</style>
+@endpush
+
+@push('scripts')
 <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        // Auto-switch to tab if present in URL query
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'db-logs';
+        switchTab(activeTab, false);
+
+        // Listen for history back/forward
+        window.addEventListener('popstate', () => {
+            const currentParams = new URLSearchParams(window.location.search);
+            const targetTab = currentParams.get('tab') || 'db-logs';
+            switchTab(targetTab, false);
+        });
+    });
+
+    function switchTab(tabId, updateUrl = true) {
+        if (updateUrl) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tabId);
+            window.history.pushState({ path: url.href }, '', url.href);
+        }
+
+        if (tabId === 'db-logs') {
+            document.getElementById('db-logs-container').classList.remove('hidden');
+            document.getElementById('file-logs-container').classList.add('hidden');
+            
+            document.getElementById('tab-db-logs-btn').className = 'px-4 py-1.5 rounded-sm text-xs font-semibold transition-all bg-card text-primary shadow-sm';
+            document.getElementById('tab-file-logs-btn').className = 'px-4 py-1.5 rounded-sm text-xs font-semibold transition-all text-muted-foreground hover:text-foreground';
+        } else {
+            document.getElementById('db-logs-container').classList.add('hidden');
+            document.getElementById('file-logs-container').classList.remove('hidden');
+            
+            document.getElementById('tab-db-logs-btn').className = 'px-4 py-1.5 rounded-sm text-xs font-semibold transition-all text-muted-foreground hover:text-foreground';
+            document.getElementById('tab-file-logs-btn').className = 'px-4 py-1.5 rounded-sm text-xs font-semibold transition-all bg-card text-primary shadow-sm';
+        }
+    }
+
+    function toggleStackTrace(index) {
+        const row = document.getElementById('trace-row-' + index);
+        const chevron = document.getElementById('trace-chevron-' + index);
+        
+        if (row.classList.contains('hidden')) {
+            row.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+        } else {
+            row.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+        }
+    }
+
     function openLogModal(logId) {
         const modal = document.getElementById('logModal');
         const content = document.getElementById('logDetailContent');
@@ -204,4 +364,5 @@
         document.getElementById('logModal').classList.add('hidden');
     }
 </script>
+@endpush
 @endsection
