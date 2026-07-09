@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
-@section('title', __('Circulation Reports & Export'))
+@section('title', __('Patron Reports & Export'))
 
 @section('content')
 <div class="w-full space-y-3 pb-4">
     <!-- Page Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('Báo cáo & Thống kê Lưu thông') }}</h1>
+            <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('Báo cáo & Xuất dữ liệu Độc giả') }}</h1>
             <p class="text-xs text-muted-foreground mt-0.5">{{ __('Chọn loại báo cáo từ cây phân hệ bên trái và cấu hình bộ lọc tương ứng bên phải.') }}</p>
         </div>
         <div class="flex items-center gap-2 w-full sm:w-auto">
-            <a href="{{ route('admin.circulation.loan-desk') }}" class="btn-compact-secondary">
+            <a href="{{ route('admin.patrons.index') }}" class="btn-compact-secondary">
                 <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
                 <span>{{ __('Quay lại') }}</span>
             </a>
@@ -26,8 +26,8 @@
             <!-- Header bar with Collapse Button -->
             <div class="p-3 border-b border-border bg-muted/30 flex items-center justify-between font-bold shadow-sm">
                 <div class="flex items-center gap-2">
-                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-muted-foreground"></i>
-                    <span class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('BÁO CÁO PHÂN HỆ LƯU THÔNG') }}</span>
+                    <i data-lucide="users" class="w-4 h-4 text-muted-foreground"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('BÁO CÁO PHÂN HỆ QUẢN LÝ ĐỘC GIẢ') }}</span>
                 </div>
                 <button type="button" id="toggle-tree-btn" class="btn-icon-compact" title="{{ __('Thu gọn danh mục') }}">
                     <i data-lucide="chevron-left" class="w-4 h-4 text-muted-foreground"></i>
@@ -38,13 +38,9 @@
             <div class="p-3 overflow-y-auto max-h-[600px] custom-scrollbar bg-card">
                 <div class="tree-container">
                     
-                    <!-- Group 1: Báo cáo phân hệ lưu thông -->
+                    <!-- Group 1: Báo cáo phân hệ quản lý độc giả -->
                     @php
-                    $isGroup1Active = in_array($reportType, [
-                        'currently_borrowed', 'patron_service', 'library_entries', 
-                        'overdue', 'top_patrons', 'transaction_history', 
-                        'website_access', 'never_borrowed'
-                    ]);
+                    $isGroup1Active = in_array($reportType, ['patron_list', 'print_cards', 'renew_list', 'renew_by_period']);
                     @endphp
                     <div class="tree-group">
                         <div class="tree-folder flex items-center py-1.5 px-1 hover:bg-muted/50 rounded cursor-pointer select-none" data-group="group-1">
@@ -56,81 +52,84 @@
                                 <i data-lucide="folder-open" class="w-4 h-4 folder-open-icon {{ $isGroup1Active ? '' : 'hidden' }}"></i>
                                 <i data-lucide="folder" class="w-4 h-4 folder-closed-icon {{ $isGroup1Active ? 'hidden' : '' }}"></i>
                             </span>
-                            <span class="font-bold text-foreground text-xs">{{ __('Báo cáo phân hệ lưu thông') }}</span>
+                            <span class="font-bold text-foreground text-xs">{{ __('Báo cáo phân hệ quản lý độc giả') }}</span>
                         </div>
                         
                         <!-- Group 1 children (with tree lines) -->
                         <div class="tree-node-parent {{ $isGroup1Active ? '' : 'hidden' }}" id="group-1">
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'currently_borrowed']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'currently_borrowed' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                            <a href="{{ route('admin.patrons.reports.index', ['report_type' => 'patron_list']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'patron_list' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
                                 <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'currently_borrowed' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'currently_borrowed' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'patron_list' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'patron_list' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
                                 </span>
-                                <span class="text-xs">{{ __('Danh sách tài liệu đang mượn') }}</span>
+                                <span class="text-xs">{{ __('Danh sách độc giả trong thư viện') }}</span>
                             </a>
                             
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'patron_service']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'patron_service' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                            <a href="{{ route('admin.patrons.reports.index', ['report_type' => 'print_cards']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'print_cards' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
                                 <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'patron_service' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'patron_service' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'print_cards' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'print_cards' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
                                 </span>
-                                <span class="text-xs">{{ __('Báo cáo phục vụ bạn đọc') }}</span>
+                                <span class="text-xs">{{ __('In thẻ độc giả') }}</span>
                             </a>
                             
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'library_entries']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'library_entries' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                            <a href="{{ route('admin.patrons.reports.index', ['report_type' => 'renew_list']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'renew_list' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
                                 <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'library_entries' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'library_entries' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'renew_list' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'renew_list' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
                                 </span>
-                                <span class="text-xs">{{ __('Số lượng bạn đọc vào thư viện') }}</span>
+                                <span class="text-xs">{{ __('Danh sách độc giả gia hạn thẻ') }}</span>
                             </a>
                             
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'overdue']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'overdue' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                            <a href="{{ route('admin.patrons.reports.index', ['report_type' => 'renew_by_period']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'renew_by_period' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
                                 <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'overdue' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'overdue' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'renew_by_period' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'renew_by_period' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
                                 </span>
-                                <span class="text-xs">{{ __('Danh sách tài liệu đang mượn quá hạn') }}</span>
+                                <span class="text-xs text-left leading-tight">{{ __('Danh sách độc giả gia hạn thẻ theo một khoảng thời gian') }}</span>
                             </a>
-
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'top_patrons']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'top_patrons' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Group 2: In ấn -->
+                    @php
+                    $isGroup2Active = in_array($reportType, ['viewer_patron_list', 'viewer_print_cards']);
+                    @endphp
+                    <div class="tree-group mt-2">
+                        <div class="tree-folder flex items-center py-1.5 px-1 hover:bg-muted/50 rounded cursor-pointer select-none" data-group="group-2">
+                            <span class="toggle-icon-container mr-1 text-muted-foreground flex items-center justify-center">
+                                <i data-lucide="square-minus" class="w-4 h-4 toggle-open {{ $isGroup2Active ? '' : 'hidden' }}"></i>
+                                <i data-lucide="square-plus" class="w-4 h-4 toggle-closed {{ $isGroup2Active ? 'hidden' : '' }}"></i>
+                            </span>
+                            <span class="folder-icon-container mr-1.5 text-muted-foreground flex items-center justify-center">
+                                <i data-lucide="folder-open" class="w-4 h-4 folder-open-icon {{ $isGroup2Active ? '' : 'hidden' }}"></i>
+                                <i data-lucide="folder" class="w-4 h-4 folder-closed-icon {{ $isGroup2Active ? 'hidden' : '' }}"></i>
+                            </span>
+                            <span class="font-bold text-foreground text-xs">{{ __('In ấn') }}</span>
+                        </div>
+                        
+                        <!-- Group 2 children (with tree lines) -->
+                        <div class="tree-node-parent {{ $isGroup2Active ? '' : 'hidden' }}" id="group-2">
+                            <a href="{{ route('admin.patrons.reports.index', ['report_type' => 'viewer_patron_list']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'viewer_patron_list' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
                                 <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'top_patrons' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'top_patrons' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'viewer_patron_list' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'viewer_patron_list' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
                                 </span>
-                                <span class="text-xs">{{ __('Danh sách bạn đọc mượn tài liệu nhiều nhất') }}</span>
+                                <span class="text-xs">{{ __('[ReportViewer] Danh sách độc giả') }}</span>
                             </a>
-
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'transaction_history']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'transaction_history' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                            
+                            <a href="{{ route('admin.patrons.reports.index', ['report_type' => 'viewer_print_cards']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'viewer_print_cards' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
                                 <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'transaction_history' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'transaction_history' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'viewer_print_cards' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'viewer_print_cards' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
                                 </span>
-                                <span class="text-xs">{{ __('Danh sách chi tiết lược sử giao dịch sách') }}</span>
-                            </a>
-
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'website_access']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'website_access' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
-                                <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'website_access' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'website_access' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
-                                </span>
-                                <span class="text-xs">{{ __('Thống kê lượt truy cập website') }}</span>
-                            </a>
-
-                            <a href="{{ route('admin.circulation.reports.index', ['report_type' => 'never_borrowed']) }}" 
-                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'never_borrowed' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
-                                <span class="relative flex items-center mr-1.5">
-                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'never_borrowed' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
-                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'never_borrowed' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
-                                </span>
-                                <span class="text-xs">{{ __('Danh sách tài liệu chưa mượn lần nào') }}</span>
+                                <span class="text-xs">{{ __('[ReportViewer] In thẻ độc giả') }}</span>
                             </a>
                         </div>
                     </div>
@@ -163,7 +162,7 @@
             </div>
             
             <!-- Filter Form -->
-            <form action="{{ route('admin.circulation.reports.export') }}" method="POST" target="_blank" id="reportForm" class="p-3 flex-1 flex flex-col justify-between space-y-3">
+            <form action="{{ route('admin.patrons.reports.generate') }}" method="POST" target="_blank" id="reportForm" class="p-3 flex-1 flex flex-col justify-between space-y-3">
                 @csrf
                 <input type="hidden" name="report_type" id="selected_report_type" value="{{ $reportType }}">
                 
@@ -172,7 +171,7 @@
                     <!-- Simple Search Bar -->
                     <div class="flex items-center gap-2">
                         <div class="relative flex-1">
-                            <input type="text" name="search" id="search_input" placeholder="{{ __('Tìm kiếm nhanh bằng từ khóa (Họ tên, Mã độc giả, Mã vạch tài liệu)...') }}" class="w-full h-9 pl-3 pr-10 text-xs border border-input rounded-sm bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <input type="text" name="search" id="search_input" placeholder="{{ __('Tìm nhanh độc giả bằng từ khóa (Mã số, Họ tên, Email, Số điện thoại)...') }}" class="w-full h-9 pl-3 pr-10 text-xs border border-input rounded-sm bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                             <button type="submit" class="absolute right-1 top-1 h-7 w-7 flex items-center justify-center rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                                 <i data-lucide="search" class="w-4 h-4"></i>
                             </button>
@@ -191,13 +190,13 @@
                             <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted active-tab" data-tab="tab-info">Thông tin</button>
                             <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-dist">Trạng thái & Nhóm</button>
                             <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-limit">Giới hạn</button>
-                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-location">Vị trí / Đơn vị</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-location">Chi nhánh / Đơn vị</button>
                         </div>
 
                         <!-- Tab Content Sections -->
                         <div class="tab-contents min-h-[240px]">
                             
-                            <!-- Tab 1: Thông tin (Logic builder) -->
+                            <!-- Tab 1: Thông tin (Logic Builder) -->
                             <div id="tab-info" class="tab-content space-y-1.5">
                                 @for($i = 0; $i < 4; $i++)
                                 <div class="flex items-center gap-2">
@@ -212,10 +211,13 @@
                                     </select>
                                     @endif
                                     <select name="info_fields[]" class="h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground w-28 md:w-36 shrink-0">
-                                        <option value="patron_code" {{ $i==0 ? 'selected' : '' }}>{{ __('Mã bạn đọc') }}</option>
-                                        <option value="name" {{ $i==1 ? 'selected' : '' }}>{{ __('Họ tên bạn đọc') }}</option>
-                                        <option value="barcode">{{ __('Mã vạch tài liệu') }}</option>
-                                        <option value="title">{{ __('Nhan đề sách') }}</option>
+                                        <option value="patron_code" {{ $i==0 ? 'selected' : '' }}>{{ __('Mã bạn đọc / Số thẻ') }}</option>
+                                        <option value="name" {{ $i==1 ? 'selected' : '' }}>{{ __('Họ tên') }}</option>
+                                        <option value="email">{{ __('Email') }}</option>
+                                        <option value="phone">{{ __('Số điện thoại') }}</option>
+                                        <option value="mssv">{{ __('Mã số sinh viên (MSSV)') }}</option>
+                                        <option value="id_card">{{ __('Số CMND/CCCD') }}</option>
+                                        <option value="department">{{ __('Lớp / Đơn vị') }}</option>
                                         <option value="any">{{ __('Bất kỳ') }}</option>
                                     </select>
                                     <input type="text" name="info_vals[]" placeholder="{{ __('Nhập từ khóa tìm kiếm...') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
@@ -225,9 +227,24 @@
 
                             <!-- Tab 2: Trạng thái & Nhóm -->
                             <div id="tab-dist" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- Trạng thái hoạt động -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Trạng thái tài khoản</span>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="statuses[]" value="normal" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">Đang hoạt động (Normal)</span>
+                                        </label>
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="statuses[]" value="locked" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">Bị khóa (Locked)</span>
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <!-- Nhóm độc giả (Scrolling list) -->
-                                <div class="space-y-1 col-span-2">
-                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Nhóm độc giả áp dụng</span>
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Nhóm bạn đọc</span>
                                     <div class="max-h-56 overflow-y-auto custom-scrollbar space-y-1 pr-1">
                                         @foreach($patronGroups as $g)
                                         <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
@@ -241,14 +258,22 @@
 
                             <!-- Tab 3: Giới hạn & Ngày tháng -->
                             <div id="tab-limit" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-3">
-                                <!-- Khoảng ngày mượn/giao dịch -->
+                                <!-- Khoảng ngày đăng ký & Ngày hết hạn -->
                                 <div class="space-y-2">
                                     <div class="space-y-1">
-                                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày mượn / giao dịch</label>
+                                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày đăng ký</label>
                                         <div class="flex items-center gap-1">
                                             <input type="date" name="date_from" id="date_from" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                             <span class="text-[10px] text-muted-foreground">đến</span>
                                             <input type="date" name="date_to" id="date_to" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày hết hạn thẻ</label>
+                                        <div class="flex items-center gap-1">
+                                            <input type="date" name="expiry_from" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <span class="text-[10px] text-muted-foreground">đến</span>
+                                            <input type="date" name="expiry_to" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                         </div>
                                     </div>
                                 </div>
@@ -257,17 +282,17 @@
                                 <div class="space-y-2">
                                     <div class="space-y-1">
                                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Giới hạn số kết quả</label>
-                                        <input type="number" name="result_limit" placeholder="Số lượng dòng..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                        <input type="number" name="result_limit" placeholder="Số lượng bản ghi..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tab 4: Vị trí / Đơn vị -->
+                            <!-- Tab 4: Chi nhánh / Đơn vị -->
                             <div id="tab-location" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div class="space-y-1 col-span-2">
-                                    <label for="branch_id" class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Kho / Chi nhánh mượn</label>
+                                    <label for="branch_id" class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Đơn vị / Chi nhánh</label>
                                     <select name="branch_id" id="branch_id" class="select2-smart w-full">
-                                        <option value="">-- Tất cả Kho/Chi nhánh --</option>
+                                        <option value="">-- Tất cả Đơn vị/Chi nhánh --</option>
                                         @foreach($branches as $b)
                                         <option value="{{ $b->id }}">{{ $b->name }}</option>
                                         @endforeach

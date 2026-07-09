@@ -412,6 +412,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     // System Logs
     Route::get('/patrons/system-logs', [\App\Http\Controllers\Admin\PatronController::class, 'systemLogs'])->name('admin.patrons.system-logs');
 
+    // Patron Reports
+    Route::get('/patron-reports', [\App\Http\Controllers\Admin\PatronReportController::class, 'index'])->name('admin.patrons.reports.index');
+    Route::post('/patron-reports/generate', [\App\Http\Controllers\Admin\PatronReportController::class, 'generate'])->name('admin.patrons.reports.generate');
+
     // Book Proposals
     Route::get('/book-proposals', [\App\Http\Controllers\Admin\BookProposalController::class, 'index'])->name('admin.book-proposals.index');
     Route::patch('/book-proposals/{id}/status', [\App\Http\Controllers\Admin\BookProposalController::class, 'updateStatus'])->name('admin.book-proposals.update-status');
@@ -575,6 +579,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('digital-resources', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'store'])->name('admin.digital-resources.store');
     Route::get('digital-resources/{resource}', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'show'])->name('admin.digital-resources.show');
     Route::get('digital-resources/{resource}/download', [\App\Http\Controllers\Admin\DigitalResourceController::class, 'download'])->name('admin.digital-resources.download');
+
+    // Digital Reports
+    Route::get('/digital-reports', [\App\Http\Controllers\Admin\DigitalReportController::class, 'index'])->name('admin.digital.reports.index');
+    Route::post('/digital-reports/generate', [\App\Http\Controllers\Admin\DigitalReportController::class, 'generate'])->name('admin.digital.reports.generate');
 });
 
 // Visitor Routes

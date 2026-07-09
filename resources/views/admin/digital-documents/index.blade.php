@@ -53,7 +53,7 @@
 
     <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div class="p-4 flex gap-2 flex-wrap border-b border-slate-200 dark:border-slate-800">
-            <button type="button" class="btn-secondary" :disabled="!singleSelection" @click="if(singleSelection){ window.location = '{{ route('admin.digital-documents.edit', ['digitalDocument' => '__ID__']) }}'.replace('__ID__', selectedIds[0]); }">
+            <button type="button" class="btn-secondary" :disabled="!singleSelection" @click="if(singleSelection){ window.location = '{{ route('admin.digital-documents.edit', ['digital_document' => '__ID__']) }}'.replace('__ID__', selectedIds[0]); }">
                 <i class="fas fa-edit mr-2"></i>{{ __('Sửa') }}
             </button>
             <button type="button" class="btn-danger" :disabled="!hasSelection" @click="if(hasSelection){
