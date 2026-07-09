@@ -24,7 +24,8 @@
     <div id="db-logs-container" class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
         <!-- Filter Bar -->
         <div class="p-3 bg-muted/30 border-b border-border">
-            <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-2 items-end">
+            <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-7 gap-2 items-end">
+                <input type="hidden" name="tab" value="db-logs">
                 <div class="space-y-1">
                     <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('User Identity') }}</label>
                     <input type="text" name="username" value="{{ request('username') }}" placeholder="{{ __('Search username...') }}" 
@@ -67,13 +68,27 @@
                         class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                 </div>
 
+                <div class="space-y-1">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Sắp xếp</label>
+                    <div class="relative">
+                        <select name="sort_order" onchange="this.form.submit()" 
+                            class="w-full h-9 px-3 py-1.5 text-sm border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all appearance-none cursor-pointer">
+                            <option value="desc" {{ request('sort_order', 'desc') == 'desc' ? 'selected' : '' }}>Mới nhất trước</option>
+                            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Cũ nhất trước</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none text-muted-foreground">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex gap-2">
                     <button type="submit" class="btn-compact-primary flex-1 h-9">
                         <i data-lucide="filter" class="w-4 h-4 mr-1"></i>
                         {{ __('Filter') }}
                     </button>
-                    @if(request()->anyFilled(['username', 'action', 'method', 'date_from', 'date_to']))
-                        <a href="{{ route('admin.activity-logs.index') }}" class="btn-compact-secondary w-9 h-9 flex items-center justify-center p-0" title="{{ __('Clear') }}">
+                    @if(request()->anyFilled(['username', 'action', 'method', 'date_from', 'date_to', 'sort_order']))
+                        <a href="{{ route('admin.activity-logs.index', ['tab' => 'db-logs']) }}" class="btn-compact-secondary w-9 h-9 flex items-center justify-center p-0" title="{{ __('Clear') }}">
                             <i data-lucide="x" class="w-4 h-4"></i>
                         </a>
                     @endif
@@ -168,34 +183,68 @@
     <!-- Tab 2: Laravel Logs File Container -->
     <div id="file-logs-container" class="hidden bg-card rounded-md shadow-sm border border-border overflow-hidden">
         <!-- Actions & Cleaning Form -->
-        <div class="p-3 bg-muted/30 border-b border-border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div>
-                <h3 class="text-xs font-bold text-foreground uppercase tracking-wider">{{ __('Luồng thông tin ghi nhận từ file (laravel.log)') }}</h3>
-                <p class="text-[10px] text-muted-foreground mt-0.5">{{ __('Hiển thị tối đa 200 bản ghi lỗi và hoạt động gần nhất lưu trữ trên ổ cứng.') }}</p>
+        <div class="p-3 bg-muted/30 border-b border-border space-y-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div>
+                    <h3 class="text-xs font-bold text-foreground uppercase tracking-wider">{{ __('Luồng thông tin ghi nhận từ file (laravel.log)') }}</h3>
+                    <p class="text-[10px] text-muted-foreground mt-0.5">{{ __('Hiển thị tối đa 200 bản ghi lỗi và hoạt động gần nhất lưu trữ trên ổ cứng.') }}</p>
+                </div>
             </div>
             
-            <form action="{{ route('admin.activity-logs.clear-laravel-logs') }}?tab=file-logs" method="POST" class="flex flex-wrap items-center gap-1.5 w-full sm:w-auto shrink-0 justify-end">
-                @csrf
-                <!-- Button Xóa INFO -->
-                <button type="submit" name="clear_type" value="info" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs INFO?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-all flex items-center gap-1">
-                    <i data-lucide="info" class="w-3.5 h-3.5"></i> Xoá INFO
-                </button>
-                
-                <!-- Button Xóa WARNING -->
-                <button type="submit" name="clear_type" value="warning" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs WARNING?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all flex items-center gap-1">
-                    <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Xoá WARNING
-                </button>
-                
-                <!-- Button Xóa ERROR -->
-                <button type="submit" name="clear_type" value="error" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs ERROR?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all flex items-center gap-1">
-                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Xoá ERROR
-                </button>
+            <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 pt-2 border-t border-border/50">
+                <!-- GET Filter / Sort Form -->
+                <form action="{{ route('admin.activity-logs.index') }}" method="GET" class="flex flex-wrap items-center gap-3">
+                    <input type="hidden" name="tab" value="file-logs">
+                    
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Mức độ</span>
+                        <div class="relative">
+                            <select name="level" onchange="this.form.submit()" class="h-9 pl-3 pr-8 text-xs border border-input rounded-sm bg-background text-foreground cursor-pointer focus:outline-none appearance-none w-28">
+                                <option value="">Tất cả</option>
+                                <option value="info" {{ request('level') == 'info' ? 'selected' : '' }}>INFO</option>
+                                <option value="warning" {{ request('level') == 'warning' ? 'selected' : '' }}>WARNING</option>
+                                <option value="error" {{ request('level') == 'error' ? 'selected' : '' }}>ERROR</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-muted-foreground">
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1.5">
+                        <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Sắp xếp</span>
+                        <div class="relative">
+                            <select name="sort_order" onchange="this.form.submit()" class="h-9 pl-3 pr-8 text-xs border border-input rounded-sm bg-background text-foreground cursor-pointer focus:outline-none appearance-none w-36">
+                                <option value="desc" {{ request('sort_order', 'desc') == 'desc' ? 'selected' : '' }}>Mới nhất trước</option>
+                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Cũ nhất trước</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none text-muted-foreground">
+                                <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+                            </div>
+                        </div>
+                    </div>
+                </form>
 
-                <!-- Button Xóa toàn bộ -->
-                <button type="submit" name="clear_type" value="all" onclick="return confirm('Xác nhận xóa TOÀN BỘ logs? Hành động này không thể hoàn tác.')" class="h-8 px-3 text-[10px] font-bold uppercase rounded-sm bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-1.5 shadow-sm">
-                    <i data-lucide="trash-2" class="w-3.5 h-3.5 text-white"></i> Xoá Toàn Bộ
-                </button>
-            </form>
+                <!-- POST Clear Actions Form -->
+                <form action="{{ route('admin.activity-logs.clear-laravel-logs') }}?tab=file-logs" method="POST" class="flex flex-wrap items-center gap-1.5 justify-end">
+                    @csrf
+                    <button type="submit" name="clear_type" value="info" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs INFO?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 transition-all flex items-center gap-1">
+                        <i data-lucide="info" class="w-3.5 h-3.5"></i> Xoá INFO
+                    </button>
+                    
+                    <button type="submit" name="clear_type" value="warning" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs WARNING?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/20 transition-all flex items-center gap-1">
+                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Xoá WARNING
+                    </button>
+                    
+                    <button type="submit" name="clear_type" value="error" onclick="return confirm('Bạn có chắc chắn muốn xóa tất cả logs ERROR?')" class="h-8 px-2.5 text-[10px] font-bold uppercase rounded-sm bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 transition-all flex items-center gap-1">
+                        <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i> Xoá ERROR
+                    </button>
+
+                    <button type="submit" name="clear_type" value="all" onclick="return confirm('Xác nhận xóa TOÀN BỘ logs? Hành động này không thể hoàn tác.')" class="h-8 px-3 text-[10px] font-bold uppercase rounded-sm bg-red-600 text-white hover:bg-red-700 transition-all flex items-center gap-1.5 shadow-sm">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5 text-white"></i> Xoá Toàn Bộ
+                    </button>
+                </form>
+            </div>
         </div>
 
         <!-- Table View -->

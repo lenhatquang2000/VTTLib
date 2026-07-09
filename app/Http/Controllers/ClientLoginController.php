@@ -11,9 +11,10 @@ use Illuminate\Validation\ValidationException;
 
 class ClientLoginController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
-        return view('auth.login');
+        $isSsoError = $request->query('sso_error') == 1 || session()->has('error_message_sso');
+        return view('auth.login', compact('isSsoError'));
     }
 
     public function store(Request $request)
@@ -43,7 +44,7 @@ class ClientLoginController extends Controller
 
         if (!$username) {
             \Illuminate\Support\Facades\Log::warning("SSO: Đăng nhập thất bại do thiếu tham số username.");
-            return redirect('/login')->with('error_message_sso', 'Thiếu thông tin tài khoản username.');
+            return redirect()->route('login', ['sso_error' => 1])->with('error_message_sso', 'Thiếu thông tin tài khoản username.');
         }
 
         \Illuminate\Support\Facades\Log::info("SSO: Khởi động quá trình xác thực cho username = {$username}");
@@ -53,14 +54,18 @@ class ClientLoginController extends Controller
 
         if (!$user) {
             \Illuminate\Support\Facades\Log::info("SSO: Tài khoản {$username} chưa tồn tại trên VTTLib. Khởi chạy gọi API xác thực đến Study.");
-            
+
             // 2. Gọi API lấy thông tin người dùng từ Study
             $apiUrl = 'https://study.vttu.edu.vn/api/user-info';
+            $queryParams = [
+                'user_code' => $username,
+                'key' => '13467902',
+            ];
+            $fullApiUrl = $apiUrl . '?' . http_build_query($queryParams);
+            \Illuminate\Support\Facades\Log::info("SSO: Gọi API xác thực tại URL: {$fullApiUrl}");
+
             try {
-                $response = Http::withoutVerifying()->get($apiUrl, [
-                    'user_code' => $username,
-                    'key' => '13467902',
-                ]);
+                $response = Http::withoutVerifying()->get($apiUrl, $queryParams);
 
                 \Illuminate\Support\Facades\Log::info("SSO: Kết quả API của {$username} - Mã trạng thái HTTP: " . $response->status());
 
@@ -77,7 +82,7 @@ class ClientLoginController extends Controller
 
                 if ($isUnauthorized) {
                     \Illuminate\Support\Facades\Log::warning("SSO: Xác thực thất bại cho {$username} do tài khoản không được cấp phép tại Study API.");
-                    
+
                     // Lưu log vào database
                     \App\Models\ActivityLog::create([
                         'action' => 'SSO_LOGIN_UNAUTHORIZED',
@@ -87,7 +92,7 @@ class ClientLoginController extends Controller
                         'ip_address' => request()->ip()
                     ]);
 
-                    return redirect('/login')->with('error_message_sso', 'Bạn không có thông tin trên hệ thống vui lòng liên hệ TTCNPM Trường Đại học Võ Trường Toản - SDT: 02933504398. Cảm ơn.');
+                    return redirect()->route('login', ['sso_error' => 1])->with('error_message_sso', 'Bạn không có thông tin trên hệ thống vui lòng liên hệ TTCNPM Trường Đại học Võ Trường Toản - SDT: 02933504398. Cảm ơn.');
                 }
 
                 if ($response->successful()) {
@@ -106,13 +111,13 @@ class ClientLoginController extends Controller
 
                     if (!$dbRoleName) {
                         \Illuminate\Support\Facades\Log::warning("SSO: Hủy đăng nhập cho {$username}. Vai trò API role_id={$apiRoleId} không hợp lệ.");
-                        return redirect('/login')->with('error_message_sso', 'Vai trò của bạn không được cấp phép truy cập hệ thống.');
+                        return redirect()->route('login', ['sso_error' => 1])->with('error_message_sso', 'Vai trò của bạn không được cấp phép truy cập hệ thống.');
                     }
 
                     $role = \App\Models\Role::where('name', $dbRoleName)->first();
                     if (!$role) {
                         \Illuminate\Support\Facades\Log::error("SSO: Vai trò '{$dbRoleName}' chưa được định nghĩa trong hệ thống.");
-                        return redirect('/login')->with('error_message_sso', 'Hệ thống chưa cấu hình vai trò bảo mật tương ứng.');
+                        return redirect()->route('login', ['sso_error' => 1])->with('error_message_sso', 'Hệ thống chưa cấu hình vai trò bảo mật tương ứng.');
                     }
 
                     // Tạo User mới trong hệ thống thư viện
@@ -169,14 +174,28 @@ class ClientLoginController extends Controller
                         'details' => ['username' => $username, 'role' => $dbRoleName, 'status' => 'created'],
                         'ip_address' => request()->ip()
                     ]);
-
                 } else {
-                    \Illuminate\Support\Facades\Log::error("SSO: API trả về lỗi không mong muốn cho {$username}");
-                    return redirect('/login')->with('error_message_sso', 'Lỗi kết nối đến hệ thống xác thực. Vui lòng thử lại sau.');
+                    $responseBody = $response->body();
+                    \Illuminate\Support\Facades\Log::error("SSO: API ({$fullApiUrl}) trả về lỗi không mong muốn cho {$username}. Chi tiết phản hồi (HTTP {$response->status()}): {$responseBody}");
+
+                    // Lưu log lỗi vào DB
+                    \App\Models\ActivityLog::create([
+                        'action' => 'SSO_LOGIN_API_ERROR',
+                        'method' => 'GET',
+                        'url' => $fullApiUrl,
+                        'details' => [
+                            'username' => $username,
+                            'status' => $response->status(),
+                            'response' => $responseBody
+                        ],
+                        'ip_address' => request()->ip()
+                    ]);
+
+                    return redirect()->route('login', ['sso_error' => 1])->with('error_message_sso', 'Lỗi kết nối đến hệ thống xác thực. Vui lòng thử lại sau.');
                 }
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::error("SSO: Lỗi hệ thống trong verifyLoginByUsernameAndToken cho {$username}: " . $e->getMessage());
-                
+
                 // Lưu log lỗi hệ thống vào DB
                 \App\Models\ActivityLog::create([
                     'action' => 'SSO_LOGIN_ERROR',
@@ -186,11 +205,11 @@ class ClientLoginController extends Controller
                     'ip_address' => request()->ip()
                 ]);
 
-                return redirect('/login')->with('error_message_sso', 'Không thể kết nối đến hệ thống xác thực: ' . $e->getMessage());
+                return redirect()->route('login', ['sso_error' => 1])->with('error_message_sso', 'Không thể kết nối đến hệ thống xác thực: ' . $e->getMessage());
             }
         } else {
             \Illuminate\Support\Facades\Log::info("SSO: Đăng nhập thành công cho người dùng đã tồn tại: {$username}");
-            
+
             // Lưu log đăng nhập thành công cho user đã có sẵn
             \App\Models\ActivityLog::create([
                 'user_id' => $user->id,
@@ -212,5 +231,39 @@ class ClientLoginController extends Controller
         }
 
         return redirect('/');
+    }
+
+    /**
+     * Bridge endpoint to proxy and test Study user-info API
+     */
+    public function getStudyUserInfo(Request $request)
+    {
+        $userCode = $request->query('user_code') ?: $request->query('username');
+        if (!$userCode) {
+            return response()->json(['error' => 'Missing user_code or username parameter'], 400);
+        }
+
+        $apiUrl = 'https://study.vttu.edu.vn/api/user-info';
+        try {
+            $response = Http::withoutVerifying()
+                ->withHeaders([
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                ])
+                ->get($apiUrl, [
+                    'user_code' => $userCode,
+                    'key' => '13467902',
+                ]);
+
+            return response()->json([
+                'status' => $response->status(),
+                'raw_body' => $response->body(),
+                'json' => $response->json(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to connect to Study API',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }

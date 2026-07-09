@@ -25,11 +25,14 @@ Route::get('lang/{locale}', [LanguageController::class, 'switch'])->name('lang.s
 Route::get('/login', [ClientLoginController::class, 'create'])->name('login');
 Route::post('/login', [ClientLoginController::class, 'store'])->name('client.login.store');
 Route::get('/verify', [ClientLoginController::class, 'verifyLoginByUsernameAndToken'])->name('client.verify');
+Route::get('/api/get-user-info', [ClientLoginController::class, 'getStudyUserInfo']);
 
 Route::get('/topsecret/login', [SecretLoginController::class, 'create'])->name('agent.login');
 Route::post('/topsecret/store', [SecretLoginController::class, 'store'])->name('agent.login.store');
 
 Route::post('/logout', [SecretLoginController::class, 'destroy'])->name('logout');
+
+
 
 // Emergency Cache Clear
 Route::get('/emergency-clear-cache', function() {

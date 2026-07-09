@@ -6,444 +6,238 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('Login') }} - VTTLib</title>
     
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        border: 'hsl(var(--border))',
+                        input: 'hsl(var(--input))',
+                        ring: 'hsl(var(--ring))',
+                        background: 'hsl(var(--background))',
+                        foreground: 'hsl(var(--foreground))',
+                        primary: {
+                            DEFAULT: 'hsl(var(--primary))',
+                            foreground: 'hsl(var(--primary-foreground))',
+                        },
+                        secondary: {
+                            DEFAULT: 'hsl(var(--secondary))',
+                            foreground: 'hsl(var(--secondary-foreground))',
+                        },
+                        destructive: {
+                            DEFAULT: 'hsl(var(--destructive))',
+                            foreground: 'hsl(var(--destructive-foreground))',
+                        },
+                        muted: {
+                            DEFAULT: 'hsl(var(--muted))',
+                            foreground: 'hsl(var(--muted-foreground))',
+                        },
+                        accent: {
+                            DEFAULT: 'hsl(var(--accent))',
+                            foreground: 'hsl(var(--accent-foreground))',
+                        },
+                        card: {
+                            DEFAULT: 'hsl(var(--card))',
+                            foreground: 'hsl(var(--card-foreground))',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .login-container {
-            width: 100%;
-            max-width: 1200px;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
-        }
-        
-        .login-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-            width: 100%;
-            max-width: 480px;
-            padding: 3rem;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .login-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.2);
-        }
-        
-        .login-header {
-            text-align: center;
-            margin-bottom: 2.5rem;
-        }
-        
-        .logo {
-            font-family: 'Outfit', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
-        }
-        
-        .login-title {
-            font-family: 'Outfit', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #4b5563;
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .input-wrapper {
-            position: relative;
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #4b5563;
-            pointer-events: none;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 1rem 1rem 1rem 3rem;
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            font-size: 1rem;
-            color: #1f2937;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        
-        .form-input:focus {
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        .form-input::placeholder {
-            color: #6b7280;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            padding: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
-        }
-        
-        .submit-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .submit-btn:hover::before {
-            left: 100%;
-        }
-        
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            color: #4b5563;
-            text-decoration: none;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin-top: 1.5rem;
-        }
-        
-        .back-link:hover {
-            color: #667eea;
-        }
-        
-        .back-link svg {
-            width: 1.25rem;
-            height: 1.25rem;
-            margin-right: 0.5rem;
-        }
-        
-        .security-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            color: #4b5563;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .language-switcher {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .lang-btn {
-            padding: 0.375rem 0.75rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            color: #4b5563;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .lang-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-        }
-        
-        .lang-btn.active {
-            background: #667eea;
-            color: #ffffff;
-            border-color: #667eea;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .login-container {
-                padding: 1rem;
-            }
-            
-            .login-card {
-                padding: 2rem;
-                border-radius: 16px;
-            }
-            
-            .logo {
-                font-size: 2rem;
-            }
-            
-            .login-title {
-                font-size: 1.25rem;
-            }
-        }
-        
-        /* Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .login-card {
-            animation: fadeInUp 0.6s ease-out;
-        }
-        
-        /* Error states */
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            padding: 0.75rem;
-            border-radius: 8px;
-            font-size: 0.875rem;
-            margin-bottom: 1rem;
+        :root {
+            --background: 210 40% 96.1%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --primary: 221.2 83.2% 53.3%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 47.4% 11.2%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 47.4% 11.2%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 221.2 83.2% 53.3%;
         }
 
-        .or-divider {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 1.5rem 0;
-            color: #9ca3af;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .or-divider::before, .or-divider::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: #e5e7eb;
-            margin: 0 1rem;
-        }
-
-        .sso-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 0.875rem;
-            background: #ffffff;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #4b5563;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            text-decoration: none;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        .dark {
+            --background: 222.2 84% 4.9%;
+            --foreground: 210 40% 98%;
+            --card: 222.2 84% 6.9%;
+            --card-foreground: 210 40% 98%;
+            --primary: 217.2 91.2% 59.8%;
+            --primary-foreground: 222.2 47.4% 11.2%;
+            --secondary: 217.2 32.6% 17.5%;
+            --secondary-foreground: 210 40% 98%;
+            --muted: 217.2 32.6% 17.5%;
+            --muted-foreground: 215 20.2% 65.1%;
+            --accent: 217.2 32.6% 17.5%;
+            --accent-foreground: 210 40% 98%;
+            --destructive: 0 62.8% 30.6%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 217.2 32.6% 25%;
+            --input: 217.2 32.6% 17.5%;
+            --ring: 224.3 76.3% 48%;
         }
         
-        .sso-btn:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
-            color: #1f2937;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 
-<body class="h-full">
-    <div class="login-container">
-        <div class="login-card">
+<body class="h-full bg-background text-foreground flex items-center justify-center p-4">
+    <!-- Card Container -->
+    <div class="w-full max-w-sm bg-card border border-border rounded-md shadow-sm p-4 space-y-4 relative">
+        
+        <!-- Top Controls (Language & Security Badge) -->
+        <div class="flex items-center justify-between text-xs text-muted-foreground">
             <!-- Language Switcher -->
-            <div class="language-switcher" x-data="{ open: false }">
-                <button @click="open = !open" class="lang-btn" :class="{ 'active': app()->getLocale() == 'vi' }">
+            <div class="relative" x-data="{ open: false }">
+                <button type="button" @click="open = !open" class="flex items-center gap-1 hover:text-foreground font-semibold">
+                    <i data-lucide="languages" class="w-4 h-4 text-muted-foreground"></i>
                     {{ app()->getLocale() == 'vi' ? 'VI' : 'EN' }}
                 </button>
-                <div x-show="open" x-cloak
-                     x-transition:enter="transition ease-out duration-300"
-                     x-transition:enter-start="opacity-0 transform scale-95"
-                     x-transition:enter-end="opacity-100 transform scale-100"
-                     x-transition:leave="transition ease-in duration-200"
-                     x-transition:leave-start="opacity-100 transform scale-100"
-                     x-transition:leave-end="opacity-0 transform scale-95"
-                     class="absolute top-full left-0 mt-2 z-50">
-                    <a href="{{ route('lang.switch', 'vi') }}" class="lang-btn {{ app()->getLocale() == 'vi' ? 'active' : '' }}">VI</a>
-                    <a href="{{ route('lang.switch', 'en') }}" class="lang-btn {{ app()->getLocale() == 'en' ? 'active' : '' }}">EN</a>
+                <div x-show="open" @click.away="open = false" x-cloak
+                     class="absolute left-0 mt-1 z-50 bg-card border border-border rounded-sm shadow-md py-1 min-w-[70px]">
+                    <a href="{{ route('lang.switch', 'vi') }}" class="block px-2.5 py-1 hover:bg-muted text-foreground {{ app()->getLocale() == 'vi' ? 'font-bold bg-muted' : '' }}">VI</a>
+                    <a href="{{ route('lang.switch', 'en') }}" class="block px-2.5 py-1 hover:bg-muted text-foreground {{ app()->getLocale() == 'en' ? 'font-bold bg-muted' : '' }}">EN</a>
                 </div>
             </div>
-            
+
             <!-- Security Badge -->
-            <div class="security-badge">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 0l-4 4m0 0l-4 4m-6-6h.01M9 12a3 3 0 11-8.022 3 3 0 00-6 6 0 00-6 6z"></path>
-                </svg>
-                {{ __('Secured by VTTLib') }}
+            <div class="flex items-center gap-1 text-[10px] font-medium tracking-wider uppercase bg-muted/50 px-2 py-0.5 rounded-sm border border-border/40">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-primary"></i>
+                {{ __('VTTLib Secure') }}
             </div>
-            
-            <!-- Login Header -->
-            <div class="login-header">
-                <div class="logo">VTTLib</div>
-                <h1 class="login-title">{{ __('Welcome Back') }}</h1>
+        </div>
+        
+        <!-- Header -->
+        <div class="text-center space-y-1 py-2">
+            <h1 class="text-xl font-bold tracking-tight text-foreground">VTTLib</h1>
+            <p class="text-xs text-muted-foreground">{{ __('Cổng thông tin tài liệu học tập số') }}</p>
+        </div>
+        
+        <!-- Body Content -->
+        @if($isSsoError)
+            <!-- SSO Error State View -->
+            <div class="space-y-4 py-2 animate-in fade-in duration-300">
+                <div class="flex justify-center">
+                    <span class="w-10 h-10 rounded-full bg-destructive/10 text-destructive flex items-center justify-center border border-destructive/20">
+                        <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    </span>
+                </div>
+                
+                <div class="p-3 border border-destructive/20 bg-destructive/10 text-destructive text-xs font-semibold leading-relaxed rounded-sm text-center">
+                    {{ session('error_message_sso') ?: 'Bạn không có thông tin trên hệ thống vui lòng liên hệ TTCNPM Trường Đại học Võ Trường Toản - SDT: 02933504398. Cảm ơn.' }}
+                </div>
+                
+                <div>
+                    <a href="{{ route('login') }}" class="w-full h-9 flex items-center justify-center text-xs font-bold uppercase rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all">
+                        <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> {{ __('Quay lại Đăng nhập') }}
+                    </a>
+                </div>
             </div>
-            
-            <!-- Login Form -->
-            <form action="{{ route('client.login.store') }}" method="POST" class="space-y-6">
+        @else
+            <!-- Standard Login View -->
+            <form action="{{ route('client.login.store') }}" method="POST" class="space-y-3">
                 @csrf
                 
-                <!-- Error Messages -->
-                @if($errors->any() || session('error_message_sso'))
-                    <div class="error-message">
-                        @if(session('error_message_sso'))
-                            <div class="font-bold text-center leading-relaxed text-rose-600 dark:text-rose-400">{{ session('error_message_sso') }}</div>
-                        @endif
+                <!-- Normal Validation Errors -->
+                @if($errors->any())
+                    <div class="p-3 border border-destructive/20 bg-destructive/10 text-destructive text-xs font-semibold rounded-sm space-y-1">
                         @foreach($errors->all() as $error)
                             <div>{{ $error }}</div>
                         @endforeach
                     </div>
                 @endif
                 
-                <!-- Username Field -->
-                <div class="form-group">
-                    <label for="username" class="form-label">{{ __('Username') }}</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7 7z"></path>
-                        </svg>
+                <!-- Username -->
+                <div class="space-y-1">
+                    <label for="username" class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Tên đăng nhập') }}</label>
+                    <div class="relative">
                         <input 
                             id="username" 
                             name="username" 
                             type="text" 
                             value="{{ old('username') }}" 
                             required
-                            class="form-input"
-                            placeholder="{{ __('Enter your username') }}"
+                            class="w-full h-9 pl-8 pr-3 text-xs border border-input rounded-sm bg-background text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                            placeholder="{{ __('Nhập mã số / tên đăng nhập') }}"
                             autocomplete="username"
                         >
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-muted-foreground">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Password Field -->
-                <div class="form-group">
-                    <label for="password" class="form-label">{{ __('Password') }}</label>
-                    <div class="input-wrapper">
-                        <svg class="input-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2 2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                        </svg>
+                <!-- Password -->
+                <div class="space-y-1">
+                    <label for="password" class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Mật khẩu') }}</label>
+                    <div class="relative">
                         <input 
                             id="password" 
                             name="password" 
                             type="password" 
                             required
-                            class="form-input"
-                            placeholder="{{ __('Enter your password') }}"
+                            class="w-full h-9 pl-8 pr-3 text-xs border border-input rounded-sm bg-background text-foreground placeholder-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                            placeholder="{{ __('Nhập mật khẩu') }}"
                             autocomplete="current-password"
                         >
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-muted-foreground">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Submit Button -->
-                <button type="submit" class="submit-btn">
-                    {{ __('Sign In') }}
+                <!-- Submit -->
+                <button type="submit" class="w-full h-9 flex items-center justify-center text-xs font-bold uppercase rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm transition-all">
+                    {{ __('Đăng nhập') }}
                 </button>
             </form>
-            
-            <!-- Back to Home -->
-            <div style="text-align: center; margin-top: 2rem;">
-                <a href="{{ url('/') }}" class="back-link">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7 7m-8-8l-4 4m0 0l4 4"></path>
-                    </svg>
-                    {{ __('Back to Home') }}
-                </a>
+
+            <div class="relative flex py-1 items-center">
+                <div class="flex-grow border-t border-border"></div>
+                <span class="flex-shrink mx-3 text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{{ __('Hoặc') }}</span>
+                <div class="flex-grow border-t border-border"></div>
             </div>
+
+            <!-- SSO Button -->
+            <a href="https://info.vttu.edu.vn" class="w-full h-9 flex items-center justify-center text-xs font-bold uppercase rounded-sm bg-card border border-border text-foreground hover:bg-muted transition-all shadow-sm">
+                <i data-lucide="key" class="w-4 h-4 mr-1.5 text-muted-foreground"></i> {{ __('Cổng VTTU (SSO)') }}
+            </a>
+        @endif
+        
+        <!-- Back to Home -->
+        <div class="text-center pt-2">
+            <a href="{{ url('/') }}" class="inline-flex items-center text-xs text-muted-foreground hover:text-foreground transition-all gap-1.5">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                {{ __('Trang chủ') }}
+            </a>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    </script>
 </body>
 </html>

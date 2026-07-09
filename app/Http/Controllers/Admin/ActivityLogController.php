@@ -11,9 +11,21 @@ class ActivityLogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = ActivityLog::with('user')->latest();
+        $sortOrder = $request->input('sort_order', 'desc');
+        if (!in_array($sortOrder, ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
 
-        // Filters
+        $query = ActivityLog::with('user');
+
+        // Apply sort order to DB logs
+        if ($sortOrder === 'asc') {
+            $query->oldest();
+        } else {
+            $query->latest();
+        }
+
+        // Filters for DB logs
         if ($request->filled('username')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('username', 'like', '%' . $request->username . '%')
@@ -39,8 +51,8 @@ class ActivityLogController extends Controller
 
         $logs = $query->paginate(20)->withQueryString();
         
-        // Fetch Laravel log entries
-        $laravelLogs = $this->parseLaravelLogs();
+        // Fetch Laravel log entries with filter & sorting parameters
+        $laravelLogs = $this->parseLaravelLogs($request->input('level'), $sortOrder);
 
         return view('admin.activity_logs.index', compact('logs', 'laravelLogs'));
     }
@@ -100,9 +112,9 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Parse laravel.log file safely.
+     * Parse laravel.log file safely with filtering and sorting support.
      */
-    private function parseLaravelLogs()
+    private function parseLaravelLogs($filterLevel = null, $sortOrder = 'desc')
     {
         $logPath = storage_path('logs/laravel.log');
         if (!file_exists($logPath)) {
@@ -120,7 +132,10 @@ class ActivityLogController extends Controller
 
             if (preg_match('/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]\s+([a-zA-Z0-9]+)\.([A-Z]+):\s+(.*)$/', $line, $parts)) {
                 if ($currentEntry) {
-                    $entries[] = $currentEntry;
+                    // Apply level filter
+                    if (!$filterLevel || strtolower($currentEntry['level']) === strtolower($filterLevel)) {
+                        $entries[] = $currentEntry;
+                    }
                 }
                 $currentEntry = [
                     'timestamp' => $parts[1],
@@ -133,22 +148,32 @@ class ActivityLogController extends Controller
                 if ($currentEntry) {
                     $currentEntry['stack_trace'] .= $line;
                 } else {
-                    $entries[] = [
+                    $orphanEntry = [
                         'timestamp' => now()->format('Y-m-d H:i:s'),
                         'env' => 'local',
                         'level' => 'RAW',
                         'message' => $line,
                         'stack_trace' => ''
                     ];
+                    if (!$filterLevel || strtolower($orphanEntry['level']) === strtolower($filterLevel)) {
+                        $entries[] = $orphanEntry;
+                    }
                 }
             }
         }
 
         if ($currentEntry) {
-            $entries[] = $currentEntry;
+            if (!$filterLevel || strtolower($currentEntry['level']) === strtolower($filterLevel)) {
+                $entries[] = $currentEntry;
+            }
         }
 
-        // Return the latest 200 entries
-        return array_slice(array_reverse($entries), 0, 200);
+        // Apply sorting
+        if ($sortOrder === 'desc') {
+            $entries = array_reverse($entries);
+        }
+
+        // Return the latest 200 entries after filtering
+        return array_slice($entries, 0, 200);
     }
 }
