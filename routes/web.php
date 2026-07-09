@@ -311,6 +311,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
     Route::get('/activity-logs/{log}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
 
+    // System Monitoring
+    Route::get('/monitoring', [\App\Http\Controllers\Admin\SystemMonitoringController::class, 'index'])->name('admin.monitoring.index');
+    Route::delete('/monitoring/kick/{id}', [\App\Http\Controllers\Admin\SystemMonitoringController::class, 'kickSession'])->name('admin.monitoring.kick');
+
     // Metadata Configuration (MARC Frameworks & Definitions)
     Route::get('/marc-definitions', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'index'])->name('admin.marc.index');
     Route::post('/marc-definitions/framework', [\App\Http\Controllers\Admin\MarcDefinitionController::class, 'storeFramework'])->name('admin.marc.framework.store');

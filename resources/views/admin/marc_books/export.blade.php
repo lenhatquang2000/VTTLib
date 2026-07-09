@@ -3,423 +3,736 @@
 @section('title', __('MARC Records Export & Reports'))
 
 @section('content')
-<div class="space-y-6">
+<div class="w-full space-y-3 pb-4">
     <!-- Page Header -->
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-            <h1 class="text-3xl font-extrabold text-gray-800 dark:text-slate-100 tracking-tight">{{ __('Xuất bản ghi & Báo cáo MARC') }}</h1>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mt-1 flex items-center">
-                <i class="fas fa-info-circle mr-2 text-indigo-500"></i>
-                {{ __('Tùy chỉnh bộ lọc và chọn loại báo cáo phù hợp để trích xuất dữ liệu') }}
-            </p>
+            <h1 class="text-lg font-bold text-foreground tracking-tight">{{ __('Báo cáo & Xuất bản ghi MARC') }}</h1>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ __('Chọn loại báo cáo từ cây phân hệ bên trái và cấu hình bộ lọc tương ứng bên phải.') }}</p>
         </div>
-        <div class="flex items-center space-x-3">
-            <a href="{{ route('admin.marc.book') }}" class="inline-flex items-center px-4 py-2 text-sm font-bold bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-xl transition-all shadow-sm">
-                <i class="fas fa-arrow-left mr-2 text-xs"></i>
-                {{ __('Quay lại') }}
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <a href="{{ route('admin.marc.import.index') }}" class="btn-compact-secondary">
+                <i data-lucide="file-input" class="w-4 h-4 mr-1"></i>
+                <span>{{ __('Nhập liệu') }}</span>
             </a>
-            <button type="button" onclick="resetForm()" class="inline-flex items-center px-4 py-2 text-sm font-bold bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-xl transition-all">
-                <i class="fas fa-sync-alt mr-2 text-xs"></i>
-                {{ __('Làm mới') }}
-            </button>
+            <a href="{{ route('admin.marc.book') }}" class="btn-compact-secondary">
+                <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>
+                <span>{{ __('Quay lại') }}</span>
+            </a>
         </div>
     </div>
 
-    <!-- Smart Filter Form -->
-    <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-slate-800 p-8">
-        <form action="{{ route('admin.marc.export.download') }}" id="mainExportForm" method="GET" target="_blank">
-            @csrf
+    <!-- Main Two-Column Layout -->
+    <div class="flex flex-col lg:flex-row gap-3 items-start w-full">
+        
+        <!-- Left Column: Report Tree Menu -->
+        <div id="left-tree-column" class="w-full lg:w-80 xl:w-96 bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden flex flex-col shrink-0">
+            <!-- Header bar matching layout admin with Collapse Button -->
+            <div class="p-3 border-b border-border bg-muted/30 flex items-center justify-between font-bold shadow-sm">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-muted-foreground"></i>
+                    <span class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('BÁO CÁO PHÂN HỆ BIÊN MỤC') }}</span>
+                </div>
+                <button type="button" id="toggle-tree-btn" class="btn-icon-compact" title="{{ __('Thu gọn danh mục') }}">
+                    <i data-lucide="chevron-left" class="w-4 h-4 text-muted-foreground"></i>
+                </button>
+            </div>
             
-            <!-- Filters Section -->
-            <div class="mb-10">
-                <div class="flex items-center justify-between mb-8 border-b border-gray-100 dark:border-slate-800 pb-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-600 dark:text-indigo-400">
-                            <i class="fas fa-filter text-lg"></i>
+            <!-- Tree view area -->
+            <div class="p-3 overflow-y-auto max-h-[600px] custom-scrollbar bg-card">
+                <div class="tree-container">
+                    
+                    <!-- Group 1: Báo cáo phân hệ biên mục -->
+                    @php
+                    $isGroup1Active = in_array($reportType, ['cataloging_subsystem', 'article_index', 'book_stats', 'book_id_list']);
+                    @endphp
+                    <div class="tree-group">
+                        <div class="tree-folder flex items-center py-1.5 px-1 hover:bg-muted/50 rounded cursor-pointer select-none" data-group="group-1">
+                            <span class="toggle-icon-container mr-1 text-muted-foreground flex items-center justify-center">
+                                <i data-lucide="square-minus" class="w-4 h-4 toggle-open {{ $isGroup1Active ? '' : 'hidden' }}"></i>
+                                <i data-lucide="square-plus" class="w-4 h-4 toggle-closed {{ $isGroup1Active ? 'hidden' : '' }}"></i>
+                            </span>
+                            <span class="folder-icon-container mr-1.5 text-muted-foreground flex items-center justify-center">
+                                <i data-lucide="folder-open" class="w-4 h-4 folder-open-icon {{ $isGroup1Active ? '' : 'hidden' }}"></i>
+                                <i data-lucide="folder" class="w-4 h-4 folder-closed-icon {{ $isGroup1Active ? 'hidden' : '' }}"></i>
+                            </span>
+                            <span class="font-bold text-foreground text-xs">{{ __('Báo cáo phân hệ biên mục') }}</span>
                         </div>
-                        <h2 class="text-xl font-bold text-gray-800 dark:text-slate-100 tracking-tight">{{ __('BỘ LỌC THÔNG MINH') }}</h2>
+                        
+                        <!-- Group 1 children (with tree lines) -->
+                        <div class="tree-node-parent {{ $isGroup1Active ? '' : 'hidden' }}" id="group-1">
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'cataloging_subsystem']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'cataloging_subsystem' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'cataloging_subsystem' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'cataloging_subsystem' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('Báo cáo phân hệ biên mục') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'article_index']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'article_index' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'article_index' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'article_index' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('Thư mục bài trích') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'book_stats']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'book_stats' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'book_stats' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'book_stats' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('Thống kê số lượng đầu sách') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'book_id_list']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'book_id_list' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'book_id_list' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'book_id_list' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs text-left leading-tight">{{ __('Danh sách tài liệu theo mã sách') }}</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Group 2: Báo cáo tài liệu -->
+                    @php
+                    $isGroup2Active = in_array($reportType, ['inventory_status', 'spine_label', 'barcode_list', 'book_title_qty', 'accession_book', 'generated_barcodes']);
+                    @endphp
+                    <div class="tree-group mt-2">
+                        <div class="tree-folder flex items-center py-1.5 px-1 hover:bg-muted/50 rounded cursor-pointer select-none" data-group="group-2">
+                            <span class="toggle-icon-container mr-1 text-muted-foreground flex items-center justify-center">
+                                <i data-lucide="square-minus" class="w-4 h-4 toggle-open {{ $isGroup2Active ? '' : 'hidden' }}"></i>
+                                <i data-lucide="square-plus" class="w-4 h-4 toggle-closed {{ $isGroup2Active ? 'hidden' : '' }}"></i>
+                            </span>
+                            <span class="folder-icon-container mr-1.5 text-muted-foreground flex items-center justify-center">
+                                <i data-lucide="folder-open" class="w-4 h-4 folder-open-icon {{ $isGroup2Active ? '' : 'hidden' }}"></i>
+                                <i data-lucide="folder" class="w-4 h-4 folder-closed-icon {{ $isGroup2Active ? 'hidden' : '' }}"></i>
+                            </span>
+                            <span class="font-bold text-foreground text-xs">{{ __('Báo cáo tài liệu') }}</span>
+                        </div>
+                        
+                        <!-- Group 2 children (with tree lines) -->
+                        <div class="tree-node-parent {{ $isGroup2Active ? '' : 'hidden' }}" id="group-2">
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'inventory_status']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'inventory_status' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'inventory_status' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'inventory_status' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('Tình hình kho tài liệu') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'spine_label']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'spine_label' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'spine_label' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'spine_label' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('In Nhãn gáy') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'barcode_list']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'barcode_list' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'barcode_list' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'barcode_list' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('In mã vạch') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'book_title_qty']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'book_title_qty' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'book_title_qty' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'book_title_qty' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('Danh sách nhan đề và số lượng') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'accession_book']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'accession_book' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'accession_book' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'accession_book' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('Sổ đăng ký cá biệt') }}</span>
+                            </a>
+                            
+                            <a href="{{ route('admin.marc.reports.index', ['report_type' => 'generated_barcodes']) }}" 
+                               class="tree-node-child tree-leaf flex items-center py-1 px-2 my-0.5 rounded border border-transparent hover:bg-muted {{ $reportType === 'generated_barcodes' ? 'active-leaf bg-primary text-primary-foreground font-semibold' : 'text-muted-foreground' }}">
+                                <span class="relative flex items-center mr-1.5">
+                                    <span class="w-1.5 h-1.5 bg-primary {{ $reportType === 'generated_barcodes' ? 'bg-primary-foreground' : 'invisible' }} rounded-full mr-2"></span>
+                                    <i data-lucide="file-text" class="w-4 h-4 leaf-icon {{ $reportType === 'generated_barcodes' ? 'text-primary-foreground' : 'text-muted-foreground' }}"></i>
+                                </span>
+                                <span class="text-xs">{{ __('In mã vạch phát sinh') }}</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column: Filters and Actions Panel -->
+        <div class="flex-1 w-full bg-card text-foreground border border-border rounded-md shadow-sm flex flex-col min-h-[450px] relative">
+            <!-- Panel Header with Expand Button -->
+            <div class="p-3 border-b border-border bg-muted/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div class="flex items-start gap-2">
+                    <!-- Expand Button, hidden by default -->
+                    <button type="button" id="expand-tree-btn" class="btn-icon-compact hidden shrink-0" title="{{ __('Mở rộng danh mục') }}">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground"></i>
+                    </button>
+                    <div>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-widest mb-1" id="current_report_label">
+                            {{ $activeReport['title'] }}
+                        </span>
+                        <h2 class="text-sm font-bold text-foreground tracking-tight" id="right_panel_title">
+                            {{ $activeReport['title'] }}
+                        </h2>
+                        <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed max-w-2xl" id="right_panel_desc">
+                            {{ $activeReport['desc'] }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter Form -->
+            <form action="{{ route('admin.marc.reports.generate') }}" method="POST" target="_blank" id="reportForm" class="p-3 flex-1 flex flex-col justify-between space-y-3">
+                @csrf
+                <input type="hidden" name="report_type" id="selected_report_type" value="{{ $reportType }}">
+                
+                <!-- Filter Search & Collapse Header -->
+                <div class="space-y-2 relative">
+                    <!-- Simple Search Bar -->
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <input type="text" name="search" id="search_input" placeholder="{{ __('Tìm kiếm nhanh bằng từ khóa (Tiêu đề, Tác giả, Mã vạch, Số ĐKCB)...') }}" class="w-full h-9 pl-3 pr-10 text-xs border border-input rounded-sm bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <button type="submit" class="absolute right-1 top-1 h-7 w-7 flex items-center justify-center rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                                <i data-lucide="search" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <button type="button" id="toggle-advanced-btn" class="btn-compact-secondary">
+                            <i data-lucide="sliders" class="w-4 h-4 mr-1"></i>
+                            <span>{{ __('Tìm nâng cao') }}</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4 ml-1 transition-transform duration-200 transform" id="advanced-chevron"></i>
+                        </button>
+                    </div>
+
+                    <!-- Collapsible Advanced Search Panel (Floating Overlay) -->
+                    <div id="advanced-search-panel" class="hidden absolute left-0 right-0 top-full mt-1 z-30 border border-border rounded-md bg-card p-3 space-y-3 shadow-lg transition-all duration-300">
+                        <!-- Tab Selector Buttons -->
+                        <div class="flex flex-wrap gap-1 border-b border-border pb-1">
+                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted active-tab" data-tab="tab-info">Thông tin</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-dist">Phân phối</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-limit">Giới hạn</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-location">Vị trí</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-categories">Phân loại</button>
+                        </div>
+
+                        <!-- Tab Content Sections (Taller Height area) -->
+                        <div class="tab-contents min-h-[240px]">
+                            
+                            <!-- Tab 1: Thông tin (4 Conditions Builder) -->
+                            <div id="tab-info" class="tab-content space-y-1.5">
+                                @for($i = 0; $i < 4; $i++)
+                                <div class="flex items-center gap-2">
+                                    @if($i == 0)
+                                    <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest w-16 text-center">Bắt đầu</span>
+                                    <input type="hidden" name="info_ops[]" value="AND">
+                                    @else
+                                    <select name="info_ops[]" class="h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground w-16">
+                                        <option value="AND">AND</option>
+                                        <option value="OR">OR</option>
+                                        <option value="NOT">NOT</option>
+                                    </select>
+                                    @endif
+                                    <select name="info_fields[]" class="h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground w-28 md:w-36 shrink-0">
+                                        <option value="title" {{ $i==0 ? 'selected' : '' }}>{{ __('Tiêu đề') }}</option>
+                                        <option value="author" {{ $i==1 ? 'selected' : '' }}>{{ __('Tác giả') }}</option>
+                                        <option value="barcode">{{ __('Mã vạch') }}</option>
+                                        <option value="isbn">ISBN</option>
+                                        <option value="issn">ISSN</option>
+                                        <option value="subject">{{ __('Chủ đề') }}</option>
+                                        <option value="dewey">Dewey (DDC)</option>
+                                        <option value="publisher">{{ __('Nhà xuất bản') }}</option>
+                                        <option value="publisher_place">{{ __('Nơi xuất bản') }}</option>
+                                        <option value="publisher_year">{{ __('Năm xuất bản') }}</option>
+                                        <option value="accession_number">{{ __('Số ĐK cá biệt') }}</option>
+                                        <option value="order_code">{{ __('Mã đơn hàng') }}</option>
+                                        <option value="language_code">{{ __('Mã ngôn ngữ') }}</option>
+                                        <option value="lc_call_number">{{ __('Xếp giá LC') }}</option>
+                                        <option value="summary">{{ __('Tóm tắt') }}</option>
+                                        <option value="notes">{{ __('Ghi chú') }}</option>
+                                        <option value="genre">{{ __('Thể loại') }}</option>
+                                        <option value="any">{{ __('Bất kỳ') }}</option>
+                                        <option value="fulltext">Fulltext</option>
+                                    </select>
+                                    <input type="text" name="info_vals[]" placeholder="{{ __('Nhập từ khóa tìm kiếm...') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                </div>
+                                @endfor
+                            </div>
+
+                            <!-- Tab 2: Phân phối ( circulation_statuses, storage_types, distribution_statuses ) -->
+                            <div id="tab-dist" class="tab-content hidden grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <!-- Tình trạng lưu thông (Taller scrolling list) -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Tình trạng lưu thông</span>
+                                    <div class="max-h-56 overflow-y-auto custom-scrollbar space-y-1 pr-1">
+                                        @php
+                                        $circStatuses = [
+                                            'available' => 'Sẵn có',
+                                            'borrowed' => 'Đang cho mượn',
+                                            'lost' => 'Bị mất',
+                                            'damaged' => 'Bị hỏng',
+                                            'cancelled' => 'Đã hủy',
+                                            'disposed' => 'Đã thanh lý',
+                                            'ordered' => 'Đang đặt hàng',
+                                            'binding' => 'Đang đóng tập',
+                                            'reserved' => 'Đang giữ lại',
+                                            'photocopy' => 'Đang Photocopy',
+                                            'repairing' => 'Đang sửa chữa',
+                                            'shelving' => 'Đang xếp giá',
+                                            'processing' => 'Đang xử lý',
+                                            'non_circulating' => 'Không lưu thông',
+                                            'reading_room' => 'Mượn đọc',
+                                            'missing' => 'Thất lạc'
+                                        ];
+                                        @endphp
+                                        @foreach($circStatuses as $val => $label)
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="circulation_statuses[]" value="{{ $val }}" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">{{ $label }}</span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Dạng lưu trữ (Taller scrolling list) -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Dạng lưu trữ</span>
+                                    <div class="max-h-56 overflow-y-auto custom-scrollbar space-y-1 pr-1">
+                                        @php
+                                        $storageTypes = [
+                                            'Monograph' => 'Chuyên khảo / Monograph',
+                                            'Serial' => 'Tạp chí / Serial',
+                                            'Newspaper' => 'Báo quyển / Newspaper',
+                                            'DailyNewspaper' => 'Nhật báo',
+                                            'Thesis' => 'Luận án / Thesis',
+                                            'Dissertation' => 'Luận văn',
+                                            'Map' => 'Bản đồ / Map',
+                                            'Audio' => 'Ghi âm',
+                                            'Video' => 'Ghi hình',
+                                            'Software' => 'Phần mềm CD/PC',
+                                            'Braille' => 'TL khiếm thị/thính',
+                                            'AV' => 'Tài liệu nghe nhìn',
+                                            'Reference' => 'Tham khảo / Reference',
+                                            'Microfilm' => 'Vi phim',
+                                            'Project' => 'Đề tài'
+                                        ];
+                                        @endphp
+                                        @foreach($storageTypes as $val => $label)
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="storage_types[]" value="{{ $val }}" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">{{ $label }}</span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Tình trạng phân phối -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Tình trạng phân phối</span>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="distribution_statuses[]" value="distributed" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">Đã phân phối</span>
+                                        </label>
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="distribution_statuses[]" value="not_distributed" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">Chưa phân phối</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab 3: Giới hạn ( Created Date, Updated Date, size code, etc ) -->
+                            <div id="tab-limit" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- Ngày tạo & Ngày cập nhật -->
+                                <div class="space-y-2">
+                                    <div class="space-y-1">
+                                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày tạo</label>
+                                        <div class="flex items-center gap-1">
+                                            <input type="date" name="date_from" id="date_from" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <span class="text-[10px] text-muted-foreground">đến</span>
+                                            <input type="date" name="date_to" id="date_to" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày cập nhật</label>
+                                        <div class="flex items-center gap-1">
+                                            <input type="date" name="updated_date_from" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <span class="text-[10px] text-muted-foreground">đến</span>
+                                            <input type="date" name="updated_date_to" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Người tạo, người cập nhật, mã khổ cỡ, limits -->
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div class="space-y-0.5">
+                                        <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Người tạo</label>
+                                        <input type="text" name="created_by" placeholder="Tên..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Người cập nhật</label>
+                                        <input type="text" name="updated_by" placeholder="Tên..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Mã khổ cỡ</label>
+                                        <input type="text" name="size_code" placeholder="Mã..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Cấp độ sử dụng</label>
+                                        <input type="text" name="usage_level" placeholder="Cấp..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Giới hạn kết quả</label>
+                                        <input type="number" name="result_limit" placeholder="Số lượng bản ghi..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    </div>
+                                    <div class="space-y-0.5">
+                                        <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block">Mã ngành</label>
+                                        <input type="text" name="branch_code" placeholder="Mã ngành..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    </div>
+                                    <div class="col-span-2 flex items-center pt-1">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" name="waits_for_print" value="1" class="w-4 h-4 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-2 text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Danh sách chờ in thẻ</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tab 4: Vị trí ( branch_id, storage_location_id ) -->
+                            <div id="tab-location" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div class="space-y-1">
+                                    <label for="branch_id" class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Kho / Phòng</label>
+                                    <select name="branch_id" id="branch_id" class="select2-smart w-full">
+                                        <option value="">-- Tất cả Kho/Phòng --</option>
+                                        @foreach($branches as $b)
+                                        <option value="{{ $b->id }}">{{ $b->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="space-y-1">
+                                    <label for="storage_location_id" class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Vị trí / Kệ</label>
+                                    <select name="storage_location_id" id="storage_location_id" class="select2-smart w-full">
+                                        <option value="">-- Tất cả Vị trí --</option>
+                                        @foreach($storageLocations as $sl)
+                                        <option value="{{ $sl->id }}">{{ $sl->name }} ({{ optional($sl->branch)->name }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Tab 5: Phân loại Checkboxes ( frameworks, document_types, statuses ) -->
+                            <div id="tab-categories" class="tab-content hidden grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <!-- Khung biên mục (Taller scrolling list) -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Khung biên mục</span>
+                                    <div class="max-h-56 overflow-y-auto custom-scrollbar space-y-1 pr-1">
+                                        @foreach($frameworks as $fw)
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="frameworks[]" value="{{ $fw->code }}" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">{{ $fw->name }} ({{ $fw->code }})</span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Loại tài liệu (Taller scrolling list) -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Loại tài liệu</span>
+                                    <div class="max-h-56 overflow-y-auto custom-scrollbar space-y-1 pr-1">
+                                        @foreach($documentTypes as $dt)
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="document_types[]" value="{{ $dt->id }}" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">{{ $dt->name }}</span>
+                                        </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Trạng thái -->
+                                <div class="space-y-1">
+                                    <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Trạng thái</span>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="statuses[]" value="approved" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">Đã duyệt</span>
+                                        </label>
+                                        <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
+                                            <input type="checkbox" name="statuses[]" value="pending" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <span class="ml-1.5 text-[11px]">Chưa duyệt</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Close Button inside Floating Panel -->
+                        <div class="flex justify-end pt-1.5 border-t border-border mt-2">
+                            <button type="button" class="close-advanced-btn flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-all">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('Đóng') }}</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Document Type Filter -->
-                    <div class="space-y-3">
-                        <label for="document_type_id" class="flex items-center text-sm font-bold text-gray-700 dark:text-slate-300">
-                            <span class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-500 mr-2">
-                                <i class="fas fa-file-alt text-xs"></i>
-                            </span>
-                            {{ __('Loại tài liệu') }}
-                        </label>
-                        <select name="document_type_id" id="document_type_id" class="select2-smart w-full">
-                            <option value="">{{ __('Tất cả loại tài liệu') }}</option>
-                            @foreach($documentTypes as $type)
-                                <option value="{{ $type->id }}">{{ $type->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <!-- Status Filter -->
-                    <div class="space-y-3">
-                        <label for="status" class="flex items-center text-sm font-bold text-gray-700 dark:text-slate-300">
-                            <span class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center text-amber-500 mr-2">
-                                <i class="fas fa-check-circle text-xs"></i>
-                            </span>
-                            {{ __('Trạng thái bản ghi') }}
-                        </label>
-                        <select name="status" id="status" class="select2-smart w-full">
-                            <option value="">{{ __('Tất cả trạng thái') }}</option>
-                            <option value="pending" data-icon="fa-clock">{{ __('Đang chờ duyệt') }}</option>
-                            <option value="approved" data-icon="fa-check-double">{{ __('Đã được phê duyệt') }}</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Date Range -->
-                    <div class="space-y-3">
-                        <label class="flex items-center text-sm font-bold text-gray-700 dark:text-slate-300">
-                            <span class="w-8 h-8 rounded-lg bg-rose-50 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 mr-2">
-                                <i class="fas fa-calendar-alt text-xs"></i>
-                            </span>
-                            {{ __('Khoảng thời gian tạo') }}
-                        </label>
-                        <div class="flex items-center space-x-3">
-                            <div class="relative flex-1">
-                                <input type="date" name="date_from" id="date_from" class="w-full pl-4 pr-10 py-3 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 dark:text-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none">
-                            </div>
-                            <div class="text-gray-300 dark:text-slate-600">
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                            <div class="relative flex-1">
-                                <input type="date" name="date_to" id="date_to" class="w-full pl-4 pr-10 py-3 border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 dark:text-slate-200 rounded-2xl text-sm focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500 transition-all outline-none">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Configuration Section -->
-            <div class="bg-gray-50 dark:bg-slate-800/50 rounded-3xl p-6 border border-gray-100 dark:border-slate-800">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <!-- Format Toggle and Include Items (Bottom bar) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-border pt-3">
                     <!-- Format Toggle -->
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                        <div class="space-y-2">
-                            <span class="text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block">{{ __('ĐỊNH DẠNG FILE') }}</span>
-                            <div class="inline-flex p-1.5 bg-white dark:bg-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                                <label class="relative group cursor-pointer">
-                                    <input type="radio" name="format" value="excel" checked class="sr-only peer">
-                                    <div class="px-5 py-2 text-sm font-bold rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white text-gray-500 group-hover:text-indigo-600 peer-checked:group-hover:text-white">
-                                        <i class="fas fa-file-excel mr-2 text-xs"></i>Excel
-                                    </div>
-                                </label>
-                                <label class="relative group cursor-pointer ml-1">
-                                    <input type="radio" name="format" value="csv" class="sr-only peer">
-                                    <div class="px-5 py-2 text-sm font-bold rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white text-gray-500 group-hover:text-indigo-600 peer-checked:group-hover:text-white">
-                                        <i class="fas fa-file-csv mr-2 text-xs"></i>CSVL
-                                    </div>
-                                </label>
-                                <label class="relative group cursor-pointer ml-1">
-                                    <input type="radio" name="format" value="marc" class="sr-only peer">
-                                    <div class="px-5 py-2 text-sm font-bold rounded-xl transition-all peer-checked:bg-indigo-600 peer-checked:text-white text-gray-500 group-hover:text-indigo-600 peer-checked:group-hover:text-white">
-                                        <i class="fas fa-database mr-2 text-xs"></i>MARC
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Item Switch -->
-                        <div class="space-y-2">
-                            <span class="text-xs font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest block">{{ __('THÔNG TIN CHI TIẾT') }}</span>
-                            <label class="relative inline-flex items-center cursor-pointer h-[52px]">
-                                <input type="checkbox" name="include_items" id="include_items" value="1" class="sr-only peer">
-                                <div class="w-12 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[15px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
-                                <span class="ml-3 text-sm font-bold text-gray-700 dark:text-slate-300">
-                                    {{ __('Kèm thông tin ấn phẩm') }}
-                                </span>
+                    <div class="space-y-1">
+                        <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">{{ __('Định dạng file') }}</span>
+                        <div class="inline-flex p-0.5 bg-muted rounded-sm border border-border shadow-inner">
+                            <label class="relative group cursor-pointer">
+                                <input type="radio" name="format" value="excel" checked class="sr-only peer">
+                                <div class="px-3 py-1 text-xs font-bold rounded-sm transition-all peer-checked:bg-primary peer-checked:text-primary-foreground text-muted-foreground hover:text-foreground">
+                                    <i class="fas fa-file-excel mr-1 text-xs"></i>Excel
+                                </div>
+                            </label>
+                            <label class="relative group cursor-pointer ml-1">
+                                <input type="radio" name="format" value="csv" class="sr-only peer">
+                                <div class="px-3 py-1 text-xs font-bold rounded-sm transition-all peer-checked:bg-primary peer-checked:text-primary-foreground text-muted-foreground hover:text-foreground">
+                                    <i class="fas fa-file-csv mr-1 text-xs"></i>CSV
+                                </div>
                             </label>
                         </div>
                     </div>
-
-                    <!-- Actions -->
-                    <div class="flex items-center gap-3">
-                        <a href="{{ route('admin.marc.import.index') }}" class="flex-1 sm:flex-none inline-flex items-center justify-center px-6 py-3 bg-white dark:bg-slate-900 text-emerald-600 border border-emerald-200 dark:border-emerald-900/30 font-bold rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all">
-                            <i class="fas fa-file-import mr-2"></i>
-                            {{ __('Nhập liệu') }}
-                        </a>
+                    
+                    <!-- Include Items checkbox -->
+                    <div class="flex items-center pt-1 sm:pt-0">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="include_items" id="include_items" value="1" class="w-4 h-4 text-primary bg-background border-border rounded-sm focus:ring-primary focus:ring-offset-background">
+                            <span class="ml-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                {{ __('Kèm thông tin ấn phẩm') }}
+                            </span>
+                        </label>
                     </div>
                 </div>
-            </div>
-        </form>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-between gap-2 border-t border-border pt-3 mt-3">
+                    <button type="button" onclick="resetForm()" class="btn-compact-muted">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4 mr-1"></i>
+                        {{ __('Reset bộ lọc') }}
+                    </button>
+                    <button type="submit" class="btn-compact-primary">
+                        <i data-lucide="download" class="w-4 h-4 mr-1 text-primary-foreground"></i>
+                        {{ __('XUẤT BÁO CÁO') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+        
     </div>
+</div>
 
-    <!-- Additional Scripts for Smart Filter -->
-    @push('css')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <style>
-        .select2-container--default .select2-selection--single {
-            height: 52px !important;
-            padding: 10px 16px !important;
-            border-radius: 16px !important;
-            border: 1px solid #e2e8f0 !important;
-            background-color: #f8fafc !important;
-            font-size: 0.875rem !important;
-            font-weight: 700 !important;
-            color: #1e293b !important;
-            outline: none !important;
-            transition: all 0.2s !important;
-        }
-        .dark .select2-container--default .select2-selection--single {
-            background-color: rgba(30, 41, 59, 0.5) !important;
-            border-color: #334155 !important;
-            color: #f1f5f9 !important;
-        }
-        .select2-container--default .select2-selection--single:focus, 
-        .select2-container--default.select2-container--open .select2-selection--single {
-            border-color: #4f46e5 !important;
-            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1) !important;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 50px !important;
-            right: 12px !important;
-        }
-        .select2-dropdown {
-            border-radius: 16px !important;
-            border: 1px solid #e2e8f0 !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
-            overflow: hidden !important;
-            margin-top: 4px !important;
-        }
-        .dark .select2-dropdown {
-            background-color: #0f172a !important;
-            border-color: #334155 !important;
-        }
-        .select2-results__option {
-            padding: 12px 16px !important;
-            font-size: 0.875rem !important;
-            font-weight: 600 !important;
-        }
-        .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #4f46e5 !important;
-        }
-    </style>
-    @endpush
+@push('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    /* Customize Select2 to comply with Rule.txt constraints */
+    .select2-container--default .select2-selection--single {
+        height: 36px !important; /* h-9 */
+        padding: 5px 10px !important;
+        border-radius: 2px !important; /* rounded-sm */
+        border: 1px solid hsl(var(--border)) !important;
+        background-color: hsl(var(--background)) !important;
+        font-size: 0.875rem !important; /* text-sm */
+        font-weight: 500 !important;
+        color: hsl(var(--foreground)) !important;
+        outline: none !important;
+        transition: all 0.2s !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        color: hsl(var(--foreground)) !important;
+        padding-left: 0px !important;
+        line-height: 24px !important;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 34px !important;
+        right: 6px !important;
+    }
+    .select2-dropdown {
+        border-radius: 4px !important; /* rounded-md */
+        border: 1px solid hsl(var(--border)) !important;
+        background-color: hsl(var(--card)) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        overflow: hidden !important;
+    }
+    .select2-results__option {
+        padding: 6px 12px !important;
+        font-size: 0.75rem !important;
+        font-weight: 500 !important;
+        color: hsl(var(--foreground)) !important;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: hsl(var(--primary)) !important;
+        color: hsl(var(--primary-foreground)) !important;
+    }
+    
+    /* Custom Tree View Styles matching standard file directories */
+    .tree-node-parent {
+        position: relative;
+        padding-left: 12px;
+    }
+    .tree-node-parent::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 0px;
+        bottom: 12px;
+        border-left: 1.5px dashed hsl(var(--border));
+    }
+    .tree-node-child {
+        position: relative;
+        padding-left: 16px;
+    }
+    .tree-node-child::before {
+        content: "";
+        position: absolute;
+        left: -4px;
+        top: 14px;
+        width: 14px;
+        border-top: 1.5px dashed hsl(var(--border));
+    }
+    
+    /* Custom Scrollbar for tree */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: hsl(var(--border));
+        border-radius: 2px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--muted-foreground));
+    }
 
-    @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('.select2-smart').select2({
-                minimumResultsForSearch: 10,
-                width: '100%'
+    /* Active Tab style constraint rule */
+    .active-tab {
+        background-color: hsl(var(--card)) !important;
+        border-color: hsl(var(--border)) !important;
+        color: hsl(var(--foreground)) !important;
+        border-bottom-color: transparent !important;
+    }
+
+    /* Tree leaf hover rules preventing hover effect on active leaf but keeping it for inactive ones */
+    .tree-leaf.active-leaf:hover {
+        background-color: hsl(var(--primary)) !important;
+        color: hsl(var(--primary-foreground)) !important;
+    }
+</style>
+@endpush
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        $('.select2-smart').select2({
+            minimumResultsForSearch: 10,
+            width: '100%'
+        });
+
+        // Folder toggle handler (collapse/expand)
+        $('.tree-folder').click(function() {
+            const groupId = $(this).data('group');
+            const $group = $('#' + groupId);
+            
+            $group.slideToggle(150);
+            
+            // Toggle open/closed icons
+            $(this).find('.toggle-open, .toggle-closed').toggleClass('hidden');
+            $(this).find('.folder-open-icon, .folder-closed-icon').toggleClass('hidden');
+        });
+
+        // Collapse left column
+        $('#toggle-tree-btn').click(function() {
+            $('#left-tree-column').hide(150, function() {
+                $('#expand-tree-btn').removeClass('hidden');
             });
         });
-    </script>
-    @endpush
 
-    <!-- Subsystem Reports Sections -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Báo cáo phân hệ biên mục -->
-        <div class="group bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1">
-            <div class="p-6 border-b border-gray-50 dark:border-slate-800 bg-gradient-to-br from-indigo-50/50 to-transparent dark:from-indigo-900/10">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 dark:shadow-none">
-                        <i class="fas fa-book-reader text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">{{ __('Phân hệ biên mục') }}</h2>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ __('Quản lý danh sách & bài trích') }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4 space-y-2">
-                <button type="button" onclick="generateReport('cataloging_subsystem')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-list-ul text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors">{{ __('Danh sách bản ghi biên mục') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="generateReport('article_index')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-quote-left text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors">{{ __('Thư mục bài trích') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="generateReport('book_stats')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-chart-pie text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors">{{ __('Thống kê số lượng đầu sách') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="generateReport('book_id_list')" class="w-full flex items-center p-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-indigo-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-id-card text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-indigo-600 transition-colors">{{ __('Danh sách tài liệu theo mã sách') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Báo cáo tài liệu -->
-        <div class="group bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1">
-            <div class="p-6 border-b border-gray-50 dark:border-slate-800 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-900/10">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200 dark:shadow-none">
-                        <i class="fas fa-archive text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">{{ __('Báo cáo tài liệu') }}</h2>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ __('Tình hình kho & đăng ký') }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4 space-y-2">
-                <button type="button" onclick="generateReport('inventory_status')" class="w-full flex items-center p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-warehouse text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-emerald-600 transition-colors">{{ __('Tình hình kho tài liệu') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="generateReport('accession_book')" class="w-full flex items-center p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-address-book text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-emerald-600 transition-colors">{{ __('Số đăng ký cá biệt') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="notImplemented()" class="w-full flex items-center p-3 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition group/item text-left">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-emerald-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-tags text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-emerald-600 transition-colors">{{ __('Danh sách nhan đề và số lượng') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- In Nhãn & Mã vạch -->
-        <div class="group bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-all hover:shadow-xl hover:shadow-rose-500/5 hover:-translate-y-1">
-            <div class="p-6 border-b border-gray-50 dark:border-slate-800 bg-gradient-to-br from-rose-50/50 to-transparent dark:from-rose-900/10">
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-rose-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-200 dark:shadow-none">
-                        <i class="fas fa-print text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-800 dark:text-slate-100">{{ __('In Nhãn & Mã vạch') }}</h2>
-                        <p class="text-xs text-gray-500 dark:text-slate-400 font-medium">{{ __('Công cụ in ấn & dán nhãn') }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="p-4 space-y-2">
-                <button type="button" onclick="generateReport('spine_label')" class="w-full flex items-center p-3 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-rose-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-barcode text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-rose-600 transition-colors">{{ __('Dữ liệu in Nhãn gáy') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="generateReport('barcode_list')" class="w-full flex items-center p-3 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-rose-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-stream text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-rose-600 transition-colors">{{ __('Dữ liệu in mã vạch') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-                <button type="button" onclick="generateReport('generated_barcodes')" class="w-full flex items-center p-3 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-900/20 transition group/item">
-                    <div class="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-800 flex items-center justify-center text-rose-500 group-hover/item:bg-white dark:group-hover/item:bg-slate-700 transition-colors shadow-sm">
-                        <i class="fas fa-plus-circle text-xs"></i>
-                    </div>
-                    <span class="ml-3 text-sm font-bold text-gray-600 dark:text-slate-300 group-hover/item:text-rose-600 transition-colors">{{ __('In mã vạch phát sinh') }}</span>
-                    <i class="fas fa-chevron-right ml-auto text-[10px] text-gray-300 group-hover/item:translate-x-1 transition-transform"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-    function generateReport(type) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '{{ route('admin.marc.reports.generate') }}';
-        form.target = '_blank';
-        
-        // Add CSRF token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]');
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
-            csrfInput.value = csrfToken.getAttribute('content');
-            form.appendChild(csrfInput);
-        }
-        
-        // Add report type
-        const typeInput = document.createElement('input');
-        typeInput.type = 'hidden';
-        typeInput.name = 'report_type';
-        typeInput.value = type;
-        form.appendChild(typeInput);
-
-        // Add filter values from the main form
-        const filters = [
-            'framework_id', 'document_type_id', 'status', 
-            'date_from', 'date_to'
-        ];
-
-        filters.forEach(id => {
-            const element = document.getElementById(id);
-            if (element && element.value) {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = id;
-                input.value = element.value;
-                form.appendChild(input);
-            }
+        // Expand left column
+        $('#expand-tree-btn').click(function() {
+            $('#expand-tree-btn').addClass('hidden');
+            $('#left-tree-column').show(150);
         });
 
-        // Add include_items if checked
-        const includeItems = document.getElementById('include_items');
-        if (includeItems && includeItems.checked) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'include_items';
-            input.value = '1';
-            form.appendChild(input);
-        }
-
-        // Add format from radio buttons
-        const formatInput = document.createElement('input');
-        formatInput.type = 'hidden';
-        formatInput.name = 'format';
-        const selectedFormat = document.querySelector('input[name="format"]:checked');
-        formatInput.value = selectedFormat ? selectedFormat.value : 'excel';
-        form.appendChild(formatInput);
-
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-    }
-
-    function notImplemented() {
-        Swal.fire({
-            title: '{{ __("Thông báo") }}',
-            text: '{{ __("Chức năng này hiện đang trong quá trình phát triển.") }}',
-            icon: 'info',
-            confirmButtonText: '{{ __("Đóng") }}',
-            confirmButtonColor: '#4f46e5'
+        // Toggle Advanced Search collapse
+        $('#toggle-advanced-btn').click(function() {
+            const $panel = $('#advanced-search-panel');
+            const $chevron = $('#advanced-chevron');
+            
+            $panel.slideToggle(200);
+            $chevron.toggleClass('rotate-180');
         });
-    }
 
+        // Close Advanced Search
+        $('.close-advanced-btn').click(function() {
+            $('#advanced-search-panel').slideUp(200);
+            $('#advanced-chevron').removeClass('rotate-180');
+        });
+
+        // Tab selection handler
+        $('.tab-btn').click(function() {
+            $('.tab-btn').removeClass('active-tab');
+            $(this).addClass('active-tab');
+            
+            const activeTabId = $(this).data('tab');
+            $('.tab-content').addClass('hidden');
+            $('#' + activeTabId).removeClass('hidden');
+        });
+    });
+
+    // Reset Form function
     function resetForm() {
-        document.getElementById('document_type_id').value = '';
-        document.getElementById('status').value = '';
-        document.getElementById('date_from').value = '';
-        document.getElementById('date_to').value = '';
-        document.getElementById('include_items').checked = false;
-        // Reset radio buttons to excel
-        document.querySelector('input[name="format"][value="excel"]').checked = true;
+        // Clear text inputs
+        $('#search_input').val('');
+        $('input[name="info_vals[]"]').val('');
+        $('input[type="date"]').val('');
+        $('input[type="text"]').val('');
+        $('input[type="number"]').val('');
+        
+        // Uncheck checkboxes
+        $('input[type="checkbox"]').prop('checked', false);
+        
+        // Reset select dropdowns
+        $('select[name="info_fields[]"]').each(function(index) {
+            if (index == 0) $(this).val('title');
+            else if (index == 1) $(this).val('author');
+            else $(this).val('title');
+        });
+        $('select[name="info_ops[]"]').val('AND');
+        
+        // Reset Select2 dropdowns
+        $('#branch_id').val('').trigger('change');
+        $('#storage_location_id').val('').trigger('change');
+        
+        // Reset Format radio buttons
+        $('input[name="format"][value="excel"]').prop('checked', true);
     }
 </script>
+@endpush
 @endsection

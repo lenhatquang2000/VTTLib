@@ -23,9 +23,9 @@ class LogActivity
 
         $response = $next($request);
 
-        // Only log if authenticated and it's not a simple GET request for common assets
+        // Only log if it's not a simple GET request for common assets
         // or we can just log all non-GET requests for administration/root
-        if (auth()->check() && !$request->isMethod('GET')) {
+        if (!$request->isMethod('GET')) {
             $action = 'request_' . strtolower($request->method());
             
             // Try to guess a better action name from the route
@@ -45,7 +45,7 @@ class LogActivity
     private function logActivity(string $action, Request $request)
     {
         try {
-            $user = auth()->user();
+            $userId = auth()->id();
             
             // Prepare details for patron-related actions
             $details = [];
@@ -70,7 +70,7 @@ class LogActivity
             }
             
             ActivityLog::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'action' => $action,
                 'url' => $request->fullUrl(),
                 'method' => $request->method(),

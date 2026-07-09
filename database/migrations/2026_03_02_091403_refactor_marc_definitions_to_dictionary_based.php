@@ -48,7 +48,7 @@ return new class extends Migration
             Schema::table('marc_tag_definitions', function (Blueprint $table) {
                 // Drop the foreign key first
                 try {
-                    $table->dropForeign('marc_tag_definitions_framework_id_foreign');
+                    $table->dropForeign(['framework_id']);
                 } catch (\Exception $e) {}
                 
                 // Drop the unique index
