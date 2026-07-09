@@ -197,11 +197,14 @@
                         }
                     }">
                         <!-- Sub-tabs Navigation -->
-                        <div class="px-3 py-2 border-b border-border bg-muted/20 flex flex-wrap gap-2">
-                            <button @click="updateSubTab('general')" :class="subTab === 'general' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('General Policy') }}</button>
-                            <button @click="updateSubTab('holidays')" :class="subTab === 'holidays' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Holidays') }}</button>
-                            <button @click="updateSubTab('services')" :class="subTab === 'services' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Services') }}</button>
-                            <button @click="updateSubTab('books')" :class="subTab === 'books' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="pb-1 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Books') }}</button>
+                        <div class="px-3 py-2 border-b border-border bg-muted/20 flex flex-wrap items-center gap-1">
+                            <button @click="updateSubTab('general')" :class="subTab === 'general' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="px-5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('General Policy') }}</button>
+                            <div class="h-3.5 w-px bg-border"></div>
+                            <button @click="updateSubTab('holidays')" :class="subTab === 'holidays' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="px-5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Holidays') }}</button>
+                            <div class="h-3.5 w-px bg-border"></div>
+                            <button @click="updateSubTab('services')" :class="subTab === 'services' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="px-5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Services') }}</button>
+                            <div class="h-3.5 w-px bg-border"></div>
+                            <button @click="updateSubTab('books')" :class="subTab === 'books' ? 'text-primary border-b-2 border-primary font-bold' : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground'" class="px-5 py-1.5 text-xs font-semibold uppercase tracking-wider transition-all">{{ __('Books') }}</button>
                         </div>
 
                         <div class="p-3">

@@ -21,7 +21,7 @@
                             @endif
                         </div>
                         <h2 class="text-lg font-bold text-vttu-dark uppercase tracking-tight">{{ $user->name }}</h2>
-                        <p class="text-slate-400 font-bold text-[10px] mt-1 uppercase tracking-widest">{{ $patron?->patronGroup?->name ?? 'Độc giả' }}</p>
+                        <p class="text-slate-400 font-bold text-[10px] mt-1 uppercase tracking-widest">{{ $user->roles->pluck('display_name')->implode(', ') ?: 'Độc giả' }}</p>
                         
                         <div class="w-full grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-slate-50">
                             <div class="p-3 bg-slate-50 rounded-sm">

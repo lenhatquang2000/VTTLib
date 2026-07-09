@@ -238,19 +238,24 @@
                         <div class="relative group">
                             <button class="flex items-center space-x-2 px-4 py-2 bg-white/10 hover:bg-white text-white hover:text-vttu-red rounded-full border border-white/20 transition-all shadow-lg backdrop-blur-md group-hover:shadow-vttu-red/20">
                                 <div class="w-6 h-6 bg-vttu-yellow text-vttu-dark rounded-full flex items-center justify-center text-[8px] font-black">
-                                    {{ strtoupper(substr(Auth::user()->full_name ?? Auth::user()->username, 0, 1)) }}
+                                    {{ strtoupper(substr(Auth::user()->name ?? Auth::user()->username, 0, 1)) }}
                                 </div>
-                                <span class="font-black text-[10px] uppercase tracking-widest whitespace-nowrap truncate max-w-[100px]">{{ Auth::user()->full_name ?? Auth::user()->username }}</span>
+                                <span class="font-black text-[10px] uppercase tracking-widest whitespace-nowrap truncate max-w-[100px]">{{ Auth::user()->name ?? Auth::user()->username }}</span>
                                 <i class="fas fa-chevron-down text-[8px] opacity-50 group-hover:rotate-180 transition-transform"></i>
                             </button>
                             
                             <!-- Dropdown Menu -->
                             <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all transform translate-y-2 group-hover:translate-y-0 z-[60]">
                                 <div class="px-4 py-2 border-b border-slate-50 mb-1">
-                                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">{{ __('Tài khoản') }}</p>
-                                    <p class="text-xs font-black text-vttu-dark truncate">{{ Auth::user()->username }}</p>
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest">{{ __('Tài khoản') }}</p>
+                                        @if(Auth::user()->roles->isNotEmpty())
+                                            <span class="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-red-50 text-vttu-red rounded-md border border-vttu-red/10">{{ Auth::user()->roles->pluck('display_name')->implode(', ') }}</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs font-black text-vttu-dark truncate mt-0.5">{{ Auth::user()->name ?? Auth::user()->username }}</p>
                                 </div>
-                                @if(!Auth::user()->hasRole('visitor'))
+                                @if(Auth::user()->hasRole('admin') || Auth::user()->hasRole('root') || Auth::user()->getSidebarTabs()->isNotEmpty())
                                     <a href="/topsecret/dashboard" class="flex items-center space-x-2 px-4 py-2 text-vttu-dark/80 hover:text-vttu-red hover:bg-vttu-red/5 transition-all">
                                         <i class="fas fa-tachometer-alt w-4 text-[10px]"></i>
                                         <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Quản trị') }}</span>
@@ -338,8 +343,13 @@
                 
                 @auth
                     <div class="py-4 border-b border-white/5">
-                        <p class="text-[10px] font-black text-white/40 uppercase tracking-widest mb-1">{{ __('Đã đăng nhập') }}</p>
-                        <p class="text-white font-black">{{ Auth::user()->full_name ?? Auth::user()->username }}</p>
+                        <div class="flex items-center justify-between mb-1">
+                            <p class="text-[10px] font-black text-white/40 uppercase tracking-widest">{{ __('Đã đăng nhập') }}</p>
+                            @if(Auth::user()->roles->isNotEmpty())
+                                <span class="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 bg-white/10 text-vttu-yellow rounded-md border border-white/5">{{ Auth::user()->roles->pluck('display_name')->implode(', ') }}</span>
+                            @endif
+                        </div>
+                        <p class="text-white font-black">{{ Auth::user()->name ?? Auth::user()->username }}</p>
                     </div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

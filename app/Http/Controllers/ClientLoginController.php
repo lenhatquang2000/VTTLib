@@ -103,8 +103,8 @@ class ClientLoginController extends Controller
                     $apiRoleId = $apiData['role_id'] ?? null;
                     if ($apiRoleId == 1) {
                         $dbRoleName = 'root';
-                    } elseif ($apiRoleId == 2) {
-                        $dbRoleName = 'admin';
+                    } elseif ($apiRoleId == 2 || $apiRoleId == 12) {
+                        $dbRoleName = 'teacher';
                     } elseif ($apiRoleId == 4) {
                         $dbRoleName = 'visitor';
                     }
@@ -149,8 +149,12 @@ class ClientLoginController extends Controller
                     }
 
                     // Tạo dữ liệu độc giả (PatronDetail)
-                    $patronGroup = \Illuminate\Support\Facades\DB::table('patron_groups')->first();
-                    $patronGroupId = $patronGroup ? $patronGroup->id : 1;
+                    $groupCode = ($apiRoleId == 4) ? 'st' : 'gv';
+                    $patronGroup = \Illuminate\Support\Facades\DB::table('patron_groups')->where('code', $groupCode)->first();
+                    if (!$patronGroup) {
+                        $patronGroup = \Illuminate\Support\Facades\DB::table('patron_groups')->first();
+                    }
+                    $patronGroupId = $patronGroup ? $patronGroup->id : 2;
 
                     \Illuminate\Support\Facades\DB::table('patron_details')->insert([
                         'user_id' => $user->id,
