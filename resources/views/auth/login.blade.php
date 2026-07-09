@@ -330,8 +330,11 @@
                 @csrf
                 
                 <!-- Error Messages -->
-                @if($errors->any())
+                @if($errors->any() || session('error_message_sso'))
                     <div class="error-message">
+                        @if(session('error_message_sso'))
+                            <div class="font-bold text-center leading-relaxed text-rose-600 dark:text-rose-400">{{ session('error_message_sso') }}</div>
+                        @endif
                         @foreach($errors->all() as $error)
                             <div>{{ $error }}</div>
                         @endforeach

@@ -40,46 +40,121 @@ class ClientLoginController extends Controller
     public function verifyLoginByUsernameAndToken(Request $request): RedirectResponse
     {
         $username = $request->query('username');
-        $token = $request->query('token');
 
-        if (!$username || !$token) {
-            return redirect('https://info.vttu.edu.vn/')->with('error', 'Thiếu thông tin xác thực.');
+        if (!$username) {
+            return redirect('/login')->with('error_message_sso', 'Thiếu thông tin tài khoản username.');
         }
 
-        // Kiểm tra nếu user đã login với đúng username
-        if (Auth::check() && Auth::user()->username === $username) {
-            if (!Auth::user()->hasRole('visitor')) {
-                return redirect('/topsecret/dashboard');
-            }
-            return redirect('/');
-        }
+        // 1. Kiểm tra nếu user đã tồn tại trong hệ thống thư viện
+        $user = User::where('username', $username)->first();
 
-        // Gọi API xác thực của VTTU
-        $apiUrl = 'https://info.vttu.edu.vn/api/verify_token.php';
-        
-        $response = Http::withoutVerifying()->get($apiUrl, [
-            'username' => $username,
-            'token' => $token,
-        ]);
+        if (!$user) {
+            // 2. Gọi API lấy thông tin người dùng từ Study
+            $apiUrl = 'https://study.vttu.edu.vn/api/user-info';
+            try {
+                $response = Http::withoutVerifying()->get($apiUrl, [
+                    'user_code' => $username,
+                    'key' => '13467902',
+                ]);
 
-        // Kiểm tra response
-        if ($response->successful() && strtolower(trim($response->body())) === 'ok') {
-            $user = User::where('username', $username)->first();
-            if ($user) {
-                Auth::login($user);
-                $request->session()->regenerate();
-
-                // Redirect based on role
-                if (!$user->hasRole('visitor')) {
-                    return redirect('/topsecret/dashboard');
+                // Xử lý khi API trả về lỗi không được phép (Unauthorized) hoặc các mã lỗi 403, 401
+                $isUnauthorized = false;
+                if ($response->status() === 403 || $response->status() === 401) {
+                    $isUnauthorized = true;
+                } else {
+                    $apiData = $response->json();
+                    if (isset($apiData['error']) && $apiData['error'] === 'Unauthorized') {
+                        $isUnauthorized = true;
+                    }
                 }
-            
-                return redirect('/');
-            }
 
-            return redirect('https://info.vttu.edu.vn/')->with('error', 'Tài khoản không tồn tại trong hệ thống.');
+                if ($isUnauthorized) {
+                    return redirect('/login')->with('error_message_sso', 'Bạn không có thông tin trên hệ thống vui lòng liên hệ TTCNPM Trường Đại học Võ Trường Toản - SDT: 02933504398. Cảm ơn.');
+                }
+
+                if ($response->successful()) {
+                    $apiData = $response->json();
+
+                    // Xác định vai trò ánh xạ từ API sang hệ thống thư viện
+                    $dbRoleName = null;
+                    $apiRoleId = $apiData['role_id'] ?? null;
+                    if ($apiRoleId == 1) {
+                        $dbRoleName = 'root';
+                    } elseif ($apiRoleId == 2) {
+                        $dbRoleName = 'admin';
+                    } elseif ($apiRoleId == 4) {
+                        $dbRoleName = 'visitor';
+                    }
+
+                    if (!$dbRoleName) {
+                        return redirect('/login')->with('error_message_sso', 'Vai trò của bạn không được cấp phép truy cập hệ thống.');
+                    }
+
+                    $role = \App\Models\Role::where('name', $dbRoleName)->first();
+                    if (!$role) {
+                        return redirect('/login')->with('error_message_sso', 'Hệ thống chưa cấu hình vai trò bảo mật tương ứng.');
+                    }
+
+                    // Tạo User mới trong hệ thống thư viện
+                    $user = User::create([
+                        'name' => $apiData['name'] ?? $username,
+                        'username' => $username,
+                        'email' => $apiData['email'] ?? ($username . '@vttu.edu.vn'),
+                        'password' => bcrypt('Vttulib@2026'),
+                        'status' => 'active',
+                    ]);
+
+                    // Gán vai trò vào bảng pivot role_user
+                    $roleUserPivotId = \Illuminate\Support\Facades\DB::table('role_user')->insertGetId([
+                        'role_id' => $role->id,
+                        'user_id' => $user->id,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    // Đồng bộ các quyền sidebar tương ứng
+                    $roleSidebars = \Illuminate\Support\Facades\DB::table('role_sidebars')->where('role_id', $role->id)->get();
+                    foreach ($roleSidebars as $rs) {
+                        \Illuminate\Support\Facades\DB::table('user_role_sidebars')->insert([
+                            'role_user_id' => $roleUserPivotId,
+                            'sidebar_id' => $rs->sidebar_id,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                    }
+
+                    // Tạo dữ liệu độc giả (PatronDetail)
+                    $patronGroup = \Illuminate\Support\Facades\DB::table('patron_groups')->first();
+                    $patronGroupId = $patronGroup ? $patronGroup->id : 1;
+
+                    \Illuminate\Support\Facades\DB::table('patron_details')->insert([
+                        'user_id' => $user->id,
+                        'patron_group_id' => $patronGroupId,
+                        'patron_code' => $username,
+                        'display_name' => $user->name,
+                        'card_status' => 'active',
+                        'mssv' => $apiData['user_code'] ?? null,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                } else {
+                    return redirect('/login')->with('error_message_sso', 'Lỗi kết nối đến hệ thống xác thực. Vui lòng thử lại sau.');
+                }
+            } catch (\Exception $e) {
+                return redirect('/login')->with('error_message_sso', 'Không thể kết nối đến hệ thống xác thực: ' . $e->getMessage());
+            }
         }
 
-        return redirect('https://info.vttu.edu.vn/')->with('error', 'Xác thực thất bại từ hệ thống xác thực.');
+        // 3. Tiến hành đăng nhập
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // 4. Chuyển hướng người dùng dựa vào vai trò
+        if ($user->hasRole('root') || $user->hasRole('admin')) {
+            return redirect('/topsecret/dashboard');
+        }
+
+        return redirect('/');
     }
 }
