@@ -74,20 +74,43 @@
                     </a>
 
                     @foreach($categories as $category)
+                    {{-- Thư mục gốc --}}
                     <a href="{{ route('admin.digital-cataloging.index', ['category_id' => $category->id, 'collapsed' => request('collapsed')]) }}" 
-                       class="flex items-center justify-between px-3 py-2 rounded-md transition-all text-xs {{ request('category_id') == $category->id ? 'bg-primary text-primary-foreground font-bold' : 'text-muted-foreground hover:bg-muted hover:text-foreground font-medium' }}">
-                        <div class="flex items-center gap-2">
+                       class="flex items-center justify-between px-3 py-2 rounded-md transition-all text-xs {{ request('category_id') == $category->id ? 'bg-primary text-primary-foreground font-bold' : 'text-foreground hover:bg-muted font-medium' }}">
+                        <div class="flex items-center gap-2 min-w-0">
                             @if(request('category_id') == $category->id)
-                                <i data-lucide="folder-open" class="w-4 h-4"></i>
+                                <i data-lucide="folder-open" class="w-4 h-4 shrink-0"></i>
                             @else
-                                <i data-lucide="folder" class="w-4 h-4"></i>
+                                <i data-lucide="folder" class="w-4 h-4 shrink-0 text-amber-500"></i>
                             @endif
-                            <span class="truncate">{{ $category->folder_name }}</span>
+                            <span class="truncate font-semibold">{{ $category->folder_name }}</span>
                         </div>
-                        <span class="text-[9px] px-1.5 py-0.5 rounded-sm {{ request('category_id') == $category->id ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground border border-border' }}">
+                        <span class="text-[9px] px-1.5 py-0.5 rounded-sm shrink-0 {{ request('category_id') == $category->id ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground border border-border' }}">
                             {{ $category->resources_count }}
                         </span>
                     </a>
+
+                    {{-- Thư mục con (cấp 1) --}}
+                    @if($category->children->isNotEmpty())
+                        <div class="ml-3 pl-3 border-l-2 border-border/60 space-y-0.5 mt-0.5 mb-1">
+                            @foreach($category->children as $child)
+                            <a href="{{ route('admin.digital-cataloging.index', ['category_id' => $child->id, 'collapsed' => request('collapsed')]) }}" 
+                               class="flex items-center justify-between px-2 py-1.5 rounded-md transition-all text-xs {{ request('category_id') == $child->id ? 'bg-primary text-primary-foreground font-bold' : 'text-muted-foreground hover:bg-muted hover:text-foreground font-medium' }}">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    @if(request('category_id') == $child->id)
+                                        <i data-lucide="folder-open" class="w-3.5 h-3.5 shrink-0"></i>
+                                    @else
+                                        <i data-lucide="folder" class="w-3.5 h-3.5 shrink-0 text-amber-400/70"></i>
+                                    @endif
+                                    <span class="truncate">{{ $child->folder_name }}</span>
+                                </div>
+                                <span class="text-[9px] px-1.5 py-0.5 rounded-sm shrink-0 {{ request('category_id') == $child->id ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground border border-border' }}">
+                                    {{ $child->resources_count }}
+                                </span>
+                            </a>
+                            @endforeach
+                        </div>
+                    @endif
                     @endforeach
                 </nav>
             </div>

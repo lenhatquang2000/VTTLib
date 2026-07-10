@@ -153,16 +153,18 @@ class DigitalResourceController extends Controller
         return session($sessionKey);
     }
 
-    /**
-     * XOR encrypt/decrypt (symmetric)
-     */
     private function xorEncrypt(string $data, string $key): string
     {
         $keyLen = strlen($key);
-        $result = '';
-        for ($i = 0; $i < strlen($data); $i++) {
-            $result .= chr(ord($data[$i]) ^ ord($key[$i % $keyLen]));
+        if ($keyLen === 0) {
+            return $data;
         }
-        return $result;
+
+        // Lặp lại key để có độ dài bằng hoặc lớn hơn $data
+        $keyRepeated = str_repeat($key, ceil(strlen($data) / $keyLen));
+        // Cắt key cho bằng độ dài $data để thực hiện bitwise XOR trực tiếp
+        $keyRepeated = substr($keyRepeated, 0, strlen($data));
+
+        return $data ^ $keyRepeated;
     }
 }

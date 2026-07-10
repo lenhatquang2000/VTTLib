@@ -193,6 +193,13 @@
                                class="w-full h-9 px-3 bg-background border border-border rounded-sm text-xs focus:ring-1 focus:ring-primary outline-none transition-all">
                     </div>
 
+                    <!-- Pages -->
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">{{ __('Số trang') }}</label>
+                        <input type="number" name="pages" value="{{ old('pages', $resource->pages) }}"
+                               class="w-full h-9 px-3 bg-background border border-border rounded-sm text-xs focus:ring-1 focus:ring-primary outline-none transition-all" min="1">
+                    </div>
+
                     <!-- Description (Full Width) -->
                     <div class="md:col-span-2 space-y-1.5">
                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">{{ __('Mô tả / Tóm tắt nội dung') }}</label>

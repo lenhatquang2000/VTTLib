@@ -36,6 +36,7 @@ class DigitalResource extends Model
         'status',
         'view_count',
         'download_count',
+        'pages',
         'created_by',
         'updated_by'
     ];
@@ -47,7 +48,8 @@ class DigitalResource extends Model
         'secondary_authors' => 'array',
         'view_count' => 'integer',
         'download_count' => 'integer',
-        'file_size' => 'integer'
+        'file_size' => 'integer',
+        'pages' => 'integer'
     ];
 
     public function folder(): BelongsTo

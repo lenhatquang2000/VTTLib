@@ -499,6 +499,7 @@
     "Digital Download Permission": "Quyền tải tài liệu số",
     "Configure patron groups allowed to download PDF files.": "Cấu hình nhóm đối tượng được phép tải tệp tin PDF.",
     "Preview Page Limit": "Số trang xem thử",
+    "Số trang": "Số trang",
     "0 = Unlimited": "0 = Không giới hạn",
     "No patron groups defined yet.": "Chưa có nhóm đối tượng nào được định nghĩa.",
     "Guest Configuration": "Cấu hình cho Khách",

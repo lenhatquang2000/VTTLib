@@ -691,18 +691,24 @@ class SiteController extends Controller
 
         // Nạp dữ liệu tài liệu số nếu truy cập trang tài liệu số
         if ($code === 'tai-lieu-so' || $siteNode->masterpage === 'digital-resources') {
-            $sort = request()->query('sort', 'latest');
+            $sort = request()->query('sort', 'oldest_updated');
             $query = \App\Models\DigitalResource::with('folder')->where('status', 'published');
             
             switch ($sort) {
+                case 'latest':
+                    $query->latest();
+                    break;
                 case 'most_viewed':
                     $query->orderBy('view_count', 'desc');
                     break;
                 case 'most_downloaded':
                     $query->orderBy('download_count', 'desc');
                     break;
+                case 'oldest_updated':
                 default:
-                    $query->latest();
+                    $query->orderBy('updated_at', 'asc');
+                    $sort = 'oldest_updated'; // dam bao sort luon hop le
+                    break;
             }
             
             $extraData['resources'] = $query->paginate(15);

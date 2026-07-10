@@ -6,13 +6,16 @@
 <div class="space-y-[6px] animate-fade-in">
     <!-- Tabs Navigation -->
     <div class="flex items-end border-b border-border bg-muted/20 rounded-t-sm overflow-hidden">
-        <button onclick="changeSort('latest')" class="px-5 py-2.5 text-[11px] font-black uppercase tracking-widest {{ $currentSort === 'latest' ? 'bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
+        <button onclick="changeSort('oldest_updated')" class="px-5 py-2.5 text-[11px] uppercase tracking-widest {{ $currentSort === 'oldest_updated' ? 'font-black bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
+            {{ __('Cũ đến mới') }}
+        </button>
+        <button onclick="changeSort('latest')" class="px-5 py-2.5 text-[11px] uppercase tracking-widest {{ $currentSort === 'latest' ? 'font-black bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
             {{ __('Mới nhất') }}
         </button>
-        <button onclick="changeSort('most_viewed')" class="px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest {{ $currentSort === 'most_viewed' ? 'bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
+        <button onclick="changeSort('most_viewed')" class="px-5 py-2.5 text-[11px] uppercase tracking-widest {{ $currentSort === 'most_viewed' ? 'font-black bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
             {{ __('Xem nhiều') }}
         </button>
-        <button onclick="changeSort('most_downloaded')" class="px-5 py-2.5 text-[11px] font-bold uppercase tracking-widest {{ $currentSort === 'most_downloaded' ? 'bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
+        <button onclick="changeSort('most_downloaded')" class="px-5 py-2.5 text-[11px] uppercase tracking-widest {{ $currentSort === 'most_downloaded' ? 'font-black bg-card text-vttu-red border-t-2 border-vttu-red shadow-[0_-2px_10px_rgba(123,0,0,0.05)] relative z-10' : 'font-bold text-muted-foreground hover:bg-muted/50 hover:text-foreground active:bg-muted' }} transition-all">
             {{ __('Tải nhiều') }}
         </button>
     </div>
@@ -66,7 +69,8 @@
                     <th class="py-2.5 px-4 w-12 text-center border-r border-border/50">#</th>
                     <th class="py-2.5 px-4">{{ __('Tiêu đề') }}</th>
                     <th class="py-2.5 px-4 w-48 text-center hidden md:table-cell border-l border-border/50">{{ __('Tác giả') }}</th>
-                    <th class="py-2.5 px-4 w-40 text-right hidden sm:table-cell border-l border-border/50">{{ __('Loại tài liệu') }}</th>
+                    <th class="py-2.5 px-4 w-32 text-center hidden md:table-cell border-l border-border/50">{{ __('Ngày cập nhật') }}</th>
+                    <th class="py-2.5 px-4 w-32 text-right hidden sm:table-cell border-l border-border/50">{{ __('Loại tài liệu') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-border/40 text-xs">
@@ -90,6 +94,7 @@
                                 </h4>
                                 <div class="flex flex-wrap gap-2 pt-1 md:hidden">
                                     <span class="text-[10px] text-vttu-red/70 font-bold italic"><i data-lucide="user" class="w-3 h-3 inline mr-0.5"></i> {{ $item->author ?: __('Đang cập nhật') }}</span>
+                                    <span class="text-[10px] text-slate-500 font-bold italic"><i data-lucide="calendar" class="w-3.5 h-3.5 inline mr-0.5"></i> {{ $item->updated_at ? $item->updated_at->format('d-m-Y') : 'N/A' }}</span>
                                     <span class="text-[10px] text-muted-foreground font-bold italic"><i data-lucide="file-text" class="w-3 h-3 inline mr-0.5"></i> {{ __('Tài liệu số') }}</span>
                                 </div>
                             </div>
@@ -100,7 +105,12 @@
                             {{ $item->author ?: __('Đang cập nhật') }}
                         </span>
                     </td>
-                    <td class="py-4 px-4 w-40 text-right hidden sm:table-cell border-l border-border/30">
+                    <td class="py-4 px-4 w-32 text-center hidden md:table-cell border-l border-border/30">
+                        <span class="text-muted-foreground group-hover:text-foreground transition-colors font-bold text-[11px]">
+                            {{ $item->updated_at ? $item->updated_at->format('d-m-Y') : 'N/A' }}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 w-32 text-right hidden sm:table-cell border-l border-border/30">
                         <span class="inline-flex items-center px-2 py-0.5 rounded-sm bg-muted text-muted-foreground text-[10px] font-black uppercase tracking-widest border border-border group-hover:bg-vttu-red/10 group-hover:text-vttu-red group-hover:border-vttu-red/20 transition-all">
                             {{ __('Tài liệu số') }}
                         </span>
@@ -108,7 +118,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="py-20 text-center">
+                    <td colspan="5" class="py-20 text-center">
                         <div class="flex flex-col items-center justify-center opacity-20">
                             <i data-lucide="folder-open" class="w-12 h-12 mb-4"></i>
                             <p class="text-sm font-bold uppercase tracking-widest">{{ __('Không tìm thấy tài liệu nào') }}</p>

@@ -67,7 +67,7 @@
                         </div>
                         <div class="flex items-start justify-between border-b border-border/50 pb-2">
                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ __('Số trang/ tờ') }}:</span>
-                            <span id="pdf-page-count" class="text-xs font-black text-primary uppercase">{{ $resource->pages_count ?: '---' }}</span>
+                            <span id="pdf-page-count" class="text-xs font-black text-primary uppercase">{{ $resource->pages ?: '---' }}</span>
                         </div>
                         <div class="flex items-start justify-between border-b border-border/50 pb-2">
                             <span class="text-xs font-bold text-muted-foreground uppercase tracking-wider">{{ __('Định dạng') }}:</span>

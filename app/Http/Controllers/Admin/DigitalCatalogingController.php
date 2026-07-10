@@ -11,8 +11,14 @@ class DigitalCatalogingController extends Controller
 {
     public function index(Request $request)
     {
-        // Sử dụng DigitalFolder làm phân mục
-        $categories = \App\Models\DigitalFolder::withCount('resources')->orderBy('folder_name')->get();
+        // Lấy thư mục gốc (parent_id = null) kèm thư mục con và số lượng tài liệu
+        $categories = \App\Models\DigitalFolder::withCount('resources')
+            ->with(['children' => function ($q) {
+                $q->withCount('resources')->orderBy('folder_name');
+            }])
+            ->whereNull('parent_id')
+            ->orderBy('folder_name')
+            ->get();
 
         // Lấy danh sách tài liệu
         $query = DigitalResource::with(['folder', 'creator']);
@@ -57,6 +63,7 @@ class DigitalCatalogingController extends Controller
             'folder_id' => 'required|exists:digital_folders,id',
             'title' => 'required|string|max:255',
             'language' => 'required|string',
+            'pages' => 'nullable|integer|min:1',
             'file_resource' => ($isEdit ? 'nullable' : 'required') . '|file|mimes:pdf|max:51200',
             'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
@@ -97,6 +104,7 @@ class DigitalCatalogingController extends Controller
         $resource->publish_year = $request->publish_year;
         $resource->format = $request->format;
         $resource->identifier = $request->identifier;
+        $resource->pages = $request->pages;
         $resource->source = $request->source;
         $resource->link = $request->link;
         $resource->coverage = $request->coverage;
