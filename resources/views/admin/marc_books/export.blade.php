@@ -774,15 +774,16 @@
             exportBtn.addEventListener('click', function() {
                 const form = document.getElementById('reportForm');
                 if (form) {
-                    // Vô hiệu hóa nút để tránh click trùng lặp
-                    exportBtn.disabled = true;
-                    exportBtn.innerHTML = `
-                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <span>${'{{ __("Đang gửi...") }}'}</span>
-                    `;
+                    // Bắn thông báo đã nhận yêu cầu ngay lập tức
+                    window.dispatchEvent(new CustomEvent('toast', {
+                        detail: {
+                            message: '{{ __("Yêu cầu xuất tệp của bạn đã được ghi nhận và đang xử lý...") }}',
+                            type: 'info'
+                        }
+                    }));
+                    
+                    // Kích hoạt cơ chế Polling thông báo ở quả chuông
+                    window.dispatchEvent(new CustomEvent('export-started'));
 
                     const formData = new FormData(form);
                     const params = new URLSearchParams();
@@ -803,16 +804,7 @@
                     })
                     .then(res => res.json())
                     .then(data => {
-                        if (data.success) {
-                            window.dispatchEvent(new CustomEvent('toast', {
-                                detail: {
-                                    message: data.message,
-                                    type: 'success'
-                                }
-                            }));
-                            // Phát sự kiện bắt đầu polling thông báo xuất file
-                            window.dispatchEvent(new CustomEvent('export-started'));
-                        } else {
+                        if (!data.success) {
                             window.dispatchEvent(new CustomEvent('toast', {
                                 detail: {
                                     message: data.message || '{{ __("Lỗi xảy ra khi gửi yêu cầu.") }}',
@@ -829,17 +821,6 @@
                                 type: 'error'
                             }
                         }));
-                    })
-                    .finally(() => {
-                        // Khôi phục trạng thái nút
-                        exportBtn.disabled = false;
-                        exportBtn.innerHTML = `
-                            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-white"></i>
-                            <span>${'{{ __("Xuất tệp Excel") }}'}</span>
-                        `;
-                        if (typeof lucide !== 'undefined') {
-                            lucide.createIcons();
-                        }
                     });
                 }
             });

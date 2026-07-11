@@ -369,6 +369,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::get('/export-histories/list', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesList'])->name('admin.export-histories.list');
     Route::get('/export-histories/{id}/download', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesDownload'])->name('admin.export-histories.download');
     Route::post('/export-histories/mark-all-read', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesMarkAllRead'])->name('admin.export-histories.mark-all-read');
+    Route::delete('/export-histories/{id}', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesDestroy'])->name('admin.export-histories.destroy');
 
     // Distribution & Inventory
     Route::get('/marc-books/{record}/distribution', [\App\Http\Controllers\Admin\BookDistributionController::class, 'index'])->name('admin.marc.book.distribution');

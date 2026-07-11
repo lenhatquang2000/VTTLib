@@ -571,7 +571,16 @@
 
                                     <!-- Content -->
                                     <div class="flex-1 min-w-0">
-                                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" x-text="item.title"></p>
+                                        <div class="flex items-start justify-between">
+                                            <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate pr-2" x-text="item.title"></p>
+                                            <button @click.stop="deleteNotification(item.id)" 
+                                                    class="text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 p-1 -mt-1 rounded-md transition-colors"
+                                                    title="{{ __('Xóa thông báo') }}">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                         <p class="text-[10px] text-slate-400 mt-0.5 truncate" x-text="item.filename"></p>
                                         
                                         <div class="flex items-center justify-between mt-1">
@@ -833,6 +842,28 @@
                             this.unreadCount = 0;
                         });
                     }
+                },
+                deleteNotification(id) {
+                    fetch(`/topsecret/export-histories/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.histories = this.histories.filter(h => h.id !== id);
+                            window.dispatchEvent(new CustomEvent('toast', { 
+                                detail: { 
+                                    message: '{{ __("Đã xóa thông báo thành công.") }}', 
+                                    type: 'success' 
+                                } 
+                            }));
+                        }
+                    })
+                    .catch(err => console.error('Error deleting notification:', err));
                 },
                 formatDate(dateStr) {
                     if (!dateStr) return '';

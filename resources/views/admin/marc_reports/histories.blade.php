@@ -95,22 +95,36 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
-                                @if ($history->status === 'completed')
-                                    <a href="{{ route('admin.export-histories.download', $history->id) }}" 
-                                       class="inline-flex items-center justify-center p-2 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-300 group"
-                                       title="{{ __('Tải xuống') }}">
-                                        <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                        </svg>
-                                    </a>
-                                @else
-                                    <button disabled 
-                                            class="inline-flex items-center justify-center p-2 text-slate-300 dark:text-slate-700 cursor-not-allowed">
-                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                        </svg>
-                                    </button>
-                                @endif
+                                <div class="flex items-center justify-center space-x-2">
+                                    @if ($history->status === 'completed')
+                                        <a href="{{ route('admin.export-histories.download', $history->id) }}" 
+                                           class="inline-flex items-center justify-center p-2 text-indigo-600 dark:text-indigo-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all duration-300 group"
+                                           title="{{ __('Tải xuống') }}">
+                                            <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                        </a>
+                                    @else
+                                        <button disabled 
+                                                class="inline-flex items-center justify-center p-2 text-slate-350 dark:text-slate-700 cursor-not-allowed">
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                        </button>
+                                    @endif
+
+                                    <form action="{{ route('admin.export-histories.destroy', $history->id) }}" method="POST" onsubmit="return confirm('{{ __('Bạn có chắc chắn muốn xóa bản ghi xuất file này?') }}')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="inline-flex items-center justify-center p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors"
+                                                title="{{ __('Xóa') }}">
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

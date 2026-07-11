@@ -197,13 +197,13 @@ class MarcReportController extends Controller
             'status'      => 'pending',
         ]);
 
-        // Đẩy job xử lý xuất dữ liệu vào hàng đợi (Queue)
+        // Đẩy job xử lý xuất dữ liệu đồng bộ (sync) để tự động thực thi ngay mà không cần bật Worker
         \App\Jobs\ExportMarcReportJob::dispatch(
             $history->id,
             $request->all(),
             $reportType,
             $format
-        );
+        )->onConnection('sync');
 
         return response()->json([
             'success' => true,
@@ -877,6 +877,24 @@ class MarcReportController extends Controller
            \App\Models\ExportHistory::where('user_id', auth()->id())
                ->where('is_read', false)
                ->update(['is_read' => true]);
+
+           return response()->json(['success' => true]);
+       }
+
+       /**
+        * Xóa một bản ghi lịch sử xuất dữ liệu và file tương ứng
+        */
+       public function exportHistoriesDestroy($id)
+       {
+           $history = \App\Models\ExportHistory::where('user_id', auth()->id())
+               ->where('id', $id)
+               ->firstOrFail();
+
+           if ($history->file_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($history->file_path)) {
+               \Illuminate\Support\Facades\Storage::disk('local')->delete($history->file_path);
+           }
+
+           $history->delete();
 
            return response()->json(['success' => true]);
        }
