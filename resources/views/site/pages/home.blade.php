@@ -666,10 +666,29 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
 </style>
 @section('scripts')
 <script>
-    // Define the data function first for Alpine.js
     function catalogWizard() {
-        return {
+        if (window.homeWizard) return window.homeWizard;
+
+        window.homeWizard = {
+            currentTab: 'book',
+            sidebarOpen: true,
+            pages: {
+                book: 1,
+                journal: 1,
+                folder: 1
+            },
+            hasMore: {
+                book: true,
+                journal: true,
+                folder: true
+            },
+            loadingMore: false,
             loadTab(type, tabsId, contentId, eventOverride = null) {
+                this.currentTab = type;
+                this.pages[type] = 1;
+                this.hasMore[type] = true;
+                this.loadingMore = false;
+                
                 const target = eventOverride ? eventOverride.currentTarget : event.currentTarget;
                 const contentDiv = document.getElementById(contentId);
                 const tabsDiv = document.getElementById(tabsId);
@@ -678,7 +697,7 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
 
                 contentDiv.classList.add('tab-loading');
                 
-                fetch(`{{ route('home') }}?type=${type}`, {
+                fetch(`{{ route('home') }}?type=${type}&page=1`, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(response => {
@@ -702,10 +721,6 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                     // Console log dữ liệu vừa get được
                     const books = contentDiv.querySelectorAll('.swiper-slide:not(.py-12)'); // py-12 là cho slide trống (empty)
                     console.log(`[AJAX] Loaded tab: ${type}. Total books found: ${books.length}`);
-                    books.forEach((book, index) => {
-                        const title = book.querySelector('h3')?.textContent?.trim();
-                        console.log(`  ${index + 1}. ${title}`);
-                    });
                 })
                 .catch(error => {
                     console.error('Error loading tab:', error);
@@ -717,25 +732,94 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                 const container = document.querySelector('.books-swiper-container');
                 if (container) {
                     if (container.swiper) container.swiper.destroy();
+                    const self = window.homeWizard;
                     new Swiper('.books-swiper-container', {
-                        slidesPerView: 1,
+                        slidesPerView: 'auto',
                         spaceBetween: 12,
                         centeredSlides: false,
+                        observer: true,
+                        observeParents: true,
                         navigation: {
                             nextEl: '.books-next',
                             prevEl: '.books-prev',
                         },
-                        pagination: {
-                            el: '.books-pagination',
-                            clickable: true,
-                        },
                         breakpoints: {
-                            640: { slidesPerView: 2, spaceBetween: 16 },
-                            1024: { slidesPerView: 3, spaceBetween: 20 },
-                            1280: { slidesPerView: 4, spaceBetween: 24 }
+                            640: { spaceBetween: 16 },
+                            1024: { spaceBetween: 20 },
+                            1280: { spaceBetween: 24 }
+                        },
+                        on: {
+                            slideChange: function() {
+                                const activeIndex = this.activeIndex;
+                                if (this.lastActiveIndex === undefined) {
+                                    this.lastActiveIndex = 0;
+                                }
+                                console.log(`[Swiper] Slide changed. Active: ${activeIndex}, Last: ${this.lastActiveIndex}`);
+                                if (activeIndex > this.lastActiveIndex) {
+                                    self.loadNextPage();
+                                }
+                                this.lastActiveIndex = activeIndex;
+                            }
                         }
                     });
                 }
+            },
+            loadNextPage() {
+                const type = this.currentTab;
+                if (!this.hasMore[type] || this.loadingMore) return;
+
+                const container = document.querySelector('.books-swiper-container');
+                if (!container || !container.swiper) return;
+                const wrapper = container.querySelector('.swiper-wrapper');
+                if (!wrapper) return;
+
+                const currentSlides = wrapper.querySelectorAll('.swiper-slide:not(.py-12)');
+                const offset = currentSlides.length;
+
+                this.loadingMore = true;
+                console.log(`[LazyLoad] Requesting book at offset ${offset} for tab ${type}...`);
+                
+                fetch(`{{ route('home') }}?type=${type}&offset=${offset}&limit=1&only_slides=1`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.text();
+                })
+                .then(html => {
+                    const trimmedHtml = html.trim();
+                    if (trimmedHtml === '' || trimmedHtml.includes('swiper-slide w-full py-12 text-center')) {
+                        console.log(`[LazyLoad] No more items found for tab ${type}.`);
+                        this.hasMore[type] = false;
+                        this.loadingMore = false;
+                        return;
+                    }
+                    
+                    const temp = document.createElement('div');
+                    temp.innerHTML = trimmedHtml;
+                    
+                    let count = 0;
+                    while (temp.firstChild) {
+                        if (temp.firstChild.nodeType === 1) { // Element node
+                            wrapper.appendChild(temp.firstChild);
+                            count++;
+                        } else {
+                            temp.removeChild(temp.firstChild);
+                        }
+                    }
+                    
+                    if (count > 0) {
+                        console.log(`[LazyLoad] Appended ${count} new slide(s). Updating Swiper...`);
+                        container.swiper.update();
+                    } else {
+                        this.hasMore[type] = false;
+                    }
+                    this.loadingMore = false;
+                })
+                .catch(error => {
+                    console.error('Error loading next page:', error);
+                    this.loadingMore = false;
+                });
             },
             loadResourceTab(event, type, tabsId, contentId) {
                 const target = event.currentTarget;
@@ -837,6 +921,7 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                 });
             }
         }
+        return window.homeWizard;
     }
 
     document.addEventListener('DOMContentLoaded', function() {

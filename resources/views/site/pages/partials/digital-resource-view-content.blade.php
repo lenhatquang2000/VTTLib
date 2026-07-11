@@ -92,11 +92,11 @@
                      class="max-w-full max-h-full object-contain rounded shadow-md">
             </div>
 
-            <div x-show="isFullscreen" class="absolute top-4 right-6 z-[10000]" x-transition>
+            <div x-show="isFullscreen" class="absolute bottom-6 right-6 z-[10000]" x-transition>
                 <button @click="toggleFullscreen()"
-                        class="flex items-center gap-2 px-4 py-2 bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20">
+                        class="w-12 h-12 flex items-center justify-center bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20"
+                        title="{{ __('Thu nhỏ') }}">
                     <i data-lucide="minimize" class="w-5 h-5"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Thu nhỏ') }}</span>
                 </button>
             </div>
         </div>
@@ -113,11 +113,11 @@
                         allowfullscreen>
                 </iframe>
 
-                <div x-show="isFullscreen" class="absolute top-4 right-6 z-[10000]" x-transition>
+                <div x-show="isFullscreen" class="absolute bottom-6 right-6 z-[10000]" x-transition>
                     <button @click="toggleFullscreen()"
-                            class="flex items-center gap-2 px-4 py-2 bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20">
+                            class="w-12 h-12 flex items-center justify-center bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20"
+                            title="{{ __('Thu nhỏ') }}">
                         <i data-lucide="minimize" class="w-5 h-5"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Thu nhỏ') }}</span>
                     </button>
                 </div>
             </div>
@@ -137,11 +137,11 @@
                     </div>
                 </div>
 
-                <div x-show="isFullscreen" class="absolute top-4 right-6 z-[10000]" x-transition>
+                <div x-show="isFullscreen" class="absolute bottom-6 right-6 z-[10000]" x-transition>
                     <button @click="toggleFullscreen()"
-                            class="flex items-center gap-2 px-4 py-2 bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20">
+                            class="w-12 h-12 flex items-center justify-center bg-vttu-red text-white rounded-full shadow-2xl hover:bg-vttu-dark active:scale-90 transition-all border-2 border-white/20"
+                            title="{{ __('Thu nhỏ') }}">
                         <i data-lucide="minimize" class="w-5 h-5"></i>
-                        <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Thu nhỏ') }}</span>
                     </button>
                 </div>
             </div>

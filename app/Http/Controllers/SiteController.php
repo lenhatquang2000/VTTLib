@@ -54,7 +54,30 @@ class SiteController extends Controller
             $query->where('record_type', 'book');
         }
 
-        $newBooks = $query->where('status', 'approved')->latest()->take(20)->get();
+        if ($request->has('offset')) {
+            $offset = intval($request->query('offset'));
+            $perPage = intval($request->query('limit', 1));
+        } else {
+            $page = intval($request->query('page', 1));
+            if ($page === 1) {
+                $perPage = 10;
+                $offset = 0;
+            } else {
+                $perPage = 1;
+                $offset = 10 + ($page - 2);
+            }
+        }
+
+        $newBooks = $query->where('status', 'approved')
+            ->latest()
+            ->offset($offset)
+            ->limit($perPage)
+            ->get();
+
+        // Check if AJAX requesting only slides for lazy loading
+        if ($request->ajax() && $request->has('only_slides')) {
+            return view('site.pages.partials.home-books-slides', compact('newBooks'));
+        }
 
         // Kiểm tra AJAX cho Section 1 tabs (Sách mới | Tạp chí | Thư mục)
         if ($request->ajax() && $request->has('type')) {
@@ -692,8 +715,31 @@ class SiteController extends Controller
         // Nạp dữ liệu tài liệu số nếu truy cập trang tài liệu số
         if ($code === 'tai-lieu-so' || $siteNode->masterpage === 'digital-resources') {
             $sort = request()->query('sort', 'oldest_updated');
+            $field = request()->query('field', 'title');
+            $keyword = request()->query('q');
+            $folderId = request()->query('folder_id');
+
             $query = \App\Models\DigitalResource::with('folder')->where('status', 'published');
             
+            if ($folderId) {
+                $query->where('folder_id', $folderId);
+            }
+
+            if ($keyword) {
+                $query->where(function($q) use ($field, $keyword) {
+                    if ($field === 'author') {
+                        $q->where('authors', 'like', '%' . $keyword . '%')
+                          ->orWhere('secondary_authors', 'like', '%' . $keyword . '%');
+                    } elseif ($field === 'subject') {
+                        $q->where('subjects', 'like', '%' . $keyword . '%')
+                          ->orWhere('topics', 'like', '%' . $keyword . '%');
+                    } else {
+                        $q->where('title', 'like', '%' . $keyword . '%')
+                          ->orWhere('description', 'like', '%' . $keyword . '%');
+                    }
+                });
+            }
+
             switch ($sort) {
                 case 'latest':
                     $query->latest();
@@ -711,9 +757,13 @@ class SiteController extends Controller
                     break;
             }
             
-            $extraData['resources'] = $query->paginate(15);
-            $extraData['totalCount'] = \App\Models\DigitalResource::where('status', 'published')->count();
+            $extraData['resources'] = $query->paginate(15)->withQueryString();
+            $extraData['totalCount'] = $query->count();
             $extraData['currentSort'] = $sort;
+            $extraData['currentField'] = $field;
+            $extraData['keyword'] = $keyword;
+            $extraData['currentFolderId'] = $folderId;
+            $extraData['folders'] = \App\Models\DigitalFolder::where('is_active', true)->orderBy('sort_order')->get();
         }
 
         // Nạp dữ liệu OER nếu truy cập trang tài nguyên giáo dục mở (chỉ load list, không phải landing page)

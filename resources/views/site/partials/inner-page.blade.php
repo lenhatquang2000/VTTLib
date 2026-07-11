@@ -70,6 +70,23 @@
 
 <div class="min-h-screen bg-background text-foreground animate-fade-in pt-16" x-data="{ sidebarOpen: true }">
 
+    <!-- Floating Expand Button when Sidebar is Collapsed -->
+    <div x-show="!sidebarOpen"
+         class="fixed left-0 top-1/2 -translate-y-1/2 z-[100]"
+         x-transition:enter="transition ease-out duration-300 transform"
+         x-transition:enter-start="-translate-x-full"
+         x-transition:enter-end="translate-x-0"
+         x-transition:leave="transition ease-in duration-200 transform"
+         x-transition:leave-start="translate-x-0"
+         x-transition:leave-end="-translate-x-full"
+         x-cloak>
+        <button @click="sidebarOpen = true; if(window.lucide) lucide.createIcons();"
+                class="flex items-center justify-center w-10 h-12 bg-vttu-red text-white rounded-r-lg shadow-lg hover:bg-vttu-dark active:scale-95 transition-all border-y border-r border-white/20"
+                title="{{ __('Mở rộng Sidebar') }}">
+            <i data-lucide="panel-left-open" class="w-5 h-5"></i>
+        </button>
+    </div>
+
     <div class="w-full px-4 py-4 mt-[6px] md:px-6 md:py-6">
         <div class="flex flex-col lg:flex-row gap-4">
             
@@ -84,12 +101,17 @@
                    x-transition:leave-end="opacity-0 -translate-x-full">
                 <!-- Navigation Card -->
                 <div class="bg-card text-card-foreground border border-border rounded-md shadow-sm overflow-hidden">
-                    <div class="p-3 bg-vttu-red border-b border-vttu-red/20 shadow-sm relative overflow-hidden group">
+                    <div class="p-3 bg-vttu-red border-b border-vttu-red/20 shadow-sm relative overflow-hidden group flex items-center justify-between">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 blur-xl rounded-full -mr-8 -mt-8 transition-transform group-hover:scale-150 duration-700"></div>
                         <div class="flex items-center gap-2 relative z-10">
                             <div class="w-1 h-4 bg-vttu-yellow rounded-full"></div>
                             <h3 class="text-xs font-black uppercase tracking-[0.2em] text-white">{{ $sectionLabel }}</h3>
                         </div>
+                        <button @click="sidebarOpen = false; if(window.lucide) lucide.createIcons();"
+                                class="relative z-10 p-1.5 text-white/80 hover:text-white rounded hover:bg-white/10 active:scale-95 transition-all flex items-center justify-center"
+                                title="{{ __('Thu gọn Sidebar') }}">
+                            <i data-lucide="panel-left-close" class="w-4 h-4"></i>
+                        </button>
                     </div>
                     <nav class="p-2 space-y-1">
                         @foreach($sidebarItems as $item)

@@ -21,35 +21,67 @@
     </div>
 
     <!-- Search Header -->
-    <div class="bg-card border border-border shadow-sm p-3 flex flex-col sm:flex-row gap-2 transition-colors duration-200">
-        <div class="relative min-w-[140px]">
-            <select class="w-full h-9 pl-3 pr-8 text-xs font-bold bg-muted/30 border border-border rounded-sm appearance-none outline-none focus:ring-1 focus:ring-vttu-red/30 focus:border-vttu-red/30 transition-all cursor-pointer">
-                <option value="title">{{ __('Tiêu đề') }}</option>
-                <option value="author">{{ __('Tác giả') }}</option>
-                <option value="subject">{{ __('Chủ đề') }}</option>
-            </select>
-            <i data-lucide="chevron-down" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none"></i>
-        </div>
-        
-        <div class="flex-1 relative group">
-            <input type="text" 
-                   placeholder="{{ __('Nhập từ khóa tìm kiếm tài liệu số...') }}"
-                   class="w-full h-9 pl-3 pr-10 text-xs bg-background border border-border rounded-sm outline-none focus:ring-1 focus:ring-vttu-red/30 focus:border-vttu-red/30 transition-all placeholder:text-muted-foreground/60">
-            <div class="absolute right-0 top-0 h-9 px-3 flex items-center justify-center text-muted-foreground opacity-40 group-focus-within:opacity-100 transition-opacity">
-                <i data-lucide="keyboard" class="w-4 h-4"></i>
+    <form method="GET" action="" class="bg-card border border-border shadow-sm p-3 flex flex-col md:flex-row gap-2 transition-colors duration-200">
+        @if(request()->has('sort'))
+            <input type="hidden" name="sort" value="{{ request()->query('sort') }}">
+        @endif
+
+        <div class="flex flex-col sm:flex-row gap-2 flex-1 w-full">
+            <!-- Loại tìm kiếm (Tiêu đề, Tác giả, Chủ đề) -->
+            <div class="relative min-w-[130px] sm:w-[150px]">
+                <select name="field" class="w-full h-9 pl-3 pr-8 text-xs font-bold bg-muted/30 border border-border rounded-sm appearance-none outline-none focus:ring-1 focus:ring-vttu-red/30 focus:border-vttu-red/30 transition-all cursor-pointer">
+                    <option value="title" {{ ($currentField ?? 'title') === 'title' ? 'selected' : '' }}>{{ __('Tiêu đề') }}</option>
+                    <option value="author" {{ ($currentField ?? 'title') === 'author' ? 'selected' : '' }}>{{ __('Tác giả') }}</option>
+                    <option value="subject" {{ ($currentField ?? 'title') === 'subject' ? 'selected' : '' }}>{{ __('Chủ đề') }}</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none"></i>
+            </div>
+
+            <!-- Phân mục tài liệu số -->
+            <div class="relative min-w-[180px] sm:w-[220px]">
+                <select name="folder_id" class="w-full h-9 pl-3 pr-8 text-xs font-bold bg-muted/30 border border-border rounded-sm appearance-none outline-none focus:ring-1 focus:ring-vttu-red/30 focus:border-vttu-red/30 transition-all cursor-pointer">
+                    <option value="">{{ __('Tất cả phân mục') }}</option>
+                    @foreach($folders ?? [] as $folder)
+                        <option value="{{ $folder->id }}" {{ ($currentFolderId ?? '') == $folder->id ? 'selected' : '' }}>
+                            {{ $folder->folder_name }}
+                        </option>
+                    @endforeach
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none"></i>
+            </div>
+            
+            <!-- Ô nhập từ khóa -->
+            <div class="flex-1 relative group">
+                <input type="text" 
+                       name="q"
+                       value="{{ $keyword ?? '' }}"
+                       placeholder="{{ __('Nhập từ khóa tìm kiếm tài liệu số...') }}"
+                       class="w-full h-9 pl-3 pr-10 text-xs bg-background border border-border rounded-sm outline-none focus:ring-1 focus:ring-vttu-red/30 focus:border-vttu-red/30 transition-all placeholder:text-muted-foreground/60">
+                <div class="absolute right-0 top-0 h-9 px-3 flex items-center justify-center text-muted-foreground opacity-40 group-focus-within:opacity-100 transition-opacity">
+                    <i data-lucide="keyboard" class="w-4 h-4"></i>
+                </div>
             </div>
         </div>
 
-        <div class="flex gap-1.5 h-9">
-            <button class="flex-1 sm:flex-none px-5 bg-vttu-red text-white rounded-sm hover:bg-vttu-dark active:scale-[0.97] transition-all shadow-md shadow-vttu-red/20 flex items-center justify-center">
+        <!-- Nút tìm kiếm & reset -->
+        <div class="flex gap-1.5 h-9 w-full md:w-auto">
+            <button type="submit" class="flex-1 md:flex-none px-5 bg-vttu-red text-white rounded-sm hover:bg-vttu-dark active:scale-[0.97] transition-all shadow-md shadow-vttu-red/20 flex items-center justify-center">
                 <i data-lucide="search" class="w-4 h-4 mr-2"></i>
                 <span class="text-xs font-black uppercase tracking-wider">{{ __('Tìm') }}</span>
             </button>
-            <button class="w-9 bg-vttu-red text-white rounded-sm hover:bg-vttu-dark active:scale-[0.97] transition-all shadow-md shadow-vttu-red/20 flex items-center justify-center">
-                <i data-lucide="more-vertical" class="w-4 h-4"></i>
-            </button>
+            @if($keyword || $currentFolderId)
+                <a href="{{ request()->url() }}{{ request()->has('sort') ? '?sort='.request()->query('sort') : '' }}" 
+                   class="w-9 bg-slate-200 text-slate-700 border border-border rounded-sm hover:bg-slate-300 active:scale-[0.97] transition-all flex items-center justify-center"
+                   title="{{ __('Xóa bộ lọc') }}">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </a>
+            @else
+                <button type="button" class="w-9 bg-vttu-red text-white rounded-sm hover:bg-vttu-dark active:scale-[0.97] transition-all shadow-md shadow-vttu-red/20 flex items-center justify-center">
+                    <i data-lucide="more-vertical" class="w-4 h-4"></i>
+                </button>
+            @endif
         </div>
-    </div>
+    </form>
 
     <!-- Results Info -->
     <div class="flex items-center gap-2 text-vttu-red px-1 pt-1">

@@ -106,5 +106,6 @@ class DatabaseSeeder extends Seeder
         // 7. Seed Marc Data
         $this->call(MarcSeeder::class);
         $this->call(MarcDefinitionSeeder::class);
+        $this->call(OldSystemAuxSeeder::class);
     }
 }
