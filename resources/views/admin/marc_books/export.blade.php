@@ -226,12 +226,12 @@
                     <!-- Collapsible Advanced Search Panel (Floating Overlay) -->
                     <div id="advanced-search-panel" class="hidden absolute left-0 right-0 top-full mt-1 z-30 border border-border rounded-md bg-card p-3 space-y-3 shadow-lg transition-all duration-300">
                         <!-- Tab Selector Buttons -->
-                        <div class="flex flex-wrap gap-1 border-b border-border pb-1">
-                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted active-tab" data-tab="tab-info">Thông tin</button>
-                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-dist">Phân phối</button>
-                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-limit">Giới hạn</button>
-                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-location">Vị trí</button>
-                            <button type="button" class="tab-btn px-3 py-1 text-[10px] font-bold rounded-sm border border-transparent bg-muted/60 text-muted-foreground hover:bg-muted" data-tab="tab-categories">Phân loại</button>
+                        <div class="flex items-center gap-1 bg-muted p-1 rounded-md border border-border w-fit max-w-full overflow-x-auto">
+                            <button type="button" class="tab-btn px-3 py-1 text-xs font-semibold rounded bg-background text-foreground shadow-sm transition-all duration-200" data-tab="tab-info">Thông tin</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-xs font-medium rounded text-muted-foreground hover:text-foreground transition-all duration-200" data-tab="tab-dist">Phân phối</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-xs font-medium rounded text-muted-foreground hover:text-foreground transition-all duration-200" data-tab="tab-limit">Giới hạn</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-xs font-medium rounded text-muted-foreground hover:text-foreground transition-all duration-200" data-tab="tab-location">Vị trí</button>
+                            <button type="button" class="tab-btn px-3 py-1 text-xs font-medium rounded text-muted-foreground hover:text-foreground transition-all duration-200" data-tab="tab-categories">Phân loại</button>
                         </div>
 
                         <!-- Tab Content Sections (Taller Height area) -->
@@ -421,7 +421,7 @@
                             <div id="tab-location" class="tab-content hidden grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div class="space-y-1">
                                     <label for="branch_id" class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Kho / Phòng</label>
-                                    <select name="branch_id" id="branch_id" class="select2-smart w-full">
+                                    <select name="branch_id" id="branch_id" class="w-full h-9 px-3 text-xs border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 cursor-pointer">
                                         <option value="">-- Tất cả Kho/Phòng --</option>
                                         @foreach($branches as $b)
                                         <option value="{{ $b->id }}">{{ $b->name }}</option>
@@ -430,7 +430,7 @@
                                 </div>
                                 <div class="space-y-1">
                                     <label for="storage_location_id" class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Vị trí / Kệ</label>
-                                    <select name="storage_location_id" id="storage_location_id" class="select2-smart w-full">
+                                    <select name="storage_location_id" id="storage_location_id" class="w-full h-9 px-3 text-xs border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 cursor-pointer">
                                         <option value="">-- Tất cả Vị trí --</option>
                                         @foreach($storageLocations as $sl)
                                         <option value="{{ $sl->id }}">{{ $sl->name }} ({{ optional($sl->branch)->name }})</option>
@@ -534,11 +534,34 @@
                         {{ __('Reset bộ lọc') }}
                     </button>
                     <button type="submit" class="btn-compact-primary">
-                        <i data-lucide="download" class="w-4 h-4 mr-1 text-primary-foreground"></i>
-                        {{ __('XUẤT BÁO CÁO') }}
+                        <i data-lucide="search" class="w-4 h-4 mr-1 text-primary-foreground"></i>
+                        {{ __('XEM TRƯỚC BÁO CÁO') }}
                     </button>
                 </div>
             </form>
+
+            <!-- Table Preview Card -->
+            <div class="bg-card text-foreground border-t border-border shadow-sm overflow-hidden flex flex-col mt-4 rounded-b-md" id="report-preview-card">
+                <div class="p-3 border-b border-border bg-muted/30 flex items-center justify-between font-bold shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="eye" class="w-4 h-4 text-muted-foreground"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-foreground" id="preview-title">{{ __('XEM TRƯỚC BÁO CÁO') }}</span>
+                    </div>
+                    <!-- Export Button -->
+                    <button type="button" id="export-excel-btn" class="btn-compact-primary flex items-center gap-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white border-none">
+                        <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-white"></i>
+                        <span>{{ __('Xuất tệp Excel') }}</span>
+                    </button>
+                </div>
+                
+                <!-- Preview Table Container -->
+                <div class="overflow-x-auto w-full custom-scrollbar" id="preview-table-container">
+                    <div class="flex flex-col items-center justify-center py-16 text-muted-foreground">
+                        <i data-lucide="info" class="w-8 h-8 mb-2 text-muted-foreground/40"></i>
+                        <p class="text-xs font-semibold">{{ __('Nhấp nút tìm kiếm hoặc nhập từ khóa để xem trước dữ liệu.') }}</p>
+                    </div>
+                </div>
+            </div>
         </div>
         
     </div>
@@ -645,93 +668,301 @@
 @endpush
 
 @push('scripts')
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Initialize Select2
-        $('.select2-smart').select2({
-            minimumResultsForSearch: 10,
-            width: '100%'
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load initial preview on page load
+        loadPreview(1);
 
         // Folder toggle handler (collapse/expand)
-        $('.tree-folder').click(function() {
-            const groupId = $(this).data('group');
-            const $group = $('#' + groupId);
-            
-            $group.slideToggle(150);
-            
-            // Toggle open/closed icons
-            $(this).find('.toggle-open, .toggle-closed').toggleClass('hidden');
-            $(this).find('.folder-open-icon, .folder-closed-icon').toggleClass('hidden');
-        });
-
-        // Collapse left column
-        $('#toggle-tree-btn').click(function() {
-            $('#left-tree-column').hide(150, function() {
-                $('#expand-tree-btn').removeClass('hidden');
+        document.querySelectorAll('.tree-folder').forEach(function(el) {
+            el.addEventListener('click', function() {
+                const groupId = this.getAttribute('data-group');
+                const group = document.getElementById(groupId);
+                if (group) {
+                    if (group.classList.contains('hidden')) {
+                        group.classList.remove('hidden');
+                    } else {
+                        group.classList.add('hidden');
+                    }
+                    this.querySelector('.toggle-open').classList.toggle('hidden');
+                    this.querySelector('.toggle-closed').classList.toggle('hidden');
+                    this.querySelector('.folder-open-icon').classList.toggle('hidden');
+                    this.querySelector('.folder-closed-icon').classList.toggle('hidden');
+                }
             });
         });
 
+        // Collapse left column
+        const toggleTreeBtn = document.getElementById('toggle-tree-btn');
+        if (toggleTreeBtn) {
+            toggleTreeBtn.addEventListener('click', function() {
+                const treeCol = document.getElementById('left-tree-column');
+                if (treeCol) treeCol.classList.add('hidden');
+                const expandBtn = document.getElementById('expand-tree-btn');
+                if (expandBtn) expandBtn.classList.remove('hidden');
+            });
+        }
+
         // Expand left column
-        $('#expand-tree-btn').click(function() {
-            $('#expand-tree-btn').addClass('hidden');
-            $('#left-tree-column').show(150);
-        });
+        const expandTreeBtn = document.getElementById('expand-tree-btn');
+        if (expandTreeBtn) {
+            expandTreeBtn.addEventListener('click', function() {
+                this.classList.add('hidden');
+                const treeCol = document.getElementById('left-tree-column');
+                if (treeCol) treeCol.classList.remove('hidden');
+            });
+        }
 
         // Toggle Advanced Search collapse
-        $('#toggle-advanced-btn').click(function() {
-            const $panel = $('#advanced-search-panel');
-            const $chevron = $('#advanced-chevron');
-            
-            $panel.slideToggle(200);
-            $chevron.toggleClass('rotate-180');
-        });
+        const toggleAdvancedBtn = document.getElementById('toggle-advanced-btn');
+        if (toggleAdvancedBtn) {
+            toggleAdvancedBtn.addEventListener('click', function() {
+                const panel = document.getElementById('advanced-search-panel');
+                if (panel) panel.classList.toggle('hidden');
+                const chevron = document.getElementById('advanced-chevron');
+                if (chevron) chevron.classList.toggle('rotate-180');
+            });
+        }
 
         // Close Advanced Search
-        $('.close-advanced-btn').click(function() {
-            $('#advanced-search-panel').slideUp(200);
-            $('#advanced-chevron').removeClass('rotate-180');
+        document.querySelectorAll('.close-advanced-btn').forEach(function(el) {
+            el.addEventListener('click', function() {
+                const panel = document.getElementById('advanced-search-panel');
+                if (panel) panel.classList.add('hidden');
+                const chevron = document.getElementById('advanced-chevron');
+                if (chevron) chevron.classList.remove('rotate-180');
+            });
         });
 
-        // Tab selection handler
-        $('.tab-btn').click(function() {
-            $('.tab-btn').removeClass('active-tab');
-            $(this).addClass('active-tab');
-            
-            const activeTabId = $(this).data('tab');
-            $('.tab-content').addClass('hidden');
-            $('#' + activeTabId).removeClass('hidden');
+        // Tab selection handler (Shadcn style toggles)
+        document.querySelectorAll('.tab-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(function(b) {
+                    b.classList.remove('bg-background', 'text-foreground', 'shadow-sm', 'font-semibold');
+                    b.classList.add('text-muted-foreground', 'hover:text-foreground', 'font-medium');
+                });
+                
+                this.classList.remove('text-muted-foreground', 'hover:text-foreground', 'font-medium');
+                this.classList.add('bg-background', 'text-foreground', 'shadow-sm', 'font-semibold');
+                
+                const activeTabId = this.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(function(c) {
+                    c.classList.add('hidden');
+                });
+                const activeContent = document.getElementById(activeTabId);
+                if (activeContent) activeContent.classList.remove('hidden');
+            });
+        });
+
+        // Intercept form submit to load AJAX preview
+        const form = document.getElementById('reportForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                loadPreview(1);
+                // Auto close advanced search panel after search
+                const panel = document.getElementById('advanced-search-panel');
+                if (panel) panel.classList.add('hidden');
+                const chevron = document.getElementById('advanced-chevron');
+                if (chevron) chevron.classList.remove('rotate-180');
+            });
+        }
+
+        // Trigger background export when export button is clicked
+        const exportBtn = document.getElementById('export-excel-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function() {
+                const form = document.getElementById('reportForm');
+                if (form) {
+                    // Vô hiệu hóa nút để tránh click trùng lặp
+                    exportBtn.disabled = true;
+                    exportBtn.innerHTML = `
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>${'{{ __("Đang gửi...") }}'}</span>
+                    `;
+
+                    const formData = new FormData(form);
+                    const params = new URLSearchParams();
+                    for (const [key, value] of formData.entries()) {
+                        params.append(key, value);
+                    }
+
+                    const csrfToken = form.querySelector('input[name="_token"]')?.value || "";
+
+                    fetch("{{ route('admin.marc.reports.generate') }}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-CSRF-TOKEN": csrfToken,
+                            "X-Requested-With": "XMLHttpRequest"
+                        },
+                        body: params.toString()
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.dispatchEvent(new CustomEvent('toast', {
+                                detail: {
+                                    message: data.message,
+                                    type: 'success'
+                                }
+                            }));
+                            // Phát sự kiện bắt đầu polling thông báo xuất file
+                            window.dispatchEvent(new CustomEvent('export-started'));
+                        } else {
+                            window.dispatchEvent(new CustomEvent('toast', {
+                                detail: {
+                                    message: data.message || '{{ __("Lỗi xảy ra khi gửi yêu cầu.") }}',
+                                    type: 'error'
+                                }
+                            }));
+                        }
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        window.dispatchEvent(new CustomEvent('toast', {
+                            detail: {
+                                message: '{{ __("Lỗi kết nối máy chủ.") }}',
+                                type: 'error'
+                            }
+                        }));
+                    })
+                    .finally(() => {
+                        // Khôi phục trạng thái nút
+                        exportBtn.disabled = false;
+                        exportBtn.innerHTML = `
+                            <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5 text-white"></i>
+                            <span>${'{{ __("Xuất tệp Excel") }}'}</span>
+                        `;
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    });
+                }
+            });
+        }
+
+        // Handle preview table pagination clicks
+        document.addEventListener('click', function(e) {
+            const pageLink = e.target.closest('.preview-pagination a');
+            if (pageLink) {
+                e.preventDefault();
+                const href = pageLink.getAttribute('href');
+                if (href) {
+                    const page = new URL(href).searchParams.get('page') || 1;
+                    loadPreview(page);
+                }
+            }
         });
     });
+
+    // Load Report Preview via AJAX (Fetch API)
+    function loadPreview(page = 1) {
+        const container = document.getElementById('preview-table-container');
+        if (!container) return;
+        
+        container.innerHTML = `
+            <div class="flex flex-col items-center justify-center py-20 text-muted-foreground">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-3"></div>
+                <p class="text-xs">Đang tải bản xem trước...</p>
+            </div>
+        `;
+        
+        const form = document.getElementById('reportForm');
+        if (!form) return;
+
+        const formData = new FormData(form);
+        formData.append('page', page);
+
+        const searchParams = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            searchParams.append(key, value);
+        }
+        
+        const csrfToken = form.querySelector('input[name="_token"]')?.value || "";
+
+        fetch("{{ route('admin.marc.reports.preview') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRF-TOKEN": csrfToken
+            },
+            body: searchParams.toString(),
+            credentials: 'same-origin'
+        })
+        .then(function(response) {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
+        .then(function(html) {
+            container.innerHTML = html;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        })
+        .catch(function(error) {
+            console.error(error);
+            container.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-16 text-destructive">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 mb-2"></i>
+                    <p class="text-xs font-semibold">Lỗi tải dữ liệu xem trước.</p>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        });
+    }
 
     // Reset Form function
     function resetForm() {
         // Clear text inputs
-        $('#search_input').val('');
-        $('input[name="info_vals[]"]').val('');
-        $('input[type="date"]').val('');
-        $('input[type="text"]').val('');
-        $('input[type="number"]').val('');
+        const searchInput = document.getElementById('search_input');
+        if (searchInput) searchInput.value = '';
+        
+        document.querySelectorAll('input[name="info_vals[]"]').forEach(function(el) {
+            el.value = '';
+        });
+        document.querySelectorAll('input[type="date"]').forEach(function(el) {
+            el.value = '';
+        });
+        document.querySelectorAll('input[type="text"]').forEach(function(el) {
+            el.value = '';
+        });
+        document.querySelectorAll('input[type="number"]').forEach(function(el) {
+            el.value = '';
+        });
         
         // Uncheck checkboxes
-        $('input[type="checkbox"]').prop('checked', false);
+        document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
+            el.checked = false;
+        });
         
         // Reset select dropdowns
-        $('select[name="info_fields[]"]').each(function(index) {
-            if (index == 0) $(this).val('title');
-            else if (index == 1) $(this).val('author');
-            else $(this).val('title');
+        document.querySelectorAll('select[name="info_fields[]"]').forEach(function(el, index) {
+            if (index == 0) el.value = 'title';
+            else if (index == 1) el.value = 'author';
+            else el.value = 'title';
         });
-        $('select[name="info_ops[]"]').val('AND');
+        document.querySelectorAll('select[name="info_ops[]"]').forEach(function(el) {
+            el.value = 'AND';
+        });
         
-        // Reset Select2 dropdowns
-        $('#branch_id').val('').trigger('change');
-        $('#storage_location_id').val('').trigger('change');
+        // Reset dropdowns
+        const branchEl = document.getElementById('branch_id');
+        if (branchEl) branchEl.value = '';
+        const locEl = document.getElementById('storage_location_id');
+        if (locEl) locEl.value = '';
         
         // Reset Format radio buttons
-        $('input[name="format"][value="excel"]').prop('checked', true);
+        const excelRadio = document.querySelector('input[name="format"][value="excel"]');
+        if (excelRadio) excelRadio.checked = true;
+        
+        // Reload preview
+        loadPreview(1);
     }
 </script>
 @endpush

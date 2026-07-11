@@ -12,9 +12,7 @@
             @if($book->cover_image)
                 <img src="{{ asset('storage/' . $book->cover_image) }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
             @else
-                <div class="w-full h-full flex items-center justify-center bg-slate-50">
-                    <i class="fas fa-book-open text-slate-300 group-hover:text-vttu-red text-3xl transition-colors"></i>
-                </div>
+                <img src="{{ asset('assets/imgs/books/noimage.png') }}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500">
             @endif
             <div class="absolute top-2 z-10 right-2">
                 @php

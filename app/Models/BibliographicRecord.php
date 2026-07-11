@@ -94,17 +94,26 @@ class BibliographicRecord extends Model
     }
 
 
+    /** @var array|null Cache dữ liệu MARC của bản ghi hiện tại */
+    protected ?array $marcCache = null;
+
     /**
      * Helper to get a MARC field value by tag and subfield code
      */
     public function getMarcValue($tag, $subfieldCode = 'a')
     {
-        $field = $this->fields->where('tag', $tag)->first();
-        if (!$field) {
-            return null;
+        if ($this->marcCache === null) {
+            $this->marcCache = [];
+            $fields = $this->fields ?? [];
+            foreach ($fields as $field) {
+                $fieldTag = $field->tag;
+                $subfields = $field->subfields ?? [];
+                foreach ($subfields as $sub) {
+                    $this->marcCache[$fieldTag][$sub->code] = $sub->value;
+                }
+            }
         }
 
-        $subfield = $field->subfields->where('code', $subfieldCode)->first();
-        return $subfield ? $subfield->value : null;
+        return $this->marcCache[$tag][$subfieldCode] ?? null;
     }
 }

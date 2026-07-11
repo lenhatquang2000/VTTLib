@@ -51,7 +51,7 @@ class SiteController extends Controller
         } elseif ($type === 'folder') {
             $query->where('record_type', 'collection');
         } else {
-            $query->where('record_type', 'book');
+            $query->where('record_type', 'book')->has('items');
         }
 
         if ($request->has('offset')) {
@@ -207,21 +207,41 @@ class SiteController extends Controller
         $ddcCode = $request->query('ddc');
 
         $booksQuery = \App\Models\BibliographicRecord::with(['fields.subfields', 'items'])
-            ->where('status', \App\Models\BibliographicRecord::STATUS_APPROVED);
+            ->where('status', \App\Models\BibliographicRecord::STATUS_APPROVED)
+            ->where(function($q) {
+                $q->where('record_type', 'resource') // Tài liệu số / Tạp chí Online không bắt buộc có bản ấn
+                  ->orWhereHas('items'); // Sách giấy bắt buộc phải có ít nhất 1 bản ấn
+            });
 
         if ($query) {
-            $booksQuery->whereHas('fields.subfields', function ($q) use ($query, $type) {
-                if ($type !== 'all') {
-                    $tags = [
-                        'title' => ['245'],
-                        'author' => ['100', '700'],
-                        'subject' => ['650', '651'],
-                    ];
-                    if (isset($tags[$type])) {
-                        $q->whereIn('tag', $tags[$type]);
+            $booksQuery->where(function($mainQ) use ($query, $type) {
+                if ($type !== 'accession') {
+                    $mainQ->whereHas('fields.subfields', function ($q) use ($query, $type) {
+                        if ($type !== 'all') {
+                            $tags = [
+                                'title' => ['245'],
+                                'author' => ['100', '700'],
+                                'subject' => ['650', '651'],
+                            ];
+                            if (isset($tags[$type])) {
+                                $q->whereIn('tag', $tags[$type]);
+                            }
+                        }
+                        $q->where('value', 'LIKE', "%{$query}%");
+                    });
+                }
+                
+                if ($type === 'all' || $type === 'accession') {
+                    $itemSearch = function($q) use ($query) {
+                        $q->where('accession_number', 'LIKE', "%{$query}%")
+                          ->orWhere('barcode', 'LIKE', "%{$query}%");
+                    };
+                    if ($type === 'accession') {
+                        $mainQ->whereHas('items', $itemSearch);
+                    } else {
+                        $mainQ->orWhereHas('items', $itemSearch);
                     }
                 }
-                $q->where('value', 'LIKE', "%{$query}%");
             });
         }
 
@@ -237,8 +257,53 @@ class SiteController extends Controller
             });
         }
 
-        $books = $booksQuery->latest()->paginate(12)->withQueryString();
-        $totalRecords = \App\Models\BibliographicRecord::where('status', \App\Models\BibliographicRecord::STATUS_APPROVED)->count();
+        $sort = $request->query('sort', 'accession_desc');
+        if ($sort === 'newest') {
+            $booksQuery->orderBy('updated_at', 'desc');
+        } elseif ($sort === 'oldest') {
+            $booksQuery->orderBy('updated_at', 'asc');
+        } elseif ($sort === 'accession_asc') {
+            $booksQuery->orderBy(
+                \App\Models\BookItem::select('accession_number')
+                    ->whereColumn('bibliographic_record_id', 'bibliographic_records.id')
+                    ->orderBy('accession_number', 'asc')
+                    ->limit(1),
+                'asc'
+            );
+        } elseif ($sort === 'title_az') {
+            $titleSubquery = \App\Models\MarcSubfield::select('value')
+                ->join('marc_fields', 'marc_subfields.marc_field_id', '=', 'marc_fields.id')
+                ->whereColumn('marc_fields.record_id', 'bibliographic_records.id')
+                ->where('marc_fields.tag', '245')
+                ->where('marc_subfields.code', 'a')
+                ->limit(1);
+            $booksQuery->orderBy($titleSubquery, 'asc');
+        } elseif ($sort === 'title_za') {
+            $titleSubquery = \App\Models\MarcSubfield::select('value')
+                ->join('marc_fields', 'marc_subfields.marc_field_id', '=', 'marc_fields.id')
+                ->whereColumn('marc_fields.record_id', 'bibliographic_records.id')
+                ->where('marc_fields.tag', '245')
+                ->where('marc_subfields.code', 'a')
+                ->limit(1);
+            $booksQuery->orderBy($titleSubquery, 'desc');
+        } else {
+            // Mặc định là Số đăng ký: Giảm dần (accession_desc)
+            $booksQuery->orderBy(
+                \App\Models\BookItem::select('accession_number')
+                    ->whereColumn('bibliographic_record_id', 'bibliographic_records.id')
+                    ->orderBy('accession_number', 'desc')
+                    ->limit(1),
+                'desc'
+            );
+        }
+
+        $books = $booksQuery->paginate(12)->withQueryString();
+        $totalRecords = \App\Models\BibliographicRecord::where('status', \App\Models\BibliographicRecord::STATUS_APPROVED)
+            ->where(function($q) {
+                $q->where('record_type', 'resource')
+                  ->orWhereHas('items');
+            })
+            ->count();
 
         // Prepare Sidebar Data
         $sidebar = [

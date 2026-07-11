@@ -506,8 +506,7 @@
         // Global Image Fallback Handler
         document.addEventListener('error', function (e) {
             if (e.target.tagName.toLowerCase() === 'img') {
-                // Sử dụng ảnh placeholder của VTTU hoặc dịch vụ placeholder uy tín
-                const fallbackUrl = "https://placehold.co/800x600/7B0000/FFFFFF?text=VTTU+Library";
+                const fallbackUrl = "{{ asset('assets/imgs/books/noimage.png') }}";
                 
                 // Tránh lặp vô tận nếu chính ảnh fallback cũng lỗi
                 if (e.target.src !== fallbackUrl) {

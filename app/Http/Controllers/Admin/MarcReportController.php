@@ -86,56 +86,201 @@ class MarcReportController extends Controller
     }
 
     /**
-     * Xử lý tạo báo cáo với bộ lọc linh hoạt
+     * Xem trước báo cáo dưới dạng bảng trực tiếp trên trang (AJAX)
      */
-    public function generate(Request $request)
+    public function preview(Request $request)
     {
         $reportType = $request->input('report_type');
-        $format = $request->input('format', 'excel');
-        $rows = []; // Initialize empty array
-
-        // 1. Build Query dựa trên loại báo cáo
-        // Các báo cáo về kho/mã vạch/nhãn gáy nên bắt đầu từ BookItem để chính xác theo từng cuốn sách
         $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes'];
         
         if (in_array($reportType, $itemBasedReports)) {
-            // Lưu ý: BookItem belongsTo bibliographicRecord (không phải record)
             $query = \App\Models\BookItem::with(['bibliographicRecord.fields.subfields', 'branch', 'storageLocation']);
             $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
-            $records = $query->latest()->get();
+            $paginated = $query->latest()->paginate(10);
+            $records = $paginated->items();
         } else {
-            // BibliographicRecord không có relation framework (nó là một cột chuỗi/ID trực tiếp)
-            $query = BibliographicRecord::with(['fields.subfields', 'items']);
+            $query = BibliographicRecord::with(['fields.subfields', 'items'])
+                ->where('status', BibliographicRecord::STATUS_APPROVED);
+            if (in_array($reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem'])) {
+                $query->where(function($q) {
+                    $q->where('record_type', 'resource')
+                      ->orWhereHas('items');
+                });
+            }
             $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
-            $records = $query->latest()->get();
+            $paginated = $query->latest()->paginate(10);
+            $records = $paginated->items();
         }
 
-        if ($records->isEmpty()) {
-            return back()->with('error', __('Không tìm thấy dữ liệu phù hợp với bộ lọc đã chọn.'));
-        }
-
-        // 3. Chuẩn bị dữ liệu theo loại báo cáo đã chọn
         $reportData = $this->prepareDataByReportType($reportType, $records);
-
-        // 4. Định dạng tên file và xuất bản
-        $fileName = $reportData['file_prefix'] . '_' . now()->format('Ymd_His');
         
-        if ($format === 'excel') {
-            // Đặc biệt cho in mã vạch, dùng class Export riêng để vẽ lưới nhãn
-            if (in_array($reportType, ['barcode_list', 'generated_barcodes'])) {
-                return Excel::download(
-                    new \App\Exports\BarcodeExport($records, $reportData['title']), 
-                    $fileName . '.xlsx'
-                );
+        // Cập nhật lại cột STT theo chỉ số phân trang hiện tại
+        $startIndex = ($paginated->currentPage() - 1) * $paginated->perPage() + 1;
+        foreach ($reportData['rows'] as $index => &$row) {
+            $row[0] = $startIndex + $index;
+        }
+
+        return view('admin.marc_books.partials.report_preview', [
+            'headers' => $reportData['headers'],
+            'rows' => $reportData['rows'],
+            'paginated' => $paginated,
+            'totalCount' => $paginated->total(),
+        ]);
+    }
+
+    /**
+     * Xử lý tạo báo cáo với bộ lọc linh hoạt
+     * Optimized: uses streaming generator (chunk-based) to avoid timeout on large datasets.
+     */
+    public function generate(Request $request)
+    {
+        // Tăng giới hạn thời gian và bộ nhớ cho xuất dữ liệu lớn
+        set_time_limit(0);
+        ini_set('memory_limit', '512M');
+
+        $reportType = $request->input('report_type');
+        $format     = $request->input('format', 'excel');
+
+        // Các báo cáo về kho/mã vạch/nhãn gáy nên bắt đầu từ BookItem
+        $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes'];
+
+        if (in_array($reportType, $itemBasedReports)) {
+            $query = \App\Models\BookItem::with(['bibliographicRecord.fields.subfields', 'branch', 'storageLocation']);
+            $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
+            $query->latest();
+
+            // Kiểm tra nhanh có dữ liệu không (tránh xử lý vô ích)
+            if (!$query->exists()) {
+                return back()->with('error', __('Không tìm thấy dữ liệu phù hợp với bộ lọc đã chọn.'));
+            }
+        } else {
+            // Chỉ eager-load fields.subfields; withCount đủ để đếm bản ấn.
+            // Không load with('items') để tránh kéo toàn bộ collection vào RAM mỗi chunk.
+            $query = BibliographicRecord::with(['fields.subfields'])
+                ->where('status', BibliographicRecord::STATUS_APPROVED);
+
+            // withCount để tránh N+1 khi đếm số bản ấn
+            if (in_array($reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem', 'article_index'])) {
+                $query->withCount('items');
             }
 
-            return Excel::download(
-                new DynamicMarcReportExport($reportData['headers'], $reportData['rows'], $reportData['title']), 
-                $fileName . '.xlsx'
-            );
+            if (in_array($reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem'])) {
+                $query->where(function($q) {
+                    $q->where('record_type', 'resource')
+                      ->orWhereHas('items');
+                });
+            }
+
+            $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
+            $query->latest();
+
+            if (!$query->exists()) {
+                return back()->with('error', __('Không tìm thấy dữ liệu phù hợp với bộ lọc đã chọn.'));
+            }
         }
 
-        return back()->with('error', __('Định dạng xuất này hiện chưa được hỗ trợ.'));
+        // Lấy metadata (headers, title, prefix) từ loại báo cáo – không load dữ liệu thực
+        $meta = $this->getReportMeta($reportType);
+
+        // Định dạng tên file và xuất
+        $fileName = $meta['file_prefix'] . '_' . now()->format('Ymd_His');
+        $extension = $format === 'csv' ? 'csv' : 'xlsx';
+        $fullFileName = $fileName . '.' . $extension;
+
+        // Tạo lịch sử xuất dữ liệu với trạng thái pending
+        $history = \App\Models\ExportHistory::create([
+            'user_id'     => auth()->id(),
+            'report_type' => $reportType,
+            'title'       => $meta['title'],
+            'filename'    => $fullFileName,
+            'format'      => $format,
+            'status'      => 'pending',
+        ]);
+
+        // Đẩy job xử lý xuất dữ liệu vào hàng đợi (Queue)
+        \App\Jobs\ExportMarcReportJob::dispatch(
+            $history->id,
+            $request->all(),
+            $reportType,
+            $format
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Yêu cầu xuất file của bạn đã được nhận và đang được xử lý dưới nền. Bạn sẽ nhận được thông báo sau khi hoàn tất.'),
+            'history' => $history
+        ]);
+    }
+
+    /**
+     * Trả về metadata (headers, title, file_prefix) theo loại báo cáo,
+     * không cần load bất kỳ dữ liệu nào từ DB.
+     */
+    public function getReportMeta(string $reportType): array
+    {
+        $map = [
+            'cataloging_subsystem' => [
+                'title'       => __('Báo cáo phân hệ biên mục'),
+                'file_prefix' => 'bien_muc',
+                'headers'     => [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Ngày biên mục'), __('Trạng thái')],
+            ],
+            'book_stats' => [
+                'title'       => __('Thống kê số lượng đầu sách'),
+                'file_prefix' => 'thong_ke_dau_sach',
+                'headers'     => [__('STT'), __('Nhan đề'), __('Nhà xuất bản'), __('Năm XB'), __('Số phân loại'), __('Mã hóa'), __('Số bản'), __('Giá tiền')],
+            ],
+            'accession_book' => [
+                'title'       => __('Sổ đăng ký cá biệt'),
+                'file_prefix' => 'so_dkcb',
+                'headers'     => [__('STT'), __('Mã ĐKCB (Barcode)'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Nơi XB'), __('Giá tiền'), __('Vị trí')],
+            ],
+            'spine_label' => [
+                'title'       => __('Danh sách dữ liệu in nhãn gáy'),
+                'file_prefix' => 'nhan_gay',
+                'headers'     => [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Số phân loại (DDC)'), __('Mã tác giả'), __('Ký hiệu xếp giá')],
+            ],
+            'inventory_report' => [
+                'title'       => __('Báo cáo tình hình kho tài liệu'),
+                'file_prefix' => 'kho_tai_lieu',
+                'headers'     => [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Vị trí kho'), __('Trạng thái'), __('Ngày nhập kho')],
+            ],
+            'article_index' => [
+                'title'       => __('Thư mục bài trích tạp chí'),
+                'file_prefix' => 'bai_trich',
+                'headers'     => [__('STT'), __('Tên bài trích'), __('Tác giả bài trích'), __('Tên tạp chí/nguồn'), __('Tập/Số'), __('Trang trích dẫn')],
+            ],
+            'barcode_list' => [
+                'title'       => __('Danh sách dữ liệu in mã vạch'),
+                'file_prefix' => 'ma_vach',
+                'headers'     => [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Ký hiệu xếp giá (Call Number)'), __('Vị trí')],
+            ],
+            'book_id_list' => [
+                'title'       => __('Danh sách tài liệu theo mã sách'),
+                'file_prefix' => 'theo_ma_sach',
+                'headers'     => [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Số lượng bản ấn'), __('Năm XB'), __('DDC')],
+            ],
+            'inventory_status' => [
+                'title'       => __('Báo cáo chi tiết tình hình kho'),
+                'file_prefix' => 'tinh_hinh_kho',
+                'headers'     => [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Kho/Phòng'), __('Loại lưu kho'), __('Trạng thái'), __('Ngày nhập')],
+            ],
+            'generated_barcodes' => [
+                'title'       => __('Danh sách mã vạch phát sinh'),
+                'file_prefix' => 'ma_vach_phat_sinh',
+                'headers'     => [__('STT'), __('Mã vạch'), __('Nhan đề'), __('Ngày tạo')],
+            ],
+            'book_title_qty' => [
+                'title'       => __('Danh sách nhan đề và số lượng'),
+                'file_prefix' => 'nhan_de_so_luong',
+                'headers'     => [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Số lượng bản ấn')],
+            ],
+        ];
+
+        return $map[$reportType] ?? [
+            'title'       => __('Báo cáo chi tiết tài liệu'),
+            'file_prefix' => 'tai_lieu',
+            'headers'     => [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Số lượng bản ấn')],
+        ];
     }
 
     /**
@@ -168,14 +313,31 @@ class MarcReportController extends Controller
             case 'book_stats': // Thống kê số lượng đầu sách
                 $title = __('Thống kê số lượng đầu sách');
                 $prefix = 'thong_ke_dau_sach';
-                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Số lượng bản ấn'), __('Ngày tạo')];
+                $headers = [
+                    __('STT'), 
+                    __('Nhan đề'), 
+                    __('Nhà xuất bản'), 
+                    __('Năm XB'), 
+                    __('Số phân loại'), 
+                    __('Mã hóa'), 
+                    __('Số bản'), 
+                    __('Giá tiền')
+                ];
                 foreach ($records as $index => $record) {
+                    $year = $record->getMarcValue('260', 'c') ?: $record->getMarcValue('264', 'c');
+                    $pub = $record->getMarcValue('260', 'b') ?: $record->getMarcValue('264', 'b');
+                    $ddc = $record->getMarcValue('082', 'a') ?: $record->getMarcValue('090', 'a');
+                    $authorCode = $record->getMarcValue('082', 'b') ?: ($record->getMarcValue('090', 'b') ?: ($record->getMarcValue('100', 'a') ? mb_substr($record->getMarcValue('100', 'a'), 0, 3, 'UTF-8') : ''));
+                    $price = $record->getMarcValue('952', 'g') ?: ($record->getMarcValue('020', 'c') ?: '0');
                     $rows[] = [
                         $index + 1,
-                        $record->id,
-                        $record->getMarcValue('245', 'a'),
+                        $record->getMarcValue('245', 'a') ?: __('Không có nhan đề'),
+                        $pub ?: '...',
+                        $year ?: '...',
+                        $ddc ?: '...',
+                        $authorCode ?: '...',
                         $record->items->count(),
-                        $record->created_at->format('d/m/Y')
+                        $price
                     ];
                 }
                 break;
@@ -211,7 +373,7 @@ class MarcReportController extends Controller
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
                     $ddc = $record->getMarcValue('082', 'a');
-                    $authorCode = $record->getMarcValue('090', 'b') ?: substr($record->getMarcValue('100', 'a'), 0, 3);
+                    $authorCode = $record->getMarcValue('082', 'b') ?: ($record->getMarcValue('090', 'b') ?: mb_substr($record->getMarcValue('100', 'a'), 0, 3, 'UTF-8'));
                     $rows[] = [
                         $count++,
                         $item->barcode,
@@ -264,7 +426,7 @@ class MarcReportController extends Controller
                 $count = 1;
                 foreach ($records as $item) {
                     $record = $item->bibliographicRecord;
-                    $callNumber = $record->getMarcValue('082', 'a') . ' ' . ($record->getMarcValue('090', 'b') ?: substr($record->getMarcValue('100', 'a'), 0, 3));
+                    $callNumber = $record->getMarcValue('082', 'a') . ' ' . ($record->getMarcValue('082', 'b') ?: ($record->getMarcValue('090', 'b') ?: mb_substr($record->getMarcValue('100', 'a'), 0, 3, 'UTF-8')));
                     $rows[] = [
                         $count++,
                         $item->barcode,
@@ -368,7 +530,7 @@ class MarcReportController extends Controller
         ];
     }
 
-    private function applyAdvancedFilters($query, Request $request, $reportType, $itemBasedReports)
+    public function applyAdvancedFilters($query, Request $request, $reportType, $itemBasedReports)
     {
         $isItemBased = in_array($reportType, $itemBasedReports);
 
@@ -650,12 +812,72 @@ class MarcReportController extends Controller
                           ->where('value', 'like', '%' . $val . '%');
                   });
               });
-          } elseif ($field === 'any' || $field === 'fulltext') {
-              $q->whereHas('fields', function($fq) use ($val) {
-                  $fq->whereHas('subfields', function($sfq) use ($val) {
-                      $sfq->where('value', 'like', '%' . $val . '%');
-                  });
-              });
-          }
-      }
+           } elseif ($field === 'any' || $field === 'fulltext') {
+               $q->whereHas('fields', function($fq) use ($val) {
+                   $fq->whereHas('subfields', function($sfq) use ($val) {
+                       $sfq->where('value', 'like', '%' . $val . '%');
+                   });
+               });
+           }
+       }
+
+       /**
+        * Giao diện lịch sử xuất file
+        */
+       public function exportHistories()
+       {
+           $histories = \App\Models\ExportHistory::where('user_id', auth()->id())
+               ->orderBy('created_at', 'desc')
+               ->paginate(15);
+
+           return view('admin.marc_reports.histories', compact('histories'));
+       }
+
+       /**
+        * API trả về danh sách lịch sử xuất gần nhất (dùng cho bell dropdown)
+        */
+       public function exportHistoriesList()
+       {
+           $histories = \App\Models\ExportHistory::where('user_id', auth()->id())
+               ->orderBy('created_at', 'desc')
+               ->limit(10)
+               ->get();
+
+           $unreadCount = \App\Models\ExportHistory::where('user_id', auth()->id())
+               ->where('is_read', false)
+               ->count();
+
+           return response()->json([
+               'histories' => $histories,
+               'unread_count' => $unreadCount
+           ]);
+       }
+
+       /**
+        * Tải file đã xuất thành công
+        */
+       public function exportHistoriesDownload($id)
+       {
+           $history = \App\Models\ExportHistory::where('user_id', auth()->id())
+               ->where('id', $id)
+               ->firstOrFail();
+
+           if ($history->status !== 'completed' || !$history->file_path || !\Illuminate\Support\Facades\Storage::disk('local')->exists($history->file_path)) {
+               return abort(404, __('File không tồn tại hoặc chưa tạo xong.'));
+           }
+
+           return \Illuminate\Support\Facades\Storage::disk('local')->download($history->file_path, $history->filename);
+       }
+
+       /**
+        * Đánh dấu toàn bộ thông báo xuất file là đã đọc
+        */
+       public function exportHistoriesMarkAllRead()
+       {
+           \App\Models\ExportHistory::where('user_id', auth()->id())
+               ->where('is_read', false)
+               ->update(['is_read' => true]);
+
+           return response()->json(['success' => true]);
+       }
 }

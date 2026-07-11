@@ -360,9 +360,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('topsecret')->group(function (
     Route::post('/marc-import/process', [\App\Http\Controllers\Admin\MarcImportController::class, 'process'])->name('admin.marc.import.process');
     Route::post('/marc-import/create-framework', [\App\Http\Controllers\Admin\MarcImportController::class, 'createFrameworkFromFile'])->name('admin.marc.import.create-framework');
 
-    // MARC Reports
     Route::get('/marc-reports', [\App\Http\Controllers\Admin\MarcReportController::class, 'index'])->name('admin.marc.reports.index');
     Route::post('/marc-reports/generate', [\App\Http\Controllers\Admin\MarcReportController::class, 'generate'])->name('admin.marc.reports.generate');
+    Route::post('/marc-reports/preview', [\App\Http\Controllers\Admin\MarcReportController::class, 'preview'])->name('admin.marc.reports.preview');
+
+    // Export histories routes
+    Route::get('/export-histories', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistories'])->name('admin.export-histories.index');
+    Route::get('/export-histories/list', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesList'])->name('admin.export-histories.list');
+    Route::get('/export-histories/{id}/download', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesDownload'])->name('admin.export-histories.download');
+    Route::post('/export-histories/mark-all-read', [\App\Http\Controllers\Admin\MarcReportController::class, 'exportHistoriesMarkAllRead'])->name('admin.export-histories.mark-all-read');
 
     // Distribution & Inventory
     Route::get('/marc-books/{record}/distribution', [\App\Http\Controllers\Admin\BookDistributionController::class, 'index'])->name('admin.marc.book.distribution');

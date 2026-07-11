@@ -17,13 +17,38 @@
                  (isset($marcData['245']['c']) ? ' / ' . $marcData['245']['c'] : '');
 
     // Tác giả (100$a hoặc 700$a)
-    $author = $marcData['100']['a'] ?? $marcData['700']['a'] ?? 'Đang cập nhật tác giả';
+    $author = $marcData['100']['a'] ?? ($marcData['700']['a'] ?? '');
 
-    // Nhà xuất bản (260$b hoặc 264$b)
-    $publisher = $marcData['260']['b'] ?? $marcData['264']['b'] ?? 'Đang cập nhật NXB';
+    // Thông tin xuất bản đã được làm sạch
+    $pubPlace = rtrim(trim($marcData['260']['a'] ?? ($marcData['264']['a'] ?? '')), ' :-/;');
+    $publisher = rtrim(trim($marcData['260']['b'] ?? ($marcData['264']['b'] ?? '')), ' :-/;');
+    $pubYear = rtrim(trim($marcData['260']['c'] ?? ($marcData['264']['c'] ?? '')), ' :-/;.[]');
 
-    // Năm xuất bản (260$c hoặc 264$c)
-    $pubYear = preg_replace('/[^0-9]/', '', $marcData['260']['c'] ?? $marcData['264']['c'] ?? '');
+    // Mô tả vật lý (300$a $b $c)
+    $physPages = trim($marcData['300']['a'] ?? '');
+    $physDetails = trim($marcData['300']['b'] ?? '');
+    $physSize = trim($marcData['300']['c'] ?? '');
+    $physDesc = trim(($physPages ? $physPages . ' ' : '') . ($physDetails ? $physDetails . ', ' : '') . ($physSize ? $physSize : ''));
+
+    // Phân loại DDC và Cutter
+    $ddcVal = $marcData['082']['a'] ?? ($marcData['090']['a'] ?? '');
+    $cutterVal = $marcData['082']['b'] ?? ($marcData['090']['b'] ?? '');
+
+    // Thông tin trách nhiệm (245$c)
+    $responsibility = $marcData['245']['c'] ?? '';
+
+    // Trích xuất danh sách chủ đề (đầu thẻ 6xx)
+    $subjects = [];
+    foreach ($record->fields as $field) {
+        if (str_starts_with($field->tag, '6')) {
+            foreach ($field->subfields as $sub) {
+                if ($sub->code === 'a') {
+                    $subjects[] = trim($sub->value, ' .,-:');
+                }
+            }
+        }
+    }
+    $subjects = array_unique(array_filter($subjects));
 
     // Tóm tắt (520$a)
     $summary = $marcData['520']['a'] ?? 'Nội dung đang được cập nhật...';
@@ -53,11 +78,9 @@
                 <div class="bg-white rounded-[2.5rem] p-8 shadow-sm border border-slate-100 flex flex-col items-center sticky top-28">
                     <div class="w-full aspect-[3/4] bg-slate-50 rounded-3xl overflow-hidden shadow-2xl shadow-slate-200 mb-8 border border-slate-100 relative group">
                         @if($record->cover_image)
-                            <img src="{{ asset('storage/' . $record->cover_image) }}" class="w-full h-full object-cover">
+                            <img src="{{ asset('storage/' . $record->cover_image) }}" class="w-full h-full object-contain">
                         @else
-                            <div class="w-full h-full flex flex-col items-center justify-center text-slate-200">
-                                <i class="fas fa-book-open text-8xl"></i>
-                            </div>
+                            <img src="{{ asset('assets/imgs/books/noimage.png') }}" class="w-full h-full object-contain">
                         @endif
                         <div class="absolute top-4 right-4">
                             <span class="px-4 py-1.5 bg-vttu-red text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">{{ $record->record_type ?? 'Sách' }}</span>
@@ -137,50 +160,94 @@
                         </div>
                     </div>
 
-                    <!-- Summary (Trường 520) -->
-                    <div class="mb-10">
-                        <h3 class="flex items-center gap-3 text-sm font-black text-vttu-dark uppercase tracking-[0.2em] mb-6">
-                            <span class="w-8 h-1 bg-vttu-red rounded-full"></span>
-                            Tóm tắt nội dung
-                        </h3>
-                        <div class="prose prose-slate max-w-none">
-                            <p class="text-slate-600 leading-relaxed font-medium bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
-                                "{{ $summary }}"
-                            </p>
-                        </div>
-                    </div>
-
                     <!-- Detail Information -->
                     <div class="space-y-6">
                         <h3 class="flex items-center gap-3 text-sm font-black text-vttu-dark uppercase tracking-[0.2em] mb-6">
                             <span class="w-8 h-1 bg-vttu-red rounded-full"></span>
                             Thông tin chi tiết
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                            <div class="flex justify-between py-3 border-b border-slate-50 items-center">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Mã vạch (Barcode)</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $record->items->first()?->barcode ?? 'N/A' }}</span>
+                        <div class="space-y-4">
+                            <!-- Tác giả -->
+                            @if(!empty($author))
+                            <div class="flex items-start">
+                                <div class="w-48 text-slate-500 font-medium py-1.5 shrink-0 text-sm">Tác giả:</div>
+                                <div class="flex-1 flex flex-wrap gap-2">
+                                    <span class="px-3.5 py-1 bg-sky-50 text-sky-600 font-semibold rounded-full text-xs">
+                                        {{ $author }}
+                                    </span>
+                                </div>
                             </div>
-                            <div class="flex justify-between py-3 border-b border-slate-50 items-center">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Khổ sách</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['300']['c'] ?? 'Đang cập nhật' }}</span>
+                            @endif
+
+                            <!-- Xuất bản -->
+                            <div class="flex items-start">
+                                <div class="w-48 text-slate-500 font-medium py-1.5 shrink-0 text-sm">Xuất bản:</div>
+                                <div class="flex-1 flex flex-wrap items-center gap-2 text-sm text-sky-600 font-semibold">
+                                    @if($pubPlace)
+                                        <span class="text-slate-600 font-medium">{{ $pubPlace }} :</span>
+                                    @endif
+                                    @if($publisher)
+                                        <span class="px-3.5 py-1 bg-sky-50 text-sky-600 font-semibold rounded-full text-xs">{{ $publisher }}</span>
+                                    @endif
+                                    @if($pubYear)
+                                        @if($publisher) <span class="text-slate-600 font-medium">,</span> @endif
+                                        <span class="px-3.5 py-1 bg-sky-50 text-sky-600 font-semibold rounded-full text-xs">{{ $pubYear }}</span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="flex justify-between py-3 border-b border-slate-50 items-center">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Số trang</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['300']['a'] ?? 'Đang cập nhật' }}</span>
+
+                            <!-- Mô tả vật lý -->
+                            @if($physDesc)
+                            <div class="flex items-start">
+                                <div class="w-48 text-slate-500 font-medium py-1.5 shrink-0 text-sm">Mô tả vật lý:</div>
+                                <div class="flex-1 text-sky-600 text-sm font-semibold py-1.5 leading-relaxed">
+                                    {{ $physDesc }}
+                                </div>
                             </div>
-                            <div class="flex justify-between py-3 border-b border-slate-50 items-center">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">ISBN</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['020']['a'] ?? 'N/A' }}</span>
+                            @endif
+
+                            <!-- Chủ đề -->
+                            @if(!empty($subjects))
+                            <div class="flex items-start">
+                                <div class="w-48 text-slate-500 font-medium py-1.5 shrink-0 text-sm">Chủ đề :</div>
+                                <div class="flex-1 flex flex-wrap gap-2">
+                                    @foreach($subjects as $subj)
+                                    <span class="px-3.5 py-1 bg-sky-50 text-sky-600 font-semibold rounded-full text-xs">
+                                        {{ $subj }}
+                                    </span>
+                                    @endforeach
+                                </div>
                             </div>
-                            <div class="flex justify-between py-3 border-b border-slate-50 items-center">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Phân loại DDC</span>
-                                <span class="text-sm font-bold text-vttu-dark">{{ $marcData['082']['a'] ?? 'N/A' }}</span>
+                            @endif
+
+                            <!-- Ký hiệu phân loại -->
+                            @if($ddcVal || $cutterVal)
+                            <div class="flex items-start">
+                                <div class="w-48 text-slate-500 font-medium py-1.5 shrink-0 text-sm">Ký hiệu phân loại:</div>
+                                <div class="flex-1 flex flex-wrap gap-2">
+                                    @if($ddcVal)
+                                    <span class="px-3.5 py-1 bg-sky-50 text-sky-600 font-semibold rounded-full text-xs">
+                                        {{ $ddcVal }}
+                                    </span>
+                                    @endif
+                                    @if($cutterVal)
+                                    <span class="px-3.5 py-1 bg-sky-50 text-sky-600 font-semibold rounded-full text-xs">
+                                        {{ $cutterVal }}
+                                    </span>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="flex justify-between py-3 border-b border-slate-50 items-center">
-                                <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Ngôn ngữ</span>
-                                <span class="text-sm font-bold text-vttu-dark">Tiếng Việt</span>
+                            @endif
+
+                            <!-- Thông tin trách nhiệm -->
+                            @if($responsibility)
+                            <div class="flex items-start">
+                                <div class="w-48 text-slate-500 font-medium py-1.5 shrink-0 text-sm">Thông tin trách nhiệm:</div>
+                                <div class="flex-1 text-sky-600 text-sm font-semibold py-1.5 leading-relaxed">
+                                    {{ $responsibility }}
+                                </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -218,6 +285,19 @@
                                 @endforeach
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- Summary Section (Trường 520) -->
+                <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-100">
+                    <h3 class="flex items-center gap-3 text-sm font-black text-vttu-dark uppercase tracking-[0.2em] mb-6">
+                        <span class="w-8 h-1 bg-vttu-red rounded-full"></span>
+                        Tóm tắt nội dung
+                    </h3>
+                    <div class="prose prose-slate max-w-none">
+                        <p class="text-slate-600 leading-relaxed font-medium bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
+                            "{{ $summary }}"
+                        </p>
                     </div>
                 </div>
 

@@ -148,7 +148,14 @@ class SiteNode extends Model
         }
         
         if ($this->url) {
-            return $this->url;
+            $url = $this->url;
+            if (!str_starts_with($url, '/') && 
+                !str_starts_with(strtolower($url), 'http://') && 
+                !str_starts_with(strtolower($url), 'https://') &&
+                !str_starts_with(strtolower($url), 'javascript:')) {
+                return '/' . $url;
+            }
+            return $url;
         }
         
         return '/' . $this->node_code;

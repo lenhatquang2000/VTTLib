@@ -37,6 +37,7 @@
                             <option value="title" {{ request('type') == 'title' ? 'selected' : '' }}>Nhan đề</option>
                             <option value="author" {{ request('type') == 'author' ? 'selected' : '' }}>Tác giả</option>
                             <option value="subject" {{ request('type') == 'subject' ? 'selected' : '' }}>Chủ đề</option>
+                            <option value="accession" {{ request('type') == 'accession' ? 'selected' : '' }}>Số đăng ký cá biệt</option>
                         </select>
                         <button type="submit" class="bg-vttu-red text-white px-6 rounded-sm font-bold uppercase text-[10px] tracking-widest hover:bg-vttu-dark transition-all shadow-sm">
                             Tìm kiếm
@@ -52,19 +53,83 @@
             <div class="lg:col-span-9 space-y-4" data-aos="fade-right">
                 {{-- Toolbar OPAC --}}
                 <div class="flex items-center justify-between bg-white p-3 rounded-md shadow-sm border border-slate-100">
-                    <div class="flex items-center gap-3 ml-1">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Hiển thị:</span>
-                        <div class="flex bg-slate-50 p-0.5 rounded-sm border border-slate-100">
-                            <button @click="viewMode = 'grid'" 
-                                    :class="viewMode === 'grid' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'"
-                                    class="w-8 h-8 rounded-sm flex items-center justify-center transition-all">
-                                <i class="fas fa-th-large text-[10px]"></i>
-                            </button>
-                            <button @click="viewMode = 'list'" 
-                                    :class="viewMode === 'list' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'"
-                                    class="w-8 h-8 rounded-sm flex items-center justify-center transition-all">
-                                <i class="fas fa-list text-[10px]"></i>
-                            </button>
+                    <div class="flex flex-wrap items-center gap-4 md:gap-6 ml-1">
+                        <!-- Hiển thị: Grid / List -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Hiển thị:</span>
+                            <div class="flex bg-slate-50 p-0.5 rounded-sm border border-slate-100">
+                                <button @click="viewMode = 'grid'" 
+                                        :class="viewMode === 'grid' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'"
+                                        class="w-8 h-8 rounded-sm flex items-center justify-center transition-all">
+                                    <i class="fas fa-th-large text-[10px]"></i>
+                                </button>
+                                <button @click="viewMode = 'list'" 
+                                        :class="viewMode === 'list' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red'"
+                                        class="w-8 h-8 rounded-sm flex items-center justify-center transition-all">
+                                    <i class="fas fa-list text-[10px]"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        @php
+                            $currentSort = request('sort', 'accession_desc');
+                        @endphp
+
+                        <!-- Sắp xếp: Cũ -> Mới (mặc định), Mới -> Cũ -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Cập nhật:</span>
+                            <div class="flex bg-slate-50 p-0.5 rounded-sm border border-slate-100">
+                                <!-- Cũ đến mới (Mặc định) -->
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'oldest']) }}" 
+                                   class="w-8 h-8 rounded-sm flex items-center justify-center transition-all {{ $currentSort === 'oldest' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}"
+                                   title="Cập nhật: Cũ đến Mới">
+                                    <i class="fas fa-sort-amount-up text-[10px]"></i>
+                                </a>
+                                <!-- Mới đến cũ -->
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'newest']) }}" 
+                                   class="w-8 h-8 rounded-sm flex items-center justify-center transition-all {{ $currentSort === 'newest' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}"
+                                   title="Cập nhật: Mới đến Cũ">
+                                    <i class="fas fa-sort-amount-down text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Số đăng ký: Tăng dần, Giảm dần -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Số Đăng Ký:</span>
+                            <div class="flex bg-slate-50 p-0.5 rounded-sm border border-slate-100">
+                                <!-- Tăng dần -->
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'accession_asc']) }}" 
+                                   class="w-8 h-8 rounded-sm flex items-center justify-center transition-all {{ $currentSort === 'accession_asc' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}"
+                                   title="Số đăng ký: Tăng dần">
+                                    <i class="fas fa-sort-numeric-down text-[10px]"></i>
+                                </a>
+                                <!-- Giảm dần -->
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'accession_desc']) }}" 
+                                   class="w-8 h-8 rounded-sm flex items-center justify-center transition-all {{ $currentSort === 'accession_desc' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}"
+                                   title="Số đăng ký: Giảm dần">
+                                    <i class="fas fa-sort-numeric-up text-[10px]"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Nhan đề: A-Z, Z-A -->
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Tên sách:</span>
+                            <div class="flex bg-slate-50 p-0.5 rounded-sm border border-slate-100">
+                                <!-- A - Z -->
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'title_az']) }}" 
+                                   class="w-8 h-8 rounded-sm flex items-center justify-center transition-all {{ $currentSort === 'title_az' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}"
+                                   title="Tên sách: A đến Z">
+                                    <i class="fas fa-sort-alpha-down text-[10px]"></i>
+                                </a>
+                                <!-- Z - A -->
+                                <a href="{{ request()->fullUrlWithQuery(['sort' => 'title_za']) }}" 
+                                   class="w-8 h-8 rounded-sm flex items-center justify-center transition-all {{ $currentSort === 'title_za' ? 'bg-white text-vttu-red shadow-sm' : 'text-slate-400 hover:text-vttu-red' }}"
+                                   title="Tên sách: Z đến A">
+                                    <i class="fas fa-sort-alpha-up text-[10px]"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="flex items-center gap-4 mr-1">
@@ -95,9 +160,7 @@
                             @if($book->cover_image)
                                 <img src="{{ asset('storage/' . $book->cover_image) }}" class="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500">
                             @else
-                                <div class="w-full h-full flex items-center justify-center bg-slate-50">
-                                    <i class="fas fa-book-open text-slate-300 group-hover:text-vttu-red text-2xl transition-colors"></i>
-                                </div>
+                                <img src="{{ asset('assets/imgs/books/noimage.png') }}" class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500">
                             @endif
                             <div class="absolute top-2 right-2">
                                 <span class="px-2 py-0.5 bg-white/90 backdrop-blur text-vttu-dark rounded-sm text-[8px] font-bold uppercase tracking-widest shadow-sm">{{ $book->record_type ?? 'Sách' }}</span>
@@ -153,9 +216,7 @@
                                 @if($book->cover_image)
                                     <img src="{{ asset('storage/' . $book->cover_image) }}" class="w-full h-full object-contain mix-blend-multiply">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center bg-slate-50">
-                                        <i class="fas fa-book-open text-slate-200 text-lg"></i>
-                                    </div>
+                                    <img src="{{ asset('assets/imgs/books/noimage.png') }}" class="w-full h-full object-contain">
                                 @endif
                             </div>
                             <!-- Content -->

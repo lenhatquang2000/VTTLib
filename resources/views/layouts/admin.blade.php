@@ -507,14 +507,97 @@
 
                 <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 mx-2"></div>
 
-                <div class="relative group cursor-pointer">
-                    <span
-                        class="absolute -top-1 -right-1 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 bg-red-500 animate-pulse"></span>
-                    <svg class="h-6 w-6 text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 transition-colors"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
+                <!-- Notification Bell Dropdown -->
+                <div x-data="notificationManager" class="relative" @click.away="isOpen = false">
+                    <button @click="toggle()" class="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 focus:outline-none">
+                        <span x-show="unreadCount > 0"
+                            class="absolute top-1.5 right-1.5 block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-slate-900 bg-red-500 animate-pulse"></span>
+                        <svg class="h-6 w-6 text-slate-500 dark:text-slate-400 hover:text-indigo-500 transition-colors"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown List -->
+                    <div x-show="isOpen" x-cloak
+                        x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave="transition ease-in duration-150"
+                        x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                        x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                        class="absolute right-0 mt-2 w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800 py-2 z-50 overflow-hidden">
+                        <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200">{{ __('Thông báo xuất file') }}</h3>
+                            <a href="{{ route('admin.export-histories.index') }}" class="text-xs text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold">{{ __('Xem tất cả') }}</a>
+                        </div>
+                        <div class="max-h-[350px] overflow-y-auto divide-y divide-slate-50 dark:divide-slate-800/50">
+                            <template x-if="histories.length === 0">
+                                <div class="px-4 py-8 text-center text-xs text-slate-400 dark:text-slate-500">
+                                    {{ __('Chưa có thông báo xuất file nào.') }}
+                                </div>
+                            </template>
+                            <template x-for="item in histories" :key="item.id">
+                                <div class="p-3 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors flex items-start space-x-3 cursor-pointer"
+                                     @click="window.location.href = '{{ route('admin.export-histories.index') }}'">
+                                    <!-- Status Icon -->
+                                    <div class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+                                         :class="{
+                                             'bg-amber-50 dark:bg-amber-500/10 text-amber-500': item.status === 'pending' || item.status === 'processing',
+                                             'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500': item.status === 'completed',
+                                             'bg-rose-50 dark:bg-rose-500/10 text-rose-500': item.status === 'failed'
+                                         }">
+                                        <!-- Pending/Processing: Spinner -->
+                                        <template x-if="item.status === 'pending' || item.status === 'processing'">
+                                            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                        </template>
+                                        <!-- Completed: File Excel Icon -->
+                                        <template x-if="item.status === 'completed'">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </template>
+                                        <!-- Failed: Close Icon -->
+                                        <template x-if="item.status === 'failed'">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                        </template>
+                                    </div>
+
+                                    <!-- Content -->
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate" x-text="item.title"></p>
+                                        <p class="text-[10px] text-slate-400 mt-0.5 truncate" x-text="item.filename"></p>
+                                        
+                                        <div class="flex items-center justify-between mt-1">
+                                            <span class="text-[9px] text-slate-400" x-text="formatDate(item.created_at)"></span>
+                                            
+                                            <!-- Status text / action -->
+                                            <div @click.stop>
+                                                <template x-if="item.status === 'pending' || item.status === 'processing'">
+                                                    <span class="text-[9px] font-semibold text-amber-500">{{ __('Đang xử lý...') }}</span>
+                                                </template>
+                                                <template x-if="item.status === 'completed'">
+                                                    <a :href="'/topsecret/export-histories/' + item.id + '/download'" 
+                                                       class="text-[9px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 px-2 py-0.5 rounded transition">
+                                                        {{ __('Tải nhanh') }}
+                                                    </a>
+                                                </template>
+                                                <template x-if="item.status === 'failed'">
+                                                    <span class="text-[9px] font-semibold text-rose-500" :title="item.error_message">{{ __('Thất bại') }}</span>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="flex items-center ml-4 pl-4 border-l border-slate-200 dark:border-slate-800">
@@ -663,6 +746,98 @@
                             this.toasts = this.toasts.filter(t => t.id !== id);
                         }, 300);
                     }
+                }
+            }));
+
+            // Register notificationManager for export history bell dropdown
+            Alpine.data('notificationManager', () => ({
+                isOpen: false,
+                unreadCount: 0,
+                histories: [],
+                pollingTimer: null,
+                init() {
+                    this.fetchHistories(true); // silent load on start
+                    
+                    // Lắng nghe sự kiện click xuất file từ trang con để bắt đầu polling
+                    window.addEventListener('export-started', () => {
+                        this.startPolling();
+                    });
+                },
+                startPolling() {
+                    if (this.pollingTimer) return; // Đang chạy rồi thì không tạo thêm
+                    
+                    this.pollingTimer = setInterval(() => {
+                        this.fetchHistories();
+                    }, 5000);
+                },
+                stopPolling() {
+                    if (this.pollingTimer) {
+                        clearInterval(this.pollingTimer);
+                        this.pollingTimer = null;
+                    }
+                },
+                fetchHistories(silent = false) {
+                    fetch('{{ route("admin.export-histories.list") }}')
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!silent) {
+                                // Check for any status changes to trigger toast
+                                data.histories.forEach(newItem => {
+                                    const oldItem = this.histories.find(h => h.id === newItem.id);
+                                    if (oldItem && (oldItem.status === 'pending' || oldItem.status === 'processing') && newItem.status !== oldItem.status) {
+                                        if (newItem.status === 'completed') {
+                                            window.dispatchEvent(new CustomEvent('toast', { 
+                                                detail: { 
+                                                    message: `Xuất thành công: ${newItem.title}. Nhấn biểu tượng chuông để tải nhanh!`, 
+                                                    type: 'success' 
+                                                } 
+                                            }));
+                                        } else if (newItem.status === 'failed') {
+                                            window.dispatchEvent(new CustomEvent('toast', { 
+                                                detail: { 
+                                                    message: `Xuất thất bại: ${newItem.title}.`, 
+                                                    type: 'error' 
+                                                } 
+                                            }));
+                                        }
+                                    }
+                                });
+                            }
+                            this.histories = data.histories;
+                            this.unreadCount = data.unread_count;
+
+                            // Kiểm tra xem còn tiến trình nào đang chạy nền (pending/processing) không
+                            const hasActiveJobs = this.histories.some(h => h.status === 'pending' || h.status === 'processing');
+                            if (hasActiveJobs) {
+                                this.startPolling();
+                            } else {
+                                this.stopPolling();
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error fetching export histories:', err);
+                            this.stopPolling();
+                        });
+                },
+                toggle() {
+                    this.isOpen = !this.isOpen;
+                    if (this.isOpen && this.unreadCount > 0) {
+                        fetch('{{ route("admin.export-histories.mark-all-read") }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(() => {
+                            this.unreadCount = 0;
+                        });
+                    }
+                },
+                formatDate(dateStr) {
+                    if (!dateStr) return '';
+                    const date = new Date(dateStr);
+                    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' ' + date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' });
                 }
             }));
         });
