@@ -46,6 +46,8 @@ class ExportMarcReportJob implements ShouldQueue
             return;
         }
 
+        $startTime = microtime(true);
+
         try {
             $history->update(['status' => 'processing']);
 
@@ -118,10 +120,13 @@ class ExportMarcReportJob implements ShouldQueue
                 );
             }
 
+            $executionTimeMs = round((microtime(true) - $startTime) * 1000);
+
             // 5. Cập nhật trạng thái thành công
             $history->update([
                 'status' => 'completed',
-                'file_path' => $relativeFilePath
+                'file_path' => $relativeFilePath,
+                'execution_time_ms' => $executionTimeMs
             ]);
 
         } catch (\Throwable $e) {
@@ -129,9 +134,12 @@ class ExportMarcReportJob implements ShouldQueue
                 'trace' => $e->getTraceAsString()
             ]);
 
+            $executionTimeMs = round((microtime(true) - $startTime) * 1000);
+
             $history->update([
                 'status' => 'failed',
-                'error_message' => $e->getMessage()
+                'error_message' => $e->getMessage(),
+                'execution_time_ms' => $executionTimeMs
             ]);
         }
     }

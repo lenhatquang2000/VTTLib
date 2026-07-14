@@ -15,7 +15,8 @@ class ExportHistory extends Model
         'file_path',
         'status',
         'error_message',
-        'is_read'
+        'is_read',
+        'execution_time_ms'
     ];
 
     public function user()
