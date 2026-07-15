@@ -177,7 +177,9 @@ class MarcReportController extends Controller
 
         $viewName = $reportType === 'book_id_list' 
             ? 'admin.marc_books.partials.book_id_list_preview' 
-            : 'admin.marc_books.partials.report_preview';
+            : ($reportType === 'book_title_qty' 
+                ? 'admin.marc_books.partials.book_title_qty_preview' 
+                : 'admin.marc_books.partials.report_preview');
 
         return view($viewName, [
             'headers' => $reportData['headers'],
@@ -556,15 +558,42 @@ class MarcReportController extends Controller
             case 'book_title_qty': // Danh sách nhan đề và số lượng
                 $title = __('Danh sách nhan đề và số lượng');
                 $prefix = 'nhan_de_so_luong';
-                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Số lượng bản ấn')];
+                $headers = [__('STT'), __('Nhan đề'), __('Nhà xuất bản'), __('Năm XB'), __('Số phân loại'), __('Mã hóa'), __('Số bản'), __('Giá tiền')];
                 foreach ($records as $index => $record) {
+                    $titleA = $record->getMarcValue('245', 'a');
+                    $titleB = $record->getMarcValue('245', 'b');
+                    $titleC = $record->getMarcValue('245', 'c');
+                    $fullTitle = $titleA;
+                    if ($titleB) $fullTitle .= ' : ' . $titleB;
+                    if ($titleC) $fullTitle .= ' / ' . $titleC;
+
+                    $publisher = $record->getMarcValue('260', 'b') ?: $record->getMarcValue('264', 'b');
+                    $year = $record->getMarcValue('260', 'c') ?: $record->getMarcValue('264', 'c');
+                    if ($year) $year = preg_replace('/[^0-9]/', '', $year);
+
+                    $ddc = $record->getMarcValue('082', 'a') ?: $record->getMarcValue('090', 'a');
+                    $authorCode = $record->getMarcValue('082', 'b') ?: ($record->getMarcValue('090', 'b') ?: ($record->getMarcValue('100', 'a') ? mb_substr($record->getMarcValue('100', 'a'), 0, 3, 'UTF-8') : ''));
+                    
+                    $priceVal = $record->getMarcValue('020', 'c') ?: $record->getMarcValue('020', 'd');
+                    $price = '...';
+                    if ($priceVal) {
+                        $digits = preg_replace('/[^0-9]/', '', $priceVal);
+                        if ($digits !== '') {
+                            $price = number_format((int)$digits);
+                        } else {
+                            $price = $priceVal;
+                        }
+                    }
+
                     $rows[] = [
                         $index + 1,
-                        $record->id,
-                        $record->getMarcValue('245', 'a'),
-                        $record->getMarcValue('100', 'a') ?: $record->getMarcValue('700', 'a'),
-                        $record->getMarcValue('260', 'c') ?: $record->getMarcValue('264', 'c'),
-                        $record->items->count()
+                        $fullTitle,
+                        $publisher ?: '...',
+                        $year ?: '...',
+                        $ddc ?: '...',
+                        $authorCode ?: '...',
+                        $record->items->count(),
+                        $price
                     ];
                 }
                 break;

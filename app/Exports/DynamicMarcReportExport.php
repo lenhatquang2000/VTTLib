@@ -233,12 +233,42 @@ class DynamicMarcReportExport implements
                     optional($record->created_at)->format('d/m/Y H:i'),
                 ];
             case 'book_title_qty':
+                $titleA = $this->marc($record, '245', 'a');
+                $titleB = $this->marc($record, '245', 'b');
+                $titleC = $this->marc($record, '245', 'c');
+                $fullTitle = $titleA;
+                if ($titleB) $fullTitle .= ' : ' . $titleB;
+                if ($titleC) $fullTitle .= ' / ' . $titleC;
+
+                $publisher = $this->marc($record, '260', 'b') ?: $this->marc($record, '264', 'b');
+                $year = $this->marc($record, '260', 'c') ?: $this->marc($record, '264', 'c');
+                if ($year) $year = preg_replace('/[^0-9]/', '', $year);
+
+                $ddc = $this->marc($record, '082', 'a') ?: $this->marc($record, '090', 'a');
+                $authorCode = $this->marc($record, '082', 'b') ?: ($this->marc($record, '090', 'b') ?: ($this->marc($record, '100', 'a') ? mb_substr($this->marc($record, '100', 'a'), 0, 3, 'UTF-8') : ''));
+                
+                $qty = $record->items_count ?? $record->items->count();
+                
+                $priceVal = $this->marc($record, '020', 'c') ?: $this->marc($record, '020', 'd');
+                $price = '';
+                if ($priceVal) {
+                    $digits = preg_replace('/[^0-9]/', '', $priceVal);
+                    if ($digits !== '') {
+                        $price = (int)$digits;
+                    } else {
+                        $price = $priceVal;
+                    }
+                }
+
                 return [
-                    $counter, $record->id,
-                    $this->marc($record, '245', 'a'),
-                    $this->marc($record, '100', 'a') ?: $this->marc($record, '700', 'a'),
-                    $this->marc($record, '260', 'c') ?: $this->marc($record, '264', 'c'),
-                    $record->items_count ?? $record->items->count(),
+                    $counter,
+                    $fullTitle,
+                    $publisher,
+                    $year,
+                    $ddc,
+                    $authorCode,
+                    $qty,
+                    $price
                 ];
             default:
                 return [
@@ -273,6 +303,9 @@ class DynamicMarcReportExport implements
     { 
         if ($this->reportType === 'book_id_list') {
             return 'A7'; 
+        }
+        if ($this->reportType === 'book_title_qty') {
+            return 'A8'; 
         }
         return 'A4'; 
     }
@@ -521,6 +554,63 @@ class DynamicMarcReportExport implements
                 ],
             ];
             $sheet->getStyle("A7:{$lastCol}{$highestRow}")->applyFromArray($styleArray);
+        } elseif ($this->reportType === 'book_title_qty') {
+            // Write school headers in row 1, 2, 3
+            $sheet->setCellValue('A1', 'THƯ VIỆN - TRƯỜNG ĐẠI HỌC VÕ TRƯỜNG TOẢN');
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(11);
+            
+            $sheet->setCellValue('A2', 'Địa chỉ: Quốc lộ 1A, xã Thạnh Xuân, Thành phố Cần Thơ');
+            $sheet->getStyle('A2')->getFont()->setSize(10);
+            
+            $sheet->setCellValue('A3', 'Website: http://library.vttu.edu.vn/');
+            $sheet->getStyle('A3')->getFont()->setSize(10);
+
+            // Write report title in row 6
+            $sheet->mergeCells("A6:H6");
+            $sheet->setCellValue('A6', 'DANH SÁCH NHAN ĐỀ VÀ SỐ LƯỢNG');
+            $sheet->getStyle('A6')->getFont()->setBold(true)->setSize(16);
+            $sheet->getStyle('A6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            // Set column widths
+            $widths = [
+                'A' => 8,
+                'B' => 60,
+                'C' => 25,
+                'D' => 12,
+                'E' => 15,
+                'F' => 12,
+                'G' => 12,
+                'H' => 15
+            ];
+            foreach ($widths as $col => $w) {
+                $sheet->getColumnDimension($col)->setWidth($w);
+            }
+
+            // Header style on row 8
+            $sheet->getStyle("A8:H8")->getFont()->setBold(true);
+            $sheet->getStyle("A8:H8")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            
+            // Add grid borders to the entire table
+            $highestRow = $sheet->getHighestRow();
+            $styleArray = [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ],
+            ];
+            $sheet->getStyle("A8:H{$highestRow}")->applyFromArray($styleArray);
+
+            // Alignments & formats
+            for ($r = 9; $r <= $highestRow; $r++) {
+                $sheet->getStyle("A{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("E{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("H{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+            }
         } else {
             $sheet->mergeCells("A1:{$lastCol}1");
             $sheet->setCellValue('A1', $this->title);

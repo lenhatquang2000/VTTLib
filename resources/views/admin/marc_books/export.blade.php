@@ -213,6 +213,24 @@
                         icon="construction"
                     />
                 </div>
+            @elseif($reportType === 'accession_book')
+                <!-- Feature Pending State -->
+                <div class="p-4 flex-1 flex flex-col justify-center">
+                    <x-feature-pending 
+                        title="{{ __('Sổ đăng ký cá biệt chưa cập nhật') }}"
+                        desc="{{ __('Tính năng báo cáo Sổ đăng ký cá biệt hiện đang được phát triển và sẽ sớm được cập nhật trong phiên bản tiếp theo.') }}"
+                        icon="book-open"
+                    />
+                </div>
+            @elseif($reportType === 'generated_barcodes')
+                <!-- Feature Pending State -->
+                <div class="p-4 flex-1 flex flex-col justify-center">
+                    <x-feature-pending 
+                        title="{{ __('In mã vạch phát sinh chưa cập nhật') }}"
+                        desc="{{ __('Tính năng báo cáo In mã vạch phát sinh hiện đang được phát triển và sẽ sớm được cập nhật trong phiên bản tiếp theo.') }}"
+                        icon="barcode"
+                    />
+                </div>
             @else
                 <!-- Filter Form -->
                 <form action="{{ route('admin.marc.reports.generate') }}" method="POST" target="_blank" id="reportForm" class="p-3 flex-1 flex flex-col justify-between space-y-3">
