@@ -91,24 +91,63 @@ class MarcReportController extends Controller
     public function preview(Request $request)
     {
         $reportType = $request->input('report_type');
-        $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes'];
+        $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes', 'book_id_list'];
+        $perPage = $request->input('per_page', 10);
+        
+        if ($reportType === 'book_stats') {
+            $query = BibliographicRecord::with(['items.storageLocation', 'documentType'])
+                ->where('status', BibliographicRecord::STATUS_APPROVED);
+            $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
+            $records = $query->get();
+            
+            $storageLocations = \App\Models\StorageLocation::with('branch')->where('is_active', true)->get();
+            $documentTypes = \App\Models\DocumentType::where('is_active', true)->orderBy('order', 'asc')->get();
+            
+            $counts = [];
+            foreach ($storageLocations as $loc) {
+                foreach ($documentTypes as $dt) {
+                    $counts[$loc->id][$dt->id] = 0;
+                }
+            }
+            
+            $totalCount = 0;
+            foreach ($records as $record) {
+                $dtId = $record->document_type_id;
+                if (!$dtId) continue;
+                
+                foreach ($record->items as $item) {
+                    $locId = $item->storage_location_id;
+                    if ($locId && isset($counts[$locId][$dtId])) {
+                        $counts[$locId][$dtId]++;
+                        $totalCount++;
+                    }
+                }
+            }
+            
+            return view('admin.marc_books.partials.book_stats_preview', [
+                'storageLocations' => $storageLocations,
+                'documentTypes' => $documentTypes,
+                'counts' => $counts,
+                'totalCount' => $totalCount
+            ]);
+        }
         
         if (in_array($reportType, $itemBasedReports)) {
             $query = \App\Models\BookItem::with(['bibliographicRecord.fields.subfields', 'branch', 'storageLocation']);
             $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
-            $paginated = $query->latest()->paginate(10);
+            $paginated = $query->latest()->paginate($perPage);
             $records = $paginated->items();
         } else {
             $query = BibliographicRecord::with(['fields.subfields', 'items'])
                 ->where('status', BibliographicRecord::STATUS_APPROVED);
-            if (in_array($reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem'])) {
+            if (in_array($reportType, ['book_stats', 'book_title_qty', 'cataloging_subsystem'])) {
                 $query->where(function($q) {
                     $q->where('record_type', 'resource')
                       ->orWhereHas('items');
                 });
             }
             $query = $this->applyAdvancedFilters($query, $request, $reportType, $itemBasedReports);
-            $paginated = $query->latest()->paginate(10);
+            $paginated = $query->latest()->paginate($perPage);
             $records = $paginated->items();
         }
 
@@ -120,7 +159,27 @@ class MarcReportController extends Controller
             $row[0] = $startIndex + $index;
         }
 
-        return view('admin.marc_books.partials.report_preview', [
+        if ($reportType === 'spine_label') {
+            return view('admin.marc_books.partials.spine_label_preview', [
+                'records' => $records,
+                'paginated' => $paginated,
+                'totalCount' => $paginated->total()
+            ]);
+        }
+
+        if ($reportType === 'barcode_list') {
+            return view('admin.marc_books.partials.barcode_list_preview', [
+                'records' => $records,
+                'paginated' => $paginated,
+                'totalCount' => $paginated->total()
+            ]);
+        }
+
+        $viewName = $reportType === 'book_id_list' 
+            ? 'admin.marc_books.partials.book_id_list_preview' 
+            : 'admin.marc_books.partials.report_preview';
+
+        return view($viewName, [
             'headers' => $reportData['headers'],
             'rows' => $reportData['rows'],
             'paginated' => $paginated,
@@ -142,7 +201,7 @@ class MarcReportController extends Controller
         $format     = $request->input('format', 'excel');
 
         // Các báo cáo về kho/mã vạch/nhãn gáy nên bắt đầu từ BookItem
-        $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes'];
+        $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes', 'book_id_list'];
 
         if (in_array($reportType, $itemBasedReports)) {
             $query = \App\Models\BookItem::with(['bibliographicRecord.fields.subfields', 'branch', 'storageLocation']);
@@ -160,11 +219,11 @@ class MarcReportController extends Controller
                 ->where('status', BibliographicRecord::STATUS_APPROVED);
 
             // withCount để tránh N+1 khi đếm số bản ấn
-            if (in_array($reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem', 'article_index'])) {
+            if (in_array($reportType, ['book_stats', 'book_title_qty', 'cataloging_subsystem', 'article_index'])) {
                 $query->withCount('items');
             }
 
-            if (in_array($reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem'])) {
+            if (in_array($reportType, ['book_stats', 'book_title_qty', 'cataloging_subsystem'])) {
                 $query->where(function($q) {
                     $q->where('record_type', 'resource')
                       ->orWhereHas('items');
@@ -257,7 +316,7 @@ class MarcReportController extends Controller
             'book_id_list' => [
                 'title'       => __('Danh sách tài liệu theo mã sách'),
                 'file_prefix' => 'theo_ma_sach',
-                'headers'     => [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Số lượng bản ấn'), __('Năm XB'), __('DDC')],
+                'headers'     => [__('STT'), __('Mã số'), __('Tựa đề'), __('Tác giả'), __('Dewey'), __('Vị trí'), __('Ký N'), __('Ký X'), __('Ghi chú')],
             ],
             'inventory_status' => [
                 'title'       => __('Báo cáo chi tiết tình hình kho'),
@@ -440,16 +499,21 @@ class MarcReportController extends Controller
             case 'book_id_list': // Danh sách tài liệu theo mã sách
                 $title = __('Danh sách tài liệu theo mã sách');
                 $prefix = 'theo_ma_sach';
-                $headers = [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Số lượng bản ấn'), __('Năm XB'), __('DDC')];
-                foreach ($records as $index => $record) {
+                $headers = [__('STT'), __('Mã số'), __('Tựa đề'), __('Tác giả'), __('Dewey'), __('Vị trí'), __('Ký N'), __('Ký X'), __('Ghi chú')];
+                $count = 1;
+                foreach ($records as $item) {
+                    $record = $item->bibliographicRecord;
+                    $ddc = $record->getMarcValue('082', 'a') ?: $record->getMarcValue('090', 'a');
                     $rows[] = [
-                        $index + 1,
-                        $record->id,
+                        $count++,
+                        $item->accession_number ?: $item->barcode,
                         $record->getMarcValue('245', 'a'),
                         $record->getMarcValue('100', 'a') ?: $record->getMarcValue('700', 'a'),
-                        $record->items->count(),
-                        $record->getMarcValue('260', 'c') ?: $record->getMarcValue('264', 'c'),
-                        $record->getMarcValue('082', 'a')
+                        $ddc ?: '...',
+                        $item->storageLocation?->code ?: ($item->location ?: '...'),
+                        '',
+                        '',
+                        $item->notes ?: ''
                     ];
                 }
                 break;

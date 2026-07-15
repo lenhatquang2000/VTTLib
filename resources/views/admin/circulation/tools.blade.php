@@ -296,15 +296,11 @@
                         <p class="text-sm text-gray-400 mt-1">{{ __('Xem log hoạt động lưu thông') }}</p>
                     </div>
                     <div class="p-6">
-                        <div class="bg-yellow-900/20 border border-yellow-500 text-yellow-400 p-4 rounded-lg">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="font-medium">{{ __("Tính năng đang phát triển") }}</span>
-                            </div>
-                            <p class="text-sm mt-2">{{ __("Chức năng nhật ký hệ thống sẽ được triển khai trong phiên bản tiếp theo.") }}</p>
-                        </div>
+                        <x-feature-pending 
+                            title="{{ __('Tính năng đang phát triển') }}"
+                            desc="{{ __('Chức năng nhật ký hệ thống sẽ được triển khai trong phiên bản tiếp theo.') }}"
+                            icon="clock"
+                        />
                     </div>
                 </div>
             </div>
@@ -317,15 +313,11 @@
                         <p class="text-sm text-gray-400 mt-1">{{ __('Cài đặt các thông số lưu thông') }}</p>
                     </div>
                     <div class="p-6">
-                        <div class="bg-gray-900/20 border border-gray-500 text-gray-400 p-4 rounded-lg">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="font-medium">{{ __("Tính năng đang phát triển") }}</span>
-                            </div>
-                            <p class="text-sm mt-2">{{ __("Chức năng cấu hình sẽ được triển khai trong phiên bản tiếp theo.") }}</p>
-                        </div>
+                        <x-feature-pending 
+                            title="{{ __('Tính năng đang phát triển') }}"
+                            desc="{{ __('Chức năng cấu hình sẽ được triển khai trong phiên bản tiếp theo.') }}"
+                            icon="settings"
+                        />
                     </div>
                 </div>
             </div>

@@ -19,7 +19,7 @@
     </div>
 
     <!-- Main Two-Column Layout -->
-    <div class="flex flex-col lg:flex-row gap-3 items-start w-full">
+    <div class="flex flex-col lg:flex-row gap-3 w-full">
         
         <!-- Left Column: Report Tree Menu -->
         <div id="left-tree-column" class="w-full lg:w-80 xl:w-96 bg-card text-foreground rounded-md border border-border shadow-sm overflow-hidden flex flex-col shrink-0">
@@ -140,22 +140,22 @@
         </div>
         
         <!-- Right Column: Filters and Actions Panel -->
-        <div class="flex-1 w-full bg-card text-foreground border border-border rounded-md shadow-sm flex flex-col min-h-[450px] relative">
+        <div class="flex-1 min-w-0 bg-card text-foreground border border-border rounded-md shadow-sm flex flex-col min-h-[450px] relative">
             <!-- Panel Header with Expand Button -->
-            <div class="p-3 border-b border-border bg-muted/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                <div class="flex items-start gap-2">
+            <div class="p-3 border-b border-border bg-muted/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">
+                <div class="flex items-start gap-2 flex-1 min-w-0">
                     <!-- Expand Button, hidden by default -->
                     <button type="button" id="expand-tree-btn" class="btn-icon-compact hidden shrink-0" title="{{ __('Mở rộng danh mục') }}">
                         <i data-lucide="chevron-right" class="w-4 h-4 text-muted-foreground"></i>
                     </button>
-                    <div>
+                    <div class="flex-1 min-w-0">
                         <span class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-bold bg-primary/10 text-primary uppercase tracking-widest mb-1" id="current_report_label">
                             {{ $activeReport['title'] }}
                         </span>
                         <h2 class="text-sm font-bold text-foreground tracking-tight" id="right_panel_title">
                             {{ $activeReport['title'] }}
                         </h2>
-                        <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed max-w-2xl" id="right_panel_desc">
+                        <p class="text-xs text-muted-foreground mt-0.5 leading-relaxed" id="right_panel_desc">
                             {{ $activeReport['desc'] }}
                         </p>
                     </div>

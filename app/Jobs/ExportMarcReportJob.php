@@ -55,7 +55,7 @@ class ExportMarcReportJob implements ShouldQueue
             $request = Request::create('/admin/marc-reports/generate', 'POST', $this->requestData);
 
             // 2. Dựng lại base query tương ứng
-            $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes'];
+            $itemBasedReports = ['inventory_report', 'accession_book', 'spine_label', 'barcode_list', 'inventory_status', 'generated_barcodes', 'book_id_list'];
             
             $controller = app(MarcReportController::class);
 
@@ -67,11 +67,15 @@ class ExportMarcReportJob implements ShouldQueue
                 $query = BibliographicRecord::with(['fields.subfields'])
                     ->where('status', BibliographicRecord::STATUS_APPROVED);
 
-                if (in_array($this->reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem', 'article_index'])) {
-                    $query->withCount('items');
+                if (in_array($this->reportType, ['book_stats', 'book_title_qty', 'cataloging_subsystem', 'article_index'])) {
+                    if ($this->reportType === 'book_stats') {
+                        $query->with(['items.storageLocation', 'documentType']);
+                    } else {
+                        $query->withCount('items');
+                    }
                 }
 
-                if (in_array($this->reportType, ['book_stats', 'book_id_list', 'book_title_qty', 'cataloging_subsystem'])) {
+                if (in_array($this->reportType, ['book_stats', 'book_title_qty', 'cataloging_subsystem'])) {
                     $query->where(function($q) {
                         $q->where('record_type', 'resource')
                           ->orWhereHas('items');

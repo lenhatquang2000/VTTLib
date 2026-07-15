@@ -77,6 +77,9 @@ class DynamicMarcReportExport implements
         Log::channel('single')->info('[EXPORT] query() được gọi - chuẩn bị builder', [
             'elapsed_ms' => round(($t - $this->exportStartTime) * 1000, 2),
         ]);
+        if (in_array($this->reportType, ['book_stats', 'spine_label'])) {
+            return $this->baseQuery->clone()->whereRaw('1 = 0');
+        }
         return $this->baseQuery;
     }
 
@@ -199,13 +202,18 @@ class DynamicMarcReportExport implements
                     $this->marc($record, '773', 'q'),
                 ];
             case 'book_id_list':
+                $bib = $record->bibliographicRecord;
+                $ddc = $this->marc($bib, '082', 'a') ?: $this->marc($bib, '090', 'a');
                 return [
-                    $counter, $record->id,
-                    $this->marc($record, '245', 'a'),
-                    $this->marc($record, '100', 'a') ?: $this->marc($record, '700', 'a'),
-                    $record->items_count ?? 0,
-                    $this->marc($record, '260', 'c') ?: $this->marc($record, '264', 'c'),
-                    $this->marc($record, '082', 'a'),
+                    $counter,
+                    $record->accession_number ?: $record->barcode,
+                    $this->marc($bib, '245', 'a'),
+                    $this->marc($bib, '100', 'a') ?: $this->marc($bib, '700', 'a'),
+                    $ddc ?: '...',
+                    $record->storageLocation?->code ?: ($record->location ?: '...'),
+                    '',
+                    '',
+                    $record->notes ?: '',
                 ];
             case 'inventory_status':
                 $bib = $record->bibliographicRecord;
@@ -251,9 +259,23 @@ class DynamicMarcReportExport implements
         return $record ? $record->getMarcValue($tag, $code) : null;
     }
 
-    public function headings(): array   { return $this->headers; }
+    public function headings(): array   
+    { 
+        if (in_array($this->reportType, ['book_stats', 'spine_label'])) {
+            return [];
+        }
+        return $this->headers; 
+    }
+
     public function title(): string     { return $this->title; }
-    public function startCell(): string { return 'A4'; }
+    
+    public function startCell(): string 
+    { 
+        if ($this->reportType === 'book_id_list') {
+            return 'A7'; 
+        }
+        return 'A4'; 
+    }
 
     public function styles(Worksheet $sheet)
     {
@@ -268,29 +290,262 @@ class DynamicMarcReportExport implements
         ]);
 
         $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex(count($this->headers));
-        $sheet->mergeCells("A1:{$lastCol}1");
-        $sheet->setCellValue('A1', $this->title);
-        $sheet->mergeCells("A2:{$lastCol}2");
-        $sheet->setCellValue('A2', 'Ngay xuat bao cao: ' . now()->format('d/m/Y H:i'));
+        
+        $styleResult = [];
 
-        $styleResult = [
-            1 => [
-                'font'      => ['bold' => true, 'size' => 16],
-                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-            ],
-            2 => [
-                'font'      => ['italic' => true, 'size' => 11],
-                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-            ],
-            4 => [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => [
-                    'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'startColor' => ['rgb' => '680102'],
+        if ($this->reportType === 'spine_label') {
+            // Set column widths
+            $widths = [
+                'A' => 1.81640625,
+                'B' => 17.54296875,
+                'C' => 7.90625,
+                'D' => 17.54296875,
+                'E' => 7.90625,
+                'F' => 17.54296875,
+                'G' => 7.90625,
+                'H' => 17.54296875,
+                'I' => 3,
+                'J' => 20.90625,
+                'K' => 9
+            ];
+            foreach ($widths as $col => $w) {
+                $sheet->getColumnDimension($col)->setWidth($w);
+            }
+
+            // Set top margin height
+            $sheet->getRowDimension(1)->setRowHeight(16);
+
+            // Fetch records using baseQuery
+            $records = $this->baseQuery->get();
+
+            $cols = ['B', 'D', 'F', 'H'];
+            
+            foreach ($records as $index => $item) {
+                $colLetter = $cols[$index % 4];
+                $rowIndex = floor($index / 4);
+                
+                $r1 = 2 + $rowIndex * 4;
+                $r2 = 3 + $rowIndex * 4;
+                $r3 = 4 + $rowIndex * 4;
+                $r4 = 5 + $rowIndex * 4; // separator row
+
+                // Set row heights
+                $sheet->getRowDimension($r1)->setRowHeight(23.5);
+                $sheet->getRowDimension($r2)->setRowHeight(23.5);
+                $sheet->getRowDimension($r3)->setRowHeight(23.5);
+                $sheet->getRowDimension($r4)->setRowHeight(19.75);
+
+                $record = $item->bibliographicRecord;
+                $ddc = $record->getMarcValue('082', 'a') ?: $record->getMarcValue('090', 'a');
+                $authorCode = $record->getMarcValue('082', 'b') ?: ($record->getMarcValue('090', 'b') ?: ($record->getMarcValue('100', 'a') ? mb_substr($record->getMarcValue('100', 'a'), 0, 3, 'UTF-8') : ''));
+
+                // Write Cell 1: Library Prefix
+                $sheet->setCellValue("{$colLetter}{$r1}", 'TV ĐH VTT');
+                $style1 = $sheet->getStyle("{$colLetter}{$r1}");
+                $style1->getFont()->setName('Times New Roman')->setSize(12)->setBold(false);
+                $style1->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $style1->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $style1->getBorders()->applyFromArray([
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
+                ]);
+
+                // Write Cell 2: DDC
+                $sheet->setCellValue("{$colLetter}{$r2}", $ddc ?: '');
+                $style2 = $sheet->getStyle("{$colLetter}{$r2}");
+                $style2->getFont()->setName('Times New Roman')->setSize(12)->setBold(true);
+                $style2->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $style2->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $style2->getBorders()->applyFromArray([
+                    'top' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                    'bottom' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_DASHED, 'color' => ['rgb' => '000000']],
+                    'left' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                    'right' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                ]);
+
+                // Write Cell 3: Author Code
+                $sheet->setCellValue("{$colLetter}{$r3}", $authorCode ?: '');
+                $style3 = $sheet->getStyle("{$colLetter}{$r3}");
+                $style3->getFont()->setName('Times New Roman')->setSize(12)->setBold(true);
+                $style3->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $style3->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $style3->getBorders()->applyFromArray([
+                    'top' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_NONE],
+                    'bottom' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                    'left' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                    'right' => ['borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN, 'color' => ['rgb' => '000000']],
+                ]);
+            }
+        } elseif ($this->reportType === 'book_stats') {
+            // Write school headers in row 1, 2, 3
+            $sheet->setCellValue('A1', 'THƯ VIỆN - TRƯỜNG ĐẠI HỌC VÕ TRƯỜNG TOẢN');
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(11);
+            
+            $sheet->setCellValue('A2', 'Địa chỉ: Quốc lộ 1A, xã Thạnh Xuân, Thành phố Cần Thơ');
+            $sheet->getStyle('A2')->getFont()->setSize(10);
+            
+            $sheet->setCellValue('A3', 'Website: http://library.vttu.edu.vn/');
+            $sheet->getStyle('A3')->getFont()->setSize(10);
+
+            // Write report title in row 5
+            $sheet->mergeCells("A5:C5");
+            $sheet->setCellValue('A5', 'THỐNG KÊ SỐ LƯỢNG ĐẦU SÁCH TRONG THƯ VIỆN');
+            $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(16);
+            $sheet->getStyle('A5')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            // Fetch records using baseQuery
+            $records = $this->baseQuery->get();
+            $storageLocations = \App\Models\StorageLocation::with('branch')->where('is_active', true)->get();
+            $documentTypes = \App\Models\DocumentType::where('is_active', true)->orderBy('order', 'asc')->get();
+            
+            $counts = [];
+            foreach ($storageLocations as $loc) {
+                foreach ($documentTypes as $dt) {
+                    $counts[$loc->id][$dt->id] = 0;
+                }
+            }
+
+            foreach ($records as $record) {
+                $dtId = $record->document_type_id;
+                if (!$dtId) continue;
+                
+                foreach ($record->items as $item) {
+                    $locId = $item->storage_location_id;
+                    if ($locId && isset($counts[$locId][$dtId])) {
+                        $counts[$locId][$dtId]++;
+                    }
+                }
+            }
+
+            $currentRow = 7;
+            foreach ($storageLocations as $loc) {
+                $locCounts = $counts[$loc->id] ?? [];
+                $totalLocSum = array_sum($locCounts);
+
+                // Write Storage Location Code and Name
+                $sheet->setCellValue("A{$currentRow}", $loc->code);
+                $sheet->getStyle("A{$currentRow}")->getFont()->setBold(true);
+                $sheet->setCellValue("B{$currentRow}", $loc->name);
+                $sheet->getStyle("B{$currentRow}")->getFont()->setBold(true);
+                
+                $currentRow++;
+
+                // Table headers: STT, THỂ LOẠI TÀI LIỆU, SỐ LƯỢNG
+                $sheet->setCellValue("A{$currentRow}", 'STT');
+                $sheet->setCellValue("B{$currentRow}", 'THỂ LOẠI TÀI LIỆU');
+                $sheet->setCellValue("C{$currentRow}", 'SỐ LƯỢNG');
+                
+                // Style table headers
+                $headerStyle = [
+                    'font' => ['bold' => true],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => 'B4C6E7'] // Medium slate blue-grey
+                    ],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+                ];
+                $sheet->getStyle("A{$currentRow}:C{$currentRow}")->applyFromArray($headerStyle);
+                
+                $tableStartRow = $currentRow;
+                $currentRow++;
+
+                $stt = 1;
+                foreach ($documentTypes as $dt) {
+                    $qty = $locCounts[$dt->id] ?? 0;
+                    
+                    $sheet->setCellValue("A{$currentRow}", $stt++);
+                    $sheet->setCellValue("B{$currentRow}", $dt->name);
+                    $sheet->setCellValue("C{$currentRow}", $qty);
+                    
+                    $sheet->getStyle("A{$currentRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle("C{$currentRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                    
+                    $currentRow++;
+                }
+
+                // Total row
+                $sheet->setCellValue("B{$currentRow}", 'Tổng số:');
+                $sheet->getStyle("B{$currentRow}")->getFont()->setBold(true);
+                $sheet->getStyle("B{$currentRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+                
+                $sheet->setCellValue("C{$currentRow}", $totalLocSum);
+                $sheet->getStyle("C{$currentRow}")->getFont()->setBold(true);
+                $sheet->getStyle("C{$currentRow}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                
+                $tableEndRow = $currentRow;
+                
+                // Apply borders
+                $borderStyle = [
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['rgb' => '000000'],
+                        ],
+                    ],
+                ];
+                $sheet->getStyle("A{$tableStartRow}:C{$tableEndRow}")->applyFromArray($borderStyle);
+                
+                $currentRow += 3;
+            }
+        } elseif ($this->reportType === 'book_id_list') {
+            // Write school headers in row 1, 2, 3
+            $sheet->setCellValue('A1', 'THƯ VIỆN - TRƯỜNG ĐẠI HỌC VÕ TRƯỜNG TOẢN');
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(11);
+            
+            $sheet->setCellValue('A2', 'Địa chỉ: Quốc lộ 1A, xã Thạnh Xuân, Thành phố Cần Thơ');
+            $sheet->getStyle('A2')->getFont()->setSize(10);
+            
+            $sheet->setCellValue('A3', 'Website: http://library.vttu.edu.vn/');
+            $sheet->getStyle('A3')->getFont()->setSize(10);
+
+            // Write report title in row 5
+            $sheet->mergeCells("A5:{$lastCol}5");
+            $sheet->setCellValue('A5', 'DANH SÁCH TÀI LIỆU TRONG THƯ VIỆN');
+            $sheet->getStyle('A5')->getFont()->setBold(true)->setSize(16);
+            $sheet->getStyle('A5')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            // Header style on row 7
+            $sheet->getStyle("A7:{$lastCol}7")->getFont()->setBold(true);
+            $sheet->getStyle("A7:{$lastCol}7")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            
+            // Add grid borders to the entire table
+            $highestRow = $sheet->getHighestRow();
+            $styleArray = [
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                        'color' => ['rgb' => '000000'],
+                    ],
                 ],
-                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
-            ],
-        ];
+            ];
+            $sheet->getStyle("A7:{$lastCol}{$highestRow}")->applyFromArray($styleArray);
+        } else {
+            $sheet->mergeCells("A1:{$lastCol}1");
+            $sheet->setCellValue('A1', $this->title);
+            $sheet->mergeCells("A2:{$lastCol}2");
+            $sheet->setCellValue('A2', 'Ngay xuat bao cao: ' . now()->format('d/m/Y H:i'));
+
+            $styleResult = [
+                1 => [
+                    'font'      => ['bold' => true, 'size' => 16],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+                ],
+                2 => [
+                    'font'      => ['italic' => true, 'size' => 11],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+                ],
+                4 => [
+                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill' => [
+                        'fillType'   => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '680102'],
+                    ],
+                    'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER],
+                ],
+            ];
+        }
 
         $styleMs      = round((microtime(true) - $stylesStart) * 1000, 2);
         $finalElapsed = round((microtime(true) - $this->exportStartTime) * 1000, 2);
