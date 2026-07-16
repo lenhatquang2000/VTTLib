@@ -57,25 +57,36 @@ class PatronReportController extends Controller
 
         $activeReport = $reportsList[$reportType];
         
+        $patrons = null;
+        if ($reportType === 'patron_list') {
+            $query = $this->buildQuery($request);
+            
+            // Limit results if result_limit is set
+            $limit = intval($request->input('result_limit', 0));
+            if ($limit > 0) {
+                $query->limit($limit);
+            }
+            
+            // Paginate preview list
+            $patrons = $query->latest('registration_date')->paginate(15)->withQueryString();
+        }
+        
         return view('admin.patrons.reports.index', compact(
             'patronGroups', 
             'branches', 
             'reportType',
             'activeReport',
-            'reportsList'
+            'reportsList',
+            'patrons'
         ));
     }
 
     /**
-     * Generate and export the patron report.
+     * Build the query for patron reports based on filters.
      */
-    public function generate(Request $request)
+    public function buildQuery(Request $request)
     {
-        $reportType = $request->input('report_type', 'patron_list');
-        $format = $request->input('format', 'excel');
-
-        // Build query on PatronDetail
-        $query = PatronDetail::with(['user', 'patronGroup', 'branch']);
+        $query = PatronDetail::with(['user', 'patronGroup', 'branch', 'addresses']);
 
         // 1. Simple search
         if ($request->filled('search')) {
@@ -112,7 +123,7 @@ class PatronReportController extends Controller
                         } elseif ($field === 'email') {
                             $q->whereHas('user', function($userQ) use ($val) {
                                 $userQ->where('email', 'LIKE', "%{$val}%");
-                            });
+                              });
                         } elseif ($field === 'phone') {
                             $q->where('phone', 'LIKE', "%{$val}%")
                               ->orWhere('phone_contact', 'LIKE', "%{$val}%");
@@ -147,6 +158,8 @@ class PatronReportController extends Controller
         $statuses = $request->input('statuses', []);
         if (!empty($statuses)) {
             $query->whereIn('card_status', $statuses);
+        } else {
+            $query->where('card_status', '!=', 'pending');
         }
 
         $group_ids = $request->input('patron_group_ids', []);
@@ -173,97 +186,76 @@ class PatronReportController extends Controller
             $query->where('branch', $request->input('branch_id'));
         }
 
-        // Limit results
-        $limit = intval($request->input('result_limit', 0));
-        if ($limit > 0) {
-            $query->limit($limit);
+        return $query;
+    }
+
+    /**
+     * Generate and export the patron report.
+     */
+    public function generate(Request $request)
+    {
+        $reportType = $request->input('report_type', 'patron_list');
+        $format = $request->input('format', 'excel');
+
+        // Check query quickly
+        $query = $this->buildQuery($request);
+        if (!$query->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => __('Không tìm thấy độc giả phù hợp với bộ lọc đã chọn.')
+            ], 422);
         }
 
-        $patrons = $query->latest('registration_date')->get();
+        $meta = [
+            'patron_list' => [
+                'title' => __('Danh sách độc giả trong thư viện'),
+                'prefix' => 'danh_sach_doc_gia'
+            ],
+            'print_cards' => [
+                'title' => __('Báo cáo in thẻ độc giả'),
+                'prefix' => 'in_the_doc_gia'
+            ],
+            'renew_list' => [
+                'title' => __('Báo cáo gia hạn thẻ độc giả'),
+                'prefix' => 'gia_han_the'
+            ],
+            'renew_by_period' => [
+                'title' => __('Báo cáo gia hạn thẻ độc giả'),
+                'prefix' => 'gia_han_the'
+            ],
+        ];
 
-        if ($patrons->isEmpty()) {
-            return back()->with('error', __('Không tìm thấy độc giả phù hợp với bộ lọc đã chọn.'));
-        }
+        $reportMeta = $meta[$reportType] ?? [
+            'title' => __('Danh sách độc giả trong thư viện'),
+            'prefix' => 'danh_sach_doc_gia'
+        ];
 
-        // Prepare export rows based on report_type
-        $title = '';
-        $prefix = 'patrons';
-        $headers = [];
-        $rows = [];
+        $fileName = $reportMeta['prefix'] . '_' . now()->format('Ymd_His');
+        $extension = $format === 'csv' ? 'csv' : 'xlsx';
+        $fullFileName = $fileName . '.' . $extension;
 
-        switch ($reportType) {
-            case 'print_cards':
-            case 'viewer_print_cards':
-                $title = __('Báo cáo in thẻ độc giả');
-                $prefix = 'in_the_doc_gia';
-                $headers = [__('STT'), __('Mã bạn đọc'), __('Họ tên'), __('Ngày sinh'), __('Giới tính'), __('Đơn vị / Lớp'), __('Ngày hết hạn')];
-                foreach ($patrons as $index => $patron) {
-                    $rows[] = [
-                        $index + 1,
-                        $patron->patron_code,
-                        $patron->display_name,
-                        $patron->dob ? \Carbon\Carbon::parse($patron->dob)->format('d/m/Y') : '',
-                        $patron->gender === 'male' ? __('Nam') : ($patron->gender === 'female' ? __('Nữ') : ''),
-                        $patron->department ?: ($patron->position_class ?: ''),
-                        $patron->expiry_date ? \Carbon\Carbon::parse($patron->expiry_date)->format('d/m/Y') : ''
-                    ];
-                }
-                break;
+        // Create export history
+        $history = \App\Models\ExportHistory::create([
+            'user_id'     => auth()->id(),
+            'report_type' => $reportType,
+            'title'       => $reportMeta['title'],
+            'filename'    => $fullFileName,
+            'format'      => $format,
+            'status'      => 'pending',
+        ]);
 
-            case 'renew_list':
-            case 'renew_by_period':
-                $title = __('Báo cáo gia hạn thẻ độc giả');
-                $prefix = 'gia_han_the';
-                $headers = [__('STT'), __('Mã bạn đọc'), __('Họ tên'), __('Nhóm bạn đọc'), __('Số điện thoại'), __('Ngày hết hạn'), __('Trạng thái')];
-                foreach ($patrons as $index => $patron) {
-                    $rows[] = [
-                        $index + 1,
-                        $patron->patron_code,
-                        $patron->display_name,
-                        optional($patron->patronGroup)->name,
-                        $patron->phone ?: ($patron->phone_contact ?: ''),
-                        $patron->expiry_date ? \Carbon\Carbon::parse($patron->expiry_date)->format('d/m/Y') : '',
-                        $patron->card_status === 'normal' ? __('Hoạt động') : __('Bị khóa')
-                    ];
-                }
-                break;
-
-            case 'patron_list':
-            case 'viewer_patron_list':
-            default:
-                $title = __('Danh sách độc giả trong thư viện');
-                $prefix = 'danh_sach_doc_gia';
-                $headers = [__('STT'), __('Mã bạn đọc'), __('Họ tên'), __('Email'), __('Số điện thoại'), __('Nhóm độc giả'), __('Ngày đăng ký'), __('Ngày hết hạn'), __('Trạng thái')];
-                foreach ($patrons as $index => $patron) {
-                    $rows[] = [
-                        $index + 1,
-                        $patron->patron_code,
-                        $patron->display_name,
-                        optional($patron->user)->email,
-                        $patron->phone ?: ($patron->phone_contact ?: ''),
-                        optional($patron->patronGroup)->name,
-                        $patron->registration_date ? \Carbon\Carbon::parse($patron->registration_date)->format('d/m/Y') : '',
-                        $patron->expiry_date ? \Carbon\Carbon::parse($patron->expiry_date)->format('d/m/Y') : '',
-                        $patron->card_status === 'normal' ? __('Hoạt động') : __('Bị khóa')
-                    ];
-                }
-                break;
-        }
-
-        $fileName = $prefix . '_' . now()->format('Ymd_His');
-
-        if ($format === 'excel') {
-            return Excel::download(
-                new DynamicPatronReportExport($headers, $rows, $title), 
-                $fileName . '.xlsx'
-            );
-        }
-
-        // CSV format
-        return Excel::download(
-            new DynamicPatronReportExport($headers, $rows, $title), 
-            $fileName . '.csv',
-            \Maatwebsite\Excel\Excel::CSV
+        // Dispatch job in the background to the default queue connection (database) so it runs asynchronously
+        \App\Jobs\ExportPatronReportJob::dispatch(
+            $history->id,
+            $request->all(),
+            $reportType,
+            $format
         );
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Yêu cầu xuất file của bạn đã được nhận và đang được xử lý dưới nền. Bạn sẽ nhận được thông báo sau khi hoàn tất.'),
+            'history' => $history
+        ]);
     }
 }

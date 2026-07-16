@@ -161,8 +161,9 @@
                 </div>
             </div>
             
-            <!-- Filter Form -->
-            <form action="{{ route('admin.patrons.reports.generate') }}" method="POST" target="_blank" id="reportForm" class="p-3 flex-1 flex flex-col justify-between space-y-3">
+            @if($reportType === 'patron_list')
+            <!-- Filter Form (GET method for reloading page with filters) -->
+            <form action="{{ route('admin.patrons.reports.index') }}" method="GET" id="reportForm" class="p-3 flex-1 flex flex-col justify-between space-y-3">
                 @csrf
                 <input type="hidden" name="report_type" id="selected_report_type" value="{{ $reportType }}">
                 
@@ -171,7 +172,7 @@
                     <!-- Simple Search Bar -->
                     <div class="flex items-center gap-2">
                         <div class="relative flex-1">
-                            <input type="text" name="search" id="search_input" placeholder="{{ __('Tìm nhanh độc giả bằng từ khóa (Mã số, Họ tên, Email, Số điện thoại)...') }}" class="w-full h-9 pl-3 pr-10 text-xs border border-input rounded-sm bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                            <input type="text" name="search" id="search_input" value="{{ request('search') }}" placeholder="{{ __('Tìm nhanh độc giả bằng từ khóa (Mã số, Họ tên, Email, Số điện thoại)...') }}" class="w-full h-9 pl-3 pr-10 text-xs border border-input rounded-sm bg-background text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                             <button type="submit" class="absolute right-1 top-1 h-7 w-7 flex items-center justify-center rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                                 <i data-lucide="search" class="w-4 h-4"></i>
                             </button>
@@ -204,23 +205,30 @@
                                     <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest w-16 text-center">Bắt đầu</span>
                                     <input type="hidden" name="info_ops[]" value="AND">
                                     @else
+                                    @php
+                                        $selectedOp = request('info_ops')[$i] ?? 'AND';
+                                    @endphp
                                     <select name="info_ops[]" class="h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground w-16">
-                                        <option value="AND">AND</option>
-                                        <option value="OR">OR</option>
-                                        <option value="NOT">NOT</option>
+                                        <option value="AND" {{ $selectedOp === 'AND' ? 'selected' : '' }}>AND</option>
+                                        <option value="OR" {{ $selectedOp === 'OR' ? 'selected' : '' }}>OR</option>
+                                        <option value="NOT" {{ $selectedOp === 'NOT' ? 'selected' : '' }}>NOT</option>
                                     </select>
                                     @endif
+                                    
+                                    @php
+                                        $selectedField = request('info_fields')[$i] ?? ($i == 0 ? 'patron_code' : ($i == 1 ? 'name' : 'patron_code'));
+                                    @endphp
                                     <select name="info_fields[]" class="h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground w-28 md:w-36 shrink-0">
-                                        <option value="patron_code" {{ $i==0 ? 'selected' : '' }}>{{ __('Mã bạn đọc / Số thẻ') }}</option>
-                                        <option value="name" {{ $i==1 ? 'selected' : '' }}>{{ __('Họ tên') }}</option>
-                                        <option value="email">{{ __('Email') }}</option>
-                                        <option value="phone">{{ __('Số điện thoại') }}</option>
-                                        <option value="mssv">{{ __('Mã số sinh viên (MSSV)') }}</option>
-                                        <option value="id_card">{{ __('Số CMND/CCCD') }}</option>
-                                        <option value="department">{{ __('Lớp / Đơn vị') }}</option>
-                                        <option value="any">{{ __('Bất kỳ') }}</option>
+                                        <option value="patron_code" {{ $selectedField === 'patron_code' ? 'selected' : '' }}>{{ __('Mã bạn đọc / Số thẻ') }}</option>
+                                        <option value="name" {{ $selectedField === 'name' ? 'selected' : '' }}>{{ __('Họ tên') }}</option>
+                                        <option value="email" {{ $selectedField === 'email' ? 'selected' : '' }}>{{ __('Email') }}</option>
+                                        <option value="phone" {{ $selectedField === 'phone' ? 'selected' : '' }}>{{ __('Số điện thoại') }}</option>
+                                        <option value="mssv" {{ $selectedField === 'mssv' ? 'selected' : '' }}>{{ __('Mã số sinh viên (MSSV)') }}</option>
+                                        <option value="id_card" {{ $selectedField === 'id_card' ? 'selected' : '' }}>{{ __('Số CMND/CCCD') }}</option>
+                                        <option value="department" {{ $selectedField === 'department' ? 'selected' : '' }}>{{ __('Lớp / Đơn vị') }}</option>
+                                        <option value="any" {{ $selectedField === 'any' ? 'selected' : '' }}>{{ __('Bất kỳ') }}</option>
                                     </select>
-                                    <input type="text" name="info_vals[]" placeholder="{{ __('Nhập từ khóa tìm kiếm...') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                    <input type="text" name="info_vals[]" value="{{ request('info_vals')[$i] ?? '' }}" placeholder="{{ __('Nhập từ khóa tìm kiếm...') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                 </div>
                                 @endfor
                             </div>
@@ -232,11 +240,11 @@
                                     <span class="text-[9px] font-bold text-muted-foreground uppercase tracking-widest block border-b border-border pb-1">Trạng thái tài khoản</span>
                                     <div class="space-y-1">
                                         <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
-                                            <input type="checkbox" name="statuses[]" value="normal" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <input type="checkbox" name="statuses[]" value="normal" {{ in_array('normal', (array)request('statuses', [])) ? 'checked' : '' }} class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
                                             <span class="ml-1.5 text-[11px]">Đang hoạt động (Normal)</span>
                                         </label>
                                         <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
-                                            <input type="checkbox" name="statuses[]" value="locked" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <input type="checkbox" name="statuses[]" value="locked" {{ in_array('locked', (array)request('statuses', [])) ? 'checked' : '' }} class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
                                             <span class="ml-1.5 text-[11px]">Bị khóa (Locked)</span>
                                         </label>
                                     </div>
@@ -248,7 +256,7 @@
                                     <div class="max-h-56 overflow-y-auto custom-scrollbar space-y-1 pr-1">
                                         @foreach($patronGroups as $g)
                                         <label class="flex items-center text-xs text-foreground cursor-pointer select-none">
-                                            <input type="checkbox" name="patron_group_ids[]" value="{{ $g->id }}" class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
+                                            <input type="checkbox" name="patron_group_ids[]" value="{{ $g->id }}" {{ in_array($g->id, (array)request('patron_group_ids', [])) ? 'checked' : '' }} class="w-3.5 h-3.5 text-primary bg-background border-border rounded-sm focus:ring-primary">
                                             <span class="ml-1.5 text-[11px]">{{ $g->name }}</span>
                                         </label>
                                         @endforeach
@@ -263,17 +271,17 @@
                                     <div class="space-y-1">
                                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày đăng ký</label>
                                         <div class="flex items-center gap-1">
-                                            <input type="date" name="date_from" id="date_from" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <input type="date" name="date_from" id="date_from" value="{{ request('date_from') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                             <span class="text-[10px] text-muted-foreground">đến</span>
-                                            <input type="date" name="date_to" id="date_to" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <input type="date" name="date_to" id="date_to" value="{{ request('date_to') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                         </div>
                                     </div>
                                     <div class="space-y-1">
                                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Khoảng ngày hết hạn thẻ</label>
                                         <div class="flex items-center gap-1">
-                                            <input type="date" name="expiry_from" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <input type="date" name="expiry_from" value="{{ request('expiry_from') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                             <span class="text-[10px] text-muted-foreground">đến</span>
-                                            <input type="date" name="expiry_to" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                            <input type="date" name="expiry_to" value="{{ request('expiry_to') }}" class="flex-1 h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                         </div>
                                     </div>
                                 </div>
@@ -282,7 +290,7 @@
                                 <div class="space-y-2">
                                     <div class="space-y-1">
                                         <label class="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block">Giới hạn số kết quả</label>
-                                        <input type="number" name="result_limit" placeholder="Số lượng bản ghi..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
+                                        <input type="number" name="result_limit" value="{{ request('result_limit') }}" placeholder="Số lượng bản ghi..." class="w-full h-8 px-2 text-xs border border-input rounded-sm bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all">
                                     </div>
                                 </div>
                             </div>
@@ -294,7 +302,7 @@
                                     <select name="branch_id" id="branch_id" class="select2-smart w-full">
                                         <option value="">-- Tất cả Đơn vị/Chi nhánh --</option>
                                         @foreach($branches as $b)
-                                        <option value="{{ $b->id }}">{{ $b->name }}</option>
+                                        <option value="{{ $b->id }}" {{ request('branch_id') == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -340,12 +348,146 @@
                         <i data-lucide="rotate-ccw" class="w-4 h-4 mr-1"></i>
                         {{ __('Reset bộ lọc') }}
                     </button>
-                    <button type="submit" class="btn-compact-primary">
-                        <i data-lucide="download" class="w-4 h-4 mr-1 text-primary-foreground"></i>
-                        {{ __('XUẤT BÁO CÁO') }}
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="submit" class="btn-compact-secondary">
+                            <i data-lucide="filter" class="w-4 h-4 mr-1"></i>
+                            {{ __('Lọc dữ liệu') }}
+                        </button>
+                        <button type="button" id="export-btn" onclick="exportReport()" class="btn-compact-primary">
+                            <i id="export-btn-icon" data-lucide="download" class="w-4 h-4 mr-1 text-primary-foreground"></i>
+                            <span id="export-btn-text">{{ __('XUẤT BÁO CÁO') }}</span>
+                        </button>
+                    </div>
                 </div>
             </form>
+            
+            @if($reportType === 'patron_list' && $patrons)
+            <!-- Preview Table Area -->
+            <div class="border-t border-border mt-2 bg-card text-foreground overflow-hidden">
+                <!-- Card Header -->
+                <div class="p-3 border-b border-border bg-muted/30 flex items-center justify-between font-bold">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="eye" class="w-4 h-4 text-primary"></i>
+                        <span class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('Xem trước báo cáo độc giả') }}</span>
+                    </div>
+                    <span class="text-xs text-muted-foreground font-medium">
+                        {{ __('Hiển thị :count độc giả', ['count' => $patrons->total()]) }}
+                    </span>
+                </div>
+                
+                <!-- Table Area -->
+                <div class="overflow-x-auto custom-scrollbar">
+                    <!-- Simulated Excel Header block for premium visuals -->
+                    <div class="p-4 bg-muted/10 border-b border-border text-center">
+                        <h4 class="text-xs font-bold text-foreground/80 uppercase">THƯ VIỆN - TRƯỜNG ĐẠI HỌC VÕ TRƯỜNG TOẢN</h4>
+                        <p class="text-[10px] text-muted-foreground italic">Địa chỉ: Quốc Lộ 1A, xã Thạnh Xuân, Thành phố Cần Thơ</p>
+                        <p class="text-[10px] text-muted-foreground">Website: http://library.vttu.edu.vn/</p>
+                        <h3 class="text-sm font-black text-foreground mt-3 tracking-wider uppercase">DANH SÁCH ĐỘC GIẢ THƯ VIỆN</h3>
+                    </div>
+
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-muted/50 text-foreground border-b border-border">
+                                <th class="px-3 py-2.5 font-bold text-center border-r border-border w-12">STT</th>
+                                <th class="px-3 py-2.5 font-bold text-center border-r border-border w-28">Mã số</th>
+                                <th class="px-4 py-2.5 font-bold border-r border-border">Họ và tên</th>
+                                <th class="px-3 py-2.5 font-bold text-center border-r border-border w-24">Ngày sinh</th>
+                                <th class="px-3 py-2.5 font-bold text-center border-r border-border w-20">Giới tính</th>
+                                <th class="px-3 py-2.5 font-bold text-center border-r border-border w-28">CMND</th>
+                                <th class="px-4 py-2.5 font-bold border-r border-border w-44">Bộ phận (Đơn vị)</th>
+                                <th class="px-4 py-2.5 font-bold border-r border-border">Địa chỉ</th>
+                                <th class="px-3 py-2.5 font-bold text-center border-r border-border w-24">Ngày cấp thẻ</th>
+                                <th class="px-3 py-2.5 font-bold text-center w-24">Hạn thẻ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border">
+                            @forelse($patrons as $index => $patron)
+                            <tr class="hover:bg-muted/30 transition-colors">
+                                <td class="px-3 py-2 text-center border-r border-border text-muted-foreground">
+                                    {{ $patrons->firstItem() + $index }}
+                                </td>
+                                <td class="px-3 py-2 text-center border-r border-border font-mono font-bold text-primary">
+                                    {{ $patron->patron_code }}
+                                </td>
+                                <td class="px-4 py-2 border-r border-border font-medium">
+                                    {{ $patron->display_name }}
+                                </td>
+                                <td class="px-3 py-2 text-center border-r border-border text-muted-foreground">
+                                    {{ $patron->dob ? \Carbon\Carbon::parse($patron->dob)->format('n/j/Y') : '-' }}
+                                </td>
+                                <td class="px-3 py-2 text-center border-r border-border">
+                                    @if($patron->gender === 'male')
+                                        <span class="px-1.5 py-0.5 rounded-sm bg-blue-500/10 text-blue-500 text-[10px] font-bold">Nam</span>
+                                    @elseif($patron->gender === 'female')
+                                        <span class="px-1.5 py-0.5 rounded-sm bg-pink-500/10 text-pink-500 text-[10px] font-bold">Nữ</span>
+                                    @else
+                                        <span class="text-muted-foreground">-</span>
+                                    @endif
+                                </td>
+                                <td class="px-3 py-2 text-center border-r border-border text-muted-foreground font-mono">
+                                    {{ $patron->id_card ?: '-' }}
+                                </td>
+                                <td class="px-4 py-2 border-r border-border text-muted-foreground">
+                                    {{ $patron->department ?: ($patron->position_class ?: '-') }}
+                                </td>
+                                <td class="px-4 py-2 border-r border-border text-muted-foreground truncate max-w-xs" title="{{ $patron->addresses->where('is_primary', true)->first()?->address_line ?? $patron->addresses->first()?->address_line }}">
+                                    {{ $patron->addresses->where('is_primary', true)->first()?->address_line ?? $patron->addresses->first()?->address_line ?? '-' }}
+                                </td>
+                                <td class="px-3 py-2 text-center border-r border-border text-muted-foreground">
+                                    {{ $patron->registration_date ? \Carbon\Carbon::parse($patron->registration_date)->format('n/j/Y') : '-' }}
+                                </td>
+                                <td class="px-3 py-2 text-center text-muted-foreground">
+                                    {{ $patron->expiry_date ? \Carbon\Carbon::parse($patron->expiry_date)->format('n/j/Y') : '-' }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="10" class="px-4 py-8 text-center text-muted-foreground italic">
+                                    {{ __('Không tìm thấy độc giả phù hợp.') }}
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer -->
+                @if($patrons->hasPages())
+                <div class="px-4 py-3 border-t border-border bg-muted/20 flex items-center justify-between">
+                    <div class="text-xs text-muted-foreground">
+                        Hiển thị bản ghi từ {{ $patrons->firstItem() }} đến {{ $patrons->lastItem() }} trong tổng số {{ $patrons->total() }}
+                    </div>
+                    <div class="pagination-sm">
+                        {{ $patrons->links() }}
+                    </div>
+                </div>
+                @endif
+            </div>
+            @endif
+            @else
+                @php
+                    $pendingIcon = 'construction';
+                    if ($reportType === 'print_cards') {
+                        $pendingIcon = 'credit-card';
+                    } elseif ($reportType === 'renew_list') {
+                        $pendingIcon = 'refresh-cw';
+                    } elseif ($reportType === 'renew_by_period') {
+                        $pendingIcon = 'calendar';
+                    } elseif ($reportType === 'viewer_patron_list') {
+                        $pendingIcon = 'eye';
+                    } elseif ($reportType === 'viewer_print_cards') {
+                        $pendingIcon = 'printer';
+                    }
+                @endphp
+                <!-- Feature Pending State -->
+                <div class="p-4 flex-1 flex flex-col justify-center">
+                    <x-feature-pending 
+                        title="{{ $activeReport['title'] }} {{ __('chưa cập nhật') }}"
+                        desc="{{ __('Tính năng báo cáo :name hiện đang được phát triển và sẽ sớm được cập nhật trong phiên bản tiếp theo.', ['name' => $activeReport['title']]) }}"
+                        icon="{{ $pendingIcon }}"
+                    />
+                </div>
+            @endif
         </div>
         
     </div>
@@ -538,6 +680,60 @@
         
         // Reset Format radio buttons
         $('input[name="format"][value="excel"]').prop('checked', true);
+    }
+
+    // Export Report function
+    function exportReport() {
+        const form = document.getElementById('reportForm');
+        if (!form) return;
+
+        // Kích hoạt cơ chế Polling thông báo ở quả chuông
+        window.dispatchEvent(new CustomEvent('export-started'));
+
+        const formData = new FormData(form);
+        const params = new URLSearchParams();
+        for (const [key, value] of formData.entries()) {
+            params.append(key, value);
+        }
+
+        const csrfToken = form.querySelector('input[name="_token"]')?.value || "";
+
+        fetch("{{ route('admin.patrons.reports.generate') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRF-TOKEN": csrfToken,
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: params.toString()
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: {
+                        message: data.message || '{{ __("Yêu cầu xuất file đã được nhận.") }}',
+                        type: 'success'
+                    }
+                }));
+            } else {
+                window.dispatchEvent(new CustomEvent('toast', {
+                    detail: {
+                        message: data.message || '{{ __("Lỗi xảy ra khi gửi yêu cầu.") }}',
+                        type: 'error'
+                    }
+                }));
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            window.dispatchEvent(new CustomEvent('toast', {
+                detail: {
+                    message: '{{ __("Lỗi kết nối máy chủ.") }}',
+                    type: 'error'
+                }
+            }));
+        });
     }
 </script>
 @endpush

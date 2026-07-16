@@ -97,36 +97,11 @@ class DynamicMarcReportExport implements
         $this->rowCounter++;
         $this->chunkRowCount++;
 
-        // --- Log khi bắt đầu chunk mới (mỗi chunkSize rows) ---
         if ($this->chunkRowCount === 1) {
             $this->chunkIndex++;
-            $elapsed = round((microtime(true) - $this->exportStartTime) * 1000, 2);
-            Log::channel('single')->info("[EXPORT] >>> Bắt đầu CHUNK #{$this->chunkIndex}", [
-                'row_start'  => $this->rowCounter,
-                'elapsed_ms' => $elapsed,
-            ]);
         }
 
-        // --- Log mỗi 100 rows để theo dõi tiến độ ---
-        if ($this->rowCounter % 100 === 0) {
-            $elapsed    = round((microtime(true) - $this->exportStartTime) * 1000, 2);
-            $chunkMs    = round((microtime(true) - $this->chunkStartTime) * 1000, 2);
-            Log::channel('single')->info("[EXPORT] Đã map {$this->rowCounter} rows", [
-                'chunk'         => $this->chunkIndex,
-                'total_elapsed_ms' => $elapsed,
-                'chunk_elapsed_ms' => $chunkMs,
-                'rows_this_chunk'  => $this->chunkRowCount,
-            ]);
-        }
-
-        // --- Reset chunk counter khi đủ chunkSize ---
         if ($this->chunkRowCount >= $this->chunkSize()) {
-            $chunkMs = round((microtime(true) - $this->chunkStartTime) * 1000, 2);
-            Log::channel('single')->info("[EXPORT] <<< Hoàn thành CHUNK #{$this->chunkIndex}", [
-                'rows_processed'   => $this->chunkRowCount,
-                'chunk_elapsed_ms' => $chunkMs,
-                'total_rows_done'  => $this->rowCounter,
-            ]);
             $this->chunkRowCount  = 0;
             $this->chunkStartTime = microtime(true);
         }

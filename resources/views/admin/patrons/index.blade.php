@@ -8,43 +8,50 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
 @endpush
 
 @section('content')
-<div class="space-y-6 pb-12">
+<div class="space-y-4 pb-12">
     <!-- Header -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Patron Management') }}</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">{{ __('Manage and audit library member identities.') }}</p>
+            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Patron Management') }}</h1>
+            <p class="text-muted-foreground text-xs font-medium mt-0.5">{{ __('Manage and audit library member identities.') }}</p>
         </div>
-        <div class="flex items-center space-x-3">
-            <a href="{{ route('admin.patrons.import.index') }}" class="bg-emerald-600 text-white px-6 py-2.5 rounded-xl shadow-md transition-all hover:bg-emerald-500 flex items-center space-x-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+        <div class="flex items-center space-x-2">
+            <a href="{{ route('admin.patrons.import.index') }}" class="bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-bold shadow-sm transition-all hover:bg-emerald-500 flex items-center space-x-1.5 active:scale-[0.98]">
+                <i data-lucide="upload" class="w-4 h-4"></i>
                 <span>{{ __('Import Excel') }}</span>
             </a>
-            <a href="{{ route('admin.patrons.create') }}" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl shadow-md transition-all hover:bg-indigo-500">
-                {{ __('Add New Patron') }}
+            <a href="{{ route('admin.patrons.create') }}" class="bg-primary text-primary-foreground px-3 py-1.5 rounded text-xs font-bold shadow-sm transition-all hover:bg-primary/90 flex items-center space-x-1.5 active:scale-[0.98]">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>{{ __('Add New Patron') }}</span>
             </a>
         </div>
     </div>
 
     @if(session('success'))
-        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4 flex items-center space-x-3 shadow-sm">
-            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            <span class="text-sm text-emerald-600 font-bold">{{ session('success') }}</span>
+        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-3 flex items-center space-x-2 shadow-sm text-emerald-500">
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            <span class="text-xs font-bold">{{ session('success') }}</span>
         </div>
     @endif
 
     <!-- Search Section -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6">
+    <div class="bg-card rounded-md shadow-sm border border-border p-4">
         <!-- Search Header (Always Visible) -->
-        <div class="flex items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold text-gray-800 dark:text-slate-100">{{ __('Search & Filters') }}</h2>
-            <button type="button" onclick="toggleFilters()" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm font-medium flex items-center space-x-1">
-                <svg id="filterToggleIcon" class="w-4 h-4 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
+        <div class="flex items-center justify-between mb-3">
+            <h2 class="text-xs font-bold text-foreground uppercase tracking-widest">{{ __('Search & Filters') }}</h2>
+            <button type="button" onclick="toggleFilters()" class="text-primary hover:text-primary/80 text-xs font-bold flex items-center space-x-1">
+                <i data-lucide="chevron-down" id="filterToggleIcon" class="w-4 h-4 transform transition-transform"></i>
                 <span id="filterToggleText">{{ __('Show Filters') }}</span>
             </button>
         </div>
@@ -52,11 +59,11 @@
         <!-- Main Search Form -->
         <form method="GET" action="{{ route('admin.patrons.index') }}" id="mainSearchForm">
             <!-- Search Bar with Field and Button -->
-            <div class="flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex flex-col sm:flex-row gap-3 items-end">
                 <!-- Search Field (Left) -->
-                <div class="md:w-1/3">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">{{ __('Search Field') }}</label>
-                    <select name="search_field" class="w-full px-4 py-2.5 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <div class="w-full sm:w-1/3">
+                    <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{{ __('Search Field') }}</label>
+                    <select name="search_field" class="w-full px-3 py-2 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none">
                         <option value="all" {{ ($searchField ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('All Fields') }}</option>
                         <option value="patron_code" {{ ($searchField ?? '') == 'patron_code' ? 'selected' : '' }}>{{ __('Patron Code') }}</option>
                         <option value="name" {{ ($searchField ?? '') == 'name' ? 'selected' : '' }}>{{ __('Name') }}</option>
@@ -67,21 +74,19 @@
                 </div>
                 
                 <!-- Search Input (Center) -->
-                <div class="md:flex-1 relative">
+                <div class="w-full sm:flex-1 relative">
                     <input type="text" 
                            name="search" 
                            value="{{ $search ?? '' }}" 
                            placeholder="{{ __('Search patrons...') }}" 
-                           class="w-full pl-10 pr-24 py-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 dark:text-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                    <svg id="searchIcon" class="absolute left-3 top-3 w-5 h-5 text-gray-400 transition-opacity duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+                           class="w-full pl-9 pr-12 py-2 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none">
+                    <div class="absolute left-3 top-2.5">
+                        <i data-lucide="search" id="searchIcon" class="w-4 h-4 text-muted-foreground transition-opacity duration-200"></i>
+                    </div>
                     
                     <!-- Search Button (Right) -->
-                    <button type="submit" class="absolute right-2 top-1.5 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                    <button type="submit" class="absolute right-1 top-1 px-2.5 py-1 bg-primary hover:bg-primary/95 text-primary-foreground rounded text-xs font-bold transition-colors">
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
                     </button>
                 </div>
             </div>
@@ -96,26 +101,26 @@
         </form>
         
         <!-- Advanced Filters (Collapsible) -->
-        <div id="advancedFilters" class="hidden border-t border-gray-200 dark:border-slate-700 mt-4">
-            <form method="GET" action="{{ route('admin.patrons.index') }}" id="advancedFiltersForm" class=" pt-4 space-y-4">
+        <div id="advancedFilters" class="hidden border-t border-border mt-3 pt-3">
+            <form method="GET" action="{{ route('admin.patrons.index') }}" id="advancedFiltersForm" class="space-y-3">
                 <!-- Include search field and search input values -->
                 <input type="hidden" name="search_field" value="{{ $searchField ?? 'all' }}">
                 <input type="hidden" name="search" value="{{ $search ?? '' }}">
                 
                 <!-- Advanced Filters Grid -->
-                <div class="flex flex-col lg:flex-row gap-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
                     <!-- Left Column: Patron Group (Radio Buttons) -->
-                    <div class="lg:w-1/3 border-r border-gray-100 dark:border-slate-800 pr-8">
-                        <label class="block text-xs font-black uppercase tracking-widest text-slate-400 mb-4">{{ __('Nhóm độc giả') }}</label>
-                        <div class="flex flex-col gap-2">
+                    <div class="lg:border-r lg:border-border lg:pr-4">
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-2">{{ __('Nhóm độc giả') }}</label>
+                        <div class="flex flex-col gap-1.5 max-h-40 overflow-y-auto pr-1">
                             <label class="flex items-center group cursor-pointer">
                                 <input type="radio" name="patron_group" value="all" {{ ($patronGroup ?? 'all') == 'all' ? 'checked' : '' }} 
                                     onchange="this.form.submit()" class="hidden peer">
-                                <div class="flex items-center space-x-3 w-full p-3 rounded-xl border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-all peer-checked:bg-slate-200 dark:peer-checked:bg-slate-700 peer-checked:border-slate-300 dark:peer-checked:border-slate-600 group-hover:border-indigo-200">
-                                    <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center peer-checked:border-slate-500">
-                                        <div class="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-slate-300 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                <div class="flex items-center space-x-2 w-full p-2 rounded border border-border bg-muted/30 transition-all peer-checked:bg-primary/10 peer-checked:border-primary/30 group-hover:border-primary/20">
+                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-muted flex items-center justify-center peer-checked:border-primary">
+                                        <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
                                     </div>
-                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300 peer-checked:text-slate-900 dark:peer-checked:text-white">{{ __('Tất cả các nhóm') }}</span>
+                                    <span class="text-xs font-bold text-muted-foreground peer-checked:text-foreground">{{ __('Tất cả các nhóm') }}</span>
                                 </div>
                             </label>
                             @if(isset($patronGroups))
@@ -123,11 +128,11 @@
                                     <label class="flex items-center group cursor-pointer">
                                         <input type="radio" name="patron_group" value="{{ $group->id }}" {{ ($patronGroup ?? '') == $group->id ? 'checked' : '' }} 
                                             onchange="this.form.submit()" class="hidden peer">
-                                        <div class="flex items-center space-x-3 w-full p-3 rounded-xl border border-gray-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-all peer-checked:bg-slate-200 dark:peer-checked:bg-slate-700 peer-checked:border-slate-300 dark:peer-checked:border-slate-600 group-hover:border-indigo-200">
-                                            <div class="w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 flex items-center justify-center peer-checked:border-slate-500">
-                                                <div class="w-1.5 h-1.5 rounded-full bg-slate-600 dark:bg-slate-300 opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                                        <div class="flex items-center space-x-2 w-full p-2 rounded border border-border bg-muted/30 transition-all peer-checked:bg-primary/10 peer-checked:border-primary/30 group-hover:border-primary/20">
+                                            <div class="w-3.5 h-3.5 rounded-full border-2 border-muted flex items-center justify-center peer-checked:border-primary">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-primary opacity-0 peer-checked:opacity-100 transition-opacity"></div>
                                             </div>
-                                            <span class="text-sm font-bold text-slate-600 dark:text-slate-300 peer-checked:text-slate-900 dark:peer-checked:text-white">{{ $group->name }}</span>
+                                            <span class="text-xs font-bold text-muted-foreground peer-checked:text-foreground">{{ $group->name }}</span>
                                         </div>
                                     </label>
                                 @endforeach
@@ -135,13 +140,13 @@
                         </div>
                     </div>
 
-                    <!-- Right Column: Other Filters -->
-                    <div class="flex-1 space-y-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Right Columns: Other Filters -->
+                    <div class="lg:col-span-2 space-y-3">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <!-- Status -->
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Trạng thái') }}</label>
-                                <select name="status" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground block ml-1">{{ __('Trạng thái') }}</label>
+                                <select name="status" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                                     <option value="all" {{ ($status ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('Tất cả trạng thái') }}</option>
                                     <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>{{ __('Đang hoạt động') }}</option>
                                     <option value="locked" {{ ($status ?? '') == 'locked' ? 'selected' : '' }}>{{ __('Bị khóa') }}</option>
@@ -149,9 +154,9 @@
                             </div>
 
                             <!-- Branch -->
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Chi nhánh') }}</label>
-                                <select name="branch" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground block ml-1">{{ __('Chi nhánh') }}</label>
+                                <select name="branch" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                                     <option value="all" {{ ($branch ?? 'all') == 'all' ? 'selected' : '' }}>{{ __('Tất cả chi nhánh') }}</option>
                                     @if(isset($branches))
                                         @foreach($branches as $branchItem)
@@ -163,85 +168,76 @@
                         </div>
 
                         <!-- Date Range -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày đăng ký từ') }}</label>
-                                <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-border">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground block ml-1">{{ __('Ngày đăng ký từ') }}</label>
+                                <input type="date" name="date_from" value="{{ $dateFrom ?? '' }}" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày đăng ký đến') }}</label>
-                                <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            <div class="space-y-1">
+                                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground block ml-1">{{ __('Ngày đăng ký đến') }}</label>
+                                <input type="date" name="date_to" value="{{ $dateTo ?? '' }}" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Action Buttons -->
-                <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-slate-700">
-                    <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                <div class="flex items-center justify-between pt-3 border-t border-border">
+                    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary/95 text-primary-foreground rounded text-xs font-bold transition-colors flex items-center space-x-1.5 active:scale-[0.98]">
+                        <i data-lucide="search" class="w-3.5 h-3.5"></i>
                         <span>{{ __('Tìm kiếm') }}</span>
                     </button>
                     
-                    <button type="button" onclick="clearFilters()" class="px-6 py-2.5 bg-gray-500 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
+                    <button type="button" onclick="clearFilters()" class="px-4 py-2 bg-muted hover:bg-muted/80 text-foreground border border-border rounded text-xs font-bold transition-colors flex items-center space-x-1.5 active:scale-[0.98]">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
                         <span>{{ __('Clear') }}</span>
                     </button>
                 </div>
             </form>
         </div>
+    </div>
 
     <!-- Bulk Actions Section -->
-    <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-6" id="bulkActionsSection" style="display: none;">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <span class="text-sm font-medium text-gray-700 dark:text-slate-300">
-                    <span id="selectedCount">0</span> {{ __('patrons selected') }}
+    <div class="bg-card rounded shadow-sm border border-border p-3" id="bulkActionsSection" style="display: none;">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center space-x-3">
+                <span class="text-xs font-bold text-foreground">
+                    <span id="selectedCount" class="text-primary font-black">0</span> {{ __('patrons selected') }}
                 </span>
-                <button type="button" onclick="clearSelection()" class="text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200">
+                <button type="button" onclick="clearSelection()" class="text-xs text-muted-foreground hover:text-foreground font-bold underline">
                     {{ __('Clear selection') }}
                 </button>
             </div>
-            <div class="flex items-center space-x-3">
+            <div class="flex flex-wrap items-center gap-2">
                 <!-- Bulk Edit Button -->
-                <button type="button" onclick="openBulkEditModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    {{ __('Bulk Edit') }}
+                <button type="button" onclick="openBulkEditModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-xs font-bold transition-colors flex items-center space-x-1.5 active:scale-[0.98]">
+                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+                    <span>{{ __('Bulk Edit') }}</span>
                 </button>
                 
                 <!-- Print Cards Button -->
                 <form method="POST" action="{{ route('admin.patrons.cards.generate') }}" class="inline">
                     @csrf
                     <input type="hidden" name="layout" value="batch">
-                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors">
-                        <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                        </svg>
-                        {{ __('Print Cards') }}
+                    <button type="submit" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold transition-colors flex items-center space-x-1.5 active:scale-[0.98]">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+                        <span>{{ __('Print Cards') }}</span>
                     </button>
                 </form>
                 
                 <!-- Delete Button -->
-                <button type="button" onclick="confirmBulkDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                    </svg>
-                    {{ __('Delete') }}
+                <button type="button" onclick="confirmBulkDelete()" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-bold transition-colors flex items-center space-x-1.5 active:scale-[0.98]">
+                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                    <span>{{ __('Delete') }}</span>
                 </button>
             </div>
         </div>
     </div>
 
     <!-- View Mode Toggle & Results Count -->
-    <div class="flex items-center justify-between my-6">
-        <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-600 dark:text-slate-400">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 my-3">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <span class="text-xs text-muted-foreground font-medium">
                 @if(isset($patrons))
                     {{ __('Showing :count of :total results', ['count' => $patrons->count(), 'total' => $patrons->total()]) }}
                 @else
@@ -250,32 +246,32 @@
             </span>
             
             <!-- Sort Radio Buttons -->
-            <div class="flex items-center space-x-3">
-                <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('Sort:') }}</span>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-muted-foreground font-bold">{{ __('Sắp xếp:') }}</span>
                 <div class="flex items-center space-x-2">
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="sort" value="desc" 
                                {{ (request('sort', 'desc') == 'desc') ? 'checked' : '' }}
                                onchange="changeSort(this.value)"
-                               class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                        <span class="ml-1 text-sm text-gray-700 dark:text-slate-300">{{ __('Giảm dần') }}</span>
+                               class="w-3.5 h-3.5 text-primary border-border focus:ring-primary bg-background">
+                        <span class="ml-1 text-xs text-foreground font-bold">{{ __('Giảm dần') }}</span>
                     </label>
                     <label class="flex items-center cursor-pointer">
                         <input type="radio" name="sort" value="asc" 
                                {{ (request('sort') == 'asc') ? 'checked' : '' }}
                                onchange="changeSort(this.value)"
-                               class="w-4 h-4 text-indigo-600 border-gray-300 focus:ring-indigo-500">
-                        <span class="ml-1 text-sm text-gray-700 dark:text-slate-300">{{ __('Tăng dần') }}</span>
+                               class="w-3.5 h-3.5 text-primary border-border focus:ring-primary bg-background">
+                        <span class="ml-1 text-xs text-foreground font-bold">{{ __('Tăng dần') }}</span>
                     </label>
                 </div>
             </div>
         </div>
         
-        <div class="flex items-center space-x-4">
-            <!-- Per Page Select (Moved from Filters) -->
-            <div class="flex items-center space-x-2 whitespace-nowrap">
-                <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('Mỗi trang:') }}</span>
-                <select onchange="changePerPage(this.value)" class="bg-gray-100 dark:bg-slate-800 border-none rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-slate-400 focus:ring-0 cursor-pointer">
+        <div class="flex items-center justify-between sm:justify-end gap-3">
+            <!-- Per Page Select -->
+            <div class="flex items-center space-x-1.5 whitespace-nowrap">
+                <span class="text-xs text-muted-foreground font-bold">{{ __('Mỗi trang:') }}</span>
+                <select onchange="changePerPage(this.value)" class="bg-muted border border-border rounded px-2 py-1 text-xs font-bold text-foreground focus:ring-0 cursor-pointer">
                     <option value="15" {{ ($perPage ?? 15) == 15 ? 'selected' : '' }}>15</option>
                     <option value="30" {{ ($perPage ?? 15) == 30 ? 'selected' : '' }}>30</option>
                     <option value="50" {{ ($perPage ?? 15) == 50 ? 'selected' : '' }}>50</option>
@@ -283,25 +279,19 @@
                 </select>
             </div>
 
-            <span class="text-sm text-gray-600 dark:text-slate-400">{{ __('View Mode:') }}</span>
-            <div class="bg-gray-100 dark:bg-slate-800 rounded-lg p-1 flex">
-                <button onclick="changeViewMode('card')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? 'card') == 'card' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 00-2 2m0 0V5a2 2 0 00-2 2v4h10z"></path>
-                    </svg>
-                    {{ __('Cards') }}
+            <!-- View Modes -->
+            <div class="bg-muted border border-border rounded p-0.5 flex items-center">
+                <button onclick="changeViewMode('card')" class="px-2.5 py-1 rounded-sm text-xs font-bold transition flex items-center {{ ($viewMode ?? 'card') == 'card' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5 mr-1"></i>
+                    <span>{{ __('Cards') }}</span>
                 </button>
-                <button onclick="changeViewMode('grid')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? '') == 'grid' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2zm14 0a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
-                    </svg>
-                    {{ __('Grid') }}
+                <button onclick="changeViewMode('grid')" class="px-2.5 py-1 rounded-sm text-xs font-bold transition flex items-center {{ ($viewMode ?? '') == 'grid' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
+                    <i data-lucide="grid" class="w-3.5 h-3.5 mr-1"></i>
+                    <span>{{ __('Grid') }}</span>
                 </button>
-                <button onclick="changeViewMode('list')" class="view-mode-btn px-3 py-1.5 rounded text-sm font-medium transition {{ ($viewMode ?? '') == 'list' ? 'bg-white dark:bg-slate-700 text-indigo-600 shadow-sm' : 'text-gray-600 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-200' }}">
-                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2m-6 4h6m6-6v10m0-10V9"></path>
-                    </svg>
-                    {{ __('List') }}
+                <button onclick="changeViewMode('list')" class="px-2.5 py-1 rounded-sm text-xs font-bold transition flex items-center {{ ($viewMode ?? '') == 'list' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground' }}">
+                    <i data-lucide="list" class="w-3.5 h-3.5 mr-1"></i>
+                    <span>{{ __('List') }}</span>
                 </button>
             </div>
         </div>
@@ -311,189 +301,188 @@
     @if(isset($patrons) && $patrons->count() > 0)
         <!-- Card View (Default) -->
         @if(($viewMode ?? 'card') == 'card')
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(350px,1fr))] gap-6 justify-center">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @forelse($patrons as $patron)
-                    <div class="group relative bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-sm hover:shadow-md transition-all duration-200 w-full min-h-[200px] overflow-hidden">
+                    <div class="group relative bg-card border border-border rounded-md p-3 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col justify-between">
                         <!-- Logo Watermark Background -->
-                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none">
                             <img src="{{ asset('assets/imgs/logo-vttu.png') }}" class="w-1/2">
                         </div>
                         
-                        <!-- Top Row: Label & Checkbox -->
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[12px] font-black text-indigo-700 dark:text-indigo-400 tracking-tight uppercase">{{ __('Library Card') }}</span>
-                            <label class="cursor-pointer">
-                                <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500">
-                            </label>
-                        </div>
-
-                        <!-- Middle Content -->
-                        <div class="flex space-x-5">
-                            <!-- Left: Profile Photo -->
-                            <div class="w-[110px] h-[140px] flex-shrink-0 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 overflow-hidden">
-                                @if($patron->profile_image)
-                                    <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-slate-300 dark:text-slate-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                                    </div>
-                                @endif
+                        <div>
+                            <!-- Top Row: Label & Checkbox -->
+                            <div class="flex justify-between items-start mb-3">
+                                <span class="text-[10px] font-black text-primary tracking-wider uppercase">{{ __('Thẻ thư viện') }}</span>
+                                <label class="cursor-pointer">
+                                    <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background">
+                                </label>
                             </div>
 
-                            <!-- Right: Info Details -->
-                            <div class="flex-1 flex flex-col pt-1">
-                                <h2 class="text-[16px] font-black text-indigo-700 dark:text-indigo-400 uppercase leading-none mb-4 truncate">{{ $patron->display_name }}</h2>
-                                
-                                <div class="space-y-3 mb-4">
-                                    <div class="text-[12px] font-bold text-indigo-600 dark:text-indigo-400">
-                                        {{ date('d/m/Y', strtotime($patron->registration_date)) }} - {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
-                                    </div>
-                                    <!-- Barcode Area -->
-                                    <div class="relative cursor-zoom-in" onclick="zoomBarcode(this, '{{ $patron->patron_code }}')">
-                                        <div class="h-[45px] w-full bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 flex items-center justify-start overflow-hidden">
-                                            {!! $barcodeService->renderSvg($patron->patron_code) !!}
+                            <!-- Middle Content -->
+                            <div class="flex space-x-3">
+                                <!-- Left: Profile Photo -->
+                                <div class="w-[90px] h-[120px] flex-shrink-0 bg-muted border border-border rounded overflow-hidden relative">
+                                    @if($patron->profile_image)
+                                        <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center">
+                                            <i data-lucide="user" class="w-8 h-8 text-muted-foreground"></i>
                                         </div>
-                                        <div class="text-[10px] font-black font-mono text-indigo-700 dark:text-indigo-400 text-left tracking-[0.2em] mt-1">
-                                            {{ $patron->patron_code }}
+                                    @endif
+                                </div>
+
+                                <!-- Right: Info Details -->
+                                <div class="flex-1 flex flex-col pt-0.5">
+                                    <h2 class="text-sm font-bold text-foreground uppercase leading-tight mb-2 truncate" title="{{ $patron->display_name }}">{{ $patron->display_name }}</h2>
+                                    
+                                    <div class="space-y-2">
+                                        <div class="text-[10px] font-bold text-primary">
+                                            Hạn: {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
+                                        </div>
+                                        
+                                        <!-- Barcode Area -->
+                                        <div class="relative cursor-zoom-in" onclick="zoomBarcode(this, '{{ $patron->patron_code }}')">
+                                            <div class="h-[35px] w-full bg-white dark:bg-slate-700 border border-border flex items-center justify-start overflow-hidden rounded-sm px-1">
+                                                {!! $barcodeService->renderSvg($patron->patron_code) !!}
+                                            </div>
+                                            <div class="text-[9px] font-bold font-mono text-muted-foreground tracking-widest mt-1">
+                                                {{ $patron->patron_code }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Card Overlay for Quick Actions -->
-                        <div class="absolute bottom-3 right-5 flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <!-- Card Action Buttons -->
+                        <div class="mt-3 pt-2 border-t border-border flex items-center justify-end space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                             <!-- Lock/Unlock -->
                             @if($patron->card_status == 'normal')
-                                <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-yellow-600 dark:hover:text-yellow-400 shadow-sm" title="{{ __('Lock Card') }}">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-amber-500 shadow-xs" title="{{ __('Lock Card') }}">
+                                    <i data-lucide="lock" class="w-3.5 h-3.5"></i>
                                 </button>
                             @else
-                                <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400 shadow-sm" title="{{ __('Unlock Card') }}">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-emerald-500 shadow-xs" title="{{ __('Unlock Card') }}">
+                                    <i data-lucide="unlock" class="w-3.5 h-3.5"></i>
                                 </button>
                             @endif
                             
                             <!-- Financial Transaction -->
-                            <button type="button" onclick="openTransactionModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 shadow-sm" title="{{ __('Financial Transaction') }}">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <button type="button" onclick="openTransactionModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-blue-500 shadow-xs" title="{{ __('Financial Transaction') }}">
+                                <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
                             </button>
                             
                             <!-- Print Queue -->
                             @if($patron->isInPrintQueue())
                                 <form action="{{ route('admin.patrons.remove-from-print-queue', $patron->id) }}" method="POST" class="inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm" title="{{ __('Remove from Print Queue') }}">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                    <button type="submit" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-purple-500 shadow-xs" title="{{ __('Remove from Print Queue') }}">
+                                        <i data-lucide="list-minus" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </form>
                             @else
                                 <form action="{{ route('admin.patrons.add-to-print-queue', $patron->id) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-gray-400 shadow-sm" title="{{ __('Add to Print Queue') }}">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                    <button type="submit" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-slate-700 shadow-xs" title="{{ __('Add to Print Queue') }}">
+                                        <i data-lucide="list-plus" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </form>
                             @endif
                             
                             <!-- Renew -->
-                            <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
-                                class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 shadow-sm">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <button type="button" onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
+                                class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-primary shadow-xs" title="{{ __('Renew Card') }}">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
                             </button>
                             
                             <!-- Edit -->
-                            <a href="{{ route('admin.patrons.edit', $patron->id) }}" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400 shadow-sm inline-block" title="{{ __('Edit') }}">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <a href="{{ route('admin.patrons.edit', $patron->id) }}" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-emerald-600 shadow-xs inline-flex items-center justify-center" title="{{ __('Edit') }}">
+                                <i data-lucide="edit" class="w-3.5 h-3.5"></i>
                             </a>
                             
                             <!-- Delete -->
-                            <button type="button" onclick="confirmDelete({{ $patron->id }}, '{{ $patron->display_name }}')" class="p-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-400 dark:text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 shadow-sm">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <button type="button" onclick="confirmDelete({{ $patron->id }}, '{{ $patron->display_name }}')" class="p-1.5 bg-muted hover:bg-muted/80 border border-border rounded text-muted-foreground hover:text-rose-500 shadow-xs">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
 
                         <!-- Status Dot -->
-                        <div class="absolute top-2 right-2">
-                            <div class="w-2 h-2 rounded-full {{ $patron->card_status == 'normal' ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                        <div class="absolute top-2.5 right-8">
+                            <span class="flex h-2 w-2 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 {{ $patron->card_status == 'normal' ? 'bg-emerald-400' : 'bg-rose-400' }}"></span>
+                                <span class="relative inline-flex rounded-full h-2 w-2 {{ $patron->card_status == 'normal' ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
+                            </span>
                         </div>
                     </div>
                 @empty
                     <div class="col-span-full text-center py-12">
-                        <p class="text-gray-500 dark:text-slate-400">{{ __('No patrons found.') }}</p>
+                        <p class="text-muted-foreground font-bold text-xs">{{ __('No patrons found.') }}</p>
                     </div>
                 @endforelse
             </div>
 
         <!-- Grid View -->
         @elseif(($viewMode ?? '') == 'grid')
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
-                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 p-4">
+            <div class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 p-3">
                     @forelse($patrons as $patron)
-                        <div class="text-center p-4 border border-gray-200 dark:border-slate-700 rounded-lg hover:shadow-md transition-all duration-200 group cursor-pointer">
+                        <div class="text-center p-3 border border-border rounded-md hover:bg-muted/50 transition-all duration-200 group cursor-pointer relative flex flex-col justify-between min-h-[160px]">
                             <!-- Checkbox for bulk selection -->
-                            <div class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                 <label class="cursor-pointer">
-                                    <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background">
                                 </label>
                             </div>
                             
                             <!-- Avatar -->
-                            <div class="w-16 h-16 mx-auto mb-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden relative">
+                            <div class="w-14 h-14 mx-auto mb-2 bg-muted rounded-full overflow-hidden relative border border-border">
                                 @if($patron->profile_image)
                                     <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                        <i data-lucide="user" class="w-6 h-6 text-muted-foreground"></i>
                                     </div>
                                 @endif
                                 <!-- Status indicator -->
-                                <div class="absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-white {{ $patron->card_status == 'normal' ? 'bg-green-500' : 'bg-red-500' }}"></div>
+                                <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border border-card {{ $patron->card_status == 'normal' ? 'bg-emerald-500' : 'bg-rose-500' }}"></div>
                             </div>
                             
                             <!-- Name -->
-                            <h3 class="font-semibold text-sm text-gray-900 dark:text-slate-100 truncate mb-1" title="{{ $patron->display_name }}">
+                            <h3 class="font-bold text-xs text-foreground truncate mb-0.5" title="{{ $patron->display_name }}">
                                 {{ $patron->display_name }}
                             </h3>
                             
                             <!-- Code -->
-                            <p class="text-xs text-gray-500 dark:text-slate-400 font-mono mb-2">{{ $patron->patron_code }}</p>
+                            <p class="text-[10px] text-muted-foreground font-mono mb-1">{{ $patron->patron_code }}</p>
                             
                             <!-- Group -->
                             @if($patron->patronGroup)
-                                <p class="text-xs text-indigo-600 dark:text-indigo-400 mb-2 truncate">{{ $patron->patronGroup->name }}</p>
+                                <p class="text-[10px] font-bold text-primary mb-1.5 truncate">{{ $patron->patronGroup->name }}</p>
                             @endif
-                            
-                            <!-- Status Badge -->
-                            <div class="flex justify-center mb-3">
-                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium {{ $patron->card_status == 'normal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
-                                    {{ $patron->card_status == 'normal' ? __('Active') : __('Locked') }}
-                                </span>
-                            </div>
                             
                             <!-- Quick Actions -->
                             <div class="flex justify-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <form action="{{ route('admin.patrons.toggle-status', $patron->id) }}" method="POST" class="inline">
-                                    @csrf @method('PATCH')
-                                    <button type="submit" class="p-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400" title="{{ __('Lock/Unlock') }}">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                @if($patron->card_status == 'normal')
+                                    <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="p-1 bg-muted border border-border rounded text-muted-foreground hover:text-amber-500" title="{{ __('Lock') }}">
+                                        <i data-lucide="lock" class="w-3 h-3"></i>
                                     </button>
-                                </form>
+                                @else
+                                    <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="p-1 bg-muted border border-border rounded text-muted-foreground hover:text-emerald-500" title="{{ __('Unlock') }}">
+                                        <i data-lucide="unlock" class="w-3 h-3"></i>
+                                    </button>
+                                @endif
                                 <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
-                                    class="p-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400" title="{{ __('Renew') }}">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    class="p-1 bg-muted border border-border rounded text-muted-foreground hover:text-primary" title="{{ __('Renew') }}">
+                                    <i data-lucide="calendar" class="w-3 h-3"></i>
                                 </button>
-                                <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="p-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" title="{{ __('Delete') }}">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </form>
+                                <button type="button" onclick="confirmDelete({{ $patron->id }}, '{{ $patron->display_name }}')" class="p-1 bg-muted border border-border rounded text-muted-foreground hover:text-rose-500">
+                                    <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                </button>
                             </div>
                         </div>
                     @empty
                         <div class="col-span-full text-center py-12">
-                            <p class="text-gray-500 dark:text-slate-400">{{ __('No patrons found.') }}</p>
+                            <p class="text-muted-foreground font-bold text-xs">{{ __('No patrons found.') }}</p>
                         </div>
                     @endforelse
                 </div>
@@ -501,148 +490,135 @@
 
         <!-- List View -->
         @elseif(($viewMode ?? '') == 'list')
-            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden">
+            <div class="bg-card rounded-md shadow-sm border border-border overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-gray-50 dark:bg-slate-800">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">
-                                    <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <thead>
+                            <tr class="border-b border-border bg-muted/30">
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                                    <input type="checkbox" class="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background">
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Patron') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Code') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Email') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Phone') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Group') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Branch') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Status') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Registration') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Expiry') }}</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-400 uppercase tracking-wider">{{ __('Actions') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Patron') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Code') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Email') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Phone') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Group') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Branch') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Status') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Registration') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Expiry') }}</th>
+                                <th class="py-2 px-3 text-left text-xs font-bold text-muted-foreground uppercase tracking-wide">{{ __('Actions') }}</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+                        <tbody class="divide-y divide-border">
                             @forelse($patrons as $patron)
-                                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                <tr class="hover:bg-muted/50 transition-colors">
+                                    <td class="py-2 px-3 whitespace-nowrap">
+                                        <input type="checkbox" name="selected_patrons[]" value="{{ $patron->id }}" class="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background">
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                    <td class="py-2 px-3 whitespace-nowrap">
                                         <div class="flex items-center">
-                                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mr-3">
+                                            <div class="w-8 h-8 bg-muted rounded-full overflow-hidden mr-2.5 border border-border">
                                                 @if($patron->profile_image)
                                                     <img src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
                                                 @else
                                                     <div class="w-full h-full flex items-center justify-center">
-                                                        <svg class="w-5 h-5 text-slate-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                                                        <i data-lucide="user" class="w-4 h-4 text-muted-foreground"></i>
                                                     </div>
                                                 @endif
                                             </div>
                                             <div>
-                                                <div class="text-sm font-medium text-gray-900 dark:text-slate-100">{{ $patron->display_name }}</div>
-                                                <div class="text-xs text-gray-500 dark:text-slate-400">{{ $patron->user->email ?? '' }}</div>
+                                                <div class="text-xs font-bold text-foreground">{{ $patron->display_name }}</div>
+                                                <div class="text-[10px] text-muted-foreground">{{ $patron->user->email ?? '' }}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-slate-100 font-mono">{{ $patron->patron_code }}</div>
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs font-mono text-foreground">
+                                        {{ $patron->patron_code }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->user->email ?? '' }}</div>
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs text-foreground">
+                                        {{ $patron->user->email ?? '' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->phone ?? '-' }}</div>
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs text-foreground">
+                                        {{ $patron->phone ?? '-' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->patronGroup->name ?? '-' }}</div>
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs text-foreground">
+                                        {{ $patron->patronGroup->name ?? '-' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm text-gray-900 dark:text-slate-100">{{ $patron->branch ?? '-' }}</div>
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs text-foreground">
+                                        {{ $patron->branch ?? '-' }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $patron->card_status == 'normal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
-                                            <span class="w-2 h-2 mr-1.5 rounded-full {{ $patron->card_status == 'normal' ? 'bg-green-400' : 'bg-red-400' }}"></span>
+                                    <td class="py-2 px-3 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase {{ $patron->card_status == 'normal' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500' }}">
+                                            <span class="w-1.5 h-1.5 mr-1.5 rounded-full {{ $patron->card_status == 'normal' ? 'bg-emerald-500' : 'bg-rose-500' }}"></span>
                                             {{ $patron->card_status == 'normal' ? __('Active') : __('Locked') }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs text-foreground">
                                         {{ date('d/m/Y', strtotime($patron->registration_date)) }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-slate-100">
-                                        <span class="{{ \Carbon\Carbon::parse($patron->expiry_date)->isPast() ? 'text-red-600 font-semibold' : '' }}">
+                                    <td class="py-2 px-3 whitespace-nowrap text-xs text-foreground">
+                                        <span class="{{ \Carbon\Carbon::parse($patron->expiry_date)->isPast() ? 'text-rose-500 font-semibold' : '' }}">
                                             {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex items-center space-x-2">
-                                            <!-- View Details -->
-                                            <a href="#" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300" title="{{ __('View Details') }}">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                                            </a>
-                                            
+                                    <td class="py-2 px-3 whitespace-nowrap">
+                                        <div class="flex items-center space-x-1.5">
                                             <!-- Lock/Unlock -->
                                             @if($patron->card_status == 'normal')
-                                                <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="text-yellow-600 hover:text-yellow-900 dark:text-yellow-400 dark:hover:text-yellow-300" title="{{ __('Lock Card') }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 00-2 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                                <button type="button" onclick="openLockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name]) }})" class="text-muted-foreground hover:text-amber-500" title="{{ __('Lock Card') }}">
+                                                    <i data-lucide="lock" class="w-4 h-4"></i>
                                                 </button>
                                             @else
-                                                <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="{{ __('Unlock Card') }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path></svg>
+                                                <button type="button" onclick="openUnlockModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="text-muted-foreground hover:text-emerald-500" title="{{ __('Unlock Card') }}">
+                                                    <i data-lucide="unlock" class="w-4 h-4"></i>
                                                 </button>
                                             @endif
                                             
                                             <!-- Financial Transaction -->
-                                            <button type="button" onclick="openTransactionModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="{{ __('Financial Transaction') }}">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <button type="button" onclick="openTransactionModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'balance' => $patron->balance]) }})" class="text-muted-foreground hover:text-blue-500" title="{{ __('Financial Transaction') }}">
+                                                <i data-lucide="wallet" class="w-4 h-4"></i>
                                             </button>
                                             
                                             <!-- Print Queue -->
                                             @if($patron->isInPrintQueue())
                                                 <form action="{{ route('admin.patrons.remove-from-print-queue', $patron->id) }}" method="POST" class="inline">
                                                     @csrf @method('DELETE')
-                                                    <button type="submit" class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300" title="{{ __('Remove from Print Queue') }}">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                                                    <button type="submit" class="text-muted-foreground hover:text-purple-500" title="{{ __('Remove from Print Queue') }}">
+                                                        <i data-lucide="list-minus" class="w-4 h-4"></i>
                                                     </button>
                                                 </form>
                                             @else
                                                 <form action="{{ route('admin.patrons.add-to-print-queue', $patron->id) }}" method="POST" class="inline">
                                                     @csrf
-                                                    <button type="submit" class="text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300" title="{{ __('Add to Print Queue') }}">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                                    <button type="submit" class="text-muted-foreground hover:text-slate-700" title="{{ __('Add to Print Queue') }}">
+                                                        <i data-lucide="list-plus" class="w-4 h-4"></i>
                                                     </button>
                                                 </form>
                                             @endif
                                             
                                             <!-- Renew -->
                                             <button onclick="openRenewModal({{ json_encode(['id' => $patron->id, 'name' => $patron->display_name, 'expiry' => $patron->expiry_date]) }})" 
-                                                class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300" title="{{ __('Renew') }}">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                                class="text-muted-foreground hover:text-primary" title="{{ __('Renew') }}">
+                                                <i data-lucide="calendar" class="w-4 h-4"></i>
                                             </button>
                                             
                                             <!-- Edit -->
-                                            <a href="#" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300" title="{{ __('Edit') }}">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            <a href="{{ route('admin.patrons.edit', $patron->id) }}" class="text-muted-foreground hover:text-emerald-500" title="{{ __('Edit') }}">
+                                                <i data-lucide="edit" class="w-4 h-4"></i>
                                             </a>
                                             
                                             <!-- Delete -->
-                                            <form action="{{ route('admin.patrons.destroy', $patron->id) }}" method="POST" class="inline">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300" title="{{ __('Delete') }}">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                </button>
-                                            </form>
+                                            <button type="button" onclick="confirmDelete({{ $patron->id }}, '{{ $patron->display_name }}')" class="text-muted-foreground hover:text-rose-500">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="11" class="px-6 py-12 text-center">
-                                        <div class="flex flex-col items-center">
-                                            <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <p class="text-gray-500 dark:text-slate-400">{{ __('No patrons found.') }}</p>
-                                        </div>
+                                    <td colspan="11" class="py-6 text-center text-muted-foreground font-bold text-xs">
+                                        {{ __('No patrons found.') }}
                                     </td>
                                 </tr>
                             @endforelse
@@ -654,32 +630,30 @@
 
         <!-- Pagination -->
         @if($patrons->hasPages())
-            <div class="mt-6">
+            <div class="mt-4">
                 {{ $patrons->links() }}
             </div>
         @endif
     @else
-        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800 p-12 text-center">
-            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 dark:text-slate-100 mb-2">{{ __('No patrons found') }}</h3>
-            <p class="text-gray-500 dark:text-slate-400">{{ __('Try adjusting your search criteria or filters.') }}</p>
+        <div class="bg-card rounded-md shadow-sm border border-border p-8 text-center">
+            <i data-lucide="alert-circle" class="w-12 h-12 text-muted-foreground mx-auto mb-3"></i>
+            <h3 class="text-sm font-bold text-foreground mb-1">{{ __('No patrons found') }}</h3>
+            <p class="text-xs text-muted-foreground">{{ __('Try adjusting your search criteria or filters.') }}</p>
         </div>
     @endif
 
     <!-- Barcode Zoom Modal -->
-    <div id="barcodeZoomModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-sm transition-all duration-300" onclick="closeBarcodeZoom()">
-        <div class="relative bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-2xl w-full transform transition-all duration-300 scale-95 opacity-0" id="barcodeZoomContent" onclick="event.stopPropagation()">
-            <button onclick="closeBarcodeZoom()" class="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <div id="barcodeZoomModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-xs transition-all duration-300" onclick="closeBarcodeZoom()">
+        <div class="relative bg-card p-6 rounded-md border border-border shadow-lg max-w-md w-full transform transition-all duration-300 scale-95 opacity-0" id="barcodeZoomContent" onclick="event.stopPropagation()">
+            <button onclick="closeBarcodeZoom()" class="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
             </button>
             
             <div class="text-center">
-                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6 uppercase tracking-wider" id="zoomPatronCode"></h3>
-                <div id="zoomedBarcodeContainer" class="bg-white p-6 rounded-xl border border-slate-200 flex justify-center items-center min-h-[150px]">
+                <h3 class="text-sm font-black text-foreground mb-4 uppercase tracking-widest" id="zoomPatronCode"></h3>
+                <div id="zoomedBarcodeContainer" class="bg-white p-4 rounded border border-border flex justify-center items-center min-h-[100px]">
                 </div>
-                <p class="mt-6 text-slate-500 dark:text-slate-400 text-sm font-medium">
+                <p class="mt-4 text-muted-foreground text-xs font-bold uppercase tracking-wider">
                     {{ __('Nhấn ESC hoặc vùng ngoài để đóng') }}
                 </p>
             </div>
@@ -687,22 +661,23 @@
     </div>
 </div>
 
-<div id="renewModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" onclick="closeRenewModal()">
-    <div class="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden" onclick="event.stopPropagation()">
-        <div class="p-8 border-b border-slate-50 text-center">
-            <h3 class="text-lg font-black text-slate-800 tracking-tight uppercase">{{ __('Gia hạn thẻ') }}</h3>
-            <p class="text-indigo-600 text-[10px] font-bold mt-1 uppercase" id="renewPatronName"></p>
+<!-- Renew Modal -->
+<div id="renewModal" class="fixed inset-0 z-[110] hidden flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs" onclick="closeRenewModal()">
+    <div class="relative bg-card rounded-md border border-border shadow-lg w-full max-w-sm overflow-hidden" onclick="event.stopPropagation()">
+        <div class="p-4 border-b border-border text-center">
+            <h3 class="text-sm font-black text-foreground tracking-widest uppercase">{{ __('Gia hạn thẻ') }}</h3>
+            <p class="text-primary text-[10px] font-bold mt-1 uppercase" id="renewPatronName"></p>
         </div>
-        <form id="renewForm" method="POST" class="p-8 space-y-5">
+        <form id="renewForm" method="POST" class="p-4 space-y-4">
             @csrf @method('PATCH')
-            <div class="space-y-2">
-                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ngày hết hạn mới') }}</label>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Ngày hết hạn mới') }}</label>
                 <input type="date" name="expiry_date" id="renew_expiry_date" required 
-                    class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                    class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
             </div>
-            <div class="flex space-x-3 pt-4 border-t border-slate-50">
-                <button type="button" onclick="closeRenewModal()" class="flex-1 bg-white border border-slate-200 text-slate-400 py-3 rounded-xl uppercase text-[10px] font-black hover:bg-slate-50 transition-all">{{ __('Hủy') }}</button>
-                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-[10px] font-black shadow-md hover:bg-indigo-500 transition-all">{{ __('Cập nhật') }}</button>
+            <div class="flex space-x-2 pt-2 border-t border-border">
+                <button type="button" onclick="closeRenewModal()" class="flex-1 bg-muted hover:bg-muted/80 text-foreground border border-border py-2 rounded text-[10px] font-black uppercase transition-all">{{ __('Hủy') }}</button>
+                <button type="submit" class="flex-1 bg-primary text-primary-foreground py-2 rounded text-[10px] font-black uppercase shadow-xs hover:bg-primary/95 transition-all">{{ __('Cập nhật') }}</button>
             </div>
         </form>
     </div>
@@ -716,81 +691,81 @@
 
 <!-- Transaction Modal with 5 Tabs -->
 <div id="transactionModal" class="fixed inset-0 z-[100] hidden">
-    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onclick="closeTransactionModal()"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" onclick="closeTransactionModal()"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-card border border-border rounded-md shadow-lg w-full max-w-2xl overflow-hidden">
         <!-- Header -->
-        <div class="px-8 py-6 border-b border-slate-50 dark:border-slate-800 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900">
+        <div class="px-6 py-4 border-b border-border bg-muted/30">
             <div class="flex items-center justify-between">
                 <div>
-                    <h3 class="text-xl font-black text-slate-800 dark:text-slate-200 tracking-tight uppercase">{{ __('Giao dịch tài chính') }}</h3>
-                    <p class="text-indigo-600 dark:text-indigo-400 text-sm font-bold mt-1" id="transactionPatronName"></p>
-                    <div class="flex items-center space-x-4 mt-2">
-                        <span class="text-xs font-medium text-slate-500 dark:text-slate-400">{{ __('Số dư hiện tại') }}:</span>
-                        <span class="text-sm font-bold" id="currentBalance"></span>
+                    <h3 class="text-sm font-black text-foreground tracking-widest uppercase">{{ __('Giao dịch tài chính') }}</h3>
+                    <p class="text-primary text-[10px] font-bold mt-1 uppercase" id="transactionPatronName"></p>
+                    <div class="flex items-center space-x-2 mt-1">
+                        <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{{ __('Số dư hiện tại') }}:</span>
+                        <span class="text-xs font-bold text-foreground" id="currentBalance"></span>
                     </div>
                 </div>
-                <button type="button" onclick="closeTransactionModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                <button type="button" onclick="closeTransactionModal()" class="text-muted-foreground hover:text-foreground transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
         </div>
 
         <!-- Tabs Navigation -->
-        <div class="flex border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-            <button type="button" onclick="switchTransactionTab('add')" id="tab-add" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                <span class="text-xs font-black uppercase tracking-wider">{{ __('Nạp tiền') }}</span>
+        <div class="flex border-b border-border bg-muted/50">
+            <button type="button" onclick="switchTransactionTab('add')" id="tab-add" class="transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-emerald-500 text-emerald-600 bg-emerald-500/5">
+                <i data-lucide="plus-circle" class="w-4 h-4 mx-auto mb-1"></i>
+                <span class="text-[9px] font-black uppercase tracking-wider">{{ __('Nạp tiền') }}</span>
             </button>
-            <button type="button" onclick="switchTransactionTab('print')" id="tab-print" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                <span class="text-xs font-black uppercase tracking-wider">{{ __('In ấn') }}</span>
+            <button type="button" onclick="switchTransactionTab('print')" id="tab-print" class="transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-transparent text-muted-foreground hover:text-foreground">
+                <i data-lucide="printer" class="w-4 h-4 mx-auto mb-1"></i>
+                <span class="text-[9px] font-black uppercase tracking-wider">{{ __('In ấn') }}</span>
             </button>
-            <button type="button" onclick="switchTransactionTab('fine')" id="tab-fine" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-xs font-black uppercase tracking-wider">{{ __('Phạt mượn sách') }}</span>
+            <button type="button" onclick="switchTransactionTab('fine')" id="tab-fine" class="transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-transparent text-muted-foreground hover:text-foreground">
+                <i data-lucide="alert-triangle" class="w-4 h-4 mx-auto mb-1"></i>
+                <span class="text-[9px] font-black uppercase tracking-wider">{{ __('Phạt sách') }}</span>
             </button>
-            <button type="button" onclick="switchTransactionTab('service')" id="tab-service" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <span class="text-xs font-black uppercase tracking-wider">{{ __('Dịch vụ khác') }}</span>
+            <button type="button" onclick="switchTransactionTab('service')" id="tab-service" class="transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-transparent text-muted-foreground hover:text-foreground">
+                <i data-lucide="settings" class="w-4 h-4 mx-auto mb-1"></i>
+                <span class="text-[9px] font-black uppercase tracking-wider">{{ __('Dịch vụ khác') }}</span>
             </button>
-            <button type="button" onclick="switchTransactionTab('withdraw')" id="tab-withdraw" class="transaction-tab flex-1 px-6 py-4 text-center font-medium transition-all border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300">
-                <svg class="w-5 h-5 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                <span class="text-xs font-black uppercase tracking-wider">{{ __('Rút tiền') }}</span>
+            <button type="button" onclick="switchTransactionTab('withdraw')" id="tab-withdraw" class="transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-transparent text-muted-foreground hover:text-foreground">
+                <i data-lucide="minus-circle" class="w-4 h-4 mx-auto mb-1"></i>
+                <span class="text-[9px] font-black uppercase tracking-wider">{{ __('Rút tiền') }}</span>
             </button>
         </div>
 
         <!-- Tab Content -->
-        <form id="transactionForm" method="POST" class="p-8">
+        <form id="transactionForm" method="POST" class="p-4">
             @csrf
             
             <!-- Add Money Tab -->
-            <div id="tab-content-add" class="transaction-content space-y-6">
-                <div class="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <div id="tab-content-add" class="transaction-content space-y-4">
+                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded p-3">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-9 h-9 bg-emerald-500/20 text-emerald-500 rounded flex items-center justify-center">
+                            <i data-lucide="plus-circle" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-emerald-800 dark:text-emerald-200">{{ __('Nạp tiền vào tài khoản') }}</h4>
-                            <p class="text-sm text-emerald-600 dark:text-emerald-400">{{ __('Tăng số dư cho độc giả') }}</p>
+                            <h4 class="text-xs font-bold text-emerald-800 dark:text-emerald-200">{{ __('Nạp tiền vào tài khoản') }}</h4>
+                            <p class="text-[10px] text-emerald-600 dark:text-emerald-400">{{ __('Tăng số dư cho độc giả') }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <input type="hidden" name="type" value="add">
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-600 font-bold">₫</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500 font-bold text-xs">₫</span>
                             <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all">
+                                class="w-full bg-muted border border-border rounded pl-8 pr-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Phương thức') }}</label>
-                        <select name="payment_method" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all appearance-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Phương thức') }}</label>
+                        <select name="payment_method" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all">
                             <option value="cash">{{ __('Tiền mặt') }}</option>
                             <option value="transfer">{{ __('Chuyển khoản') }}</option>
                             <option value="card">{{ __('Thẻ ngân hàng') }}</option>
@@ -800,33 +775,33 @@
             </div>
 
             <!-- Print Fee Tab -->
-            <div id="tab-content-print" class="transaction-content space-y-6 hidden">
-                <div class="bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+            <div id="tab-content-print" class="transaction-content space-y-4 hidden">
+                <div class="bg-blue-500/10 border border-blue-500/20 rounded p-3">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-9 h-9 bg-blue-500/20 text-blue-500 rounded flex items-center justify-center">
+                            <i data-lucide="printer" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-blue-800 dark:text-blue-200">{{ __('Phí in ấn') }}</h4>
-                            <p class="text-sm text-blue-600 dark:text-blue-400">{{ __('Phí in tài liệu, sách, báo cáo') }}</p>
+                            <h4 class="text-xs font-bold text-blue-800 dark:text-blue-200">{{ __('Phí in ấn') }}</h4>
+                            <p class="text-[10px] text-blue-600 dark:text-blue-400">{{ __('Phí in tài liệu, sách, báo cáo') }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <input type="hidden" name="type" value="print">
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-blue-600 font-bold">₫</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 font-bold text-xs">₫</span>
                             <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all">
+                                class="w-full bg-muted border border-border rounded pl-8 pr-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Loại in') }}</label>
-                        <select name="print_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Loại in') }}</label>
+                        <select name="print_type" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <option value="document">{{ __('Tài liệu') }}</option>
                             <option value="book">{{ __('Sách') }}</option>
                             <option value="report">{{ __('Báo cáo') }}</option>
@@ -837,33 +812,33 @@
             </div>
 
             <!-- Fine Tab -->
-            <div id="tab-content-fine" class="transaction-content space-y-6 hidden">
-                <div class="bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-12 h-12 bg-rose-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <div id="tab-content-fine" class="transaction-content space-y-4 hidden">
+                <div class="bg-rose-500/10 border border-rose-500/20 rounded p-3">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-9 h-9 bg-rose-500/20 text-rose-500 rounded flex items-center justify-center">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-rose-800 dark:text-rose-200">{{ __('Phạt mượn sách') }}</h4>
-                            <p class="text-sm text-rose-600 dark:text-rose-400">{{ __('Phạt trả muộn, làm mất, hư hỏng') }}</p>
+                            <h4 class="text-xs font-bold text-rose-800 dark:text-rose-200">{{ __('Phạt mượn sách') }}</h4>
+                            <p class="text-[10px] text-rose-600 dark:text-rose-400">{{ __('Phạt trả muộn, làm mất, hư hỏng') }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <input type="hidden" name="type" value="fine">
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-rose-600 font-bold">₫</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-rose-500 font-bold text-xs">₫</span>
                             <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all">
+                                class="w-full bg-muted border border-border rounded pl-8 pr-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all">
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Loại phạt') }}</label>
-                        <select name="fine_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none transition-all appearance-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Loại phạt') }}</label>
+                        <select name="fine_type" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-rose-500 focus:border-rose-500 outline-none transition-all">
                             <option value="late">{{ __('Trả muộn') }}</option>
                             <option value="lost">{{ __('Làm mất') }}</option>
                             <option value="damaged">{{ __('Hư hỏng') }}</option>
@@ -873,33 +848,33 @@
             </div>
 
             <!-- Service Fee Tab -->
-            <div id="tab-content-service" class="transaction-content space-y-6 hidden">
-                <div class="bg-purple-50 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/20 rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <div id="tab-content-service" class="transaction-content space-y-4 hidden">
+                <div class="bg-purple-500/10 border border-purple-500/20 rounded p-3">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-9 h-9 bg-purple-500/20 text-purple-500 rounded flex items-center justify-center">
+                            <i data-lucide="settings" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-purple-800 dark:text-purple-200">{{ __('Dịch vụ khác') }}</h4>
-                            <p class="text-sm text-purple-600 dark:text-purple-400">{{ __('Phí dịch vụ thư viện khác') }}</p>
+                            <h4 class="text-xs font-bold text-purple-800 dark:text-purple-200">{{ __('Dịch vụ khác') }}</h4>
+                            <p class="text-[10px] text-purple-600 dark:text-purple-400">{{ __('Phí dịch vụ thư viện khác') }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <input type="hidden" name="type" value="service">
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
                         <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-purple-600 font-bold">₫</span>
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 font-bold text-xs">₫</span>
                             <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all">
+                                class="w-full bg-muted border border-border rounded pl-8 pr-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Loại dịch vụ') }}</label>
-                        <select name="service_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all appearance-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Loại dịch vụ') }}</label>
+                        <select name="service_type" class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-purple-500 focus:border-purple-500 outline-none transition-all">
                             <option value="membership">{{ __('Thành viên') }}</option>
                             <option value="research">{{ __('Nghiên cứu') }}</option>
                             <option value="consulting">{{ __('Tư vấn') }}</option>
@@ -910,53 +885,53 @@
             </div>
 
             <!-- Withdraw Tab -->
-            <div id="tab-content-withdraw" class="transaction-content space-y-6 hidden">
-                <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-6">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            <div id="tab-content-withdraw" class="transaction-content space-y-4 hidden">
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded p-3">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-9 h-9 bg-amber-500/20 text-amber-500 rounded flex items-center justify-center">
+                            <i data-lucide="minus-circle" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h4 class="font-bold text-amber-800 dark:text-amber-200">{{ __('Rút tiền khỏi tài khoản') }}</h4>
-                            <p class="text-sm text-amber-600 dark:text-amber-400">{{ __('Hoàn tiền cho độc giả') }}</p>
+                            <h4 class="text-xs font-bold text-amber-800 dark:text-amber-200">{{ __('Rút tiền khỏi tài khoản') }}</h4>
+                            <p class="text-[10px] text-amber-600 dark:text-amber-400">{{ __('Hoàn tiền cho độc giả') }}</p>
                         </div>
                     </div>
                 </div>
                 
                 <input type="hidden" name="type" value="withdraw">
                 
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Số tiền') }} <span class="text-rose-500">*</span></label>
                     <div class="relative">
-                        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-amber-600 font-bold">₫</span>
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-amber-600 font-bold text-xs">₫</span>
                         <input type="number" name="amount" required step="0.01" min="0.01" placeholder="0"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl pl-10 pr-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
+                            class="w-full bg-muted border border-border rounded pl-8 pr-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-amber-500 focus:border-amber-500 outline-none transition-all">
                     </div>
-                    <p class="text-xs text-slate-500">{{ __('Số dư khả dụng') }}: <span id="availableBalance"></span> ₫</p>
+                    <p class="text-[10px] text-muted-foreground uppercase font-bold">{{ __('Số dư khả dụng') }}: <span id="availableBalance" class="text-foreground font-black"></span> ₫</p>
                 </div>
             </div>
 
             <!-- Common Fields -->
-            <div class="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Mô tả') }}</label>
+            <div class="space-y-3 pt-3 border-t border-border">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Mô tả') }}</label>
                     <input type="text" name="description" placeholder="{{ __('Nhập mô tả giao dịch...') }}"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                        class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                 </div>
                 
-                <div class="space-y-2">
-                    <label class="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">{{ __('Ghi chú') }}</label>
-                    <textarea name="notes" rows="3" placeholder="{{ __('Nhập ghi chú thêm...') }}"
-                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all resize-none"></textarea>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">{{ __('Ghi chú') }}</label>
+                    <textarea name="notes" rows="2" placeholder="{{ __('Nhập ghi chú thêm...') }}"
+                        class="w-full bg-muted border border-border rounded px-3 py-2 text-xs font-bold text-foreground focus:bg-background focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all resize-none"></textarea>
                 </div>
             </div>
 
             <!-- Actions -->
-            <div class="flex space-x-4 pt-6 border-t border-slate-100 dark:border-slate-800">
-                <button type="button" onclick="closeTransactionModal()" class="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-400 py-3 rounded-xl uppercase text-[10px] font-black hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+            <div class="flex space-x-3 pt-4 border-t border-border">
+                <button type="button" onclick="closeTransactionModal()" class="flex-1 bg-muted hover:bg-muted/85 border border-border text-foreground py-2 rounded text-[10px] font-black uppercase transition-all">
                     {{ __('Hủy') }}
                 </button>
-                <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-xl uppercase text-[10px] font-black hover:bg-indigo-500 transition-all">
+                <button type="submit" class="flex-1 bg-primary text-primary-foreground py-2 rounded text-[10px] font-black uppercase hover:bg-primary/95 transition-all shadow-xs">
                     {{ __('Xác nhận giao dịch') }}
                 </button>
             </div>
@@ -987,12 +962,7 @@ function switchTransactionTab(tab) {
     
     // Remove active state from all tabs
     document.querySelectorAll('.transaction-tab').forEach(tabBtn => {
-        tabBtn.classList.remove('border-emerald-500', 'border-blue-500', 'border-rose-500', 'border-purple-500', 'border-amber-500',
-                                'text-emerald-600', 'text-blue-600', 'text-rose-600', 'text-purple-600', 'text-amber-600',
-                                'bg-emerald-50', 'bg-blue-50', 'bg-rose-50', 'bg-purple-50', 'bg-amber-50',
-                                'dark:bg-emerald-500/10', 'dark:bg-blue-500/10', 'dark:bg-rose-500/10', 'dark:bg-purple-500/10', 'dark:bg-amber-500/10',
-                                'dark:text-emerald-400', 'dark:text-blue-400', 'dark:text-rose-400', 'dark:text-purple-400', 'dark:text-amber-400');
-        tabBtn.classList.add('border-transparent', 'text-slate-500', 'dark:text-slate-400', 'dark:hover:text-slate-300');
+        tabBtn.className = "transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-transparent text-muted-foreground hover:text-foreground";
     });
     
     // Show selected content
@@ -1000,128 +970,69 @@ function switchTransactionTab(tab) {
     
     // Activate selected tab
     const activeTab = document.getElementById('tab-' + tab);
-    activeTab.classList.remove('border-transparent', 'text-slate-500', 'dark:text-slate-400');
     
     if (tab === 'add') {
-        activeTab.classList.add('border-emerald-500', 'text-emerald-600', 'bg-emerald-50', 
-                               'dark:bg-emerald-500/10', 'dark:text-emerald-400');
+        activeTab.className = "transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-emerald-500 text-emerald-600 bg-emerald-500/5";
     } else if (tab === 'print') {
-        activeTab.classList.add('border-blue-500', 'text-blue-600', 'bg-blue-50', 
-                               'dark:bg-blue-500/10', 'dark:text-blue-400');
+        activeTab.className = "transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-blue-500 text-blue-600 bg-blue-500/5";
     } else if (tab === 'fine') {
-        activeTab.classList.add('border-rose-500', 'text-rose-600', 'bg-rose-50', 
-                               'dark:bg-rose-500/10', 'dark:text-rose-400');
+        activeTab.className = "transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-rose-500 text-rose-600 bg-rose-500/5";
     } else if (tab === 'service') {
-        activeTab.classList.add('border-purple-500', 'text-purple-600', 'bg-purple-50', 
-                               'dark:bg-purple-500/10', 'dark:text-purple-400');
+        activeTab.className = "transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-purple-500 text-purple-600 bg-purple-500/5";
     } else if (tab === 'withdraw') {
-        activeTab.classList.add('border-amber-500', 'text-amber-600', 'bg-amber-50', 
-                               'dark:bg-amber-500/10', 'dark:text-amber-400');
+        activeTab.className = "transaction-tab flex-1 py-3 text-center transition-all border-b-2 border-amber-500 text-amber-600 bg-amber-500/5";
     }
 }
-</script>
 
-<script>
-// Bulk Actions JavaScript
-let selectedPatrons = [];
-
+// Bulk Edit & Selection script helpers
 function updateBulkActions() {
     const checkboxes = document.querySelectorAll('input[name="selected_patrons[]"]:checked');
-    selectedPatrons = Array.from(checkboxes).map(cb => cb.value);
+    const section = document.getElementById('bulkActionsSection');
+    const countSpan = document.getElementById('selectedCount');
     
-    console.log('updateBulkActions - selectedPatrons:', selectedPatrons);
-    
-    const bulkActionsSection = document.getElementById('bulkActionsSection');
-    const selectedCount = document.getElementById('selectedCount');
-    
-    if (selectedPatrons.length > 0) {
-        bulkActionsSection.style.display = 'block';
-        selectedCount.textContent = selectedPatrons.length;
-        
-        // Find the print cards form and add patron IDs
-        const printForm = document.querySelector('form[action*="cards/generate"]');
-        if (printForm) {
-            console.log('updateBulkActions - Found print form:', printForm);
-            
-            // Remove existing patron ID inputs
-            const existingInputs = printForm.querySelectorAll('input[name="patron_ids[]"]');
-            existingInputs.forEach(input => input.remove());
-            
-            // Add new patron ID inputs
-            selectedPatrons.forEach(id => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'patron_ids[]';
-                input.value = id;
-                printForm.appendChild(input);
-                console.log('updateBulkActions - Added input for patron ID:', id);
-            });
-            
-            // Log all form data before submission
-            printForm.addEventListener('submit', function(e) {
-                const formData = new FormData(this);
-                const data = {};
-                for (let [key, value] of formData.entries()) {
-                    data[key] = value;
-                }
-                console.log('Form submission data:', data);
-            });
-        } else {
-            console.error('updateBulkActions - Print form not found!');
-        }
+    if (checkboxes.length > 0) {
+        section.style.display = 'block';
+        countSpan.textContent = checkboxes.length;
     } else {
-        bulkActionsSection.style.display = 'none';
+        section.style.display = 'none';
+        countSpan.textContent = '0';
     }
 }
 
 function clearSelection() {
     const checkboxes = document.querySelectorAll('input[name="selected_patrons[]"]');
     checkboxes.forEach(cb => cb.checked = false);
+    const selectAllCheckbox = document.querySelector('input[type="checkbox"]:not([name="selected_patrons[]"])');
+    if (selectAllCheckbox) selectAllCheckbox.checked = false;
     updateBulkActions();
 }
 
-function openBulkEditModal() {
-    if (selectedPatrons.length === 0) {
-        alert('{{ __("Vui lòng chọn ít nhất một bạn đọc để chỉnh sửa.") }}');
-        return;
-    }
-    
-    // Set patron IDs
-    document.getElementById('bulkEditPatronIds').value = selectedPatrons.join(',');
-    document.getElementById('selectedPatronsCount').textContent = selectedPatrons.length;
-    
-    // Show modal
-    document.getElementById('bulkEditModal').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
 function confirmBulkDelete() {
+    const checkboxes = document.querySelectorAll('input[name="selected_patrons[]"]:checked');
+    const selectedPatrons = Array.from(checkboxes).map(cb => cb.value);
+    
     if (selectedPatrons.length === 0) {
         alert('{{ __("Vui lòng chọn ít nhất một bạn đọc để xóa.") }}');
         return;
     }
     
     if (confirm(`{{ __("Bạn có chắc chắn muốn xóa") }} ${selectedPatrons.length} {{ __("bạn đọc không? Hành động này không thể hoàn tác!") }}`)) {
-        // Create form for bulk delete
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ route("admin.patrons.bulk.delete") }}';
         
-        // Add CSRF token
         const csrfToken = document.createElement('input');
         csrfToken.type = 'hidden';
         csrfToken.name = '_token';
         csrfToken.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         form.appendChild(csrfToken);
         
-        // Add method override for DELETE
         const methodField = document.createElement('input');
         methodField.type = 'hidden';
         methodField.name = '_method';
         methodField.value = 'DELETE';
         form.appendChild(methodField);
         
-        // Add patron IDs
         selectedPatrons.forEach(id => {
             const input = document.createElement('input');
             input.type = 'hidden';
@@ -1130,20 +1041,17 @@ function confirmBulkDelete() {
             form.appendChild(input);
         });
         
-        // Submit form
         document.body.appendChild(form);
         form.submit();
     }
 }
 
-// Add event listeners to checkboxes
 document.addEventListener('DOMContentLoaded', function() {
     const checkboxes = document.querySelectorAll('input[name="selected_patrons[]"]');
     checkboxes.forEach(cb => {
         cb.addEventListener('change', updateBulkActions);
     });
     
-    // Select all functionality
     const selectAllCheckbox = document.querySelector('input[type="checkbox"]:not([name="selected_patrons[]"])');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', function() {
@@ -1154,11 +1062,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// SweetAlert2 Delete Confirmation
 function confirmDelete(patronId, patronName) {
     Swal.fire({
         title: '{{ __("Xác nhận xóa?") }}',
-        html: `{{ __("Bạn có chắc chắn muốn xóa độc giả") }} <strong>${patronName}</strong> {{ __("không?") }}<br><br><small class="text-red-500">{{ __("Hành động này không thể hoàn tác!") }}</small>`,
+        html: `{{ __("Bạn có chắc chắn muốn xóa độc giả") }} <strong>${patronName}</strong> {{ __("không?") }}<br><br><small class="text-red-500 font-bold">{{ __("Hành động này không thể hoàn tác!") }}</small>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc2626',
@@ -1168,12 +1075,10 @@ function confirmDelete(patronId, patronName) {
         reverseButtons: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Create form and submit
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = `{{ route('admin.patrons.destroy', ['id' => ':id']) }}`.replace(':id', patronId);
             
-            // Add CSRF token
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const csrfInput = document.createElement('input');
             csrfInput.type = 'hidden';
@@ -1181,28 +1086,24 @@ function confirmDelete(patronId, patronName) {
             csrfInput.value = csrfToken;
             form.appendChild(csrfInput);
             
-            // Add DELETE method
             const methodInput = document.createElement('input');
             methodInput.type = 'hidden';
             methodInput.name = '_method';
             methodInput.value = 'DELETE';
             form.appendChild(methodInput);
             
-            // Submit form
             document.body.appendChild(form);
             form.submit();
         }
     });
 }
 
-// Sort function
 function changeSort(sortOrder) {
     const url = new URL(window.location);
     url.searchParams.set('sort', sortOrder);
     window.location.href = url.toString();
 }
 
-// Toggle Filters
 function toggleFilters() {
     const filtersDiv = document.getElementById('advancedFilters');
     const icon = document.getElementById('filterToggleIcon');
@@ -1215,40 +1116,34 @@ function toggleFilters() {
         filtersDiv.classList.remove('hidden');
         icon.style.transform = 'rotate(180deg)';
         text.textContent = '{{ __("Hide Filters") }}';
-        // Hide search icon and adjust padding
         if (searchIcon) {
             searchIcon.style.opacity = '0';
             searchIcon.style.pointerEvents = 'none';
         }
         if (searchInput) {
-            searchInput.classList.remove('pl-10');
+            searchInput.classList.remove('pl-9');
             searchInput.classList.add('pl-3');
         }
-        // Set flag in localStorage and URL
         localStorage.setItem('filtersOpen', 'true');
         url.searchParams.set('filters', 'open');
     } else {
         filtersDiv.classList.add('hidden');
         icon.style.transform = 'rotate(0deg)';
         text.textContent = '{{ __("Show Filters") }}';
-        // Show search icon and restore padding
         if (searchIcon) {
             searchIcon.style.opacity = '1';
             searchIcon.style.pointerEvents = 'auto';
         }
         if (searchInput) {
             searchInput.classList.remove('pl-3');
-            searchInput.classList.add('pl-10');
+            searchInput.classList.add('pl-9');
         }
-        // Set flag in localStorage and URL
         localStorage.setItem('filtersOpen', 'false');
         url.searchParams.delete('filters');
     }
-    // Update URL without reloading page
     window.history.replaceState({}, '', url);
 }
 
-// Check if filters should be open on page load
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const filtersOpen = urlParams.get('filters') === 'open' || localStorage.getItem('filtersOpen') === 'true';
@@ -1264,17 +1159,14 @@ document.addEventListener('DOMContentLoaded', function() {
             filtersDiv.classList.remove('hidden');
             icon.style.transform = 'rotate(180deg)';
             text.textContent = '{{ __("Hide Filters") }}';
-            
-            // Hide search icon and adjust padding
             if (searchIcon) {
                 searchIcon.style.opacity = '0';
                 searchIcon.style.pointerEvents = 'none';
             }
             if (searchInput) {
-                searchInput.classList.remove('pl-10');
+                searchInput.classList.remove('pl-9');
                 searchInput.classList.add('pl-3');
             }
-            // Ensure URL has the parameter if it came from localStorage
             if (!urlParams.has('filters')) {
                 const url = new URL(window.location);
                 url.searchParams.set('filters', 'open');
@@ -1284,12 +1176,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Sync main search form with advanced filters form
 document.addEventListener('DOMContentLoaded', function() {
     const mainSearchForm = document.getElementById('mainSearchForm');
     if (mainSearchForm) {
         mainSearchForm.addEventListener('submit', function(e) {
-            // Update hidden inputs with current values from advanced filters
             const statusSelect = document.querySelector('#advancedFiltersForm select[name="status"]');
             const patronGroupRadio = document.querySelector('#advancedFiltersForm input[name="patron_group"]:checked');
             const branchSelect = document.querySelector('#advancedFiltersForm select[name="branch"]');
@@ -1318,11 +1208,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Sync advanced filters form with main search form
     const advancedFiltersForm = document.getElementById('advancedFiltersForm');
     if (advancedFiltersForm) {
         advancedFiltersForm.addEventListener('submit', function(e) {
-            // Update hidden inputs with current values from main search form
             const searchFieldSelect = document.querySelector('#mainSearchForm select[name="search_field"]');
             const searchInput = document.querySelector('#mainSearchForm input[name="search"]');
             
@@ -1336,10 +1224,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Clear Filters
 function clearFilters() {
     const url = new URL(window.location);
-    // Remove all filter parameters
     url.searchParams.delete('search');
     url.searchParams.delete('search_field');
     url.searchParams.delete('status');
@@ -1348,18 +1234,7 @@ function clearFilters() {
     url.searchParams.delete('date_from');
     url.searchParams.delete('date_to');
     url.searchParams.delete('per_page');
-    
     window.location.href = url.toString();
-}
-
-// Existing functions...
-function openRenewModal(patronId) {
-    // Implementation for renew modal
-}
-
-function closeRenewModal() {
-    document.getElementById('renewModal').classList.add('hidden');
-    document.body.style.overflow = 'auto';
 }
 </script>
 
@@ -1383,14 +1258,12 @@ function zoomBarcode(element, patronCode) {
     const codeTitle = document.getElementById('zoomPatronCode');
     const svg = element.querySelector('svg').cloneNode(true);
     
-    // Clear and inject
     container.innerHTML = '';
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '150');
+    svg.setAttribute('height', '120');
     container.appendChild(svg);
     codeTitle.textContent = patronCode;
     
-    // Show modal with animation
     modal.classList.remove('hidden');
     setTimeout(() => {
         content.classList.remove('scale-95', 'opacity-0');
@@ -1399,7 +1272,6 @@ function zoomBarcode(element, patronCode) {
     
     document.body.style.overflow = 'hidden';
     
-    // ESC key to close
     const escHandler = (e) => {
         if (e.key === 'Escape') {
             closeBarcodeZoom();
@@ -1421,7 +1293,7 @@ function closeBarcodeZoom() {
     setTimeout(() => {
         if (modal) modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
-    }, 300);
+    }, 200);
 }
 
 function openRenewModal(patron) {
