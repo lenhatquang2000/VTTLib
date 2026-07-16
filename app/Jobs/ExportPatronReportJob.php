@@ -49,7 +49,7 @@ class ExportPatronReportJob implements ShouldQueue
         $startTime = microtime(true);
 
         try {
-            $history->update(['status' => 'processing']);
+            $history->update(['status' => 'processing', 'progress' => 10]);
 
             // 1. Create fake request
             $request = Request::create('/admin/patron-reports/generate', 'POST', $this->requestData);
@@ -75,6 +75,7 @@ class ExportPatronReportJob implements ShouldQueue
             }
 
             $patrons = $query->latest('registration_date')->get();
+            $history->update(['progress' => 30]);
 
             // Prepare export rows based on report_type
             $title = '';
@@ -153,6 +154,8 @@ class ExportPatronReportJob implements ShouldQueue
                     break;
             }
 
+            $history->update(['progress' => 60]);
+
             // 3. Storage path
             $fileName = $prefix . '_' . now()->format('Ymd_His');
             $extension = $this->format === 'csv' ? 'csv' : 'xlsx';
@@ -164,6 +167,8 @@ class ExportPatronReportJob implements ShouldQueue
             }
 
             // 4. Store the file using Excel::store
+            $history->update(['progress' => 80]);
+
             if ($this->format === 'excel') {
                 Excel::store(
                     new DynamicPatronReportExport($headers, $rows, $title, $this->reportType),
@@ -178,6 +183,8 @@ class ExportPatronReportJob implements ShouldQueue
                     \Maatwebsite\Excel\Excel::CSV
                 );
             }
+
+            $history->update(['progress' => 100]);
 
             $executionTimeMs = round((microtime(true) - $startTime) * 1000);
 

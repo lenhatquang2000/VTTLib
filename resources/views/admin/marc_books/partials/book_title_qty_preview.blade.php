@@ -32,13 +32,15 @@
                 @foreach($rows as $row)
                     <tr class="hover:bg-muted/30 transition-colors">
                         <td class="px-3 py-2 text-center border-r border-border text-muted-foreground w-12">{{ $row[0] }}</td>
-                        <td class="px-3 py-2 border-r border-border text-foreground font-medium min-w-[250px]">{{ $row[1] }}</td>
-                        <td class="px-3 py-2 border-r border-border text-muted-foreground min-w-[120px]">{{ $row[2] }}</td>
-                        <td class="px-3 py-2 text-center border-r border-border text-muted-foreground w-20">{{ $row[3] }}</td>
-                        <td class="px-3 py-2 text-center border-r border-border text-muted-foreground w-24">{{ $row[4] }}</td>
+                        <td class="px-3 py-2 text-center border-r border-border text-foreground font-medium min-w-[120px]">{{ $row[1] }}</td>
+                        <td class="px-3 py-2 border-r border-border text-foreground font-medium min-w-[250px]">{{ $row[2] }}</td>
+                        <td class="px-3 py-2 border-r border-border text-muted-foreground min-w-[150px]">{{ $row[3] }}</td>
+                        <td class="px-3 py-2 border-r border-border text-muted-foreground min-w-[150px]">{{ $row[4] }}</td>
                         <td class="px-3 py-2 text-center border-r border-border text-muted-foreground w-20">{{ $row[5] }}</td>
-                        <td class="px-3 py-2 text-center border-r border-border font-bold text-foreground w-20">{{ $row[6] }}</td>
-                        <td class="px-3 py-2 text-right font-bold text-foreground w-28">{{ $row[7] }}</td>
+                        <td class="px-3 py-2 text-center border-r border-border text-muted-foreground w-24">{{ $row[6] }}</td>
+                        <td class="px-3 py-2 text-center border-r border-border text-muted-foreground w-20">{{ $row[7] }}</td>
+                        <td class="px-3 py-2 text-center border-r border-border font-bold text-foreground w-20">{{ $row[8] }}</td>
+                        <td class="px-3 py-2 text-right font-bold text-foreground w-28">{{ $row[9] }}</td>
                     </tr>
                 @endforeach
             </tbody>

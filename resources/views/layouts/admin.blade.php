@@ -589,7 +589,15 @@
                                             <!-- Status text / action -->
                                             <div @click.stop>
                                                 <template x-if="item.status === 'pending' || item.status === 'processing'">
-                                                    <span class="text-[9px] font-semibold text-amber-500">{{ __('Đang xử lý...') }}</span>
+                                                    <div class="flex flex-col items-end space-y-1">
+                                                        <span class="text-[9px] font-bold text-amber-500" 
+                                                              x-text="item.status === 'processing' ? '{{ __('Đang xử lý...') }} ' + (item.progress || 10) + '%' : '{{ __('Đang chờ...') }}'"></span>
+                                                        <template x-if="item.status === 'processing'">
+                                                            <div class="w-16 bg-slate-100 dark:bg-slate-800 rounded-full h-1 overflow-hidden">
+                                                                <div class="bg-amber-500 h-1 transition-all duration-300" :style="'width: ' + (item.progress || 10) + '%'"></div>
+                                                            </div>
+                                                        </template>
+                                                    </div>
                                                 </template>
                                                 <template x-if="item.status === 'completed'">
                                                     <a :href="'/topsecret/export-histories/' + item.id + '/download'" 

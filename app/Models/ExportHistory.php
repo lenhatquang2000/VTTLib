@@ -14,6 +14,7 @@ class ExportHistory extends Model
         'format',
         'file_path',
         'status',
+        'progress',
         'error_message',
         'is_read',
         'execution_time_ms'

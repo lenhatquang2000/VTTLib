@@ -49,7 +49,7 @@ class ExportMarcReportJob implements ShouldQueue
         $startTime = microtime(true);
 
         try {
-            $history->update(['status' => 'processing']);
+            $history->update(['status' => 'processing', 'progress' => 10]);
 
             // 1. Tạo request ảo từ requestData
             $request = Request::create('/admin/marc-reports/generate', 'POST', $this->requestData);
@@ -70,6 +70,8 @@ class ExportMarcReportJob implements ShouldQueue
                 if (in_array($this->reportType, ['book_stats', 'book_title_qty', 'cataloging_subsystem', 'article_index'])) {
                     if ($this->reportType === 'book_stats') {
                         $query->with(['items.storageLocation', 'documentType']);
+                    } elseif ($this->reportType === 'book_title_qty') {
+                        $query->with(['items']);
                     } else {
                         $query->withCount('items');
                     }
@@ -103,6 +105,7 @@ class ExportMarcReportJob implements ShouldQueue
             if ($this->format === 'excel') {
                 if (in_array($this->reportType, ['barcode_list', 'generated_barcodes'])) {
                     $records = $query->get();
+                    $history->update(['progress' => 40]);
                     Excel::store(
                         new \App\Exports\BarcodeExport($records, $meta['title']),
                         $relativeFilePath,
@@ -110,19 +113,21 @@ class ExportMarcReportJob implements ShouldQueue
                     );
                 } else {
                     Excel::store(
-                        new DynamicMarcReportExport($meta['headers'], $meta['title'], $query, $this->reportType),
+                        new DynamicMarcReportExport($meta['headers'], $meta['title'], $query, $this->reportType, $this->historyId),
                         $relativeFilePath,
                         'local'
                     );
                 }
             } elseif ($this->format === 'csv') {
                 Excel::store(
-                    new DynamicMarcReportExport($meta['headers'], $meta['title'], $query, $this->reportType),
+                    new DynamicMarcReportExport($meta['headers'], $meta['title'], $query, $this->reportType, $this->historyId),
                     $relativeFilePath,
                     'local',
                     \Maatwebsite\Excel\Excel::CSV
                 );
             }
+
+            $history->update(['progress' => 100]);
 
             $executionTimeMs = round((microtime(true) - $startTime) * 1000);
 

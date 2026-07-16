@@ -258,13 +258,13 @@ class MarcReportController extends Controller
             'status'      => 'pending',
         ]);
 
-        // Đẩy job xử lý xuất dữ liệu đồng bộ (sync) để tự động thực thi ngay mà không cần bật Worker
+        // Chạy bất đồng bộ ngay sau khi gửi response (không cần bật Worker)
         \App\Jobs\ExportMarcReportJob::dispatch(
             $history->id,
             $request->all(),
             $reportType,
             $format
-        )->onConnection('sync');
+        )->afterResponse();
 
         return response()->json([
             'success' => true,
@@ -333,7 +333,7 @@ class MarcReportController extends Controller
             'book_title_qty' => [
                 'title'       => __('Danh sách nhan đề và số lượng'),
                 'file_prefix' => 'nhan_de_so_luong',
-                'headers'     => [__('STT'), __('Mã bản ghi'), __('Nhan đề'), __('Tác giả'), __('Năm XB'), __('Số lượng bản ấn')],
+                'headers'     => [__('STT'), __('Mã số'), __('Nhan đề'), __('Tác giả'), __('Nhà xuất bản'), __('Năm XB'), __('Số phân loại'), __('Mã hóa'), __('Số bản'), __('Giá tiền')],
             ],
         ];
 
@@ -558,7 +558,7 @@ class MarcReportController extends Controller
             case 'book_title_qty': // Danh sách nhan đề và số lượng
                 $title = __('Danh sách nhan đề và số lượng');
                 $prefix = 'nhan_de_so_luong';
-                $headers = [__('STT'), __('Nhan đề'), __('Nhà xuất bản'), __('Năm XB'), __('Số phân loại'), __('Mã hóa'), __('Số bản'), __('Giá tiền')];
+                $headers = [__('STT'), __('Mã số'), __('Nhan đề'), __('Tác giả'), __('Nhà xuất bản'), __('Năm XB'), __('Số phân loại'), __('Mã hóa'), __('Số bản'), __('Giá tiền')];
                 foreach ($records as $index => $record) {
                     $titleA = $record->getMarcValue('245', 'a');
                     $titleB = $record->getMarcValue('245', 'b');
@@ -585,9 +585,14 @@ class MarcReportController extends Controller
                         }
                     }
 
+                    $author = $record->getMarcValue('100', 'a') ?: ($record->getMarcValue('700', 'a') ?: '...');
+                    $barcodes = $record->items ? $record->items->pluck('barcode')->implode(', ') : '...';
+
                     $rows[] = [
                         $index + 1,
+                        $barcodes,
                         $fullTitle,
+                        $author,
                         $publisher ?: '...',
                         $year ?: '...',
                         $ddc ?: '...',

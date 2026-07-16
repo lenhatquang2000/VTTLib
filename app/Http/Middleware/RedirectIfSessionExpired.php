@@ -40,9 +40,10 @@ class RedirectIfSessionExpired
     {
         $lastActivity = session('last_activity');
         
-        // If no last activity recorded, consider session expired
+        // If no last activity recorded, initialize it to avoid false positive session expiration
         if (!$lastActivity) {
-            return true;
+            session(['last_activity' => time()]);
+            return false;
         }
 
         // Session lifetime in minutes (from config)

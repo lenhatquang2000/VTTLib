@@ -40,6 +40,9 @@ class DynamicMarcReportExport implements
     protected        $baseQuery;
     protected string $reportType;
     protected int    $rowCounter = 0;
+    protected ?int   $historyId = null;
+    protected int    $totalRows = 0;
+    protected float  $lastProgressUpdateAt = 0.0;
 
     /** @var float Thời điểm bắt đầu export (microtime) */
     protected float $exportStartTime;
@@ -53,7 +56,7 @@ class DynamicMarcReportExport implements
     /** @var int Số row trong chunk hiện tại */
     protected int $chunkRowCount = 0;
 
-    public function __construct(array $headers, string $title, $baseQuery, string $reportType)
+    public function __construct(array $headers, string $title, $baseQuery, string $reportType, ?int $historyId = null)
     {
         $this->exportStartTime = microtime(true);
         $this->chunkStartTime  = microtime(true);
@@ -62,6 +65,15 @@ class DynamicMarcReportExport implements
         $this->title      = $title;
         $this->baseQuery  = $baseQuery;
         $this->reportType = $reportType;
+        $this->historyId  = $historyId;
+
+        // Query total rows count for progress tracking
+        try {
+            $this->totalRows = $this->baseQuery ? $this->baseQuery->clone()->count() : 0;
+        } catch (\Exception $e) {
+            $this->totalRows = 0;
+        }
+        $this->lastProgressUpdateAt = microtime(true);
 
         Log::channel('single')->info('[EXPORT] ====== BẮT ĐẦU EXPORT ======', [
             'report_type' => $reportType,
@@ -96,6 +108,16 @@ class DynamicMarcReportExport implements
     {
         $this->rowCounter++;
         $this->chunkRowCount++;
+
+        if ($this->historyId && $this->totalRows > 0) {
+            $currentTime = microtime(true);
+            $percentage = (int)(($this->rowCounter / $this->totalRows) * 100);
+            if ($currentTime - $this->lastProgressUpdateAt >= 0.3 || $this->rowCounter === $this->totalRows) {
+                $calculatedProgress = min(95, max(15, $percentage));
+                \App\Models\ExportHistory::where('id', $this->historyId)->update(['progress' => $calculatedProgress]);
+                $this->lastProgressUpdateAt = $currentTime;
+            }
+        }
 
         if ($this->chunkRowCount === 1) {
             $this->chunkIndex++;
@@ -235,9 +257,14 @@ class DynamicMarcReportExport implements
                     }
                 }
 
+                $author = $this->marc($record, '100', 'a') ?: ($this->marc($record, '700', 'a') ?: '');
+                $barcodes = $record->items ? $record->items->pluck('barcode')->implode(', ') : '';
+
                 return [
                     $counter,
+                    $barcodes,
                     $fullTitle,
+                    $author,
                     $publisher,
                     $year,
                     $ddc,
@@ -280,7 +307,7 @@ class DynamicMarcReportExport implements
             return 'A7'; 
         }
         if ($this->reportType === 'book_title_qty') {
-            return 'A8'; 
+            return 'A3'; 
         }
         return 'A4'; 
     }
@@ -530,43 +557,47 @@ class DynamicMarcReportExport implements
             ];
             $sheet->getStyle("A7:{$lastCol}{$highestRow}")->applyFromArray($styleArray);
         } elseif ($this->reportType === 'book_title_qty') {
-            // Write school headers in row 1, 2, 3
-            $sheet->setCellValue('A1', 'THƯ VIỆN - TRƯỜNG ĐẠI HỌC VÕ TRƯỜNG TOẢN');
-            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(11);
+            // Write report title in row 1
+            $sheet->mergeCells("A1:J1");
+            $sheet->setCellValue('A1', 'DANH SÁCH NHAN ĐỀ VÀ SỐ LƯỢNG');
             
-            $sheet->setCellValue('A2', 'Địa chỉ: Quốc lộ 1A, xã Thạnh Xuân, Thành phố Cần Thơ');
-            $sheet->getStyle('A2')->getFont()->setSize(10);
-            
-            $sheet->setCellValue('A3', 'Website: http://library.vttu.edu.vn/');
-            $sheet->getStyle('A3')->getFont()->setSize(10);
-
-            // Write report title in row 6
-            $sheet->mergeCells("A6:H6");
-            $sheet->setCellValue('A6', 'DANH SÁCH NHAN ĐỀ VÀ SỐ LƯỢNG');
-            $sheet->getStyle('A6')->getFont()->setBold(true)->setSize(16);
-            $sheet->getStyle('A6')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            // Set row heights
+            $sheet->getRowDimension(1)->setRowHeight(35);
+            $sheet->getRowDimension(3)->setRowHeight(25);
 
             // Set column widths
             $widths = [
-                'A' => 8,
-                'B' => 60,
-                'C' => 25,
-                'D' => 12,
-                'E' => 15,
-                'F' => 12,
-                'G' => 12,
-                'H' => 15
+                'A' => 6,   // STT
+                'B' => 18,  // Mã vạch
+                'C' => 50,  // Nhan đề
+                'D' => 20,  // Tác giả
+                'E' => 25,  // Nhà xuất bản
+                'F' => 10,  // Năm XB
+                'G' => 15,  // Số phân loại
+                'H' => 12,  // Mã hóa
+                'I' => 10,  // Số bản
+                'J' => 15   // Giá tiền
             ];
             foreach ($widths as $col => $w) {
                 $sheet->getColumnDimension($col)->setWidth($w);
             }
 
-            // Header style on row 8
-            $sheet->getStyle("A8:H8")->getFont()->setBold(true);
-            $sheet->getStyle("A8:H8")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-            
-            // Add grid borders to the entire table
             $highestRow = $sheet->getHighestRow();
+
+            // Set Times New Roman for the entire sheet area
+            $sheet->getStyle("A1:J{$highestRow}")->getFont()->setName('Times New Roman');
+
+            // Style Title
+            $sheet->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+            $sheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('A1')->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+            // Header style on row 3
+            $sheet->getStyle("A3:J3")->getFont()->setBold(true)->setSize(11);
+            $sheet->getStyle("A3:J3")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle("A3:J3")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            
+            // Add grid borders to the entire table (from row 3 to highestRow)
             $styleArray = [
                 'borders' => [
                     'allBorders' => [
@@ -575,16 +606,55 @@ class DynamicMarcReportExport implements
                     ],
                 ],
             ];
-            $sheet->getStyle("A8:H{$highestRow}")->applyFromArray($styleArray);
+            $sheet->getStyle("A3:J{$highestRow}")->applyFromArray($styleArray);
 
-            // Alignments & formats
-            for ($r = 9; $r <= $highestRow; $r++) {
+            // Alignments, wrap text, and number formats starting from row 4
+            for ($r = 4; $r <= $highestRow; $r++) {
+                $sheet->getRowDimension($r)->setRowHeight(20);
+                
                 $sheet->getStyle("A{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle("E{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("A{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                // Mã vạch
+                $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("B{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("B{$r}")->getAlignment()->setWrapText(true);
+
+                // Nhan đề
+                $sheet->getStyle("C{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                $sheet->getStyle("C{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("C{$r}")->getAlignment()->setWrapText(true);
+
+                // Tác giả
+                $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                $sheet->getStyle("D{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("D{$r}")->getAlignment()->setWrapText(true);
+
+                // Nhà xuất bản
+                $sheet->getStyle("E{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                $sheet->getStyle("E{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("E{$r}")->getAlignment()->setWrapText(true);
+
+                // Năm XB
                 $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-                $sheet->getStyle("H{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+                $sheet->getStyle("F{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                // Số phân loại
+                $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                $sheet->getStyle("G{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                // Mã hóa
+                $sheet->getStyle("H{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                $sheet->getStyle("H{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                // Số bản
+                $sheet->getStyle("I{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $sheet->getStyle("I{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                // Giá tiền
+                $sheet->getStyle("J{$r}")->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT);
+                $sheet->getStyle("J{$r}")->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $sheet->getStyle("J{$r}")->getNumberFormat()->setFormatCode('#,##0');
             }
         } else {
             $sheet->mergeCells("A1:{$lastCol}1");

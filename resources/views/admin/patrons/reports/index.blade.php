@@ -682,10 +682,31 @@
         $('input[name="format"][value="excel"]').prop('checked', true);
     }
 
+    let isExporting = false;
     // Export Report function
     function exportReport() {
+        if (isExporting) return;
+        
         const form = document.getElementById('reportForm');
         if (!form) return;
+
+        isExporting = true;
+        
+        // Vô hiệu hóa nút xuất ngay lập tức tránh spam-click
+        const btn = document.getElementById('export-btn');
+        if (btn) {
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            btn.style.pointerEvents = 'none';
+        }
+
+        // Bắn toast thông báo ngay lập tức
+        window.dispatchEvent(new CustomEvent('toast', {
+            detail: {
+                message: '{{ __("Đang khởi tạo yêu cầu xuất báo cáo dưới nền...") }}',
+                type: 'info'
+            }
+        }));
 
         // Kích hoạt cơ chế Polling thông báo ở quả chuông
         window.dispatchEvent(new CustomEvent('export-started'));
@@ -723,6 +744,12 @@
                         type: 'error'
                     }
                 }));
+                // Mở lại nút nếu có lỗi
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }
             }
         })
         .catch(err => {
@@ -733,6 +760,23 @@
                     type: 'error'
                 }
             }));
+            // Mở lại nút nếu có lỗi kết nối
+            if (btn) {
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+            }
+        })
+        .finally(() => {
+            // Cho phép xuất lượt tiếp theo sau 3 giây
+            setTimeout(() => {
+                isExporting = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }
+            }, 3000);
         });
     }
 </script>

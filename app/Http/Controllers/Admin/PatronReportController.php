@@ -244,13 +244,13 @@ class PatronReportController extends Controller
             'status'      => 'pending',
         ]);
 
-        // Dispatch job in the background to the default queue connection (database) so it runs asynchronously
+        // Dispatch job in the background to execute immediately after response is sent (no queue worker needed)
         \App\Jobs\ExportPatronReportJob::dispatch(
             $history->id,
             $request->all(),
             $reportType,
             $format
-        );
+        )->afterResponse();
 
         return response()->json([
             'success' => true,
