@@ -530,7 +530,17 @@
                         class="absolute right-0 mt-2 w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800 py-2 z-50 overflow-hidden">
                         <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                             <h3 class="font-bold text-sm text-slate-800 dark:text-slate-200">{{ __('Thông báo xuất file') }}</h3>
-                            <a href="{{ route('admin.export-histories.index') }}" class="text-xs text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold">{{ __('Xem tất cả') }}</a>
+                            <div class="flex items-center space-x-2">
+                                <template x-if="histories.some(h => h.status === 'completed' || h.status === 'failed')">
+                                    <button @click.stop="clearCompletedNotifications()" class="text-xs text-rose-500 hover:text-rose-600 font-semibold focus:outline-none">
+                                        {{ __('Xóa nhanh') }}
+                                    </button>
+                                </template>
+                                <template x-if="histories.some(h => h.status === 'completed' || h.status === 'failed')">
+                                    <span class="text-slate-200 dark:text-slate-800 text-xs">|</span>
+                                </template>
+                                <a href="{{ route('admin.export-histories.index') }}" class="text-xs text-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 font-semibold">{{ __('Xem tất cả') }}</a>
+                            </div>
                         </div>
                         <div class="max-h-[350px] overflow-y-auto divide-y divide-slate-50 dark:divide-slate-800/50">
                             <template x-if="histories.length === 0">
@@ -872,6 +882,42 @@
                         }
                     })
                     .catch(err => console.error('Error deleting notification:', err));
+                },
+                async clearCompletedNotifications() {
+                    if (window.SwalHelper) {
+                        const confirmed = await window.SwalHelper.showConfirm(
+                            '{{ __("Xác nhận xóa") }}',
+                            '{{ __("Bạn có chắc chắn muốn xóa nhanh tất cả thông báo đã xuất xong?") }}',
+                            '{{ __("Xóa nhanh") }}',
+                            '{{ __("Hủy bỏ") }}'
+                        );
+                        if (!confirmed) return;
+                    } else {
+                        if (!confirm('{{ __("Bạn có chắc chắn muốn xóa nhanh tất cả thông báo đã xuất xong?") }}')) {
+                            return;
+                        }
+                    }
+                    
+                    fetch('{{ route("admin.export-histories.clear-completed") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.histories = this.histories.filter(h => h.status === 'pending' || h.status === 'processing');
+                            window.dispatchEvent(new CustomEvent('toast', { 
+                                detail: { 
+                                    message: '{{ __("Đã xóa nhanh các thông báo hoàn thành.") }}', 
+                                    type: 'success' 
+                                } 
+                            }));
+                        }
+                    })
+                    .catch(err => console.error('Error clearing notifications:', err));
                 },
                 formatDate(dateStr) {
                     if (!dateStr) return '';

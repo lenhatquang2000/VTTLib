@@ -979,6 +979,25 @@ class MarcReportController extends Controller
            return response()->json(['success' => true]);
        }
 
+        /**
+         * Xóa nhanh tất cả thông báo xuất dữ liệu đã hoàn thành hoặc thất bại (giữ nguyên pending/processing)
+         */
+        public function exportHistoriesClearCompleted()
+        {
+            $histories = \App\Models\ExportHistory::where('user_id', auth()->id())
+                ->whereIn('status', ['completed', 'failed'])
+                ->get();
+
+            foreach ($histories as $history) {
+                if ($history->file_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($history->file_path)) {
+                    \Illuminate\Support\Facades\Storage::disk('local')->delete($history->file_path);
+                }
+                $history->delete();
+            }
+
+            return response()->json(['success' => true]);
+        }
+
        /**
         * Xóa một bản ghi lịch sử xuất dữ liệu và file tương ứng
         */

@@ -184,29 +184,29 @@ class ExportPatronReportJob implements ShouldQueue
                 );
             }
 
-            $history->update(['progress' => 100]);
-
-            $executionTimeMs = round((microtime(true) - $startTime) * 1000);
-
-            // 5. Update history status
-            $history->update([
-                'status' => 'completed',
-                'file_path' => $relativeFilePath,
-                'execution_time_ms' => $executionTimeMs
-            ]);
+            $currentHistory = ExportHistory::find($this->historyId);
+            if ($currentHistory) {
+                $currentHistory->update([
+                    'progress' => 100,
+                    'status' => 'completed',
+                    'file_path' => $relativeFilePath,
+                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000)
+                ]);
+            }
 
         } catch (\Throwable $e) {
             Log::error('Lỗi khi chạy background export độc giả: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
 
-            $executionTimeMs = round((microtime(true) - $startTime) * 1000);
-
-            $history->update([
-                'status' => 'failed',
-                'error_message' => $e->getMessage(),
-                'execution_time_ms' => $executionTimeMs
-            ]);
+            $currentHistory = ExportHistory::find($this->historyId);
+            if ($currentHistory) {
+                $currentHistory->update([
+                    'status' => 'failed',
+                    'error_message' => $e->getMessage(),
+                    'execution_time_ms' => round((microtime(true) - $startTime) * 1000)
+                ]);
+            }
         }
     }
 }
