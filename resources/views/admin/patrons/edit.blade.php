@@ -1,98 +1,110 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="space-y-6 pb-12">
+<div class="space-y-4 pb-8 px-4 sm:px-6 lg:px-8 bg-background">
     <!-- Header Area -->
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border">
         <div>
-            <a href="{{ route('admin.patrons.index') }}" class="text-xs font-bold text-slate-400 hover:text-indigo-600 flex items-center transition-colors mb-2 uppercase tracking-widest">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                {{ __('Back to List') }}
-            </a>
-            <h1 class="text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Edit Patron') }}</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-sm font-medium mt-1">{{ __('Edit information for') }}: {{ $patron->display_name }}</p>
+            <h1 class="text-xl font-bold text-foreground tracking-tight">{{ __('Edit Patron') }}</h1>
+            <p class="text-muted-foreground text-xs font-medium mt-0.5">{{ __('Edit information for') }}: {{ $patron->display_name }}</p>
         </div>
-        <div class="flex items-center space-x-4">
-            <span class="px-4 py-2 {{ $patron->card_status == 'normal' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-500/20' : 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-500/20' }} text-[10px] font-black uppercase tracking-widest rounded-xl border shadow-sm">
+        <div class="flex items-center space-x-2">
+            <span class="px-2.5 py-1 text-xs font-bold rounded {{ $patron->card_status == 'normal' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-destructive/10 text-destructive border border-destructive/20' }}">
                 {{ __('Tình trạng thẻ') }}: {{ $patron->card_status == 'normal' ? __('Bình thường') : __('Bị khóa') }}
             </span>
+            <a href="{{ route('admin.patrons.index') }}" class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-2.5 py-1 rounded text-xs font-bold transition-all flex items-center space-x-1 active:scale-[0.98]">
+                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                <span>{{ __('Back') }}</span>
+            </a>
         </div>
     </div>
 
     @if ($errors->any())
-        <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex items-start space-x-3 shadow-sm">
-            <svg class="w-5 h-5 text-rose-500 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <div class="text-sm text-rose-600 font-medium">
-                <ul class="list-disc list-inside">@foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach</ul>
+        <div class="bg-destructive/10 border border-destructive/20 rounded p-3 flex items-start space-x-2 shadow-sm text-destructive">
+            <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
+            <div class="text-xs font-medium">
+                <ul class="list-disc list-inside space-y-0.5">
+                    @foreach ($errors->all() as $error) 
+                        <li>{{ $error }}</li> 
+                    @endforeach
+                </ul>
             </div>
         </div>
     @endif
 
-    <form id="patronEditForm" action="{{ route('admin.patrons.update', $patron->id) }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <form id="patronEditForm" action="{{ route('admin.patrons.update', $patron->id) }}" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-4 gap-3">
         @csrf @method('PATCH')
         
         <!-- Sidebar: Image & Status Toggles -->
-        <div class="lg:col-span-1 space-y-6">
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-8 flex flex-col items-center">
-                <div class="w-full aspect-square rounded-3xl bg-slate-50 dark:bg-slate-950/50 border-2 border-dashed border-slate-200 dark:border-slate-800 flex items-center justify-center overflow-hidden relative group cursor-pointer mb-6" onclick="document.getElementById('avatar-input').click()">
+        <div class="lg:col-span-1 space-y-3">
+            <div class="bg-card rounded border border-border p-4 flex flex-col items-center" x-data="{ isCircle: false }">
+                <div id="avatar-container" 
+                     class="bg-muted border border-border border-dashed flex items-center justify-center overflow-hidden relative group cursor-pointer mb-3 transition-all duration-300"
+                     :class="isCircle ? 'w-32 h-32 rounded-full' : 'w-32 h-40 rounded-md'"
+                     onclick="document.getElementById('avatar-input').click()">
                     @if($patron->profile_image)
                         <img id="avatar-preview" src="{{ asset('storage/' . $patron->profile_image) }}" class="w-full h-full object-cover">
-                        <div id="avatar-placeholder" class="hidden text-slate-400 dark:text-slate-600 flex flex-col items-center">
-                            <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Ảnh đại diện') }}</span>
+                        <div id="avatar-placeholder" class="hidden text-muted-foreground flex flex-col items-center p-2 text-center">
+                            <i data-lucide="image" class="w-8 h-8 mb-1"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">{{ __('Ảnh đại diện') }}</span>
                         </div>
                     @else
                         <img id="avatar-preview" src="#" class="hidden w-full h-full object-cover">
-                        <div id="avatar-placeholder" class="text-slate-400 dark:text-slate-600 flex flex-col items-center">
-                            <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest">{{ __('Ảnh đại diện') }}</span>
+                        <div id="avatar-placeholder" class="text-muted-foreground flex flex-col items-center p-2 text-center">
+                            <i data-lucide="image" class="w-8 h-8 mb-1"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-wider">{{ __('Ảnh đại diện') }}</span>
                         </div>
                     @endif
                 </div>
                 <input type="file" name="profile_image" id="avatar-input" class="hidden" accept="image/*" onchange="previewAvatar(this)">
-                <div class="flex space-x-2 w-full">
-                    <button type="button" onclick="document.getElementById('avatar-input').click()" class="flex-1 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                        {{ __('Chọn ảnh') }}
+                
+                <div class="w-full space-y-2">
+                    <button type="button" @click="isCircle = !isCircle" class="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80 py-1.5 rounded text-xs font-bold transition-colors flex items-center justify-center space-x-1.5 active:scale-[0.98]">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                        <span x-text="isCircle ? '{{ __('Dạng chữ nhật') }}' : '{{ __('Dạng tròn') }}'"></span>
                     </button>
-                    <button type="button" onclick="removeAvatar()" class="flex-1 bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors">
-                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        {{ __('Xoá ảnh') }}
-                    </button>
+                    <div class="flex space-x-2 w-full">
+                        <button type="button" onclick="document.getElementById('avatar-input').click()" class="flex-1 bg-secondary text-secondary-foreground hover:bg-secondary/80 py-2 rounded text-xs font-bold transition-colors flex items-center justify-center">
+                            <i data-lucide="upload" class="w-4 h-4 mr-1"></i>
+                            {{ __('Chọn ảnh') }}
+                        </button>
+                        <button type="button" onclick="removeAvatar()" class="flex-1 bg-destructive/10 text-destructive hover:bg-destructive/20 py-2 rounded text-xs font-bold transition-colors flex items-center justify-center">
+                            <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i>
+                            {{ __('Xoá ảnh') }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
+            <div class="bg-card rounded border border-border p-4 space-y-3">
                 <label class="flex items-center justify-between group cursor-pointer">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ __('Chỉ đăng ký đọc') }}</span>
+                    <span class="text-xs text-foreground">{{ __('Chỉ đăng ký đọc') }}</span>
                     <div class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="is_read_only" value="1" class="sr-only peer" {{ $patron->is_read_only ? 'checked' : '' }}>
-                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        <div class="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
                     </div>
                 </label>
                 <label class="flex items-center justify-between group cursor-pointer">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ __('Thẻ chờ in') }}</span>
+                    <span class="text-xs text-foreground">{{ __('Thẻ chờ in') }}</span>
                     <div class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="is_waiting_for_print" value="1" class="sr-only peer" {{ $patron->is_waiting_for_print ? 'checked' : '' }}>
-                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+                        <div class="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
                     </div>
                 </label>
                 
-                <!-- NEW: Reading Room Only -->
                 <label class="flex items-center justify-between group cursor-pointer">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ __('Đọc tại chỗ') }}</span>
+                    <span class="text-xs text-foreground">{{ __('Đọc tại chỗ') }}</span>
                     <div class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="is_reading_room_only" value="1" class="sr-only peer" {{ $patron->is_reading_room_only ? 'checked' : '' }}>
-                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        <div class="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                     </div>
                 </label>
                 
-                <!-- NEW: Add to Print Queue -->
                 <label class="flex items-center justify-between group cursor-pointer">
-                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">{{ __('Thêm vào danh sách chờ in') }}</span>
+                    <span class="text-xs text-foreground">{{ __('Thêm vào danh sách chờ in') }}</span>
                     <div class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="add_to_print_queue" value="1" class="sr-only peer" {{ $patron->add_to_print_queue ? 'checked' : '' }}>
-                        <div class="w-11 h-6 bg-slate-200 dark:bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <div class="w-9 h-5 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                     </div>
                 </label>
             </div>
@@ -100,86 +112,86 @@
             @php
                 $linkedUser = $patron->user ? $patron->user->only(['id', 'name', 'email', 'username']) : null;
             @endphp
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4" x-data="userSearch(@json($linkedUser))">
-                <div class="space-y-3">
+            <div class="bg-card rounded border border-border p-4 space-y-3" x-data="userSearch(@json($linkedUser))" x-init="$watch('status', () => $nextTick(() => { if (window.lucide) window.lucide.createIcons(); }))">
+                <div class="space-y-2">
                     <div class="flex items-center justify-between">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-indigo-500 ml-1">{{ __('Liên kết tài khoản') }}</label>
-                        <button type="button" @click="removeLink" class="text-[10px] font-black uppercase tracking-widest text-rose-500 hover:text-rose-600">
+                        <label class="text-xs font-bold text-foreground">{{ __('Liên kết tài khoản') }}</label>
+                        <button type="button" @click="removeLink" class="text-xs font-bold text-destructive hover:underline">
                             {{ __('Xoá liên kết') }}
                         </button>
                     </div>
                     
-                    <div class="relative group">
+                    <div class="relative">
                         <input type="text" 
                             x-model="query" 
                             @input.debounce.1000ms="search"
-                            placeholder="Nhập tên, email hoặc username..."
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-2 border-transparent rounded-2xl pl-5 pr-12 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all"
-                            :class="status === 'found' ? 'border-emerald-500/30' : (status === 'not_found' ? 'border-rose-500/30' : '')">
+                            placeholder="{{ __('Nhập tên, email hoặc username...') }}"
+                            class="w-full pl-3 pr-8 py-1.5 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
+                            :class="status === 'found' ? 'border-emerald-500/30' : (status === 'not_found' ? 'border-destructive/30' : '')">
                         
-                        <button type="button" @click="search" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors">
+                        <button type="button" @click="search" class="absolute right-2.5 top-2 text-muted-foreground hover:text-foreground transition-colors">
                             <template x-if="loading">
-                                <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.062 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                <svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.062 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             </template>
                             <template x-if="!loading">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                <i data-lucide="search" class="w-4 h-4"></i>
                             </template>
                         </button>
                     </div>
 
                     <input type="hidden" name="user_id" :value="selectedUser?.id">
 
-                    <div x-show="status === 'found'" x-cloak class="p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-2 bg-emerald-500 rounded-xl text-white">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <div x-show="status === 'found'" x-cloak class="p-2.5 bg-emerald-500/10 rounded border border-emerald-500/20 animate-in fade-in duration-300">
+                        <div class="flex items-center space-x-2">
+                            <div class="p-1 bg-emerald-500 rounded text-white flex-shrink-0">
+                                <i data-lucide="check" class="w-3.5 h-3.5"></i>
                             </div>
-                            <div>
-                                <p class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1">Tài khoản hợp lệ</p>
-                                <p class="text-sm font-bold text-slate-900 dark:text-slate-100">
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-wider leading-none mb-0.5">{{ __('Tài khoản hợp lệ') }}</p>
+                                <p class="text-xs font-bold text-foreground truncate">
                                     <span x-text="selectedUser.name"></span>
-                                    (<span x-text="selectedUser.username" class="text-indigo-600 dark:text-indigo-400"></span>)
+                                    (<span x-text="selectedUser.username" class="text-primary"></span>)
                                 </p>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400" x-text="selectedUser.email"></p>
+                                <p class="text-[11px] text-muted-foreground truncate" x-text="selectedUser.email"></p>
                             </div>
                         </div>
                     </div>
 
-                    <div x-show="status === 'not_found'" x-cloak class="p-4 bg-rose-50 dark:bg-rose-500/10 rounded-2xl border border-rose-100 dark:border-rose-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
-                        <div class="flex items-center space-x-3">
-                            <div class="p-2 bg-rose-500 rounded-xl text-white">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    <div x-show="status === 'not_found'" x-cloak class="p-2.5 bg-destructive/10 rounded border border-destructive/20 animate-in fade-in duration-300">
+                        <div class="flex items-center space-x-2">
+                            <div class="p-1 bg-destructive rounded text-white flex-shrink-0">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
                             </div>
                             <div>
-                                <p class="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest leading-none mb-1">Không tìm thấy</p>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Vui lòng kiểm tra lại tên hoặc email.</p>
+                                <p class="text-[10px] font-bold text-destructive uppercase tracking-wider leading-none mb-0.5">{{ __('Không tìm thấy') }}</p>
+                                <p class="text-[11px] text-muted-foreground">{{ __('Vui lòng kiểm tra lại tên hoặc email.') }}</p>
                             </div>
                         </div>
                     </div>
 
-                    <p class="text-[9px] text-slate-400 italic px-1" x-show="status === 'idle'">{{ __('Hệ thống tự động tìm sau 1s ngưng nhập hoặc nhấn icon tìm kiếm') }}</p>
+                    <p class="text-[10px] text-muted-foreground italic px-0.5" x-show="status === 'idle'">{{ __('Hệ thống tự động tìm sau 1s ngưng nhập hoặc nhấn icon tìm kiếm') }}</p>
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 p-6 space-y-4">
+            <div class="bg-card rounded border border-border p-4 space-y-3">
                 <div class="text-center">
-                    <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">{{ __('Trạng thái hiện tại') }}</h3>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{{ __('Thẻ') }}</span>
-                            <span class="px-2 py-1 text-[8px] font-black rounded-full {{ $patron->card_status == 'normal' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' }}">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">{{ __('Trạng thái hiện tại') }}</h3>
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between py-1.5 px-2 bg-muted rounded text-xs">
+                            <span class="text-muted-foreground font-medium">{{ __('Thẻ') }}</span>
+                            <span class="px-1.5 py-0.5 text-[10px] font-bold rounded {{ $patron->card_status == 'normal' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-destructive/10 text-destructive' }}">
                                 {{ $patron->card_status == 'normal' ? __('Bình thường') : __('Bị khóa') }}
                             </span>
                         </div>
-                        <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{{ __('Số dư') }}</span>
-                            <span class="text-[10px] font-bold {{ $patron->balance >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                        <div class="flex items-center justify-between py-1.5 px-2 bg-muted rounded text-xs">
+                            <span class="text-muted-foreground font-medium">{{ __('Số dư') }}</span>
+                            <span class="font-bold {{ $patron->balance >= 0 ? 'text-emerald-500' : 'text-destructive' }}">
                                 {{ number_format($patron->balance, 0, ',', '.') }} VNĐ
                             </span>
                         </div>
-                        <div class="flex items-center justify-between py-2 px-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">{{ __('Ngày hết hạn') }}</span>
-                            <span class="text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                        <div class="flex items-center justify-between py-1.5 px-2 bg-muted rounded text-xs">
+                            <span class="text-muted-foreground font-medium">{{ __('Ngày hết hạn') }}</span>
+                            <span class="font-bold text-foreground">
                                 {{ date('d/m/Y', strtotime($patron->expiry_date)) }}
                             </span>
                         </div>
@@ -189,100 +201,102 @@
         </div>
 
         <!-- Main Form Content -->
-        <div class="lg:col-span-3 space-y-8">
+        <div class="lg:col-span-3 space-y-3">
             <!-- Part 1: Identity -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div class="px-8 py-5 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-200">{{ __('1. Thông tin định danh') }}</h2>
+            <div class="bg-card rounded border border-border overflow-hidden">
+                <div class="px-4 py-2 border-b border-border bg-muted/30">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('1. Thông tin định danh') }}</h2>
                 </div>
-                <div class="p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Mã độc giả') }} <span class="text-rose-500">*</span></label>
-                        <div class="relative">
-                            <input type="text" name="patron_code" required value="{{ $patron->patron_code }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                        </div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Mã độc giả') }} <span class="text-destructive">*</span></label>
+                        <input type="text" name="patron_code" required value="{{ $patron->patron_code }}"
+                            class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('MSSV') }}</label>
-                        <input type="text" name="mssv" value="{{ $patron->mssv ?? '' }}" placeholder="Ex: 20210001"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('MSSV') }}</label>
+                        <input type="text" name="mssv" value="{{ $patron->mssv ?? '' }}" placeholder="Ví dụ: 20210001"
+                            class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                     </div>
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Số danh bạ') }}</label>
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Số danh bạ') }}</label>
                         <input type="text" name="phone_contact" value="{{ $patron->phone_contact ?? '' }}" placeholder="5339"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                     </div>
-                    <div class="md:col-span-1 space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Loại độc giả') }}</label>
-                        <select name="patron_group_id" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Loại độc giả') }}</label>
+                        <select name="patron_group_id" class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             @foreach($patronGroups as $group)
                                 <option value="{{ $group->id }}" {{ $patron->patron_group_id == $group->id ? 'selected' : '' }}>{{ $group->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="md:col-span-1 space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Tên đầy đủ') }} <span class="text-rose-500">*</span></label>
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Tên đầy đủ') }} <span class="text-destructive">*</span></label>
                         <input type="text" name="name" required value="{{ old('name', $patron->user?->name ?? $patron->display_name) }}" placeholder="NGUYEN VAN A"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                     </div>
-                    <div class="md:col-span-1 space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Tên hiển thị') }} <span class="text-rose-500">*</span></label>
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Tên hiển thị') }} <span class="text-destructive">*</span></label>
                         <input type="text" name="display_name" required value="{{ $patron->display_name }}" placeholder="Van A"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                            class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                     </div>
                 </div>
             </div>
 
             <!-- Part 2: Personal & Organization -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div class="px-8 py-5 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-200">{{ __('2. Cá nhân & Đơn vị') }}</h2>
+            <div class="bg-card rounded border border-border overflow-hidden">
+                <div class="px-4 py-2 border-b border-border bg-muted/30">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('2. Cá nhân & Đơn vị') }}</h2>
                 </div>
-                <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-4">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Ngày sinh') }}</label>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="space-y-3">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Ngày sinh') }}</label>
                             <input type="date" name="date_of_birth" value="{{ $patron->date_of_birth }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1 block">{{ __('Giới tính') }}</label>
-                            <div class="flex items-center space-x-6 h-[46px]">
-                                <label class="flex items-center space-x-2 cursor-pointer group">
-                                    <input type="radio" name="gender" value="male" class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 focus:ring-indigo-500" {{ $patron->gender == 'male' ? 'checked' : '' }}>
-                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">{{ __('Nam') }}</span>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Giới tính') }}</label>
+                            <div class="flex items-center space-x-4 h-9">
+                                <label class="flex items-center space-x-1.5 cursor-pointer group">
+                                    <input type="radio" name="gender" value="male" class="w-3.5 h-3.5 text-primary border-border bg-background focus:ring-primary" {{ $patron->gender == 'male' ? 'checked' : '' }}>
+                                    <span class="text-xs text-foreground group-hover:text-foreground/80 transition-colors">{{ __('Nam') }}</span>
                                 </label>
-                                <label class="flex items-center space-x-2 cursor-pointer group">
-                                    <input type="radio" name="gender" value="female" class="w-4 h-4 text-indigo-600 border-slate-300 dark:border-slate-700 focus:ring-indigo-500" {{ $patron->gender == 'female' ? 'checked' : '' }}>
-                                    <span class="text-sm font-bold text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors">{{ __('Nữ') }}</span>
+                                <label class="flex items-center space-x-1.5 cursor-pointer group">
+                                    <input type="radio" name="gender" value="female" class="w-3.5 h-3.5 text-primary border-border bg-background focus:ring-primary" {{ $patron->gender == 'female' ? 'checked' : '' }}>
+                                    <span class="text-xs text-foreground group-hover:text-foreground/80 transition-colors">{{ __('Nữ') }}</span>
+                                </label>
+                                <label class="flex items-center space-x-1.5 cursor-pointer group">
+                                    <input type="radio" name="gender" value="other" class="w-3.5 h-3.5 text-primary border-border bg-background focus:ring-primary" {{ $patron->gender == 'other' ? 'checked' : '' }}>
+                                    <span class="text-xs text-foreground group-hover:text-foreground/80 transition-colors">{{ __('Khác') }}</span>
                                 </label>
                             </div>
                         </div>
                     </div>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Tên trường') }}</label>
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-xs font-medium text-foreground block">{{ __('Tên trường') }}</label>
                                 <input type="text" name="school_name" value="{{ $patron->school_name ?? '' }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Khóa') }}</label>
+                            <div class="space-y-1">
+                                <label class="text-xs font-medium text-foreground block">{{ __('Khóa') }}</label>
                                 <input type="text" name="batch" value="{{ $patron->batch ?? '' }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Bộ phận') }}</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="space-y-1">
+                                <label class="text-xs font-medium text-foreground block">{{ __('Bộ phận') }}</label>
                                 <input type="text" name="department" value="{{ $patron->department }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             </div>
-                            <div class="space-y-2">
-                                <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Chức vụ/Lớp') }}</label>
+                            <div class="space-y-1">
+                                <label class="text-xs font-medium text-foreground block">{{ __('Chức vụ/Lớp') }}</label>
                                 <input type="text" name="position_class" value="{{ $patron->position_class ?? '' }}"
-                                    class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                    class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                             </div>
                         </div>
                     </div>
@@ -290,71 +304,72 @@
             </div>
 
             <!-- Part 3: Contact & Auth -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div class="px-8 py-5 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-200">{{ __('3. Liên lạc & Tài khoản') }}</h2>
+            <div class="bg-card rounded border border-border overflow-hidden">
+                <div class="px-4 py-2 border-b border-border bg-muted/30">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('3. Liên lạc & Tài khoản') }}</h2>
                 </div>
-                <div class="p-8 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Số điện thoại') }}</label>
+                <div class="p-4 space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Số điện thoại') }}</label>
                             <input type="text" name="phone" value="{{ $patron->phone }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Fax') }}</label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Fax') }}</label>
                             <input type="text" name="fax" value="{{ $patron->fax ?? '' }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Email') }} <span class="text-rose-500">*</span></label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Email') }} <span class="text-destructive">*</span></label>
                             <input type="email" name="email" value="{{ old('email', $patron->user?->email ?? '') }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Mật khẩu mới (để trống nếu không đổi)') }}</label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Mật khẩu mới (để trống nếu không đổi)') }}</label>
                             <input type="password" name="password" placeholder="••••••••"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-50 dark:border-slate-800">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Chi nhánh') }}</label>
-                            <select name="branch_id" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-border">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Chi nhánh') }}</label>
+                            <select name="branch_id" class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                                 @foreach($branches as $b)
                                     <option value="{{ $b->id }}" {{ $patron->branch_id == $b->id ? 'selected' : '' }}>{{ $b->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Phân loại') }}</label>
-                            <select name="classification_type" class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Phân loại') }}</label>
+                            <select name="classification_type" class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                                 <option value="individual" {{ ($patron->classification_type ?? 'individual') == 'individual' ? 'selected' : '' }}>{{ __('Cá nhân') }}</option>
                                 <option value="group" {{ ($patron->classification_type ?? 'individual') == 'group' ? 'selected' : '' }}>{{ __('Tổ chức') }}</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">
+                    <div class="space-y-3 pt-3 border-t border-border">
                         <div class="flex items-center justify-between">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Danh sách địa chỉ') }}</label>
-                            <button type="button" onclick="addAddressField()" class="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700">
-                                + {{ __('Thêm địa chỉ') }}
+                            <label class="text-xs font-bold text-foreground">{{ __('Danh sách địa chỉ') }}</label>
+                            <button type="button" onclick="addAddressField()" class="text-xs font-bold text-primary hover:text-primary/80 flex items-center space-x-1">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>{{ __('Thêm địa chỉ') }}</span>
                             </button>
                         </div>
-                        <div id="address-list" class="space-y-3">
+                        <div id="address-list" class="space-y-2">
                             @if($patron->address)
-                                <div class="relative group">
+                                <div class="relative flex items-center">
                                     <input type="text" name="addresses[]" value="{{ $patron->address }}" placeholder="{{ __('Địa chỉ chính...') }}"
-                                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">{{ __('Mặc định') }}</span>
+                                        class="w-full pr-16 h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                    <span class="absolute right-3 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">{{ __('Mặc định') }}</span>
                                 </div>
                             @else
-                                <div class="relative group">
+                                <div class="relative flex items-center">
                                     <input type="text" name="addresses[]" placeholder="{{ __('Địa chỉ chính...') }}"
-                                        class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-                                    <span class="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] font-black text-emerald-500 uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md">{{ __('Mặc định') }}</span>
+                                        class="w-full pr-16 h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+                                    <span class="absolute right-3 text-[10px] font-bold text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">{{ __('Mặc định') }}</span>
                                 </div>
                             @endif
                         </div>
@@ -363,60 +378,60 @@
             </div>
 
             <!-- Part 4: Financial & System Dates -->
-            <div class="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden">
-                <div class="px-8 py-5 border-b border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                    <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-800 dark:text-slate-200">{{ __('4. Tài chính & Hệ thống') }}</h2>
+            <div class="bg-card rounded border border-border overflow-hidden">
+                <div class="px-4 py-2 border-b border-border bg-muted/30">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-foreground">{{ __('4. Tài chính & Hệ thống') }}</h2>
                 </div>
-                <div class="p-8 space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Lệ phí làm thẻ') }}</label>
+                <div class="p-4 space-y-3">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Lệ phí làm thẻ') }}</label>
                             <input type="number" name="card_fee" value="{{ $patron->card_fee ?? 0 }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Tiền thế chân') }}</label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Tiền thế chân') }}</label>
                             <input type="number" name="deposit" value="{{ $patron->deposit ?? 0 }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Số dư tài khoản') }}</label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Số dư tài khoản') }}</label>
                             <input type="number" name="balance" value="{{ $patron->balance }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-slate-50 dark:border-slate-800">
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Ngày cập nhật') }}</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-border">
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Ngày cập nhật') }}</label>
                             <input type="date" value="{{ date('Y-m-d') }}" disabled
-                                class="w-full bg-slate-100 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-500 dark:text-slate-500 cursor-not-allowed">
+                                class="w-full h-9 px-3 border border-border bg-muted text-muted-foreground rounded text-xs cursor-not-allowed">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Ngày đăng ký') }} <span class="text-rose-500">*</span></label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Ngày đăng ký') }} <span class="text-destructive">*</span></label>
                             <input type="date" name="registration_date" required value="{{ $patron->registration_date }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Ngày hết hạn') }} <span class="text-rose-500">*</span></label>
+                        <div class="space-y-1">
+                            <label class="text-xs font-medium text-foreground block">{{ __('Ngày hết hạn') }} <span class="text-destructive">*</span></label>
                             <input type="date" name="expiry_date" required value="{{ $patron->expiry_date }}"
-                                class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
+                                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
                         </div>
                     </div>
 
-                    <div class="space-y-2 pt-6 border-t border-slate-50 dark:border-slate-800">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Ghi chú') }}</label>
-                        <textarea name="notes" rows="3" placeholder="{{ __('Nhập ghi chú thêm về độc giả...') }}"
-                            class="w-full bg-slate-50 dark:bg-slate-800 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 dark:text-slate-100 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">{{ $patron->notes ?? '' }}</textarea>
+                    <div class="space-y-1 pt-3 border-t border-border">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Ghi chú') }}</label>
+                        <textarea name="notes" rows="2" placeholder="{{ __('Nhập ghi chú thêm về độc giả...') }}"
+                            class="w-full p-2 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">{{ $patron->notes ?? '' }}</textarea>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">{{ __('Tập tin đính kèm') }}</label>
+                    <div class="space-y-1">
+                        <label class="text-xs font-medium text-foreground block">{{ __('Tập tin đính kèm') }}</label>
                         <div class="flex items-center justify-center w-full">
-                            <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-200 dark:border-slate-800 border-dashed rounded-3xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
-                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                    <svg class="w-8 h-8 mb-3 text-slate-400 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                                    <p class="mb-2 text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">{{ __('Chọn file đính kèm') }}</p>
+                            <label class="flex flex-col items-center justify-center w-full h-24 border border-dashed border-border rounded cursor-pointer bg-muted/30 hover:bg-muted transition-all">
+                                <div class="flex flex-col items-center justify-center py-4">
+                                    <i data-lucide="paperclip" class="w-6 h-6 mb-1 text-muted-foreground"></i>
+                                    <p class="text-xs text-muted-foreground font-bold">{{ __('Chọn file đính kèm') }}</p>
                                 </div>
                                 <input name="attachments" type="file" class="hidden" />
                             </label>
@@ -428,18 +443,14 @@
             <input type="hidden" name="card_status" value="{{ $patron->card_status }}">
 
             <!-- Submit Button -->
-            <button type="button" onclick="confirmUpdate()" class="group w-full relative overflow-hidden bg-slate-900 dark:bg-indigo-600 text-white rounded-3xl py-6 shadow-2xl transition-all hover:shadow-indigo-500/25 active:scale-[0.98]">
-                <div class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-violet-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div class="relative flex items-center justify-center space-x-3">
-                    <span class="text-sm font-black uppercase tracking-[0.3em] ml-2">{{ __('Update Patron Information') }}</span>
-                    <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </div>
+            <button type="button" onclick="confirmUpdate()" class="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-2.5 rounded text-xs font-bold transition-all flex items-center justify-center space-x-1.5 active:scale-[0.98] shadow-sm">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                <span>{{ __('Update Patron Information') }}</span>
             </button>
         </div>
     </form>
 </div>
 
-<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
     function userSearch(initialUser = null) {
         return {
@@ -519,46 +530,49 @@
     function addAddressField() {
         const container = document.getElementById('address-list');
         const div = document.createElement('div');
-        div.className = 'relative group flex items-center space-x-2 animate-in fade-in slide-in-from-top-2 duration-300';
+        div.className = 'relative flex items-center space-x-2 animate-in fade-in duration-300';
         div.innerHTML = `
             <input type="text" name="addresses[]" placeholder="{{ __('Địa chỉ bổ sung...') }}"
-                class="w-full bg-slate-50 border-transparent rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all">
-            <button type="button" onclick="this.parentElement.remove()" class="p-2 text-slate-300 hover:text-rose-500 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                class="w-full h-9 px-3 border border-border bg-background text-foreground rounded text-xs focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all">
+            <button type="button" onclick="this.parentElement.remove()" class="p-1 text-muted-foreground hover:text-destructive transition-colors">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
         `;
         container.appendChild(div);
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons({ parent: div });
+        }
     }
 </script>
 
 <script>
 function openRenewModal() {
-    document.getElementById('renewModal').classList.remove('hidden');
+    const modal = document.getElementById('renewModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 function closeRenewModal() {
-    document.getElementById('renewModal').classList.add('hidden');
+    const modal = document.getElementById('renewModal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function confirmUpdate() {
     Swal.fire({
-        title: '{{ __("Phê duyệt yêu cầu") }}',
-        text: '{{ __("Bạn có chắc chắn muốn phê duyệt yêu cầu này và giữ sách cho độc giả?") }}',
+        title: '{{ __("Cập nhật thông tin độc giả") }}',
+        text: '{{ __("Bạn có chắc chắn muốn lưu các thay đổi này?") }}',
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#4f46e5',
-        cancelButtonColor: '#f43f5e',
-        confirmButtonText: '{{ __("Phê duyệt") }}',
+        confirmButtonColor: '#2563eb', // Matches tailwind bg-primary Blue-600
+        cancelButtonColor: '#ef4444',
+        confirmButtonText: '{{ __("Cập nhật") }}',
         cancelButtonText: '{{ __("Hủy") }}',
-        background: document.documentElement.classList.contains('dark') ? '#1e293b' : '#ffffff',
-        color: document.documentElement.classList.contains('dark') ? '#f1f5f9' : '#0f172a',
+        background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#ffffff',
+        color: document.documentElement.classList.contains('dark') ? '#f8fafc' : '#0f172a',
     }).then((result) => {
         if (result.isConfirmed) {
             document.getElementById('patronEditForm').submit();
         }
     });
 }
-
 </script>
-
 @endsection
