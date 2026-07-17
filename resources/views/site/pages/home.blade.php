@@ -363,82 +363,92 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                                 </div>
                             </div>
                             <div class="border-t border-vttu-red"></div>
-                            <!-- Carousel bên dưới (Giả lập 2 cuốn sách theo mẫu Grid - Kích thước nhỏ) -->
-                            <div class="mt-6 pt-6 border-t border-slate-50">
-                                <div class="flex gap-3">
-                                    @if(isset($bookIntroductionNews) && count($bookIntroductionNews) > 0)
-                                        @foreach($bookIntroductionNews as $item)
-                                        <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm w-[160px] flex-shrink-0">
-                                            <!-- Book Cover -->
-                                            <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
-                                                @if($item->featured_image)
-                                                    <img src="{{ $item->featured_image }}" class="w-full h-full object-contain">
-                                                @else
-                                                    <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
-                                                @endif
-                                                <div class="absolute top-1.5 right-1.5">
-                                                    <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
-                                                </div>
-                                            </div>
-
-                                            <!-- Book Info -->
-                                            <div class="flex-grow flex flex-col gap-1.5">
-                                                <a href="{{ $item->url }}" class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
-                                                    {{ $item->title }}
-                                                </a>
-
-                                                <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
-                                                    <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
-                                                    {{ $item->author->name ?? 'VTTU' }}
-                                                </p>
-
-                                                <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
-                                                    <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
-                                                    <a href="{{ $item->url }}" class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
-                                                        <i class="fas fa-arrow-right text-[7px]"></i>
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    @else
-                                        @for($i=1; $i<=2; $i++)
-                                        <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm w-[160px] flex-shrink-0">
-                                            <!-- Book Cover -->
-                                            <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
-                                                @if($i == 1)
-                                                    <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
-                                                @else
-                                                    <div class="w-full h-full flex items-center justify-center bg-slate-50">
-                                                        <i class="fas fa-book-open text-slate-200 text-2xl"></i>
+                            <!-- Carousel bên dưới (Giới thiệu sách hàng tháng) -->
+                            <div class="mt-6 pt-6 border-t border-slate-50 relative group/book-intro-swiper overflow-hidden w-full">
+                                <div class="swiper book-intro-swiper-container !pb-10">
+                                    <div class="swiper-wrapper flex flex-nowrap">
+                                        @if(isset($bookIntroductionNews) && count($bookIntroductionNews) > 0)
+                                            @foreach($bookIntroductionNews as $item)
+                                            <div class="swiper-slide h-auto shrink-0 !w-[160px]">
+                                                <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm">
+                                                    <!-- Book Cover -->
+                                                    <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
+                                                        @if($item->featured_image)
+                                                            <img src="{{ $item->featured_image }}" class="w-full h-full object-contain">
+                                                        @else
+                                                            <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
+                                                        @endif
+                                                        <div class="absolute top-1.5 right-1.5">
+                                                            <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
+                                                        </div>
                                                     </div>
-                                                @endif
-                                                <div class="absolute top-1.5 right-1.5">
-                                                    <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
+
+                                                    <!-- Book Info -->
+                                                    <div class="flex-grow flex flex-col gap-1.5">
+                                                        <a href="{{ $item->url }}" class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
+                                                            {{ $item->title }}
+                                                        </a>
+
+                                                        <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
+                                                            <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
+                                                            {{ $item->author->name ?? 'VTTU' }}
+                                                        </p>
+
+                                                        <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
+                                                            <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
+                                                            <a href="{{ $item->url }}" class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
+                                                                <i class="fas fa-arrow-right text-[7px]"></i>
+                                                            </a>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            @endforeach
+                                        @else
+                                            @for($i=1; $i<=2; $i++)
+                                            <div class="swiper-slide h-auto shrink-0 !w-[160px]">
+                                                <div class="bg-white p-2.5 rounded-md border border-slate-100 hover:border-vttu-red/20 transition-all group flex flex-col shadow-sm">
+                                                    <!-- Book Cover -->
+                                                    <div class="aspect-[3/4] bg-slate-50 rounded-sm mb-2 border border-slate-50 flex items-center justify-center overflow-hidden relative">
+                                                        @if($i == 1)
+                                                            <div class="w-full h-full bg-vttu-red flex items-center justify-center text-white font-bold text-center p-2 text-[10px]">VTTU Library</div>
+                                                        @else
+                                                            <div class="w-full h-full flex items-center justify-center bg-slate-50">
+                                                                <i class="fas fa-book-open text-slate-200 text-2xl"></i>
+                                                            </div>
+                                                        @endif
+                                                        <div class="absolute top-1.5 right-1.5">
+                                                            <span class="px-1.5 py-0.5 bg-white/90 backdrop-blur text-vttu-red rounded-sm text-[7px] font-bold uppercase tracking-widest shadow-sm">SÁCH</span>
+                                                        </div>
+                                                    </div>
 
-                                            <!-- Book Info -->
-                                            <div class="flex-grow flex flex-col gap-1.5">
-                                                <h3 class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
-                                                    {{ $i == 1 ? 'Giáo trình Kinh tế phát triển' : 'Giáo trình Lý thuyết giải phẫu chức năng hệ vận động' }}
-                                                </h3>
+                                                    <!-- Book Info -->
+                                                    <div class="flex-grow flex flex-col gap-1.5">
+                                                        <h3 class="text-[10px] font-bold text-vttu-dark group-hover:text-vttu-red transition-colors leading-tight line-clamp-2 min-h-[1.5rem]">
+                                                            {{ $i == 1 ? 'Giáo trình Kinh tế phát triển' : 'Giáo trình Lý thuyết giải phẫu chức năng hệ vận động' }}
+                                                        </h3>
 
-                                                <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
-                                                    <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
-                                                    {{ $i == 1 ? 'Phí Thị Hằng' : 'Hoàng Anh Lân' }}
-                                                </p>
+                                                        <p class="text-[9px] font-medium text-slate-500 flex items-center gap-1 truncate">
+                                                            <i class="fas fa-user-edit text-[7px] text-vttu-red"></i>
+                                                            {{ $i == 1 ? 'Phí Thị Hằng' : 'Hoàng Anh Lân' }}
+                                                        </p>
 
-                                                <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
-                                                    <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
-                                                    <button class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
-                                                        <i class="fas fa-arrow-right text-[7px]"></i>
-                                                    </button>
+                                                        <div class="mt-auto pt-1.5 flex items-center justify-between border-t border-slate-50">
+                                                            <span class="text-[7px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter border border-emerald-100">SẴN SÀNG</span>
+                                                            <button class="w-5 h-5 rounded-sm bg-slate-50 flex items-center justify-center text-vttu-red hover:bg-vttu-red hover:text-white transition-all shadow-sm">
+                                                                <i class="fas fa-arrow-right text-[7px]"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        @endfor
-                                    @endif
+                                            @endfor
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Navigation Buttons -->
+                                    <div class="swiper-button-next book-intro-next !w-8 !h-8 !bg-white !rounded-full !shadow-lg !border !border-slate-100 !text-vttu-red after:!text-[10px] !right-2 opacity-0 group-hover/book-intro-swiper:opacity-100 transition-opacity z-30"></div>
+                                    <div class="swiper-button-prev book-intro-prev !w-8 !h-8 !bg-white !rounded-full !shadow-lg !border !border-slate-100 !text-vttu-red after:!text-[10px] !left-2 opacity-0 group-hover/book-intro-swiper:opacity-100 transition-opacity z-30"></div>
                                 </div>
                             </div>
                         </div>
@@ -492,6 +502,74 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
                                         {{ date('H:i', strtotime(\App\Models\SystemSetting::get('opening_time_sun', '08:00'))) }} - {{ date('H:i', strtotime(\App\Models\SystemSetting::get('closing_time_sun', '17:00'))) }}
                                     </span>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Khám phá VTTU / Liên kết nhanh -->
+                        <div class="bg-white p-4 rounded-md shadow-sm border border-slate-100" data-aos="fade-left">
+                            <div class="flex items-center gap-3 border-b border-slate-100 pb-3 mb-4">
+                                <div class="w-8 h-8 bg-vttu-red/5 rounded-sm flex items-center justify-center text-vttu-red animate-pulse">
+                                    <i class="fas fa-compass text-sm"></i>
+                                </div>
+                                <h3 class="text-xs font-black text-vttu-dark uppercase tracking-wider">{{ __('KHÁM PHÁ VTTU 360') }}</h3>
+                            </div>
+                            
+                            <div class="flex flex-col gap-2">
+                                <a href="{{ route('site.oer.landing') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-red-800 to-red-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-book-reader text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Tài nguyên giáo dục mở') }}</span>
+                                </a>
+
+                                <a href="{{ url('opac') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-red-700 to-red-600 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-file-pdf text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Tài liệu điện tử') }}</span>
+                                </a>
+
+                                <a href="{{ route('site.page', 'sb-co-so-du-lieu') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-amber-800 to-amber-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-database text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Cơ sở dữ liệu') }}</span>
+                                </a>
+
+                                <a href="{{ route('site.page', 'hoc-lieu-vttu') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-amber-700 to-amber-600 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-graduation-cap text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Học liệu VTTU') }}</span>
+                                </a>
+
+                                <a href="http://bgtt.vttu.edu.vn/BaiGiangTrucTuyen/Pages/FrmDangNhap.jsp" target="_blank" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-lime-800 to-lime-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-video text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Video bài giảng') }}</span>
+                                </a>
+
+                                <a href="{{ route('site.page', 'sb-de-nghi-bo-sung') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-emerald-700 to-emerald-600 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-plus-circle text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Đề nghị bổ sung tài liệu') }}</span>
+                                </a>
+
+                                <a href="{{ route('site.page', 'sb-khao-sat') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-emerald-800 to-emerald-700 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-poll text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Khảo sát ý kiến bạn đọc') }}</span>
+                                </a>
+
+                                <a href="{{ route('site.page', 'chuong-trinh-dao-tao-vttu') }}" class="group flex items-center gap-3 p-2.5 rounded bg-gradient-to-r from-teal-900 to-teal-800 text-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
+                                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center text-white group-hover:rotate-12 transition-transform">
+                                        <i class="fas fa-university text-[10px]"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black uppercase tracking-wider">{{ __('Chương trình đào tạo VTTU') }}</span>
+                                </a>
                             </div>
                         </div>
 
@@ -663,6 +741,15 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
     
     /* Loading animation for AJAX */
     .tab-loading { opacity: 0.5; pointer-events: none; }
+    
+    /* Force auto height and prevent stretching in Book Introduction Swiper */
+    .book-intro-swiper-container {
+        height: auto !important;
+    }
+    .book-intro-swiper-container .swiper-wrapper {
+        height: auto !important;
+        align-items: flex-start !important;
+    }
 </style>
 @section('scripts')
 <script>
@@ -982,6 +1069,23 @@ Kiểm tra dịch 'Khai phá': {{ __('Khai phá') }}
             const mockEvent = { currentTarget: firstTab };
             wizard.loadTab('book', 'book-tabs', 'books-content', mockEvent);
         }
+
+        // Initialize Book Introduction Swiper
+        new Swiper('.book-intro-swiper-container', {
+            slidesPerView: 'auto',
+            spaceBetween: 12,
+            centeredSlides: false,
+            observer: true,
+            observeParents: true,
+            navigation: {
+                nextEl: '.book-intro-next',
+                prevEl: '.book-intro-prev',
+            },
+            breakpoints: {
+                640: { spaceBetween: 12 },
+                1024: { spaceBetween: 16 }
+            }
+        });
     });
 
     // Network Logos Slider - Auto-slide liên tục từ trái sang phải

@@ -154,7 +154,6 @@ class SiteController extends Controller
                 $q->where('slug', 'gioi-thieu-sach');
             })
             ->latest('published_at')
-            ->take(2)
             ->get();
 
         // Lấy sidebarBooks mặc định (tab Mới)
