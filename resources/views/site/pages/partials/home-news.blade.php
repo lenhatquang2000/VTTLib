@@ -1,4 +1,5 @@
-<div id="news-container" class="space-y-6 animate-in fade-in duration-500">
+@php $newsList = $tabNews ?? $homeNews ?? collect(); @endphp
+<div id="news-container" class="space-y-4 animate-in fade-in duration-500">
     @if(($newsType ?? 'news') === 'video')
         @if(isset($tabNews) && count($tabNews) > 0)
             <div class="space-y-3">
@@ -38,21 +39,19 @@
             <p class="text-sm font-bold text-vttu-dark mt-4 leading-snug">Chưa có video nào</p>
         @endif
     @else
-        @if(isset($tabNews) && count($tabNews) > 0)
-            @php 
-                $tabNewsOrdered = collect($tabNews)->sortBy('sort_order');
-            @endphp
-            @foreach($tabNewsOrdered as $item)
-                <div class="flex gap-6 items-center group">
-                    <div class="w-24 h-24 bg-slate-100 rounded-2xl flex-shrink-0 overflow-hidden">
+        @if($newsList->count() > 0)
+            @php $newsOrdered = $newsList->sortBy('sort_order'); @endphp
+            @foreach($newsOrdered as $item)
+                <div class="flex gap-3 items-start group">
+                    <div class="w-[90px] h-[90px] bg-slate-50 rounded-lg flex-shrink-0 overflow-hidden border border-slate-100 p-1">
                         <img src="{{ $item->featured_image ?? 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80' }}" 
-                             class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                             class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 rounded">
                     </div>
-                    <div>
-                        <a href="{{ $item->url }}" class="font-black text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-1">
+                    <div class="flex-1 min-w-0 py-0.5">
+                        <a href="{{ $item->url }}" class="font-bold text-sm text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2 leading-snug">
                             {{ $item->title }}
                         </a>
-                        <p class="text-xs text-slate-500 font-bold mt-1">
+                        <p class="text-xs text-slate-400 font-medium mt-1.5">
                             {{ $item->published_at ? $item->published_at->format('d/m/Y') : $item->created_at->format('d/m/Y') }}
                         </p>
                     </div>
@@ -60,13 +59,13 @@
             @endforeach
         @else
             @for($i=1; $i<=3; $i++)
-                <div class="flex gap-6 items-center group">
-                    <div class="w-24 h-24 bg-slate-100 rounded-2xl flex-shrink-0 overflow-hidden">
-                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                <div class="flex gap-4 items-start group">
+                    <div class="w-[100px] h-[100px] bg-slate-100 rounded-xl flex-shrink-0 overflow-hidden border border-slate-100">
+                        <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     </div>
-                    <div>
-                        <h4 class="font-black text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-1">Tin tức học thuật và nghiên cứu số {{ $i }}</h4>
-                        <p class="text-xs text-slate-500 font-bold mt-1">20/04/2026</p>
+                    <div class="flex-1 min-w-0 py-0.5">
+                        <h4 class="font-bold text-sm text-vttu-dark group-hover:text-vttu-red transition-colors line-clamp-2 leading-snug">Tin tức học thuật và nghiên cứu số {{ $i }}</h4>
+                        <p class="text-xs text-slate-400 font-medium mt-1.5">20/04/2026</p>
                     </div>
                 </div>
             @endfor

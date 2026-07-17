@@ -16,16 +16,16 @@
     </div>
 
     <!-- Tabs -->
-    <div x-data="{ activeTab: 'layout', zoomImageUrl: null }" class="bg-card border border-border rounded overflow-hidden">
+    <div x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') || 'layout', zoomImageUrl: null }" class="bg-card border border-border rounded overflow-hidden">
         <!-- Tab Navigation -->
         <div class="flex border-b border-border bg-muted/30">
-            <button @click="activeTab = 'layout'" 
+            <button @click="activeTab = 'layout'; window.history.replaceState({}, '', '?tab=layout')" 
                     class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold uppercase text-muted-foreground transition-all"
                     :class="activeTab === 'layout' ? 'bg-card text-foreground border-b-2 border-primary' : 'hover:bg-muted'">
                 <i data-lucide="palette" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">{{ __('Cấu hình giao diện') }}</span>
             </button>
-            <button @click="activeTab = 'structure'" 
+            <button @click="activeTab = 'structure'; window.history.replaceState({}, '', '?tab=structure')" 
                     class="flex-1 flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold uppercase text-muted-foreground transition-all"
                     :class="activeTab === 'structure' ? 'bg-card text-foreground border-b-2 border-primary' : 'hover:bg-muted'">
                 <i data-lucide="sitemap" class="w-4 h-4"></i>
@@ -87,7 +87,7 @@
                                     @if($currentLogo)
                                         <button type="button" @click="removeLogo = !removeLogo; previewUrl = removeLogo ? '' : '{{ asset('storage/' . $currentLogo) }}'"
                                                 class="w-9 h-9 flex items-center justify-center rounded-sm transition-all border border-border"
-                                                :class="removeLogo ? 'bg-red-500/10 text-red-600' : 'bg-background hover:bg-muted'>
+                                                :class="removeLogo ? 'bg-red-500/10 text-red-600' : 'bg-background hover:bg-muted'">
                                             <i data-lucide="trash-2" class="w-3 h-3"></i>
                                         </button>
                                         <input type="hidden" name="remove_logo" :value="removeLogo ? 1 : 0">
@@ -99,6 +99,56 @@
                                         <span>Xem trước</span>
                                     </div>
                                 </template>
+                            </div>
+                        </div>
+
+                        <!-- Book Intro Image Section -->
+                        @php $currentBookIntroImg = \App\Models\SystemSetting::get('book_intro_image'); @endphp
+                        <div class="border-t border-border pt-4">
+                            <h4 class="text-[10px] font-bold text-foreground uppercase tracking-wide mb-3 flex items-center gap-1.5">
+                                <i data-lucide="book-open" class="w-3.5 h-3.5 text-muted-foreground"></i>
+                                {{ __('Ảnh phần Giới thiệu sách hàng tháng') }}
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div class="p-2.5 bg-muted/20 border border-border rounded flex items-center gap-2.5">
+                                    @if($currentBookIntroImg)
+                                        <img src="{{ asset('storage/' . $currentBookIntroImg) }}" alt="Book Intro" class="h-14 w-10 object-contain rounded border border-border bg-background shadow-sm">
+                                    @else
+                                        <div class="h-14 w-10 rounded bg-muted flex items-center justify-center flex-shrink-0 border border-border border-dashed">
+                                            <i data-lucide="book" class="w-4 h-4 text-muted-foreground"></i>
+                                        </div>
+                                    @endif
+                                    <div class="flex-1 min-w-0">
+                                        <h5 class="text-xs font-bold text-foreground truncate">{{ __('Ảnh giới thiệu sách') }}</h5>
+                                        <p class="text-[9px] text-muted-foreground">{{ __('Tỷ lệ 3:4 khuyên dùng') }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1.5" x-data="{ fileName: '', previewUrl: '{{ $currentBookIntroImg ? asset('storage/' . $currentBookIntroImg) : '' }}', removeBookIntro: false }">
+                                    <label class="text-[9px] font-bold text-muted-foreground uppercase tracking-wide">{{ __('Chọn ảnh mới') }}</label>
+                                    <div class="flex items-center gap-1.5">
+                                        <label class="flex-1 flex items-center gap-1.5 px-2.5 h-9 bg-background border border-border border-dashed rounded-sm cursor-pointer hover:bg-muted/50 transition-all group">
+                                            <i data-lucide="cloud-upload" class="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors flex-shrink-0"></i>
+                                            <span class="text-xs text-muted-foreground group-hover:text-foreground truncate" x-text="fileName || 'Chọn...'"></span>
+                                            <input type="file" name="book_intro_image" accept="image/*" class="hidden"
+                                                   @change="fileName = $event.target.files[0]?.name; previewUrl = URL.createObjectURL($event.target.files[0]); removeBookIntro = false">
+                                        </label>
+                                        @if($currentBookIntroImg)
+                                            <button type="button" @click="removeBookIntro = !removeBookIntro; previewUrl = removeBookIntro ? '' : '{{ asset('storage/' . $currentBookIntroImg) }}'"
+                                                    class="w-9 h-9 flex items-center justify-center rounded-sm transition-all border border-border"
+                                                    :class="removeBookIntro ? 'bg-red-500/10 text-red-600' : 'bg-background hover:bg-muted'">
+                                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                                            </button>
+                                            <input type="hidden" name="remove_book_intro" :value="removeBookIntro ? 1 : 0">
+                                        @endif
+                                    </div>
+                                    <template x-if="previewUrl">
+                                        <div class="flex items-center gap-1.5 p-1.5 bg-muted/30 rounded border border-border text-[9px] text-muted-foreground">
+                                            <img :src="previewUrl" class="h-8 w-6 object-contain rounded border border-border bg-background">
+                                            <span>Xem trước</span>
+                                        </div>
+                                    </template>
+                                </div>
                             </div>
                         </div>
 

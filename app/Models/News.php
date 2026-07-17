@@ -29,6 +29,10 @@ class News extends Model
         'like_count',
         'comment_count',
         'language',
+        'customer_id',
+        'article_type_id',
+        'news_author_id',
+        'old_item_id',
         'meta_title',
         'meta_description',
         'meta_keywords'
@@ -61,6 +65,21 @@ class News extends Model
     public function author()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function articleType()
+    {
+        return $this->belongsTo(NewsArticleType::class, 'article_type_id');
+    }
+
+    public function newsAuthor()
+    {
+        return $this->belongsTo(NewsAuthor::class, 'news_author_id');
+    }
+
+    public function media()
+    {
+        return $this->hasMany(NewsMedia::class, 'news_id');
     }
 
     public function tags()

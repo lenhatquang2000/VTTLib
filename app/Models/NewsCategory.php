@@ -18,6 +18,7 @@ class NewsCategory extends Model
         'sort_order',
         'is_active',
         'language',
+        'customer_id',
         'meta_title',
         'meta_description'
     ];
